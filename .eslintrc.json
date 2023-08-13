@@ -1,0 +1,189 @@
+{
+  "root": true,
+  "ignorePatterns": ["projects/**/*"],
+  "plugins": [
+    "prettier",
+    "@typescript-eslint/eslint-plugin",
+    "simple-import-sort",
+    "import"
+  ],
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": ""
+      }
+    }
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.js"],
+      "parserOptions": {
+        "project": ["tsconfig.json"],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "plugin:@angular-eslint/recommended",
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:@typescript-eslint/strict",
+        "plugin:import/recommended",
+        "plugin:import/typescript",
+        "plugin:prettier/recommended"
+      ],
+      "rules": {
+        // Problems
+        "arrow-body-style": "error",
+        "block-scoped-var": "error",
+        "consistent-return": "error",
+        "curly": "error",
+        "eqeqeq": "error",
+        "no-confusing-arrow": ["error", { "allowParens": false }],
+        "no-console": "warn",
+        "no-eq-null": "error",
+        "no-extend-native": "error",
+        "no-extra-bind": "error",
+        "no-extra-label": "error",
+        "no-invalid-this": "error",
+        "no-lone-blocks": "error",
+        "no-lonely-if": "error",
+        "no-magic-numbers": "off", // replaced by @typescript-eslint/no-magic-numbers
+        "no-multi-assign": "error",
+        "no-new": "error",
+        "no-new-func": "error",
+        "no-new-object": "error",
+        "no-new-wrappers": "error",
+        "no-octal-escape": "error",
+        "no-param-reassign": "error",
+        "no-sequences": "error",
+        "no-shadow": "off", // replaced by @typescript-eslint/no-shadow rule below
+        "no-throw-literal": "error",
+        "no-undef-init": "error",
+        "no-useless-computed-key": "error",
+        "no-useless-concat": "error",
+        "no-useless-rename": "error",
+        "no-useless-return": "error",
+        "no-var": "error",
+        "no-void": "error",
+        "object-shorthand": "error",
+        "prefer-arrow-callback": "error",
+        "prefer-const": "error",
+        "prefer-exponentiation-operator": "error",
+        "prefer-object-has-own": "error",
+        "prefer-object-spread": "warn",
+        "prefer-promise-reject-errors": "error",
+        "prefer-regex-literals": "error",
+        "prefer-rest-params": "error",
+        "prefer-spread": "error",
+        "prefer-template": "error",
+        "radix": "warn",
+        "require-await": "error",
+        "require-unicode-regexp": "error",
+        // "sort-imports": ["error"], // Handled by import plugin
+        "spaced-comment": "error",
+        "symbol-description": "error",
+        "yoda": "error",
+        // TypeScript Checks
+        "@typescript-eslint/no-extraneous-class": [
+          "error",
+          {
+            "allowEmpty": true
+          }
+        ],
+        
+        "@typescript-eslint/consistent-type-exports": "error",
+        // "@typescript-eslint/consistent-type-imports": "error",
+        "@typescript-eslint/explicit-function-return-type": "error",
+        "@typescript-eslint/explicit-module-boundary-types": "error",
+        "@typescript-eslint/member-delimiter-style": "error",
+        // "@typescript-eslint/member-ordering": "error",
+        "@typescript-eslint/method-signature-style": "error",
+        "@typescript-eslint/naming-convention": "error",
+        "@typescript-eslint/no-confusing-void-expression": "error",
+        // "@typescript-eslint/no-implicit-any-catch": ["error", { "allowExplicitAny": true }],
+        "@typescript-eslint/no-redundant-type-constituents": "error",
+        "@typescript-eslint/no-require-imports": "error",
+        "@typescript-eslint/no-unnecessary-condition": "error",
+        "@typescript-eslint/no-unnecessary-qualifier": "error",
+        "@typescript-eslint/no-useless-empty-export": "error",
+        "@typescript-eslint/prefer-enum-initializers": "error",
+        "@typescript-eslint/prefer-optional-chain": "error",
+        "@typescript-eslint/prefer-readonly": "error",
+        "@typescript-eslint/prefer-regexp-exec": "error",
+        "@typescript-eslint/promise-function-async": "error",
+        "@typescript-eslint/require-array-sort-compare": "error",
+        "@typescript-eslint/strict-boolean-expressions": "error",
+        "@typescript-eslint/switch-exhaustiveness-check": "error",
+        "@typescript-eslint/type-annotation-spacing": "error",
+        "@typescript-eslint/typedef": "error",
+        "@typescript-eslint/no-magic-numbers": [
+          "warn",
+          {
+            "ignore": [0, 1, -1],
+            "ignoreDefaultValues": true,
+            "ignoreEnums": true,
+            "ignoreArrayIndexes": true
+          }
+        ],
+        "@typescript-eslint/no-shadow": "error",
+        "@typescript-eslint/unbound-method": [
+          // Prevents errors for Validator
+          "error",
+          {
+            "ignoreStatic": true
+          }
+        ],
+        // Imports
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error",
+        "import/no-unresolved": "error",
+        "import/first": "error",
+        "import/newline-after-import": "error",
+        "import/no-duplicates": "error",
+        // Styling
+        "array-callback-return": "error",
+        "linebreak-style": ["error", "unix"],
+        "padding-line-between-statements": "error",
+        "prettier/prettier": "error",
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "app",
+            "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "app",
+            "style": "kebab-case"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.html"],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended",
+        "plugin:prettier/recommended"
+      ],
+      "rules": {
+        "prettier/prettier": "error"
+      }
+    },
+    {
+      "files": ["*.scss", "*.css"],
+      "extends": ["plugin:prettier/recommended"],
+      "rules": {
+        "prettier/prettier": "error"
+      }
+    }
+  ]
+}
