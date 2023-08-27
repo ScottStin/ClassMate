@@ -1,0 +1,10 @@
+.login-page {
+  background-image: url('../../../assets/Background-Horizontal-1.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh; /* Ensure the background covers the entire viewport */
+  display: flex; /* Use flexbox to center content vertically and horizontally */
+  justify-content: center;
+  align-items: center;
+}

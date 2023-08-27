@@ -1,0 +1,67 @@
+
+.scene {
+    display: flex; /* Center the card */
+    justify-content: center;
+    align-items: center;
+    width: 100vw; /* Adjust as needed */
+    height: 100vh; /* Adjust as needed */
+    perspective: 600px;
+  }
+  
+  .card {
+    position: relative;
+    display: inline-block;
+    width: 400px;
+    height: 700px;
+    transform-style: preserve-3d;
+    transform-origin: center right;
+    transition: transform 1s;
+    /* border: 2px solid #ccc; */
+    box-shadow: 0 40px 60px #6b0b64;
+  }
+  
+  .card.is-flipped {
+    transform: translateX(-100%) rotateY(-180deg);
+  }
+  
+  .card__face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+  }
+  
+  .card__face--front {
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+  }
+  
+  .card__face--back {
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+    transform: rotateY(180deg);
+  }
+
+  .text-container {
+    display:block;
+    margin-top: 0px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .login-text {
+    color: white;
+    text-shadow: 2px 2px 4px #6b0b64;
+    cursor: pointer;   
+  }
+
+  .form-field {
+    width: 100%;
+  }
+
