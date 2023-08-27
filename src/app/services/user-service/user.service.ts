@@ -10,7 +10,7 @@ import { ErrorService } from '../error-message.service/error-message.service';
   providedIn: 'root',
 })
 export class UserService {
-  private readonly baseUrl = `${environment.apiUrl}/user`;
+  private readonly baseUrl = `${environment.apiUrl}/users`;
   private readonly userSubject = new BehaviorSubject<UserDTO[]>([]);
   users$ = this.userSubject.asObservable();
 

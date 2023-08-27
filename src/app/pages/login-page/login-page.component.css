@@ -3,8 +3,8 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  min-height: 100vh; /* Ensure the background covers the entire viewport */
-  display: flex; /* Use flexbox to center content vertically and horizontally */
+  min-height: 150vh; /* Ensure the background covers the entire viewport */
+  display: flex;
   justify-content: center;
   align-items: center;
 }

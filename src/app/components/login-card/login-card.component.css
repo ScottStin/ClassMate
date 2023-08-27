@@ -1,10 +1,10 @@
 
 .scene {
-    display: flex; /* Center the card */
+    display: flex;
     justify-content: center;
     align-items: center;
-    width: 100vw; /* Adjust as needed */
-    height: 100vh; /* Adjust as needed */
+    width: 100vw;
+    height: 100vh;
     perspective: 600px;
   }
   
@@ -12,12 +12,13 @@
     position: relative;
     display: inline-block;
     width: 400px;
-    height: 700px;
+    min-height: 500px;
     transform-style: preserve-3d;
     transform-origin: center right;
     transition: transform 1s;
-    /* border: 2px solid #ccc; */
     box-shadow: 0 40px 60px #6b0b64;
+    transform: scale(0.9);
+    margin-top: -200px;
   }
   
   .card.is-flipped {
@@ -27,7 +28,6 @@
   .card__face {
     position: absolute;
     width: 100%;
-    height: 100%;
     backface-visibility: hidden;
   }
   
@@ -35,7 +35,6 @@
     background: white;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     padding: 16px;
   }
   
@@ -43,7 +42,6 @@
     background: white;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     padding: 16px;
     transform: rotateY(180deg);
   }
@@ -56,12 +54,10 @@
   }
   
   .login-text {
-    color: white;
-    text-shadow: 2px 2px 4px #6b0b64;
+    margin-top: 15px;
     cursor: pointer;   
   }
 
   .form-field {
     width: 100%;
   }
-

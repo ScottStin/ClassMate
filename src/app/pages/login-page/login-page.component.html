@@ -1,6 +1,7 @@
 <div class="login-page">
   <app-login-card
     [title]="isFlipped ? 'login' : 'signup'"
+    [users]="users$ | async"
     (cardFlipped)="onCardFlipped($event)"
     (signup)="signup($event)"
   ></app-login-card>

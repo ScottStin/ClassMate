@@ -6,7 +6,9 @@
       <mat-card-header>
         <mat-card-title>{{title | titlecase}}</mat-card-title>
       </mat-card-header>
-      <img mat-card-image [src]="studentPhotoSrc" alt="Login Photo" />
+      <div class="image-container">
+        <img mat-card-image [src]="studentPhotoSrc" alt="Login Photo" />
+      </div>
       <mat-card-content>
         <div [formGroup]="loginForm">
           <mat-form-field
@@ -101,7 +103,7 @@
               matInput
               id="passwordMatchInput"
               formControlName="passwordMatchInput"
-              type="password"
+              [type]="hidePassword ? 'password' : 'text'"
               placeholder="Re-enter your password"
               [required]="title === 'signup'"
             />
@@ -130,14 +132,14 @@
       >
         Login
       </button>
+      <div class="text-container" (click)="toggleCardFlip()">
+        <h6 *ngIf="title === 'signup'" class="login-text">
+          Already have an account? Click <b>here</b> to login.
+        </h6>
+        <h6 *ngIf="title === 'login' " class="login-text">
+          New user? Click <b>here</b> to sign up.
+        </h6>
+      </div>
     </mat-card>
   </div>
-</div>
-<div class="text-container" (click)="toggleCardFlip()">
-  <h2 *ngIf="title === 'signup'" class="login-text">
-    Already have an account? Click here to login.
-  </h2>
-  <h2 *ngIf="title === 'login' " class="login-text">
-    New user? Click here to sign up.
-  </h2>
 </div>

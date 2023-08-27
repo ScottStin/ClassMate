@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { first, Observable } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -9,15 +10,21 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css'],
 })
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
   error!: Error;
   isFlipped = false;
+  users$!: Observable<UserDTO[]>;
+  usersLoading = true;
 
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService
   ) {}
+
+  ngOnInit(): void {
+    this.getUsers();
+  }
 
   async onCardFlipped(isFlipped: boolean): Promise<void> {
     this.isFlipped = isFlipped;
@@ -26,6 +33,31 @@ export class LoginPageComponent {
     } else {
       await this.router.navigateByUrl('student/login');
     }
+  }
+
+  getUsers(): void {
+    this.usersLoading = true;
+    this.users$ = this.userService.users$;
+    this.userService.getAll().subscribe({
+      next: (res) => {
+        console.log(res);
+        this.usersLoading = false;
+      },
+      error: (error: Error) => {
+        const snackbar = this.snackbarService.openPermanent(
+          'error',
+          'Error: Failed to load page.',
+          'retry'
+        );
+        console.log(error);
+        snackbar
+          .onAction()
+          .pipe(first())
+          .subscribe(() => {
+            this.getUsers();
+          });
+      },
+    });
   }
 
   signup(user: UserDTO): void {

@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -16,8 +24,9 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './login-card.component.html',
   styleUrls: ['./login-card.component.css'],
 })
-export class LoginCardComponent implements OnInit {
+export class LoginCardComponent implements OnInit, OnChanges {
   @Input() title!: string;
+  @Input() users!: UserDTO[] | null;
   @Output() cardFlipped = new EventEmitter<boolean>();
   @Output() signup = new EventEmitter<UserDTO>();
   countryList = countryList;
@@ -60,7 +69,14 @@ export class LoginCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.users?.map((user: UserDTO) => user.email);
     this.populateForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('title' in changes) {
+      this.populateForm();
+    }
   }
 
   populateForm(): void {
@@ -144,6 +160,13 @@ export class LoginCardComponent implements OnInit {
       const value = control.value as string;
       if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/u.test(value)) {
         return { invalidEmail: true }; // check if email is valid
+      }
+      if (this.users && this.title === 'signup') {
+        if (this.users.map((user: UserDTO) => user.email).includes(value)) {
+          return { existingEmail: true }; // check if email already exists
+        } else {
+          return null; // email meets all conditions
+        }
       } else {
         return null; // email meets all conditions
       }
@@ -160,7 +183,7 @@ export class LoginCardComponent implements OnInit {
       package: 'casual',
       unhashedPassword: formValue.passwordInput,
       profilePicture: null,
-      schoolId: 0, // placeholder until schools are added
+      schoolId: 'YouSTUDY', // 0, // placeholder until schools are added // replace with id number
       eltComplete: false,
     };
     this.signup.emit(newUser);
