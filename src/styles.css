@@ -7,3 +7,45 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     transform: scale(1.02);
     transition: all 100ms ease-in-out;
   }
+
+/**
+ * ==============================
+ *  SnackBar
+ * ==============================
+*/
+
+/* Snackbar styles for info */
+.snackbar-info {
+  background: #03a9f4;
+  color: white;
+}
+.snackbar-info .mat-simple-snackbar-action {
+  color: white;
+}
+
+/* Snackbar styles for success */
+.snackbar-success {
+  background: #4caf50;
+  color: white;
+}
+.snackbar-success .mat-simple-snackbar-action {
+  color: white;
+}
+
+/* Snackbar styles for warn */
+.snackbar-warn {
+  background: #ff9800;
+  color: white;
+}
+.snackbar-warn .mat-simple-snackbar-action {
+  color: white;
+}
+
+/* Snackbar styles for error */
+.snackbar-error {
+  background: #ef5350;
+  color: white;
+}
+.snackbar-error .mat-simple-snackbar-action {
+  color: white;
+}

@@ -158,16 +158,20 @@ export class LoginCardComponent implements OnInit, OnChanges {
 
   wordCountValidator(minWords: number, maxWords: number): ValidatorFn {
     return (control: AbstractControl): Record<string, unknown> | null => {
-      const value = control.value as string;
-      const words = value ? value.trim().split(/\s+/u) : [];
-      const wordCount = words.length;
-      if (wordCount < minWords) {
-        return { tooFewWords: true };
+      if (this.title === 'signup' && this.userType === 'teacher') {
+        const value = control.value as string;
+        const words = value ? value.trim().split(/\s+/u) : [];
+        const wordCount = words.length;
+        if (wordCount < minWords) {
+          return { tooFewWords: true };
+        }
+        if (wordCount > maxWords) {
+          return { tooManyWords: true };
+        }
+        return null;
+      } else {
+        return null;
       }
-      if (wordCount > maxWords) {
-        return { tooManyWords: true };
-      }
-      return null;
     };
   }
 

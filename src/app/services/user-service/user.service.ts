@@ -54,6 +54,14 @@ export class UserService {
     );
   }
 
+  // login(user: UserDTO): Observable<UserDTO> {
+  //   return this.httpClient.post<UserDTO>(`${this.baseUrl}/login`, user).pipe(
+  //     catchError((error: Error) => {
+  //       this.handleError(error, 'Failed to login');
+  //     })
+  //   );
+  // }
+
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {
       throw this.errorService.handleHttpError(error);
