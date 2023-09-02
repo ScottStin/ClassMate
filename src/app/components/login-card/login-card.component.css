@@ -1,63 +1,62 @@
-
 .scene {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-    perspective: 600px;
-  }
-  
-  .card {
-    position: relative;
-    display: inline-block;
-    width: 400px;
-    min-height: 500px;
-    transform-style: preserve-3d;
-    transform-origin: center right;
-    transition: transform 1s;
-    box-shadow: 0 40px 60px #6b0b64;
-    transform: scale(0.9);
-    margin-top: -200px;
-  }
-  
-  .card.is-flipped {
-    transform: translateX(-100%) rotateY(-180deg);
-  }
-  
-  .card__face {
-    position: absolute;
-    width: 100%;
-    backface-visibility: hidden;
-  }
-  
-  .card__face--front {
-    background: white;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-  }
-  
-  .card__face--back {
-    background: white;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    transform: rotateY(180deg);
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  perspective: 600px;
+}
 
-  .text-container {
-    display:block;
-    margin-top: 0px;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .login-text {
-    margin-top: 15px;
-    cursor: pointer;   
-  }
+.card {
+  position: relative;
+  display: inline-block;
+  width: 400px;
+  min-height: 500px;
+  transform-style: preserve-3d;
+  transform-origin: center right;
+  transition: transform 1s;
+  box-shadow: 0 40px 60px #6b0b64;
+  transform: scale(0.9);
+  margin-top: -200px;
+}
 
-  .form-field {
-    width: 100%;
-  }
+.card.is-flipped {
+  transform: translateX(-100%) rotateY(-180deg);
+}
+
+.card__face {
+  position: absolute;
+  width: 100%;
+  backface-visibility: hidden;
+}
+
+.card__face--front {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.card__face--back {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  transform: rotateY(180deg);
+}
+
+.text-container {
+  display:block;
+  margin-top: 0px;
+  display: flex;
+  justify-content: center;
+}
+
+.login-text {
+  margin-top: 15px;
+  cursor: pointer;   
+}
+
+.form-field {
+  width: 100%;
+}

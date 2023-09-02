@@ -25,3 +25,9 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## Backend
+
+1 - Open new command shell window and run mongod (from any folder).
+2 - Then open a second command shell window and run mongo (from any folder)
+3 - Open 'backend' folder and run nodemon index.js

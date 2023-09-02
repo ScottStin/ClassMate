@@ -7,7 +7,7 @@
         <mat-card-title>{{title | titlecase}}</mat-card-title>
       </mat-card-header>
       <div class="image-container">
-        <img mat-card-image [src]="studentPhotoSrc" alt="Login Photo" />
+        <img mat-card-image [src]="photoSrc" alt="Login Photo" />
       </div>
       <mat-card-content>
         <div [formGroup]="loginForm">
@@ -24,6 +24,7 @@
               type="text"
               placeholder="Enter your first and last name"
               [required]="title === 'signup'"
+              [disabled]="usersLoading"
             />
             <mat-error>
               <app-error-message
@@ -41,6 +42,7 @@
               type="email"
               placeholder="Email address (e.g. john@gmail.com)"
               required
+              [disabled]="usersLoading"
             />
             <mat-error>
               <app-error-message
@@ -54,14 +56,43 @@
             class="form-field"
             appearance="outline"
           >
-            <mat-label>Country of Origin (Optional)</mat-label>
-            <mat-select formControlName="countryInput">
+            <mat-label
+              >Country of Origin
+              <span *ngIf="userType === 'student'">(Optional)</span></mat-label
+            >
+            <mat-select
+              formControlName="countryInput"
+              [disabled]="usersLoading"
+              [required]="userType === 'teacher'"
+            >
               <mat-option value="other">Select country...</mat-option>
               <mat-option *ngFor="let country of countryList" [value]="country">
                 {{ country }}
               </mat-option>
               <mat-option value="other">OTHER</mat-option>
             </mat-select>
+          </mat-form-field>
+
+          <mat-form-field
+            *ngIf="title === 'signup' && userType === 'teacher'"
+            class="form-field"
+            appearance="outline"
+          >
+            <mat-label>Personal Statement</mat-label>
+            <textarea
+              matInput
+              id="personalStatement"
+              formControlName="personalStatement"
+              type="text"
+              placeholder="Tell your students a little bit about yourself..."
+              [required]="title === 'signup' && userType === 'teacher'"
+              [disabled]="usersLoading"
+            ></textarea>
+            <mat-error>
+              <app-error-message
+                [control]="loginForm.controls['personalStatement'].errors"
+              ></app-error-message>
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field class="form-field" appearance="outline">
@@ -73,6 +104,7 @@
               [type]="hidePassword ? 'password' : 'text'"
               placeholder="Enter your password"
               required
+              [disabled]="usersLoading"
             />
             <button
               mat-icon-button
@@ -106,6 +138,7 @@
               [type]="hidePassword ? 'password' : 'text'"
               placeholder="Re-enter your password"
               [required]="title === 'signup'"
+              [disabled]="usersLoading"
             />
             <mat-error>
               <app-error-message
@@ -141,5 +174,9 @@
         </h6>
       </div>
     </mat-card>
+    <mat-progress-bar
+      [style]="{ visibility: usersLoading ? 'visible' : 'hidden' }"
+      mode="query"
+    ></mat-progress-bar>
   </div>
 </div>

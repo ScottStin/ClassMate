@@ -14,7 +14,6 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { countryList } from 'src/app/shared/country-list';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -27,6 +26,10 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 export class LoginCardComponent implements OnInit, OnChanges {
   @Input() title!: string;
   @Input() users!: UserDTO[] | null;
+  @Input() usersLoading!: boolean;
+  @Input() userType!: string;
+  @Input() isFlipped!: boolean;
+  @Input() photoSrc!: string;
   @Output() cardFlipped = new EventEmitter<boolean>();
   @Output() signup = new EventEmitter<UserDTO>();
   countryList = countryList;
@@ -36,37 +39,12 @@ export class LoginCardComponent implements OnInit, OnChanges {
     nameInput: FormControl<string>;
     emailInput: FormControl<string>;
     countryInput: FormControl<string>;
+    personalStatement: FormControl<string>;
     passwordInput: FormControl<string>;
     passwordMatchInput: FormControl<string>;
   }>;
 
-  isFlipped = false;
-  backgroundPhoto = '../../../assets/BackgroundHorizontal-1.png';
-  studentPhotoSrc = '../../../assets/Student.png';
   formPopulated = new Subject<boolean>();
-  userType: 'student' | 'teacher' | '' = '';
-
-  constructor(private readonly router: Router) {
-    this.router.events.subscribe(() => {
-      setTimeout(() => {
-        const urlAddress: string[] = this.router.url.split('/');
-        if (urlAddress.includes('student')) {
-          this.userType = 'student';
-        }
-        if (urlAddress.includes('teacher')) {
-          this.userType = 'student';
-        }
-        if (urlAddress.includes('signup')) {
-          this.title = 'signup';
-          this.isFlipped = false;
-        }
-        if (urlAddress.includes('login')) {
-          this.title = 'login';
-          this.isFlipped = true;
-        }
-      }, 0);
-    });
-  }
 
   ngOnInit(): void {
     this.users?.map((user: UserDTO) => user.email);
@@ -91,6 +69,11 @@ export class LoginCardComponent implements OnInit, OnChanges {
       }),
       countryInput: new FormControl('', {
         validators: [],
+        nonNullable: true,
+      }),
+      personalStatement: new FormControl('', {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        validators: [this.wordCountValidator(10, 200)],
         nonNullable: true,
       }),
       passwordInput: new FormControl('', {
@@ -170,6 +153,21 @@ export class LoginCardComponent implements OnInit, OnChanges {
       } else {
         return null; // email meets all conditions
       }
+    };
+  }
+
+  wordCountValidator(minWords: number, maxWords: number): ValidatorFn {
+    return (control: AbstractControl): Record<string, unknown> | null => {
+      const value = control.value as string;
+      const words = value ? value.trim().split(/\s+/u) : [];
+      const wordCount = words.length;
+      if (wordCount < minWords) {
+        return { tooFewWords: true };
+      }
+      if (wordCount > maxWords) {
+        return { tooManyWords: true };
+      }
+      return null;
     };
   }
 

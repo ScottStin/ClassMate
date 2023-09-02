@@ -3,6 +3,12 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
+    path: 'welcome',
+    loadChildren: async () =>
+      (await import('./pages/welcome-page/welcome-page.module'))
+        .WelcomePageModule,
+  },
+  {
     path: 'student',
     loadChildren: async () =>
       (await import('./pages/login-page/login-page.module')).LoginPageModule,

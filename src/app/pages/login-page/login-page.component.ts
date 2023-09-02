@@ -15,12 +15,34 @@ export class LoginPageComponent implements OnInit {
   isFlipped = false;
   users$!: Observable<UserDTO[]>;
   usersLoading = true;
+  userType: 'student' | 'teacher' | '' = '';
+  photoSrc = '';
 
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService
-  ) {}
+  ) {
+    this.router.events.subscribe(() => {
+      setTimeout(() => {
+        const urlAddress: string[] = this.router.url.split('/');
+        if (urlAddress.includes('student')) {
+          this.userType = 'student';
+          this.photoSrc = '../../../assets/Student.png';
+        }
+        if (urlAddress.includes('teacher')) {
+          this.userType = 'teacher';
+          this.photoSrc = '../../../assets/Teacher.png';
+        }
+        if (urlAddress.includes('signup')) {
+          this.isFlipped = false;
+        }
+        if (urlAddress.includes('login')) {
+          this.isFlipped = true;
+        }
+      }, 0);
+    });
+  }
 
   ngOnInit(): void {
     this.getUsers();
@@ -29,9 +51,9 @@ export class LoginPageComponent implements OnInit {
   async onCardFlipped(isFlipped: boolean): Promise<void> {
     this.isFlipped = isFlipped;
     if (!this.isFlipped) {
-      await this.router.navigateByUrl('student/signup');
+      await this.router.navigateByUrl(`${this.userType}/signup`);
     } else {
-      await this.router.navigateByUrl('student/login');
+      await this.router.navigateByUrl(`${this.userType}/login`);
     }
   }
 

@@ -1,0 +1,19 @@
+<div class="welcome-page">
+  <div class="container" *ngFor="let imageCard of imageCards; let i = index">
+    <div
+      class="logIn-planels"
+      (mouseenter)="setHoveredElement(i)"
+      (mouseleave)="setHoveredElement(null)"
+      [ngClass]="{ 'hovered': i === hoveredElementIndex, 'not-hovered': i !== hoveredElementIndex && isAnyElementHovered }"
+    >
+      <a [routerLink]="imageCard.route">
+        <img
+          [src]="imageCard.source"
+          [alt]="imageCard.title"
+          class="logIn-img"
+        />
+      </a>
+      <h2 class="logIn-header">{{ imageCard.title }}</h2>
+    </div>
+  </div>
+</div>

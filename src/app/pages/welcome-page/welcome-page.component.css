@@ -1,0 +1,63 @@
+.welcome-page {
+    background-image: url('../../../assets/Background-Horizontal-1.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+  
+.container {
+    display: flex;
+    justify-content: space-evenly;
+    pointer-events: none;
+}
+  
+.logIn-planels {
+    background: white;
+    border-radius: 150%;
+    padding: 25px 25px;
+    width: 400px;
+    height:345px;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 1em;
+    transition: filter 500ms, Transform 500ms, box-shadow 500ms, color 500ms ease-in-out;
+    pointer-events: auto;
+}
+  
+.logIn-img {
+    padding-top:2em;
+    padding-bottom:1em;
+    height:250px;
+    width:200px;
+}
+  
+.logIn-header {
+    /* color: #888; */
+    color:purple;
+    font-weight: 600;
+    letter-spacing: 1px;
+    font-size: 25px; 
+    transition: color 500ms ease-in-out;
+}
+
+.not-hovered {
+    filter: grayscale(200%);
+    transform: scale(0.7);
+}
+
+.container:hover > .logIn-planels:hover {
+    filter:contrast(100%) brightness(100%);
+    cursor: pointer;  
+    transform:scale(1.02) translateY(-3em);
+    box-shadow: 0 5em 5em -5em;
+}
+  
+.container:hover > .logIn-planels:hover > h2{
+    color:darkorchid
+}
+
+  
