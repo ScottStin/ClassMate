@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { first, Observable } from 'rxjs';
+import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
-import { UserDTO } from 'src/app/shared/models/user.model';
+import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-login-page',
@@ -21,7 +22,8 @@ export class LoginPageComponent implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
-    private readonly snackbarService: SnackbarService
+    private readonly snackbarService: SnackbarService,
+    private readonly authenticationService: AuthenticationService
   ) {
     this.router.events.subscribe(() => {
       setTimeout(() => {
@@ -46,6 +48,10 @@ export class LoginPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.getUsers();
+    if (this.authenticationService.isAuthenticated()) {
+      const token = this.authenticationService.getToken();
+      console.log(this.authenticationService.decodeToken(token!));
+    }
   }
 
   async onCardFlipped(isFlipped: boolean): Promise<void> {
@@ -93,6 +99,20 @@ export class LoginPageComponent implements OnInit {
           message = `Thank you for joining, ${res.name}. Click the 'My Classes' tab to schedule your first lesson`;
         }
         this.snackbarService.open('info', message);
+      },
+      error: (error: Error) => {
+        this.error = error;
+        this.snackbarService.openPermanent('error', error.message);
+      },
+    });
+  }
+
+  login(userDetails: UserLoginDTO): void {
+    this.userService.login(userDetails).subscribe({
+      next: (res) => {
+        const response = res as { token: string; user: UserDTO };
+        console.log(res);
+        localStorage.setItem('token', response.token);
       },
       error: (error: Error) => {
         this.error = error;

@@ -16,7 +16,7 @@ import {
 } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { countryList } from 'src/app/shared/country-list';
-import { UserDTO } from 'src/app/shared/models/user.model';
+import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-login-card',
@@ -32,6 +32,7 @@ export class LoginCardComponent implements OnInit, OnChanges {
   @Input() photoSrc!: string;
   @Output() cardFlipped = new EventEmitter<boolean>();
   @Output() signup = new EventEmitter<UserDTO>();
+  @Output() login = new EventEmitter<UserLoginDTO>();
   countryList = countryList;
   hidePassword = true;
 
@@ -55,35 +56,59 @@ export class LoginCardComponent implements OnInit, OnChanges {
     if ('title' in changes) {
       this.populateForm();
     }
+
+    if ('usersLoading' in changes) {
+      if (!this.usersLoading) {
+        this.populateForm();
+      }
+    }
   }
 
   populateForm(): void {
     this.loginForm = new FormGroup({
-      nameInput: new FormControl('', {
-        validators: [Validators.required],
-        nonNullable: true,
-      }),
-      emailInput: new FormControl('', {
-        validators: [Validators.required, this.emailValidator()],
-        nonNullable: true,
-      }),
-      countryInput: new FormControl('', {
-        validators: [],
-        nonNullable: true,
-      }),
-      personalStatement: new FormControl('', {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        validators: [this.wordCountValidator(10, 200)],
-        nonNullable: true,
-      }),
-      passwordInput: new FormControl('', {
-        validators: [this.passwordValidator()],
-        nonNullable: true,
-      }),
-      passwordMatchInput: new FormControl('', {
-        validators: [this.passwordMatchValidator()],
-        nonNullable: true,
-      }),
+      nameInput: new FormControl(
+        { value: '', disabled: this.usersLoading },
+        {
+          validators: [],
+          nonNullable: true,
+        }
+      ),
+      emailInput: new FormControl(
+        { value: '', disabled: this.usersLoading },
+        {
+          validators: [Validators.required, this.emailValidator()],
+          nonNullable: true,
+        }
+      ),
+      countryInput: new FormControl(
+        { value: '', disabled: this.usersLoading },
+        {
+          validators: [],
+          nonNullable: true,
+        }
+      ),
+      personalStatement: new FormControl(
+        { value: '', disabled: this.usersLoading },
+        {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          validators: [this.wordCountValidator(10, 200)],
+          nonNullable: true,
+        }
+      ),
+      passwordInput: new FormControl(
+        { value: '', disabled: this.usersLoading },
+        {
+          validators: [Validators.required, this.passwordValidator()],
+          nonNullable: true,
+        }
+      ),
+      passwordMatchInput: new FormControl(
+        { value: '', disabled: this.usersLoading },
+        {
+          validators: [this.passwordMatchValidator()],
+          nonNullable: true,
+        }
+      ),
     });
     this.formPopulated.next(true);
   }
@@ -189,5 +214,13 @@ export class LoginCardComponent implements OnInit, OnChanges {
       eltComplete: false,
     };
     this.signup.emit(newUser);
+  }
+
+  loginClick(): void {
+    const formValue = this.loginForm.getRawValue();
+    this.login.emit({
+      email: formValue.emailInput,
+      unhashedPassword: formValue.passwordInput,
+    });
   }
 }

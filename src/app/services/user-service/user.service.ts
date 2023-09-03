@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { UserDTO } from 'src/app/shared/models/user.model';
+import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { ErrorService } from '../error-message.service/error-message.service';
@@ -54,13 +54,13 @@ export class UserService {
     );
   }
 
-  // login(user: UserDTO): Observable<UserDTO> {
-  //   return this.httpClient.post<UserDTO>(`${this.baseUrl}/login`, user).pipe(
-  //     catchError((error: Error) => {
-  //       this.handleError(error, 'Failed to login');
-  //     })
-  //   );
-  // }
+  login(user: UserLoginDTO): Observable<unknown> {
+    return this.httpClient.post<unknown>(`${this.baseUrl}/login`, user).pipe(
+      catchError((error: Error) => {
+        this.handleError(error, 'Failed to login');
+      })
+    );
+  }
 
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {

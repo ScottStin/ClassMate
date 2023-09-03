@@ -4,7 +4,7 @@ import { ValidationErrors } from '@angular/forms';
 @Component({
   selector: 'app-error-message',
   templateUrl: './error-message.component.html',
-  styleUrls: ['./error-message.component.scss'],
+  styleUrls: ['./error-message.component.css'],
 })
 export class ErrorMessageComponent implements OnChanges {
   @Input()

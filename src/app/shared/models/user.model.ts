@@ -20,3 +20,4 @@ export interface UserDTO {
   updatedAt?: Date | null;
 }
 
+export type UserLoginDTO = Pick<UserDTO, 'email' | 'unhashedPassword'>
