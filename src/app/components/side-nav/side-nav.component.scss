@@ -1,0 +1,35 @@
+
+@import '../../app.component.scss';
+
+@media (max-width: #{$small}) {
+  .mat-list {
+    max-width: 70px !important;
+    width: 100px !important;
+    overflow: hidden;
+    transition: all 100ms ease-in-out !important; 
+  }
+}
+
+.mat-list-item:hover {
+  background: whitesmoke;
+  cursor: pointer;
+  transform: scale(1.02);
+  transition: all 100ms ease-in-out;
+  overflow: hidden;
+  transition: all 100ms ease-in-out !important;
+}
+
+
+.mat-list-item {
+  padding-right:50px !important;
+  padding-top:10px !important;
+  padding-left:5px !important;
+}
+
+.mat-list {
+  transition: all 100ms ease-in-out !important;
+}
+
+.mat-icon {
+  padding-right:30px !important;
+}

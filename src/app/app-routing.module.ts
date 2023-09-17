@@ -19,21 +19,15 @@ const routes: Routes = [
       (await import('./pages/login-page/login-page.module')).LoginPageModule,
   },
   {
-    path: 'home',
+    path: '',
     loadChildren: async () =>
       (await import('./pages/main-page/main-page.module')).MainPageModule,
-  },
-  // Add other routes here if needed
-  {
-    path: '',
-    redirectTo: '/login',
-    pathMatch: 'full',
   },
 
   // Wildcard route for unknown paths
   {
     path: '**',
-    redirectTo: '/login',
+    redirectTo: '', // redirect to homepage
   },
 ];
 

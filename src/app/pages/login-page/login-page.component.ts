@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { first, Observable } from 'rxjs';
-import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
+// import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
@@ -22,8 +22,7 @@ export class LoginPageComponent implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
-    private readonly snackbarService: SnackbarService,
-    private readonly authenticationService: AuthenticationService
+    private readonly snackbarService: SnackbarService // private readonly authenticationService: AuthenticationService
   ) {
     this.router.events.subscribe(() => {
       setTimeout(() => {
@@ -48,10 +47,10 @@ export class LoginPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.getUsers();
-    if (this.authenticationService.isAuthenticated()) {
-      const token = this.authenticationService.getToken();
-      console.log(this.authenticationService.decodeToken(token!));
-    }
+    // if (this.authenticationService.isAuthenticated()) {
+    //   const token = this.authenticationService.getToken();
+    //   console.log(this.authenticationService.decodeToken(token!));
+    // }
   }
 
   async onCardFlipped(isFlipped: boolean): Promise<void> {
