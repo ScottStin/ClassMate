@@ -1,1 +1,13 @@
-<p>home-page works!</p>
+<mat-tab-group class="home-tab-group" mat-stretch-tabs>
+  <mat-tab
+    *ngFor="let lessonType of demoLessonTypes"
+    [label]="!mediumScreen ? lessonType.name : lessonType.shortName"
+  >
+    <div *ngFor="let lesson of demoLessons">
+      <app-lesson-card
+        [lessonTypeFilter]="lessonType"
+        [lesson]="lesson"
+        [users]="users$ | async"
+      ></app-lesson-card></div
+  ></mat-tab>
+</mat-tab-group>

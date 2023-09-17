@@ -1,0 +1,14 @@
+::ng-deep .home-tab-group .mat-tab-header {
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+  }
+
+  ::ng-deep .home-tab-group .mat-tab-label:hover {
+    transform: scale(1.1);
+    transition: all 100ms ease-in-out;
+  }
+/* 
+  ::ng-deep .home-tab-group .mat-tab-label.mat-tab-label-active {
+  } 
+*/

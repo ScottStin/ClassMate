@@ -1,0 +1,41 @@
+<mat-card class="card" *ngIf="lessonTypeFilter === lesson.type">
+  <div class="row">
+    <div class="column">
+      <div class="photo-column">
+        <img
+          *ngIf="showPhoto"
+          [src]="teacher?.profilePicture?.url"
+          alt="teacher photo"
+        />
+        <h2 *ngIf="showPhoto">{{teacher?.name}}</h2>
+      </div>
+    </div>
+    <div class="column">
+      <div class="data-column">
+        <mat-card-header>
+          <mat-card-title
+            >{{lesson.name}} <b>{{getLevels()}}</b></mat-card-title
+          >
+          <mat-divider></mat-divider>
+          <mat-card-subtitle>{{lesson.type.name}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-divider></mat-divider>
+        <mat-card-content>
+          <p>{{lesson.description}}</p>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <h5>{{getTimes()}}</h5>
+          <button
+            mat-mini-fab
+            color="primary"
+            aria-label="Example icon button with a delete icon"
+            class="button"
+            matTooltip="Click here to reserve your seat in this class"
+          >
+            <mat-icon>person_add</mat-icon>
+          </button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </div>
+</mat-card>

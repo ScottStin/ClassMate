@@ -1,18 +1,19 @@
-  
-  mat-drawer-content {
-    padding: 12px;
+  .mat-drawer-content {
+    /* padding: 12px; */
     display: flex;
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .main-page {
+  .main-page-container {
     background-image: url('../../../assets/Background-Horizontal-1.png');
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    min-height: 150vh; /* Ensure the background covers the entire viewport */
-    display: flex;
-    /* justify-content: center;
-    align-items: center; */
+    min-height: 150vh;
+    /* display: flex; */
+  }
+
+  .page-content {
+    padding:25px;
   }

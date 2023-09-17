@@ -1,9 +1,19 @@
-<mat-drawer-container class="main-page" hasBackdrop="false">
-  <mat-drawer #drawer mode="push" opened="true">
+<mat-drawer-container class="main-page-container" autosize>
+  <mat-drawer
+    #drawer
+    mode="push"
+    opened="true"
+    class="mat-drawer-content"
+    mode="side"
+    opened="true"
+  >
     <app-side-nav></app-side-nav>
   </mat-drawer>
-  <mat-drawer-content>
-    <router-outlet></router-outlet>
-    <!-- <button mat-raised-button (click)="drawer.toggle()">Toggle drawer</button> -->
-  </mat-drawer-content>
+
+  <div>
+    <app-header-card (closeSideNav)="closeSideNav()"></app-header-card>
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </mat-drawer-container>

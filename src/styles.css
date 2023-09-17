@@ -3,7 +3,13 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-.form-field:hover {
+/**
+ * ==============================
+ *  General
+ * ==============================
+*/
+
+.form-field:hover, .button:hover, .card:hover {
     transform: scale(1.02);
     transition: all 100ms ease-in-out;
   }
