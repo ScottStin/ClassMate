@@ -9,7 +9,7 @@ export class WelcomePageComponent {
   imageCards = [
     {
       source: '../../../assets/Student.png',
-      route: 'home',
+      route: '/home',
       title: 'Student',
     },
     {

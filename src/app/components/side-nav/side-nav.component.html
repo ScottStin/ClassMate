@@ -1,6 +1,9 @@
 <mat-list>
   <!-- <div mat-subheader>user image place holder</div> -->
-  <mat-list-item *ngFor="let menuItem of menuItems">
+  <mat-list-item
+    *ngFor="let menuItem of menuItems"
+    [routerLink]="menuItem.routerLink"
+  >
     <mat-icon
       matListItemIcon
       [matTooltip]="hideNavText ? menuItem.name : ''"

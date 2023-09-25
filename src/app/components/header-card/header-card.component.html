@@ -1,22 +1,36 @@
-<!-- <div class="header-container">
-  <mat-card>
-    <h1 class="text-center">Class Mate</h1>
-    <h5 class="text-center">Online English Classes, Courses and Exams</h5>
-  </mat-card>
-</div> -->
-
-<!-- <p> -->
 <mat-toolbar>
   <button
     mat-icon-button
-    class="example-icon"
+    class="button"
     aria-label="menu button"
     (click)="closeSideNavClick()"
   >
     <mat-icon>menu</mat-icon>
   </button>
-  <h1>Class Mate</h1>
+  <h1>{{breadCrumb}}</h1>
+
   <span class="spacer"></span>
+
+  <form *ngIf="searchBar" class="search-bar-form">
+    <mat-form-field class="form-field" appearance="outline">
+      <input matInput [placeholder]="searchBar" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </form>
+
+  <button
+    *ngIf="headerButton"
+    mat-raised-button
+    color="accent"
+    class="button add-lesson-button"
+    (click)="headerButtonClick()"
+  >
+    <mat-icon *ngIf="headerButtonIcon">{{headerButtonIcon}}</mat-icon
+    >{{headerButton}}
+  </button>
+
+  <span class="spacer"></span>
+
   <button
     mat-icon-button
     class="button"
@@ -26,4 +40,3 @@
     <mat-icon>exit_to_app</mat-icon>
   </button>
 </mat-toolbar>
-<!-- </p> -->

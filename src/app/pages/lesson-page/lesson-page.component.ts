@@ -8,11 +8,11 @@ import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
-  selector: 'app-home-page',
-  templateUrl: './home-page.component.html',
-  styleUrls: ['./home-page.component.css'],
+  selector: 'app-lesson-page',
+  templateUrl: './lesson-page.component.html',
+  styleUrls: ['./lesson-page.component.css'],
 })
-export class HomePageComponent implements OnInit {
+export class LessonPageComponent implements OnInit {
   mediumScreen = false;
   smallScreen = false;
   demoLessons: LessonDTO[] = demoLessons;
@@ -34,8 +34,8 @@ export class HomePageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getDemoLessons();
     this.getUsers();
+    this.getDemoLessons();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
   }
@@ -76,5 +76,19 @@ export class HomePageComponent implements OnInit {
           });
       },
     });
+  }
+
+  getLessonStatus(lessonStatus: string, lesson: LessonDTO): boolean {
+    const lessonStartTime = new Date(lesson.startTime);
+    const currentDateTime = new Date();
+    if (lessonStatus === 'Past Lessons') {
+      return lessonStartTime < currentDateTime;
+    } else {
+      return lessonStartTime > currentDateTime;
+    }
+  }
+
+  addNewLesson(): void {
+    console.log('fire');
   }
 }

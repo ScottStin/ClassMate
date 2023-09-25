@@ -1,0 +1,21 @@
+<!-- <div class="button-container">
+  <button mat-raised-button color="accent" class="add-lesson-button">
+    <mat-icon>add</mat-icon>Add New Lesson
+  </button>
+</div> -->
+<mat-tab-group class="home-tab-group" mat-stretch-tabs>
+  <mat-tab
+    *ngFor="let lessonStatus of ['Past Lessons','Upcoming Lessons']"
+    [label]="lessonStatus"
+  >
+    <div *ngFor="let lesson of demoLessons">
+      <ng-container *ngIf="getLessonStatus(lessonStatus, lesson)">
+        <app-lesson-card
+          [lessonTypeFilter]="undefined"
+          [lesson]="lesson"
+          [users]="users$ | async"
+        ></app-lesson-card>
+      </ng-container>
+    </div>
+  </mat-tab>
+</mat-tab-group>

@@ -1,0 +1,86 @@
+<div class="dialog-title-container">
+  <h2 mat-dialog-title style="padding: 15px; color: white">{{data.title}}</h2>
+</div>
+<div mat-dialog-content>
+  <div style="flex: 100%; padding-right: 20px" [formGroup]="lessonForm">
+    <div class="flex-wrap flex">
+      <div style="flex: 10%">
+        <!-- <mat-form-field appearance="fill" style="width: 10%" class="m-2">
+          <input
+            matInput
+            [matDatepicker]="picker"
+            placeholder="Choose a date"
+            formControlName="dateInput"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field> -->
+        <!-- 
+        <mat-form-field appearance="fill" style="width: 10%" class="m-2">
+          <mat-label>Start time</mat-label>
+          <input matInput formControlName="timeInput" />
+        </mat-form-field> -->
+
+        <mat-form-field appearance="outline" style="width: 20%" class="m-2">
+          <input
+            formControlName="dateInput"
+            matInput
+            type="datetime-local"
+            id="date"
+            name="date"
+            required
+          />
+          <!-- <mat-error>
+            <app-error-message
+              [control]="scheduleMessageForm.controls['onetimeSendInput'].errors"
+            ></app-error-message>
+          </mat-error> -->
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" style="width: 20%" class="m-2">
+          <mat-label>Length (min)</mat-label>
+          <input matInput formControlName="lengthInput" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" style="width: 20%" class="m-2">
+          <mat-label>Max Class Size</mat-label>
+          <input matInput formControlName="sizeInput" />
+        </mat-form-field>
+
+        <!-- <mat-form-field appearance="outline" class="m-2">
+          <mat-label>Class Type</mat-label>
+          <mat-select formControlName="typeInput">
+            <mat-option *ngFor="let type of lessonTypes" [value]="type"
+              >{{type}}</mat-option
+            >
+          </mat-select>
+        </mat-form-field> -->
+
+        <!-- <mat-form-field appearance="outline" class="m-2">
+          <mat-label>Level</mat-label>
+          <mat-select formControlName="levelInput" multiple>
+            <mat-option *ngFor="let level of levels" [value]="level"
+              >{{level}}</mat-option
+            >
+          </mat-select>
+        </mat-form-field> -->
+
+        <mat-form-field appearance="outline" class="m-2">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="descriptionInput"></textarea>
+        </mat-form-field>
+
+        <!-- <button mat-raised-button color="primary" (click)="addNewLessonRow()">
+          <fa-icon [icon]="faPlus"></fa-icon> Add
+        </button> -->
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button [mat-dialog-close]="'test'" cdkFocusInitial>Ok</button>
+</div>

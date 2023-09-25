@@ -1,4 +1,7 @@
-<mat-card class="card" *ngIf="lessonTypeFilter === lesson.type">
+<mat-card
+  class="card"
+  *ngIf="lessonTypeFilter === lesson.type || !lessonTypeFilter"
+>
   <div class="row">
     <div class="column">
       <div class="photo-column">

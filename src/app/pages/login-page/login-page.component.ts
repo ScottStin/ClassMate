@@ -47,10 +47,6 @@ export class LoginPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.getUsers();
-    // if (this.authenticationService.isAuthenticated()) {
-    //   const token = this.authenticationService.getToken();
-    //   console.log(this.authenticationService.decodeToken(token!));
-    // }
   }
 
   async onCardFlipped(isFlipped: boolean): Promise<void> {

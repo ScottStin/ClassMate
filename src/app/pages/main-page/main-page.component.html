@@ -11,7 +11,10 @@
   </mat-drawer>
 
   <div>
-    <app-header-card (closeSideNav)="closeSideNav()"></app-header-card>
+    <app-header-card
+      (closeSideNav)="closeSideNav()"
+      (headerButtonAction)="headerButtonAction($event)"
+    ></app-header-card>
     <div class="page-content">
       <router-outlet></router-outlet>
     </div>
