@@ -1,0 +1,46 @@
+@import '../../app.component.scss';
+
+@media (max-width: #{$medium}) {
+    .mat-form-field {
+    width:100% !important;
+  }
+}
+
+@media (max-width: #{$large}) {
+    .mat-form-field {
+        width:14%;
+        margin:0px !important;
+  }
+}
+
+.mat-form-field {
+    width:14%;
+    margin:1px;
+}
+
+.add-lesson-button {
+    background-color: #6200EE;
+    color: white;
+    margin-top:25px;
+}
+
+.add-lesson-button-container {    
+    flex: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.action-button {
+    transform: scale(0.8);
+}
+
+.lesson-table {
+    margin:10px;
+}
+
+mat-header-cell.mat-column-actions,
+mat-cell.mat-column-actions {
+    flex: 0 0 10px;
+    padding-right:100px;
+}

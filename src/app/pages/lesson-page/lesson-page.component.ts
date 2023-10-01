@@ -1,5 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { first, Observable } from 'rxjs';
+import { CreateLessonDialogComponent } from 'src/app/components/create-lesson-dialog/create-lesson-dialog.component';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
@@ -17,7 +19,7 @@ export class LessonPageComponent implements OnInit {
   smallScreen = false;
   demoLessons: LessonDTO[] = demoLessons;
   demoLessonTypes: LessonTypeDTO[] = demoLessonTypes;
-  users$!: Observable<UserDTO[]>;
+  users$: Observable<UserDTO[]>;
   usersLoading = true;
 
   @HostListener('window:resize', ['$event'])
@@ -30,7 +32,8 @@ export class LessonPageComponent implements OnInit {
 
   constructor(
     private readonly snackbarService: SnackbarService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -88,7 +91,18 @@ export class LessonPageComponent implements OnInit {
     }
   }
 
-  addNewLesson(): void {
-    console.log('fire');
+  createLesson(): void {
+    const dialogRef = this.dialog.open(CreateLessonDialogComponent, {
+      data: {
+        title: 'Create New Lesson',
+        rightButton: 'Create',
+        leftButton: 'Cancel',
+      },
+    });
+    dialogRef.afterClosed().subscribe((result: LessonDTO | undefined) => {
+      if (result) {
+        console.log(result);
+      }
+    });
   }
 }

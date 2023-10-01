@@ -1,4 +1,10 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -7,27 +13,48 @@ import {
   Validators,
 } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Subject } from 'rxjs';
-import { LessonDTO } from 'src/app/shared/models/lesson.model';
+import { demoLessonTypes, demoLevels } from 'src/app/shared/demo-data';
+import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 
 @Component({
   selector: 'app-create-lesson-dialog',
   templateUrl: './create-lesson-dialog.component.html',
-  styleUrls: ['./create-lesson-dialog.component.css'],
+  styleUrls: ['./create-lesson-dialog.component.scss'],
 })
-export class CreateLessonDialogComponent implements OnInit {
-  lessonForm!: FormGroup<{
+export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<LessonDTO>;
+
+  lessonForm: FormGroup<{
     nameInput: FormControl<string>;
+    descriptionInput: FormControl<string>;
     dateInput: FormControl<string>;
-    typeInput: FormControl<string[]>;
-    timeInput: FormControl<string>;
+    typeInput: FormControl<LessonTypeDTO | null>;
     sizeInput: FormControl<number>;
     lengthInput: FormControl<number>;
-    levelInput: FormControl<string>;
-    descriptionInput: FormControl<string>;
+    levelInput: FormControl<string[]>;
   }>;
 
   formPopulated = new Subject<boolean>();
+  demoLessonTypes = demoLessonTypes;
+  demoLevels = demoLevels;
+  lessons: LessonDTO[] | undefined = [];
+  displayedColumns = [
+    'startTime',
+    'name',
+    'description',
+    'duration',
+    'maxStudents',
+    'type',
+    'level',
+    'actions',
+  ];
+  dataSource?: MatTableDataSource<LessonDTO> | undefined;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -40,16 +67,129 @@ export class CreateLessonDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // this.populateForm();
+    this.populateForm();
+    this.dataSource = new MatTableDataSource<LessonDTO>(this.lessons ?? []);
   }
 
-  // populateForm(): void {
-  //   this.lessonForm = new FormGroup({
-  //     nameInput: new FormControl(this.data.body?.name ?? '', {
-  //       validators: [Validators.required],
-  //       nonNullable: true,
-  //     }),
-  //   });
-  //   this.formPopulated.next(true);
-  // }
+  ngAfterViewInit(): void {
+    this.updateTable();
+  }
+
+  updateTable(): void {
+    if (this.dataSource && this.lessons && this.lessons.length > 0) {
+      this.dataSource.data = this.lessons;
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+      this.table.dataSource = this.dataSource;
+      this.dataSource.sortingDataAccessor =
+        this.lessonSortingDataAccessor.bind(this);
+    }
+  }
+
+  private lessonSortingDataAccessor(
+    tableData: LessonDTO,
+    property: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): any {
+    switch (property) {
+      case 'startTime':
+        return tableData.startTime;
+      case 'name':
+        return tableData.name;
+      case 'description':
+        return tableData.description;
+      case 'duration':
+        return tableData.duration;
+      case 'maxStudents':
+        return tableData.maxStudents;
+      case 'type':
+        return tableData.type;
+      case 'level':
+        return tableData.level;
+      default:
+        return '';
+    }
+  }
+
+  populateForm(): void {
+    const maxDescriptionLength = 100;
+    const maxNameLength = 50;
+    this.lessonForm = new FormGroup({
+      nameInput: new FormControl(this.data.body?.name ?? '', {
+        validators: [Validators.required, Validators.maxLength(maxNameLength)],
+        nonNullable: true,
+      }),
+      descriptionInput: new FormControl(this.data.body?.description ?? '', {
+        validators: [
+          Validators.required,
+          Validators.maxLength(maxDescriptionLength),
+        ],
+        nonNullable: true,
+      }),
+      dateInput: new FormControl(this.data.body?.startTime ?? '', {
+        validators: [Validators.required, this.dateValidator()],
+        nonNullable: true,
+      }),
+      typeInput: new FormControl(this.data.body?.type ?? null, {
+        validators: [Validators.required],
+        nonNullable: false,
+      }),
+      sizeInput: new FormControl(this.data.body?.maxStudents ?? NaN, {
+        validators: [Validators.required],
+        nonNullable: true,
+      }),
+      lengthInput: new FormControl(this.data.body?.duration ?? NaN, {
+        validators: [Validators.required],
+        nonNullable: true,
+      }),
+      levelInput: new FormControl(this.data.body?.level ?? [], {
+        validators: [Validators.required],
+        nonNullable: true,
+      }),
+    });
+    this.formPopulated.next(true);
+  }
+
+  addNewLessonRow(): void {
+    const formValue = this.lessonForm.getRawValue();
+    this.lessons?.push({
+      teacher: 'elvispresley@gmail.com',
+      startTime: formValue.dateInput,
+      maxStudents: formValue.sizeInput,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      type: formValue.typeInput!,
+      level: formValue.levelInput,
+      name: formValue.nameInput,
+      duration: formValue.lengthInput,
+      description: formValue.descriptionInput,
+      disableFirtsLesson: false,
+      studentsEnrolled: [],
+      casualPrice: 0,
+    });
+    if (this.dataSource && this.lessons && this.lessons.length > 0) {
+      this.updateTable();
+    }
+  }
+
+  removeLesson(lesson: LessonDTO): void {
+    console.log(lesson);
+    if (this.lessons) {
+      const index = this.lessons.indexOf(lesson);
+      if (index !== -1) {
+        this.lessons.splice(index, 1);
+      }
+    }
+    this.updateTable();
+  }
+
+  dateValidator(): ValidatorFn {
+    return (control: AbstractControl): Record<string, unknown> | null => {
+      const value = control.value as string;
+      if (new Date().getTime() > new Date(value).getTime()) {
+        return { oldDate: control.value };
+      } else {
+        return null;
+      }
+    };
+  }
 }

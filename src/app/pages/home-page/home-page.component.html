@@ -1,22 +1,29 @@
-<mat-tab-group class="home-tab-group" mat-stretch-tabs>
-  <mat-tab *ngIf="!mediumScreen" label="All">
-    <div *ngFor="let lesson of demoLessons">
-      <app-lesson-card
-        [lessonTypeFilter]="undefined"
-        [lesson]="lesson"
-        [users]="users$ | async"
-      ></app-lesson-card>
-    </div>
-  </mat-tab>
-  <mat-tab
-    *ngFor="let lessonType of demoLessonTypes"
-    [label]="!smallScreen ? lessonType.name : lessonType.shortName"
-  >
-    <div *ngFor="let lesson of demoLessons">
-      <app-lesson-card
-        [lessonTypeFilter]="lessonType"
-        [lesson]="lesson"
-        [users]="users$ | async"
-      ></app-lesson-card></div
-  ></mat-tab>
-</mat-tab-group>
+<app-header-card></app-header-card>
+<mat-progress-bar
+  [style]="{ visibility: usersLoading ? 'visible' : 'hidden' }"
+  mode="query"
+></mat-progress-bar>
+<div class="page-content">
+  <mat-tab-group class="home-tab-group" mat-stretch-tabs>
+    <mat-tab *ngIf="!mediumScreen" label="All">
+      <div *ngFor="let lesson of demoLessons">
+        <app-lesson-card
+          [lessonTypeFilter]="undefined"
+          [lesson]="lesson"
+          [users]="users$ | async"
+        ></app-lesson-card>
+      </div>
+    </mat-tab>
+    <mat-tab
+      *ngFor="let lessonType of demoLessonTypes"
+      [label]="!smallScreen ? lessonType.name : lessonType.shortName"
+    >
+      <div *ngFor="let lesson of demoLessons">
+        <app-lesson-card
+          [lessonTypeFilter]="lessonType"
+          [lesson]="lesson"
+          [users]="users$ | async"
+        ></app-lesson-card></div
+    ></mat-tab>
+  </mat-tab-group>
+</div>

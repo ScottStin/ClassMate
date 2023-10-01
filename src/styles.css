@@ -18,6 +18,19 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   background-color: #6200EE;
 }
 
+.mat-dialog-title {
+  padding: 15px; 
+  color: white;
+}
+
+.page-content {
+  padding:25px;
+}
+
+.table-row:hover {
+  background: whitesmoke;
+}
+
 /**
  * ==============================
  *  SnackBar

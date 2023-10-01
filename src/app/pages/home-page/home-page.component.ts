@@ -17,7 +17,7 @@ export class HomePageComponent implements OnInit {
   smallScreen = false;
   demoLessons: LessonDTO[] = demoLessons;
   demoLessonTypes: LessonTypeDTO[] = demoLessonTypes;
-  users$!: Observable<UserDTO[]>;
+  users$: Observable<UserDTO[]>;
   usersLoading = true;
 
   @HostListener('window:resize', ['$event'])

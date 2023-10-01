@@ -68,6 +68,9 @@ export class ErrorMessageComponent implements OnChanges {
       case 'tooManyWords':
         return 'Too many words';
 
+      case 'oldDate':
+        return 'Date must not be in the past';
+
       default:
         return 'Unknown error';
     }

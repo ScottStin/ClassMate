@@ -12,9 +12,9 @@ import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
   styleUrls: ['./login-page.component.css'],
 })
 export class LoginPageComponent implements OnInit {
-  error!: Error;
+  error: Error;
   isFlipped = false;
-  users$!: Observable<UserDTO[]>;
+  users$: Observable<UserDTO[]>;
   usersLoading = true;
   userType: 'student' | 'teacher' | '' = '';
   photoSrc = '';

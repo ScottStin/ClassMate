@@ -29,8 +29,13 @@
     flex: 1 1 auto;
   }
 
-  .add-lesson-button {
+  .action-button {
     margin:20px;
+  }
+
+  .action-button {
+    background-color: #6200EE;
+    color: white;
   }
 /*   
   .form-field {

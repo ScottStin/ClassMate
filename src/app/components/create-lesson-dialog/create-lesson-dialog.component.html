@@ -1,30 +1,11 @@
 <div class="dialog-title-container">
-  <h2 mat-dialog-title style="padding: 15px; color: white">{{data.title}}</h2>
+  <h2 mat-dialog-title>{{data.title}}</h2>
 </div>
 <div mat-dialog-content>
   <div style="flex: 100%; padding-right: 20px" [formGroup]="lessonForm">
     <div class="flex-wrap flex">
       <div style="flex: 10%">
-        <!-- <mat-form-field appearance="fill" style="width: 10%" class="m-2">
-          <input
-            matInput
-            [matDatepicker]="picker"
-            placeholder="Choose a date"
-            formControlName="dateInput"
-          />
-          <mat-datepicker-toggle
-            matSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field> -->
-        <!-- 
-        <mat-form-field appearance="fill" style="width: 10%" class="m-2">
-          <mat-label>Start time</mat-label>
-          <input matInput formControlName="timeInput" />
-        </mat-form-field> -->
-
-        <mat-form-field appearance="outline" style="width: 20%" class="m-2">
+        <mat-form-field appearance="outline">
           <input
             formControlName="dateInput"
             matInput
@@ -33,54 +14,253 @@
             name="date"
             required
           />
-          <!-- <mat-error>
+          <mat-error>
             <app-error-message
-              [control]="scheduleMessageForm.controls['onetimeSendInput'].errors"
+              [control]="lessonForm.controls['dateInput'].errors"
             ></app-error-message>
-          </mat-error> -->
+          </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" style="width: 20%" class="m-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Lesson name</mat-label>
+          <input matInput formControlName="nameInput" />
+          <mat-error>
+            <app-error-message
+              [control]="lessonForm.controls['nameInput'].errors"
+            ></app-error-message>
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
           <mat-label>Length (min)</mat-label>
-          <input matInput formControlName="lengthInput" />
+          <input matInput formControlName="lengthInput" type="number" />
+          <mat-error>
+            <app-error-message
+              [control]="lessonForm.controls['lengthInput'].errors"
+            ></app-error-message>
+          </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" style="width: 20%" class="m-2">
+        <mat-form-field appearance="outline">
           <mat-label>Max Class Size</mat-label>
-          <input matInput formControlName="sizeInput" />
+          <input matInput formControlName="sizeInput" type="number" />
+          <mat-error>
+            <app-error-message
+              [control]="lessonForm.controls['sizeInput'].errors"
+            ></app-error-message>
+          </mat-error>
         </mat-form-field>
 
-        <!-- <mat-form-field appearance="outline" class="m-2">
+        <mat-form-field appearance="outline">
           <mat-label>Class Type</mat-label>
           <mat-select formControlName="typeInput">
-            <mat-option *ngFor="let type of lessonTypes" [value]="type"
-              >{{type}}</mat-option
+            <mat-option *ngFor="let type of demoLessonTypes" [value]="type"
+              >{{type.name}}</mat-option
             >
           </mat-select>
-        </mat-form-field> -->
+          <mat-error>
+            <app-error-message
+              [control]="lessonForm.controls['typeInput'].errors"
+            ></app-error-message>
+          </mat-error>
+        </mat-form-field>
 
-        <!-- <mat-form-field appearance="outline" class="m-2">
+        <mat-form-field appearance="outline">
           <mat-label>Level</mat-label>
           <mat-select formControlName="levelInput" multiple>
-            <mat-option *ngFor="let level of levels" [value]="level"
+            <mat-option *ngFor="let level of demoLevels" [value]="level"
               >{{level}}</mat-option
             >
           </mat-select>
-        </mat-form-field> -->
-
-        <mat-form-field appearance="outline" class="m-2">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="descriptionInput"></textarea>
+          <mat-error>
+            <app-error-message
+              [control]="lessonForm.controls['levelInput'].errors"
+            ></app-error-message>
+          </mat-error>
         </mat-form-field>
 
-        <!-- <button mat-raised-button color="primary" (click)="addNewLessonRow()">
-          <fa-icon [icon]="faPlus"></fa-icon> Add
-        </button> -->
+        <mat-form-field appearance="outline">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="descriptionInput"></textarea>
+          <mat-error>
+            <app-error-message
+              [control]="lessonForm.controls['descriptionInput'].errors"
+            ></app-error-message>
+          </mat-error>
+        </mat-form-field>
+
+        <div class="add-lesson-button-container">
+          <button
+            mat-raised-button
+            class="add-lesson-button"
+            (click)="addNewLessonRow()"
+            [disabled]="this.lessonForm.invalid"
+          >
+            <mat-icon>add</mat-icon> Add Lesson
+          </button>
+        </div>
       </div>
     </div>
+  </div>
+  <div
+    class="lesson-table mat-elevation-z1"
+    *ngIf="lessons && lessons.length > 0"
+  >
+    <mat-table
+      matSort
+      aria-label="lessons"
+      matSortActive="date"
+      matSortDirection="asc"
+    >
+      <!-- Date Column -->
+      <ng-container matColumnDef="startTime">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Start Date/Time
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span>{{ row.startTime }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Name
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span>{{ row.name }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Length Column -->
+      <ng-container matColumnDef="duration">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Length
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span>{{ row.duration }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Size Column -->
+      <ng-container matColumnDef="maxStudents">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Size
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span>{{ row.maxStudents }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Type Column -->
+      <ng-container matColumnDef="type">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Type
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span>{{ row.type.name }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Level Column -->
+      <ng-container matColumnDef="level">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          level
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span *ngFor="let item of row.level; let last = last">
+            {{ item }}{{ !last ? ', ' : '' }}
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Description Column -->
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Description
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span>{{ row.description }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <button
+            #tooltip="matTooltip"
+            matTooltip="Edit lesson"
+            mat-mini-fab
+            style="background-color: orange"
+            class="button action-button"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            #tooltip="matTooltip"
+            matTooltip="Remove lesson"
+            mat-mini-fab
+            style="background-color: red"
+            class="button action-button"
+            (click)="removeLesson(row)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+          <!-- <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item>
+              <mat-icon>edit</mat-icon> <span>Edit</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>delete</mat-icon><span> Delete</span>
+            </button>
+          </mat-menu> -->
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="table-row"
+      ></mat-row>
+
+      <!-- Zero data row -->
+      <!-- <ng-container *ngIf="lessons !== null">
+        <tr class="mat-row no-data-row" *matNoDataRow>
+          <td class="mat-cell">
+            <ng-container *ngIf="lessons.length === 0">
+              No lessons added yet
+            </ng-container>
+            <ng-container *ngIf="lessons.length > 0">
+              No lessons matched the filters
+            </ng-container>
+          </td>
+        </tr>
+      </ng-container> -->
+    </mat-table>
+
+    <!-- <mat-paginator
+      #paginator
+      showFirstLastButtons
+      [length]="lessons.length"
+      [pageIndex]="0"
+      [pageSizeOptions]="[10, 20, 50]"
+      aria-label="Select page"
+    >
+    </mat-paginator> -->
   </div>
 </div>
 <div mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button [mat-dialog-close]="'test'" cdkFocusInitial>Ok</button>
+  <button
+    mat-button
+    [mat-dialog-close]="'test'"
+    cdkFocusInitial
+    [disabled]="lessons?.length===0"
+  >
+    Ok
+  </button>
 </div>

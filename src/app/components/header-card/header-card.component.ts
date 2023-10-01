@@ -10,7 +10,7 @@ import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
 })
 export class HeaderCardComponent implements OnInit {
   @Output() closeSideNav = new EventEmitter();
-  @Output() headerButtonAction = new EventEmitter<string>();
+  @Output() headerButtonAction = new EventEmitter();
   breadCrumb: string | undefined = '';
   searchBar: string | undefined = '';
   headerButton: string | undefined = '';
@@ -44,6 +44,6 @@ export class HeaderCardComponent implements OnInit {
   }
 
   headerButtonClick(): void {
-    this.headerButtonAction.emit(this.headerButtonFunction);
+    this.headerButtonAction.emit();
   }
 }
