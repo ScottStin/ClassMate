@@ -21,14 +21,15 @@
 .add-lesson-button {
     background-color: #6200EE;
     color: white;
-    margin-top:25px;
 }
 
-.add-lesson-button-container {    
+.lesson-button-container {    
     flex: 10%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center;    
+    margin-top:25px;
+    margin-bottom:25px;
 }
 
 .action-button {

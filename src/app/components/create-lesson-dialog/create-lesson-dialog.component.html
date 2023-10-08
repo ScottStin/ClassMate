@@ -2,21 +2,59 @@
   <h2 mat-dialog-title>{{data.title}}</h2>
 </div>
 <div mat-dialog-content>
+  <div class="lesson-button-container">
+    <mat-button-toggle-group
+      #group="matButtonToggleGroup"
+      [value]="lessonDateMode"
+      (change)="onFormTypeChange(group.value)"
+    >
+      <mat-button-toggle value="individual"
+        >Add Individual Lessons</mat-button-toggle
+      >
+      <mat-button-toggle value="scheduled"
+        >Add Lesson Schedule</mat-button-toggle
+      >
+    </mat-button-toggle-group>
+  </div>
   <div style="flex: 100%; padding-right: 20px" [formGroup]="lessonForm">
+    <div class="lesson-button-container">
+      <cron-editor
+        *ngIf="lessonDateMode ==='scheduled'"
+        formControlName="cronForm"
+        [options]="cronOptions"
+      ></cron-editor>
+    </div>
+
     <div class="flex-wrap flex">
       <div style="flex: 10%">
-        <mat-form-field appearance="outline">
+        <mat-form-field
+          appearance="outline"
+          *ngIf="lessonDateMode ==='scheduled'"
+        >
+          <mat-label>Weeks</mat-label>
+          <input matInput formControlName="cyclesInput" type="number" />
+          <mat-error>
+            <app-error-message
+              [control]="lessonDateMode ==='scheduled' ? lessonForm.controls['cyclesInput'].errors : null"
+            ></app-error-message>
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          *ngIf="lessonDateMode ==='individual'"
+        >
           <input
             formControlName="dateInput"
             matInput
             type="datetime-local"
             id="date"
             name="date"
-            required
+            [required]="lessonDateMode ==='individual'"
           />
           <mat-error>
             <app-error-message
-              [control]="lessonForm.controls['dateInput'].errors"
+              [control]="lessonDateMode ==='individual' ? lessonForm.controls['dateInput'].errors : null"
             ></app-error-message>
           </mat-error>
         </mat-form-field>
@@ -89,7 +127,7 @@
           </mat-error>
         </mat-form-field>
 
-        <div class="add-lesson-button-container">
+        <div class="lesson-button-container">
           <button
             mat-raised-button
             class="add-lesson-button"

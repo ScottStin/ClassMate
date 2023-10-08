@@ -16,6 +16,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { CronOptions } from 'ngx-cron-editor';
 import { Subject } from 'rxjs';
 import { demoLessonTypes, demoLevels } from 'src/app/shared/demo-data';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
@@ -33,12 +34,30 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   lessonForm: FormGroup<{
     nameInput: FormControl<string>;
     descriptionInput: FormControl<string>;
-    dateInput: FormControl<string>;
+    dateInput: FormControl<string | null>;
+    cronForm: FormControl<string>;
+    cyclesInput: FormControl<number>;
     typeInput: FormControl<LessonTypeDTO | null>;
     sizeInput: FormControl<number>;
     lengthInput: FormControl<number>;
     levelInput: FormControl<string[]>;
   }>;
+
+  public cronOptions: CronOptions = {
+    defaultTime: '00:00:00',
+    hideMinutesTab: true,
+    hideHourlyTab: true,
+    hideDailyTab: false,
+    hideWeeklyTab: false,
+    hideMonthlyTab: true,
+    hideYearlyTab: true,
+    hideAdvancedTab: true,
+    hideSpecificWeekDayTab: false,
+    hideSpecificMonthWeekTab: false,
+    use24HourTime: true,
+    hideSeconds: true,
+    cronFlavor: 'quartz', // standard or quartz
+  };
 
   formPopulated = new Subject<boolean>();
   demoLessonTypes = demoLessonTypes;
@@ -55,6 +74,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     'actions',
   ];
   dataSource?: MatTableDataSource<LessonDTO> | undefined;
+  public lessonDateMode: string;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -69,6 +89,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.populateForm();
     this.dataSource = new MatTableDataSource<LessonDTO>(this.lessons ?? []);
+    this.lessonDateMode = 'individual';
   }
 
   ngAfterViewInit(): void {
@@ -127,7 +148,15 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         nonNullable: true,
       }),
       dateInput: new FormControl(this.data.body?.startTime ?? '', {
-        validators: [Validators.required, this.dateValidator()],
+        validators: [this.dateValidator()],
+        nonNullable: false,
+      }),
+      cronForm: new FormControl('0 0 1/1 * *', {
+        validators: [Validators.required],
+        nonNullable: true,
+      }),
+      cyclesInput: new FormControl(NaN, {
+        validators: [Validators.required],
         nonNullable: true,
       }),
       typeInput: new FormControl(this.data.body?.type ?? null, {
@@ -152,9 +181,11 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
 
   addNewLessonRow(): void {
     const formValue = this.lessonForm.getRawValue();
+    console.log(formValue.cronForm);
     this.lessons?.push({
       teacher: 'elvispresley@gmail.com',
-      startTime: formValue.dateInput,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      startTime: formValue.dateInput!,
       maxStudents: formValue.sizeInput,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       type: formValue.typeInput!,
@@ -172,7 +203,6 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   removeLesson(lesson: LessonDTO): void {
-    console.log(lesson);
     if (this.lessons) {
       const index = this.lessons.indexOf(lesson);
       if (index !== -1) {
@@ -182,11 +212,22 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     this.updateTable();
   }
 
+  onFormTypeChange(val: string): void {
+    this.lessonDateMode = val;
+    this.dateValidator();
+  }
+
   dateValidator(): ValidatorFn {
     return (control: AbstractControl): Record<string, unknown> | null => {
       const value = control.value as string;
-      if (new Date().getTime() > new Date(value).getTime()) {
-        return { oldDate: control.value };
+      if (this.lessonDateMode === 'individual') {
+        if (new Date().getTime() > new Date(value).getTime()) {
+          return { oldDate: control.value };
+        } else if (!value) {
+          return { required: control.value };
+        } else {
+          return null;
+        }
       } else {
         return null;
       }
