@@ -1,6 +1,6 @@
 <mat-card
   class="card"
-  *ngIf="lessonTypeFilter === lesson.type || !lessonTypeFilter"
+  *ngIf="lesson && (lessonTypeFilter?.name === lesson.type.name || !lessonTypeFilter)"
 >
   <div class="row">
     <div class="column">

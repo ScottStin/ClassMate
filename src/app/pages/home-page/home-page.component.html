@@ -1,13 +1,14 @@
 <app-header-card></app-header-card>
 <mat-progress-bar
-  [style]="{ visibility: usersLoading ? 'visible' : 'hidden' }"
+  [style]="{ visibility: homePageLoading ? 'visible' : 'hidden' }"
   mode="query"
 ></mat-progress-bar>
 <div class="page-content">
   <mat-tab-group class="home-tab-group" mat-stretch-tabs>
     <mat-tab *ngIf="!mediumScreen" label="All">
-      <div *ngFor="let lesson of demoLessons">
+      <div *ngFor="let lesson of (lessons$ | async)">
         <app-lesson-card
+          *ngIf="lesson.name"
           [lessonTypeFilter]="undefined"
           [lesson]="lesson"
           [users]="users$ | async"
@@ -15,11 +16,12 @@
       </div>
     </mat-tab>
     <mat-tab
-      *ngFor="let lessonType of demoLessonTypes"
+      *ngFor="let lessonType of (lessonTypes$ | async)"
       [label]="!smallScreen ? lessonType.name : lessonType.shortName"
     >
-      <div *ngFor="let lesson of demoLessons">
+      <div *ngFor="let lesson of (lessons$ | async)">
         <app-lesson-card
+          *ngIf="lesson.name"
           [lessonTypeFilter]="lessonType"
           [lesson]="lesson"
           [users]="users$ | async"

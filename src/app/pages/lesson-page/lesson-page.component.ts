@@ -2,6 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { first, Observable } from 'rxjs';
 import { CreateLessonDialogComponent } from 'src/app/components/create-lesson-dialog/create-lesson-dialog.component';
+import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
@@ -15,6 +16,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   styleUrls: ['./lesson-page.component.css'],
 })
 export class LessonPageComponent implements OnInit {
+  error: Error;
   mediumScreen = false;
   smallScreen = false;
   demoLessons: LessonDTO[] = demoLessons;
@@ -33,6 +35,7 @@ export class LessonPageComponent implements OnInit {
   constructor(
     private readonly snackbarService: SnackbarService,
     private readonly userService: UserService,
+    private readonly lessonService: LessonService,
     public dialog: MatDialog
   ) {}
 
@@ -99,9 +102,18 @@ export class LessonPageComponent implements OnInit {
         leftButton: 'Cancel',
       },
     });
-    dialogRef.afterClosed().subscribe((result: LessonDTO | undefined) => {
+    dialogRef.afterClosed().subscribe((result: LessonDTO[] | undefined) => {
       if (result) {
         console.log(result);
+        this.lessonService.create(result).subscribe({
+          next: () => {
+            this.snackbarService.open('info', 'Lessons successfully created');
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
       }
     });
   }

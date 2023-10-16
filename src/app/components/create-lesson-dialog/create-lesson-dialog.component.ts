@@ -181,7 +181,6 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
 
   addNewLessonRow(): void {
     const formValue = this.lessonForm.getRawValue();
-    console.log(formValue.cronForm);
     this.lessons?.push({
       teacher: 'elvispresley@gmail.com',
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

@@ -1,5 +1,12 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
 
@@ -8,7 +15,7 @@ import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
   templateUrl: './header-card.component.html',
   styleUrls: ['./header-card.component.css'],
 })
-export class HeaderCardComponent implements OnInit {
+export class HeaderCardComponent implements OnDestroy {
   @Output() closeSideNav = new EventEmitter();
   @Output() headerButtonAction = new EventEmitter();
   breadCrumb: string | undefined = '';
@@ -17,9 +24,10 @@ export class HeaderCardComponent implements OnInit {
   headerButtonIcon: string | undefined = '';
   headerButtonFunction: string | undefined = '';
   menuItems: MenuItemDTO[] = menuItems;
+  private readonly routerSubscription: Subscription | undefined;
 
   constructor(private readonly router: Router) {
-    this.router.events.subscribe(() => {
+    this.routerSubscription = this.router.events.subscribe(() => {
       setTimeout(() => {
         const urlAddress: string =
           this.router.url.split('/')[this.router.url.split('/').length - 1];
@@ -35,8 +43,10 @@ export class HeaderCardComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    console.log('test header card');
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   closeSideNavClick(): void {

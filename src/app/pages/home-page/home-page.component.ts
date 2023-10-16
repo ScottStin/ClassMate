@@ -1,9 +1,10 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { first, Observable } from 'rxjs';
+import { finalize, first, forkJoin, Observable, of } from 'rxjs';
+import { LessonService } from 'src/app/services/lesson-service/lesson.service';
+import { LessonTypeService } from 'src/app/services/lesson-type-service/lesson-type.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
-import { demoLessons, demoLessonTypes } from 'src/app/shared/demo-data';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -15,10 +16,10 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 export class HomePageComponent implements OnInit {
   mediumScreen = false;
   smallScreen = false;
-  demoLessons: LessonDTO[] = demoLessons;
-  demoLessonTypes: LessonTypeDTO[] = demoLessonTypes;
   users$: Observable<UserDTO[]>;
-  usersLoading = true;
+  lessons$: Observable<LessonDTO[]>;
+  lessonTypes$: Observable<LessonTypeDTO[]>;
+  homePageLoading = true;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -30,51 +31,62 @@ export class HomePageComponent implements OnInit {
 
   constructor(
     private readonly snackbarService: SnackbarService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly lessonService: LessonService,
+    private readonly lessonTypeService: LessonTypeService
   ) {}
 
   ngOnInit(): void {
-    this.getDemoLessons();
-    this.getUsers();
+    this.users$ = this.userService.users$;
+    this.lessons$ = this.lessonService.lessons$;
+    this.lessonTypes$ = this.lessonTypeService.lessonTypes$;
+    this.loadPageData();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
   }
 
-  getDemoLessons(): void {
-    this.demoLessons = this.demoLessons.sort((a, b) => {
-      const dateA = new Date(a.startTime);
-      const dateB = new Date(b.startTime);
+  loadPageData(): void {
+    this.homePageLoading = true;
+    forkJoin([
+      this.userService.getAll(),
+      this.lessonService.getAll(),
+      this.lessonTypeService.getAll(),
+    ])
+      .pipe(
+        first(),
+        finalize(() => {
+          this.homePageLoading = false;
+        })
+      )
+      .subscribe({
+        next: ([users, lessons, lessonTypes]) => {
+          lessons.sort((a, b) => {
+            const dateA = new Date(a.startTime);
+            const dateB = new Date(b.startTime);
 
-      if (dateA < dateB) {
-        return -1;
-      } else if (dateA > dateB) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-  }
-
-  getUsers(): void {
-    this.usersLoading = true;
-    this.users$ = this.userService.users$;
-    this.userService.getAll().subscribe({
-      next: () => {
-        this.usersLoading = false;
-      },
-      error: (error: Error) => {
-        const snackbar = this.snackbarService.openPermanent(
-          'error',
-          `Error: Failed to load page: ${error.message}`,
-          'retry'
-        );
-        snackbar
-          .onAction()
-          .pipe(first())
-          .subscribe(() => {
-            this.getUsers();
+            if (dateA < dateB) {
+              return -1;
+            } else if (dateA > dateB) {
+              return 1;
+            } else {
+              return 0;
+            }
           });
-      },
-    });
+          this.lessons$ = of(lessons);
+        },
+        error: (error: Error) => {
+          const snackbar = this.snackbarService.openPermanent(
+            'error',
+            `Error: Failed to load page: ${error.message}`,
+            'retry'
+          );
+          snackbar
+            .onAction()
+            .pipe(first())
+            .subscribe(() => {
+              this.loadPageData();
+            });
+        },
+      });
   }
 }

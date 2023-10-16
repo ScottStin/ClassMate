@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { first, Observable } from 'rxjs';
+import { first, Observable, Subscription } from 'rxjs';
 // import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
@@ -11,20 +11,21 @@ import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css'],
 })
-export class LoginPageComponent implements OnInit {
+export class LoginPageComponent implements OnInit, OnDestroy {
   error: Error;
   isFlipped = false;
   users$: Observable<UserDTO[]>;
   usersLoading = true;
   userType: 'student' | 'teacher' | '' = '';
   photoSrc = '';
+  private readonly routerSubscription: Subscription | undefined;
 
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService // private readonly authenticationService: AuthenticationService
   ) {
-    this.router.events.subscribe(() => {
+    this.routerSubscription = this.router.events.subscribe(() => {
       setTimeout(() => {
         const urlAddress: string[] = this.router.url.split('/');
         if (urlAddress.includes('student')) {
@@ -49,6 +50,12 @@ export class LoginPageComponent implements OnInit {
     this.getUsers();
   }
 
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
   async onCardFlipped(isFlipped: boolean): Promise<void> {
     this.isFlipped = isFlipped;
     if (!this.isFlipped) {
@@ -62,8 +69,7 @@ export class LoginPageComponent implements OnInit {
     this.usersLoading = true;
     this.users$ = this.userService.users$;
     this.userService.getAll().subscribe({
-      next: (res) => {
-        console.log(res);
+      next: () => {
         this.usersLoading = false;
       },
       error: (error: Error) => {
@@ -106,7 +112,6 @@ export class LoginPageComponent implements OnInit {
     this.userService.login(userDetails).subscribe({
       next: (res) => {
         const response = res as { token: string; user: UserDTO };
-        console.log(res);
         localStorage.setItem('token', response.token);
       },
       error: (error: Error) => {
