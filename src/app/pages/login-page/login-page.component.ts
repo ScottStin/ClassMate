@@ -43,7 +43,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
           this.isFlipped = true;
         }
       }, 0);
-    });
+    }); // todo = move routerSubscription to service
   }
 
   ngOnInit(): void {

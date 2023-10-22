@@ -2,6 +2,7 @@
 import { UserDTO } from './user.model';
 
 export interface LessonDTO {
+  _id?: string;
   teacher: UserDTO | string;
   type: LessonTypeDTO;
   startTime: string;

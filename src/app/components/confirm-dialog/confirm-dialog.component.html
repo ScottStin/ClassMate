@@ -1,0 +1,19 @@
+<div class="dialog-title-container">
+  <h2 mat-dialog-title>{{dialogTitle}}</h2>
+</div>
+
+<mat-dialog-content [innerHTML]="dialogMessage"></mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button color="primary" [mat-dialog-close]="false">
+    {{ cancelLabel }}
+  </button>
+  <button
+    class="okButton"
+    mat-raised-button
+    cdkFocusInitial
+    [mat-dialog-close]="true"
+    (click)="data.routerLink ? confirmClick() : ''"
+  >
+    {{ okLabel }}
+  </button>
+</mat-dialog-actions>

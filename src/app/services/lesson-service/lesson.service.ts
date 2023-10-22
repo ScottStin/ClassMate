@@ -38,6 +38,20 @@ export class LessonService {
     );
   }
 
+  delete(data: LessonDTO): Observable<LessonDTO> {
+    console.log(data);
+    return (
+      this.httpClient
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        .delete<LessonDTO>(`${this.baseUrl}/${data._id!}`)
+        .pipe(
+          catchError((error: Error) => {
+            this.handleError(error, 'Failed to create new lesson');
+          })
+        )
+    );
+  }
+
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {
       throw this.errorService.handleHttpError(error);

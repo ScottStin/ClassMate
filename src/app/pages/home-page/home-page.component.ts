@@ -1,5 +1,8 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { finalize, first, forkJoin, Observable, of } from 'rxjs';
+import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { LessonTypeService } from 'src/app/services/lesson-type-service/lesson-type.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -14,6 +17,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   styleUrls: ['./home-page.component.css'],
 })
 export class HomePageComponent implements OnInit {
+  error: Error;
   mediumScreen = false;
   smallScreen = false;
   users$: Observable<UserDTO[]>;
@@ -33,7 +37,8 @@ export class HomePageComponent implements OnInit {
     private readonly snackbarService: SnackbarService,
     private readonly userService: UserService,
     private readonly lessonService: LessonService,
-    private readonly lessonTypeService: LessonTypeService
+    private readonly lessonTypeService: LessonTypeService,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -88,5 +93,18 @@ export class HomePageComponent implements OnInit {
             });
         },
       });
+  }
+
+  joinLesson(lesson: LessonDTO): void {
+    this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Wait! You have to sign in first',
+        message:
+          'You must be signed in to join a class. Click below to login or regiser a new account',
+        okLabel: 'Login / Sign up',
+        cancelLabel: 'Cancel',
+        routerLink: 'student/signup',
+      },
+    });
   }
 }

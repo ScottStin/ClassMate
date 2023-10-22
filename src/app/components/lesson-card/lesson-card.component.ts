@@ -1,8 +1,11 @@
 import {
   Component,
+  EventEmitter,
   HostListener,
   Input,
   OnChanges,
+  OnInit,
+  Output,
   SimpleChanges,
 } from '@angular/core';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
@@ -14,20 +17,31 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './lesson-card.component.html',
   styleUrls: ['./lesson-card.component.scss'],
 })
-export class LessonCardComponent implements OnChanges {
+export class LessonCardComponent implements OnInit, OnChanges {
   @Input() lessonTypeFilter: LessonTypeDTO | undefined;
   @Input() lesson: LessonDTO | undefined;
   @Input() users?: UserDTO[] | null;
+  @Input() pageName: string;
+  @Output() deleteLesson = new EventEmitter<LessonDTO>();
+  @Output() joinLesson = new EventEmitter<LessonDTO>();
+
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.medium, 10);
     this.showPhoto = !this.mediumScreen;
+    this.largeScreen =
+      window.innerWidth < parseInt(screenSizeBreakpoints.large, 10);
   }
 
   teacher: UserDTO | undefined;
   showPhoto = true;
   mediumScreen = false;
+  largeScreen = false;
+
+  ngOnInit(): void {
+    console.log(this.pageName);
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('users' in changes) {
@@ -37,11 +51,7 @@ export class LessonCardComponent implements OnChanges {
 
   getLevels(): string {
     if (this.lesson) {
-      let string = 'Level';
-      if (this.lesson.level.length > 1) {
-        string = 'Levels';
-      }
-      return `${string}: ${this.lesson.level.join(', ')}`;
+      return `${this.lesson.level.join(', ')}`;
     } else {
       return '';
     }
@@ -58,9 +68,13 @@ export class LessonCardComponent implements OnChanges {
   getTimes(): string {
     if (this.lesson) {
       const inputDate = new Date(this.lesson.startTime);
-      const day = inputDate.toLocaleDateString('en-US', { weekday: 'long' });
+      const day = inputDate.toLocaleDateString('en-US', {
+        weekday: this.largeScreen ? 'short' : 'long',
+      });
       const date = inputDate.getDate();
-      const month = inputDate.toLocaleDateString('en-US', { month: 'long' });
+      const month = inputDate.toLocaleDateString('en-US', {
+        month: this.largeScreen ? 'short' : 'long',
+      });
       const year = inputDate.getFullYear();
       const hours = inputDate.getHours();
       const minutes = inputDate.getMinutes();
@@ -76,5 +90,13 @@ export class LessonCardComponent implements OnChanges {
     } else {
       return '';
     }
+  }
+
+  deleteLessonClick(): void {
+    this.deleteLesson.emit(this.lesson);
+  }
+
+  joinLessonClick(): void {
+    this.joinLesson.emit(this.lesson);
   }
 }

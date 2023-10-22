@@ -16,11 +16,14 @@
     <div class="column">
       <div class="data-column">
         <mat-card-header>
-          <mat-card-title
-            >{{lesson.name}} <b>{{getLevels()}}</b></mat-card-title
-          >
+          <mat-card-title>
+            <b>{{lesson.name}}</b>
+          </mat-card-title>
           <mat-divider></mat-divider>
-          <mat-card-subtitle>{{lesson.type.name}}</mat-card-subtitle>
+          <mat-card-subtitle>
+            {{lesson.type.name}} Class<br />
+            <b>({{getLevels()}})</b>
+          </mat-card-subtitle>
         </mat-card-header>
         <mat-divider></mat-divider>
         <mat-card-content>
@@ -30,10 +33,22 @@
           <h5>{{getTimes()}}</h5>
           <button
             mat-mini-fab
-            color="primary"
+            style="background-color: red"
             aria-label="Example icon button with a delete icon"
             class="button"
+            matTooltip="Click here to delete this lesson..."
+            *ngIf="pageName==='lessons'"
+            (click)="deleteLessonClick()"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button
+            mat-mini-fab
+            color="primary"
+            class="button"
             matTooltip="Click here to reserve your seat in this class"
+            *ngIf="pageName!=='lessons'"
+            (click)="joinLessonClick()"
           >
             <mat-icon>person_add</mat-icon>
           </button>
