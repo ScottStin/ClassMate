@@ -39,7 +39,6 @@ export class LessonService {
   }
 
   delete(data: LessonDTO): Observable<LessonDTO> {
-    console.log(data);
     return (
       this.httpClient
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

@@ -54,13 +54,13 @@ export class UserService {
     );
   }
 
-  login(user: UserLoginDTO): Observable<unknown> {
-    return this.httpClient.post<unknown>(`${this.baseUrl}/login`, user).pipe(
-      catchError((error: Error) => {
-        this.handleError(error, 'Failed to login');
-      })
-    );
-  }
+  // login(user: UserLoginDTO): Observable<unknown> {
+  //   return this.httpClient.post<unknown>(`${this.baseUrl}/login`, user).pipe(
+  //     catchError((error: Error) => {
+  //       this.handleError(error, 'Failed to login');
+  //     })
+  //   );
+  // }
 
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {

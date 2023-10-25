@@ -31,10 +31,12 @@
   <span class="spacer"></span>
 
   <button
+    *ngIf="authStoreService.isLoggedIn$ | async"
     mat-icon-button
     class="button"
     aria-label="Logout"
     matTooltip="Logout"
+    (click)="logout()"
   >
     <mat-icon>exit_to_app</mat-icon>
   </button>

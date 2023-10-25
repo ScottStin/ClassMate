@@ -1,0 +1,14 @@
+<app-header-card (headerButtonAction)="addStudent()"></app-header-card>
+<mat-progress-bar
+  [style]="{ visibility: userPageLoading ? 'visible' : 'hidden' }"
+  mode="query"
+></mat-progress-bar>
+<div class="page-content">
+  <mat-tab-group class="home-tab-group" mat-stretch-tabs>
+    <mat-tab *ngFor="let viewType of ['List','Table']" [label]="viewType">
+      <div *ngFor="let user of (users$ | async)">
+        <app-user-card></app-user-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

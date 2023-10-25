@@ -55,7 +55,6 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log(this.pageName);
     this.users$ = this.userService.users$;
     this.lessons$ = this.lessonService.lessons$;
     this.loadPageData();

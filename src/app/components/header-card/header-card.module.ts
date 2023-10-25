@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ConfirmDialogModule } from 'src/app/components/confirm-dialog/confirm-dialog.module';
 
 import { HeaderCardComponent } from './header-card.component';
 
@@ -24,6 +25,7 @@ import { HeaderCardComponent } from './header-card.component';
     MatFormFieldModule,
     FormsModule,
     ReactiveFormsModule,
+    ConfirmDialogModule,
   ],
   exports: [HeaderCardComponent],
 })

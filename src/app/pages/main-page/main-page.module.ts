@@ -5,6 +5,7 @@ import { FilterCardModule } from 'src/app/components/filter-card/filter-card.mod
 import { SideNavModule } from 'src/app/components/side-nav/side-nav.module';
 
 import { LessonPageModule } from '../lesson-page/lesson-page.module';
+import { UserPageModule } from '../user-page/user-page.module';
 import { MainPageComponent } from './main-page.component';
 import { MainPageRoutingModule } from './main-page-routing.module';
 
@@ -17,6 +18,7 @@ import { MainPageRoutingModule } from './main-page-routing.module';
     SideNavModule,
     FilterCardModule,
     LessonPageModule,
+    UserPageModule,
   ],
   providers: [],
 })

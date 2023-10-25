@@ -18,6 +18,11 @@ const routes: Routes = [
         path: 'lessons',
         loadChildren: async () =>
               (await import('../lesson-page/lesson-page.module')).LessonPageModule,
+      },
+      {
+        path: 'users',
+        loadChildren: async () =>
+              (await import('../user-page/user-page.module')).UserPageModule,
       }
     ]
   },

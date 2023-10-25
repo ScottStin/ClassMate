@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { first, Observable, Subscription } from 'rxjs';
-// import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
+import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
@@ -23,7 +23,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
-    private readonly snackbarService: SnackbarService // private readonly authenticationService: AuthenticationService
+    private readonly snackbarService: SnackbarService,
+    public readonly authStoreService: AuthStoreService
   ) {
     this.routerSubscription = this.router.events.subscribe(() => {
       setTimeout(() => {
@@ -89,35 +90,47 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  signup(user: UserDTO): void {
-    this.userService.create(user).subscribe({
-      next: (res: UserDTO) => {
-        let message = '';
-        if (res.userType === 'student') {
-          message = `Thank you for joining, ${res.name}. Remember, your first class is free. But before you join you need to complete your free English Level Test. Click on 'My Exams' to get started.`;
-        }
-        if (res.userType === 'Teacher') {
-          message = `Thank you for joining, ${res.name}. Click the 'My Classes' tab to schedule your first lesson`;
-        }
-        this.snackbarService.open('info', message);
-      },
-      error: (error: Error) => {
-        this.error = error;
-        this.snackbarService.openPermanent('error', error.message);
-      },
-    });
+  async signup(user: UserDTO): Promise<void> {
+    try {
+      const res = await this.userService.create(user).toPromise();
+      let message = '';
+      if (res?.userType === 'student') {
+        message = `Thank you for joining, ${res.name}. Remember, your first class is free. But before you join, you need to complete your free English Level Test. Click on 'My Exams' to get started.`;
+      }
+      if (res?.userType === 'Teacher') {
+        message = `Thank you for joining, ${res.name}. Click the 'My Classes' tab to schedule your first lesson`;
+      }
+      this.snackbarService.openPermanent('info', message);
+      await this.router.navigateByUrl('/home');
+    } catch (error) {
+      this.snackbarService.openPermanent('error', 'unable to sign up');
+    }
   }
 
   login(userDetails: UserLoginDTO): void {
-    this.userService.login(userDetails).subscribe({
-      next: (res) => {
-        const response = res as { token: string; user: UserDTO };
-        localStorage.setItem('token', response.token);
+    this.authStoreService.login(userDetails).subscribe(
+      () => {
+        this.router
+          .navigateByUrl('/home')
+          .then(() => {
+            const firstName = (
+              JSON.parse(localStorage.getItem('auth_data_token')!) as {
+                user: UserDTO;
+              }
+            ).user.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
+            this.snackbarService.open('info', `Welcome back, ${firstName}!`);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       },
-      error: (error: Error) => {
-        this.error = error;
-        this.snackbarService.openPermanent('error', error.message);
-      },
-    });
+      (error) => {
+        console.log(error);
+        this.snackbarService.openPermanent(
+          'error',
+          'Username or Password Incorrect'
+        );
+      }
+    );
   }
 }
