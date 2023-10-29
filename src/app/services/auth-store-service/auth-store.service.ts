@@ -36,17 +36,19 @@ export class AuthStoreService {
     }
   }
 
-  login(user: UserLoginDTO): Observable<UserDTO> {
-    return this.httpClient.post<UserDTO>(`${this.baseUrl}/login`, user).pipe(
-      tap((res) => {
-        this.subject.next(res);
-        localStorage.setItem('auth_data_token', JSON.stringify(res));
-      }),
-      shareReplay(),
-      catchError((error: Error) => {
-        this.handleError(error, 'Failed to login');
-      })
-    );
+  login(user: UserLoginDTO): Observable<{ user: UserDTO }> {
+    return this.httpClient
+      .post<{ user: UserDTO }>(`${this.baseUrl}/login`, user)
+      .pipe(
+        tap((res) => {
+          this.subject.next(res);
+          localStorage.setItem('auth_data_token', JSON.stringify(res));
+        }),
+        shareReplay(),
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to login');
+        })
+      );
   }
 
   logout(): void {
@@ -95,7 +97,7 @@ export class AuthStoreService {
   // }
 }
 
-export type UserSubject = UserDTO | null;
+export type UserSubject = { user: UserDTO } | null;
 
 // interface TokenData {
 //   exp: number;

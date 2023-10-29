@@ -92,6 +92,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
   async signup(user: UserDTO): Promise<void> {
     try {
+      user.userType = this.userType;
       const res = await this.userService.create(user).toPromise();
       let message = '';
       if (res?.userType === 'student') {

@@ -1,15 +1,58 @@
-<mat-list>
-  <!-- <div mat-subheader>user image place holder</div> -->
-  <mat-list-item
-    *ngFor="let menuItem of menuItems"
-    [routerLink]="menuItem.routerLink"
+<button
+  *ngIf="authStoreService.isLoggedIn$ | async"
+  class="edit-profile-button"
+  mat-mini-fab
+  #tooltip="matTooltip"
+  matTooltip="Edit your profile"
+>
+  <mat-icon>edit</mat-icon>
+</button>
+<div class="image-container">
+  <div class="profile-picture-container">
+    <img [src]="profilePictureSrc" class="profile-picture" />
+  </div>
+  <mat-chip-list
+    routerLink="student/signup"
+    *ngIf="authStoreService.isLoggedOut$ | async"
+    class="chip-container"
+    #tooltip="matTooltip"
+    matTooltip="Click here to login"
+    ><mat-chip class="button chip" selected
+      >Login / Signup</mat-chip
+    ></mat-chip-list
   >
-    <mat-icon
-      matListItemIcon
-      [matTooltip]="hideNavText ? menuItem.name : ''"
-      matTooltipPosition="right"
-      >{{ menuItem.icon}}</mat-icon
+  <h2 class="user-name-header">{{currentUser?.name}}</h2>
+  <h2
+    class="text-warning"
+    *ngIf="currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
+  >
+    <mat-icon>star</mat-icon> C2
+    <mat-icon>star</mat-icon>
+  </h2>
+  <mat-chip-list
+    *ngIf="!currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
+    class="chip-container"
+    #tooltip="matTooltip"
+    matTooltip="Take your free English level test before you enrol in a class"
+    ><mat-chip class="button chip" selected
+      >Click here to test your English Level</mat-chip
+    ></mat-chip-list
+  >
+</div>
+<mat-divider></mat-divider>
+<mat-list>
+  <div *ngFor="let menuItem of menuItems">
+    <mat-list-item
+      *ngIf="menuItem.use.includes(currentUser?.userType?.toLowerCase() || 'student')"
+      [routerLink]="menuItem.routerLink"
     >
-    <div matListItemTitle *ngIf="!hideNavText">{{ menuItem.name}}</div>
-  </mat-list-item>
+      <mat-icon
+        matListItemIcon
+        [matTooltip]="hideNavText ? menuItem.name : ''"
+        matTooltipPosition="right"
+        >{{ menuItem.icon}}</mat-icon
+      >
+      <div matListItemTitle *ngIf="!hideNavText">{{ menuItem.name}}</div>
+    </mat-list-item>
+  </div>
 </mat-list>

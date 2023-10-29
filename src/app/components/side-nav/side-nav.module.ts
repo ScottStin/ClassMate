@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,6 +21,8 @@ import { SideNavComponent } from './side-nav.component';
     MatBadgeModule,
     MatListModule,
     RouterModule,
+    MatChipsModule,
+    MatDividerModule,
   ],
   exports: [SideNavComponent],
 })
