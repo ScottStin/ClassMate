@@ -1,0 +1,135 @@
+<div class="mat-elevation-z1">
+  <mat-table
+    matSort
+    aria-label="Users"
+    matSortActive="name"
+    matSortDirection="asc"
+  >
+    <!-- Name Column -->
+    <ng-container matColumnDef="profilePicture">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>
+          <img
+            [src]="cropImage(row.profilePicture)"
+            alt=""
+            class="profile-picture"
+          />
+        </span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Name
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>{{ row.name }}</span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Nationality Column -->
+    <ng-container matColumnDef="nationality">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Nationality
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>{{ row.nationality }}</span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Email Column -->
+    <ng-container matColumnDef="email">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Email
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>{{ row.email }}</span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Level Column -->
+    <ng-container matColumnDef="level">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Level
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span *ngIf="row.level">{{ row.level }}</span>
+        <span *ngIf="!row.level"
+          ><a
+            class="set-level-anchor"
+            matTooltip="Click here to asign a level to this student..."
+            (click)="setLevelClick(row)"
+            >Set Level...</a
+          ></span
+        >
+      </mat-cell>
+    </ng-container>
+
+    <!-- Created Column -->
+    <ng-container matColumnDef="createdAt">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Created
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>{{ row.createdAt }}</span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item>
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+          </button>
+          <button mat-menu-item>
+            <mat-icon>lock_open</mat-icon>
+            <span>Reset Password</span>
+          </button>
+          <button mat-menu-item>
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      class="table-row"
+    ></mat-row>
+
+    <!-- Zero data row -->
+    <ng-container *ngIf="userData !== null">
+      <tr class="mat-row no-data-row" *matNoDataRow>
+        <td class="mat-cell">
+          <ng-container *ngIf="userData?.length === 0">
+            No users to show yet
+          </ng-container>
+          <ng-container *ngIf="userData.length > 0">
+            No users matched the filters
+          </ng-container>
+        </td>
+      </tr>
+    </ng-container>
+  </mat-table>
+
+  <mat-paginator
+    data-testid="paginator"
+    #paginator
+    showFirstLastButtons
+    [length]="userData?.length ?? 0"
+    [pageIndex]="0"
+    [pageSizeOptions]="[10, 20, 50]"
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>

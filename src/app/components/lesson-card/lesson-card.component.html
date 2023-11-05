@@ -1,13 +1,17 @@
 <mat-card
   class="card"
-  *ngIf="lesson && (lessonTypeFilter?.name === lesson.type.name || !lessonTypeFilter)"
+  *ngIf="
+    lesson && 
+    (lessonTypeFilter?.name === lesson.type.name || !lessonTypeFilter) && 
+    ((pageName==='lessons' && (authStoreService.user$ | async)?.user?.email === teacher?.email) || pageName!=='lessons')
+    "
 >
   <div class="row">
     <div class="column">
       <div class="photo-column">
         <img
           *ngIf="showPhoto"
-          [src]="teacher?.profilePicture?.url"
+          [src]="teacher?.profilePicture?.url ? teacher?.profilePicture?.url : profilePictureSrc"
           alt="teacher photo"
         />
         <h2 *ngIf="showPhoto">{{teacher?.name}}</h2>
@@ -33,21 +37,38 @@
           <h5>{{getTimes()}}</h5>
           <button
             mat-mini-fab
+            style="background-color: orange"
+            class="button"
+            matTooltip="Click here to edit this lesson..."
+            *ngIf="
+              pageName==='lessons' &&
+              (authStoreService.user$ | async)?.user?.email === teacher?.email
+            "
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-mini-fab
             style="background-color: red"
-            aria-label="Example icon button with a delete icon"
             class="button"
             matTooltip="Click here to delete this lesson..."
-            *ngIf="pageName==='lessons'"
+            *ngIf="
+              pageName==='lessons' &&
+              (authStoreService.user$ | async)?.user?.email === teacher?.email
+            "
             (click)="deleteLessonClick()"
           >
             <mat-icon>delete</mat-icon>
           </button>
           <button
+            *ngIf="
+            (authStoreService.user$ | async)?.user?.userType?.toLowerCase() === 'student' &&
+            pageName!=='lessons'
+            "
             mat-mini-fab
             color="primary"
             class="button"
             matTooltip="Click here to reserve your seat in this class"
-            *ngIf="pageName!=='lessons'"
             (click)="joinLessonClick()"
           >
             <mat-icon>person_add</mat-icon>

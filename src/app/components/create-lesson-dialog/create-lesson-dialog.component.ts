@@ -18,6 +18,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { CronOptions } from 'ngx-cron-editor';
 import { Subject } from 'rxjs';
+import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { demoLessonTypes, demoLevels } from 'src/app/shared/demo-data';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 
@@ -83,7 +84,8 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
       rightButton: string;
       leftButton: string;
       body: LessonDTO | undefined;
-    }
+    },
+    public readonly authStoreService: AuthStoreService
   ) {}
 
   ngOnInit(): void {
@@ -180,9 +182,11 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   addNewLessonRow(): void {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-non-null-assertion, prettier/prettier
+    const userEmail = JSON.parse(localStorage.getItem('auth_data_token')!).user.email;
     const formValue = this.lessonForm.getRawValue();
     this.lessons?.push({
-      teacher: 'elvispresley@gmail.com',
+      teacher: userEmail as string,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       startTime: formValue.dateInput!,
       maxStudents: formValue.sizeInput,

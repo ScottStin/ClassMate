@@ -43,6 +43,7 @@
 <mat-list>
   <div *ngFor="let menuItem of menuItems">
     <mat-list-item
+      [class]="breadCrumb === menuItem.name ? 'active': ''"
       *ngIf="menuItem.use.includes(currentUser?.userType?.toLowerCase() || 'student')"
       [routerLink]="menuItem.routerLink"
     >

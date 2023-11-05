@@ -2,20 +2,22 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
+import { TeacherPageComponent } from '../teacher-page/teacher-page.component';
 import { UserPageComponent } from './user-page.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: UserPageComponent,
     children: [
         {
           path: 'teachers',
-          component: UserPageComponent,
+          component: TeacherPageComponent,
+          data: { userType: 'Teacher' },
         },
         {
           path: 'classmates',
-          component: UserPageComponent,
+          component: TeacherPageComponent,
+          data: { userType: 'Student' },
         },
         {
           path: 'students',
@@ -23,7 +25,8 @@ const routes: Routes = [
         },
         {
           path: 'colleagues',
-          component: UserPageComponent,
+          component: TeacherPageComponent,
+          data: { userType: 'Teacher' },
         },
         {
           path: '',

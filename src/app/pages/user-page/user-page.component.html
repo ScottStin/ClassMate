@@ -1,13 +1,19 @@
-<app-header-card (headerButtonAction)="addStudent()"></app-header-card>
+<app-header-card></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: userPageLoading ? 'visible' : 'hidden' }"
   mode="query"
 ></mat-progress-bar>
-<div class="page-content">
+<div class="page-content" *ngIf="!this.userPageLoading">
   <mat-tab-group class="home-tab-group" mat-stretch-tabs>
-    <mat-tab *ngFor="let viewType of ['List','Table']" [label]="viewType">
-      <div *ngFor="let user of (users$ | async)">
-        <app-user-card></app-user-card>
+    <mat-tab
+      *ngFor="let viewType of ['All', 'Active','Inactive']"
+      [label]="viewType"
+    >
+      <div class="table-container">
+        <app-user-table
+          [userData]="users$ | async"
+          (openSetLevelDialog)="openSetLevelDialog($event)"
+        ></app-user-table>
       </div>
     </mat-tab>
   </mat-tab-group>

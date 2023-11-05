@@ -1,0 +1,84 @@
+<div class="dialog-title-container">
+  <h2 mat-dialog-title>{{data.title}}</h2>
+</div>
+
+<mat-dialog-content>
+  <div [formGroup]="userForm">
+    <mat-form-field
+      class="form-field"
+      appearance="outline"
+      *ngIf="data.title !== 'Set User Level'"
+    >
+      <mat-label>Name</mat-label>
+      <input
+        matInput
+        id="nameInput"
+        formControlName="nameInput"
+        type="text"
+        placeholder="Enter your first and last name"
+        required
+      />
+      <mat-error>
+        <app-error-message
+          [control]="userForm.controls['nameInput'].errors"
+        ></app-error-message>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field
+      class="form-field"
+      appearance="outline"
+      *ngIf="data.title !== 'Set User Level'"
+    >
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        id="emailInput"
+        formControlName="emailInput"
+        type="email"
+        placeholder="Email address (e.g. john@gmail.com)"
+        required
+      />
+      <mat-error>
+        <app-error-message
+          [control]="userForm.controls['emailInput'].errors"
+        ></app-error-message>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field
+      class="form-field"
+      appearance="outline"
+      *ngIf="data.title !== 'Set User Level'"
+    >
+      <mat-label>Country of Origin</mat-label>
+      <mat-select formControlName="countryInput" required>
+        <mat-option value="other">Select country...</mat-option>
+        <mat-option *ngFor="let country of countryList" [value]="country">
+          {{ country }}
+        </mat-option>
+        <mat-option value="other">OTHER</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="form-field" appearance="outline">
+      <mat-label>Level</mat-label>
+      <mat-select formControlName="levelInput" required>
+        <mat-option *ngFor="let level of demoLevels" [value]="level">
+          {{ level }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button color="primary" [mat-dialog-close]="false">Cancel</button>
+  <button
+    class="okButton"
+    mat-raised-button
+    cdkFocusInitial
+    [mat-dialog-close]="true"
+  >
+    Save
+  </button>
+</mat-dialog-actions>

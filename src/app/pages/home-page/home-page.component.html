@@ -8,7 +8,7 @@
     <mat-tab *ngIf="!mediumScreen" label="All">
       <div *ngFor="let lesson of (lessons$ | async)">
         <app-lesson-card
-          *ngIf="lesson.name"
+          *ngIf="lesson.name && getLessonStatus('Upcoming Lessons', lesson)"
           [lessonTypeFilter]="undefined"
           [lesson]="lesson"
           [users]="users$ | async"
@@ -22,7 +22,7 @@
     >
       <div *ngFor="let lesson of (lessons$ | async)">
         <app-lesson-card
-          *ngIf="lesson.name"
+          *ngIf="lesson.name && getLessonStatus('Upcoming Lessons', lesson)"
           [lessonTypeFilter]="lessonType"
           [lesson]="lesson"
           [users]="users$ | async"

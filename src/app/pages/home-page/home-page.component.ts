@@ -95,6 +95,16 @@ export class HomePageComponent implements OnInit {
       });
   }
 
+  getLessonStatus(lessonStatus: string, lesson: LessonDTO): boolean {
+    const lessonStartTime = new Date(lesson.startTime);
+    const currentDateTime = new Date();
+    if (lessonStatus === 'Past Lessons') {
+      return lessonStartTime < currentDateTime;
+    } else {
+      return lessonStartTime > currentDateTime;
+    }
+  } // todo - move to lesson service
+
   joinLesson(lesson: LessonDTO): void {
     this.dialog.open(ConfirmDialogComponent, {
       data: {

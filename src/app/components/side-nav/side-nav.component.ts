@@ -1,4 +1,5 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
@@ -17,6 +18,8 @@ export class SideNavComponent implements OnInit, OnDestroy {
   user$: Observable<{ user: UserDTO } | null>;
   profilePictureSrc =
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
+  breadCrumb: string | undefined = '';
+  private readonly routerSubscription: Subscription | undefined;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -24,7 +27,21 @@ export class SideNavComponent implements OnInit, OnDestroy {
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
   }
 
-  constructor(public readonly authStoreService: AuthStoreService) {}
+  constructor(
+    public readonly authStoreService: AuthStoreService,
+    private readonly router: Router
+  ) {
+    this.routerSubscription = this.router.events.subscribe(() => {
+      setTimeout(() => {
+        const menuItem = this.menuItems.find(
+          (obj) =>
+            obj.routerLink.replace(/\//gu, '') ===
+            `${this.router.url}`.replace(/\//gu, '')
+        );
+        this.breadCrumb = menuItem?.name;
+      }, 0);
+    }); // todo = move routerSubscription to service
+  }
 
   ngOnInit(): void {
     this.user$ = this.authStoreService.user$;
@@ -47,10 +64,14 @@ export class SideNavComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 }
 
 export const menuItems: MenuItemDTO[] = [
+  // todo - seperate into seperate component
   {
     name: 'Home Page',
     use: ['student', 'teacher'],

@@ -1,0 +1,10 @@
+<app-header-card (headerButtonAction)="addStudent()"></app-header-card>
+<mat-progress-bar
+  [style]="{ visibility: teacherPageLoading ? 'visible' : 'hidden' }"
+  mode="query"
+></mat-progress-bar>
+<div class="page-content">
+  <div *ngFor="let user of (users$ | async)">
+    <app-user-card [user]="user" [userType]="userType"></app-user-card>
+  </div>
+</div>

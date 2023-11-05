@@ -1,25 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { finalize, first, Observable, of } from 'rxjs';
-import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
+import { ActivatedRoute } from '@angular/router';
+import { finalize, first, Observable } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
-  selector: 'app-user-page',
-  templateUrl: './user-page.component.html',
-  styleUrls: ['./user-page.component.css'],
+  selector: 'app-teacher-page',
+  templateUrl: './teacher-page.component.html',
+  styleUrls: ['./teacher-page.component.css'],
 })
-export class UserPageComponent implements OnInit {
-  userPageLoading = false;
+export class TeacherPageComponent implements OnInit {
+  teacherPageLoading = false;
   users$: Observable<UserDTO[]>;
+  userType: string;
 
   constructor(
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService,
-    public dialog: MatDialog
-  ) {}
+    private readonly route: ActivatedRoute
+  ) {
+    this.userType = this.route.snapshot.data['userType'] as string;
+  }
 
   ngOnInit(): void {
     this.users$ = this.userService.users$;
@@ -27,22 +29,19 @@ export class UserPageComponent implements OnInit {
   }
 
   getUsers(): void {
-    this.userPageLoading = true;
+    this.teacherPageLoading = true;
     this.userService
       .getAll()
       .pipe(
         first(),
         finalize(() => {
-          this.userPageLoading = false;
+          this.teacherPageLoading = false;
         })
       )
       .subscribe({
-        next: (res) => {
-          const students = res.filter(
-            (user) => user.userType.toLowerCase() === 'student'
-          );
-          this.users$ = of(students);
-        },
+        // next: (res) => {
+        //   console.log(res);
+        // },
         error: (error: Error) => {
           const snackbar = this.snackbarService.openPermanent(
             'error',
@@ -57,17 +56,6 @@ export class UserPageComponent implements OnInit {
             });
         },
       });
-  }
-
-  openSetLevelDialog(student: UserDTO): void {
-    const users = this.users$.pipe(first()).subscribe();
-    this.dialog.open(EditUserDialogComponent, {
-      data: {
-        title: 'Set User Level',
-        user: student,
-        existingUsers: users,
-      },
-    });
   }
 
   addStudent(): void {

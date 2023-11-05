@@ -117,7 +117,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     } else {
       return lessonStartTime > currentDateTime;
     }
-  }
+  } // todo - move to lesson service
 
   createLesson(): void {
     const dialogRef = this.dialog.open(CreateLessonDialogComponent, {

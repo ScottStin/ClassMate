@@ -19,6 +19,7 @@ export class HeaderCardComponent implements OnDestroy {
   @Output() headerButtonAction = new EventEmitter();
   breadCrumb: string | undefined = '';
   searchBar: string | undefined = '';
+  icon: string | undefined = '';
   headerButton: string | undefined = '';
   headerButtonIcon: string | undefined = '';
   headerButtonFunction: string | undefined = '';
@@ -44,8 +45,9 @@ export class HeaderCardComponent implements OnDestroy {
         this.headerButton = menuItem?.headerButton;
         this.headerButtonIcon = menuItem?.headerButtonIcon;
         this.headerButtonFunction = menuItem?.headerButtonFunction;
+        this.icon = menuItem?.icon;
       }, 0);
-    });
+    }); // todo = move routerSubscription to service or replace with router data in route modules.
   }
 
   ngOnDestroy(): void {

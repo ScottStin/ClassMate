@@ -4,10 +4,10 @@ import {
   HostListener,
   Input,
   OnChanges,
-  OnInit,
   Output,
   SimpleChanges,
 } from '@angular/core';
+import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -17,7 +17,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './lesson-card.component.html',
   styleUrls: ['./lesson-card.component.scss'],
 })
-export class LessonCardComponent implements OnInit, OnChanges {
+export class LessonCardComponent implements OnChanges {
   @Input() lessonTypeFilter: LessonTypeDTO | undefined;
   @Input() lesson: LessonDTO | undefined;
   @Input() users?: UserDTO[] | null;
@@ -38,10 +38,10 @@ export class LessonCardComponent implements OnInit, OnChanges {
   showPhoto = true;
   mediumScreen = false;
   largeScreen = false;
+  profilePictureSrc =
+    'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
 
-  ngOnInit(): void {
-    console.log(this.pageName);
-  }
+  constructor(public readonly authStoreService: AuthStoreService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('users' in changes) {

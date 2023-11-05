@@ -1,0 +1,86 @@
+.mat-table {    
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    overflow:hidden !important;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.mat-paginator {    
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    overflow:hidden !important;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.profile-picture {
+    border-radius: 50%;
+    padding:5px;
+}
+
+.mat-cell {
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.set-level-anchor {
+  cursor: pointer;
+  color: black;
+  font-weight: bold;
+}
+
+//  ----------------------------------
+//  --- TODO - Move to global styling component ---
+//  ----------------------------------
+
+.mat-table {
+    width: 100%;
+  
+    // material table columns named "actions"
+    th.mat-column-actions,
+    td.mat-column-actions {
+      width: 60px;
+    }
+    // material table columns named "actions" with display:flex
+    mat-header-cell.mat-column-actions,
+    mat-cell.mat-column-actions {
+      flex: 0 0 60px;
+    }
+  
+    // material table columns named "profile picture"
+    th.mat-column-profilePicture,
+    td.mat-column-profilePicture {
+      width: 80px;
+    }
+    // material table columns named "actions" with display:flex
+    mat-header-cell.mat-column-profilePicture,
+    mat-cell.mat-column-profilePicture {
+      flex: 0 0 80px;
+    }
+    // shown row when no data is available
+    tr.no-data-row {
+      display: flex;
+      border-width: 0;
+      border-style: solid;
+      align-items: center;
+      box-sizing: border-box;
+  
+      td {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        word-wrap: break-word;
+        min-height: inherit;
+        height: 100%;
+      }
+    }
+  
+    // use `display: table-*` when using native HTML instead of flex
+    tbody tr.no-data-row {
+      display: table-row;
+      td {
+        display: table-cell;
+      }
+    }
+  }
+  

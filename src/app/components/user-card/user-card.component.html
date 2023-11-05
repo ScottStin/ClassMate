@@ -1,38 +1,89 @@
-<mat-card class="card">
+<mat-card
+  class="card"
+  *ngIf="userType?.toLowerCase() === user.userType?.toLowerCase()"
+>
   <div class="row">
-    <div class="column">
-      <div class="photo-column">
-        <img alt="teacher photo" />
+    <div class="col-md-2">
+      <div class="profile-picture-container">
+        <img
+          alt="user photo"
+          [src]="profilePictureSrc"
+          class="profile-picture d-flex img-fluid"
+        />
       </div>
     </div>
-    <div class="column">
-      <div class="data-column">
-        <mat-card-header>
-          <mat-card-title>
-            <b>Name</b>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-divider></mat-divider>
-        <mat-card-content> test place holder </mat-card-content>
-        <mat-card-actions align="end">
-          <button
-            mat-mini-fab
-            style="background-color: red"
-            class="button"
-            matTooltip="Delete student"
+    <div class="col-md-9 offset-1">
+      <mat-card-header>
+        <mat-card-title>
+          <b>{{user.name}}</b>
+          <i
+            *ngIf="(authStoreService.user$ | async)?.user?._id === user._id"
+            style="opacity: 50%"
           >
-            <mat-icon>delete</mat-icon>
-          </button>
-          <button
-            mat-mini-fab
-            color="primary"
-            class="button"
-            matTooltip="Message student"
+            (You)</i
           >
-            <mat-icon>message</mat-icon>
-          </button>
-        </mat-card-actions>
-      </div>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <div class="row">
+          <div class="table-column">
+            <table>
+              <tbody>
+                <tr
+                  *ngIf="userType?.toLowerCase() === 'teacher' && user.teacherStatement"
+                >
+                  <td><b>Statement:</b></td>
+                  <td>{{user.teacherStatement}}</td>
+                </tr>
+                <tr *ngIf="user.nationality">
+                  <td><b>Nationality:</b></td>
+                  <td>{{user.nationality}}</td>
+                </tr>
+                <tr>
+                  <td><b>Email:</b></td>
+                  <td>{{user.email}}</td>
+                </tr>
+                <tr>
+                  <td><b>Phone:</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button
+          mat-mini-fab
+          style="background-color: orange"
+          class="button"
+          matTooltip="Edit"
+          *ngIf="
+            (authStoreService.user$ | async)?.user?.userType?.toLowerCase() === 'teacher' || 
+            (authStoreService.user$ | async)?.user?._id === user._id
+          "
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-mini-fab
+          color="primary"
+          class="button"
+          matTooltip="Message"
+          *ngIf="(authStoreService.user$ | async)?.user?._id !== user._id"
+        >
+          <mat-icon>message</mat-icon>
+        </button>
+        <button
+          mat-mini-fab
+          style="background-color: red"
+          class="button"
+          matTooltip="Delete"
+          *ngIf="(authStoreService.user$ | async)?.user?.userType?.toLowerCase() === 'teacher'"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-actions>
     </div>
   </div>
 </mat-card>
