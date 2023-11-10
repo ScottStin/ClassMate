@@ -26,26 +26,39 @@
       </mat-card-header>
       <mat-divider></mat-divider>
       <mat-card-content>
+        <mat-card-subtitle *ngIf="user.statement"
+          ><i>"{{user.statement}}"</i></mat-card-subtitle
+        >
+        <mat-card-subtitle *ngIf="!user.statement"
+          ><i
+            >"Go to the home page to book a lesson with {{user.name.split('
+            ')[0]}} today!"</i
+          ></mat-card-subtitle
+        >
         <div class="row">
           <div class="table-column">
             <table>
               <tbody>
-                <tr
-                  *ngIf="userType?.toLowerCase() === 'teacher' && user.teacherStatement"
-                >
-                  <td><b>Statement:</b></td>
-                  <td>{{user.teacherStatement}}</td>
-                </tr>
                 <tr *ngIf="user.nationality">
-                  <td><b>Nationality:</b></td>
+                  <td class="title-row">
+                    <mat-icon>language</mat-icon>
+                    <b> &nbsp;&nbsp;Country:</b>
+                  </td>
                   <td>{{user.nationality}}</td>
                 </tr>
                 <tr>
-                  <td><b>Email:</b></td>
+                  <td class="title-row">
+                    <mat-icon> email</mat-icon>
+                    <b> &nbsp;&nbsp;Email:</b>
+                  </td>
                   <td>{{user.email}}</td>
                 </tr>
-                <tr>
-                  <td><b>Phone:</b></td>
+                <tr *ngIf="user.phone">
+                  <td class="title-row">
+                    <mat-icon> phone</mat-icon>
+                    <b> &nbsp;&nbsp;Phone:</b>
+                  </td>
+                  <td>{{user.phone}}</td>
                 </tr>
               </tbody>
             </table>
@@ -80,6 +93,7 @@
           class="button"
           matTooltip="Delete"
           *ngIf="(authStoreService.user$ | async)?.user?.userType?.toLowerCase() === 'teacher'"
+          (click)="openConfirmDeleteDialogClick(user)"
         >
           <mat-icon>delete</mat-icon>
         </button>

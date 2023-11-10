@@ -171,7 +171,7 @@ export class LoginCardComponent implements OnInit, OnChanges {
       }
       if (this.users && this.title === 'signup') {
         if (this.users.map((user: UserDTO) => user.email).includes(value)) {
-          return { existingEmail: true }; // check if email already exists
+          return { existingEmailLogin: true }; // check if email already exists
         } else {
           return null; // email meets all conditions
         }

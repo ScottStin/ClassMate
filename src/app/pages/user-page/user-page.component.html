@@ -12,7 +12,8 @@
       <div class="table-container">
         <app-user-table
           [userData]="users$ | async"
-          (openSetLevelDialog)="openSetLevelDialog($event)"
+          (openEditUserDialog)="openEditUserDialog($event)"
+          (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
         ></app-user-table>
       </div>
     </mat-tab>

@@ -73,7 +73,7 @@
         Created
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <span>{{ row.createdAt }}</span>
+        <span>{{ row.createdAt | date:'dd MMM yyyy h:mm a z'}}</span>
       </mat-cell>
     </ng-container>
 
@@ -85,7 +85,7 @@
           <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <button mat-menu-item>
+          <button mat-menu-item (click)="openEditDialogClick(row)">
             <mat-icon>edit</mat-icon>
             <span>Edit</span>
           </button>
@@ -93,7 +93,7 @@
             <mat-icon>lock_open</mat-icon>
             <span>Reset Password</span>
           </button>
-          <button mat-menu-item>
+          <button mat-menu-item (click)="openConfirmDeleteDialogClick(row)">
             <mat-icon>delete</mat-icon>
             <span>Delete</span>
           </button>

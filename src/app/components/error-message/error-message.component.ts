@@ -59,8 +59,11 @@ export class ErrorMessageComponent implements OnChanges {
       case 'invalidEmail':
         return 'Must be a valid email address';
 
-      case 'existingEmail':
+      case 'existingEmailLogin':
         return 'A user with this email already exists. Click below to login instead';
+
+      case 'existingEmail':
+        return 'A user with this email already exists.';
 
       case 'tooFewWords':
         return 'Too few words';

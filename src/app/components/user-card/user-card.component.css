@@ -1,10 +1,19 @@
 .card {
     margin:25px;
-    height:15vw;
+    height:fit-content;
     border-top-left-radius: 100px;
     border-bottom-left-radius: 100px;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+}
+
+.mat-card-subtitle {
+  margin-left:-15px;
 }
 
 .mat-card-content {
@@ -38,8 +47,8 @@
   }
   
   .profile-picture-container {
-    width: 12.5vw;
-    height: 12.5vw;
+    width: 17vw;
+    height: auto;
     border-radius: 50%;
     overflow: hidden;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);

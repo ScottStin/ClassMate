@@ -22,7 +22,11 @@ export class UserTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<UserDTO>;
   @Input() userData: UserDTO[] | null;
-  @Output() openSetLevelDialog = new EventEmitter<UserDTO>();
+  @Output() openEditUserDialog = new EventEmitter<{
+    user: UserDTO;
+    formType: string | null;
+  }>();
+  @Output() openConfirmDeleteDialog = new EventEmitter<UserDTO>();
 
   filterText: string;
   dataSource?: MatTableDataSource<UserDTO> | undefined;
@@ -84,6 +88,14 @@ export class UserTableComponent implements OnInit, AfterViewInit {
   }
 
   setLevelClick(student: UserDTO): void {
-    this.openSetLevelDialog.emit(student);
+    this.openEditUserDialog.emit({ user: student, formType: 'level' });
+  }
+
+  openEditDialogClick(student: UserDTO): void {
+    this.openEditUserDialog.emit({ user: student, formType: null });
+  }
+
+  openConfirmDeleteDialogClick(student: UserDTO): void {
+    this.openConfirmDeleteDialog.emit(student);
   }
 }

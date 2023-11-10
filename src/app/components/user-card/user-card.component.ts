@@ -1,4 +1,11 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -13,6 +20,7 @@ import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
 export class UserCardComponent implements OnInit, OnDestroy {
   @Input() user: UserDTO;
   @Input() userType: string;
+  @Output() openConfirmDeleteDialog = new EventEmitter<UserDTO>();
 
   profilePictureSrc =
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
@@ -35,5 +43,9 @@ export class UserCardComponent implements OnInit, OnDestroy {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
+  }
+
+  openConfirmDeleteDialogClick(user: UserDTO): void {
+    this.openConfirmDeleteDialog.emit(user);
   }
 }

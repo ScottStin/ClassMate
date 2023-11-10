@@ -1,7 +1,11 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
+import { first, Observable, Subscription } from 'rxjs';
+import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -20,6 +24,8 @@ export class SideNavComponent implements OnInit, OnDestroy {
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
   breadCrumb: string | undefined = '';
   private readonly routerSubscription: Subscription | undefined;
+  users$: Observable<UserDTO[]>;
+  error: Error;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -29,7 +35,10 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
   constructor(
     public readonly authStoreService: AuthStoreService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly userService: UserService,
+    private readonly snackbarService: SnackbarService,
+    public dialog: MatDialog
   ) {
     this.routerSubscription = this.router.events.subscribe(() => {
       setTimeout(() => {
@@ -44,7 +53,14 @@ export class SideNavComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.users$ = this.userService.users$;
     this.user$ = this.authStoreService.user$;
+    this.getCurrentUser();
+    this.hideNavText =
+      window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
+  }
+
+  getCurrentUser(): void {
     this.subscription = this.user$.subscribe((user) => {
       if (user) {
         this.currentUser = user.user;
@@ -56,8 +72,39 @@ export class SideNavComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.hideNavText =
-      window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
+  }
+
+  openEditUserDialog(): void {
+    let existingUsers;
+    this.users$.pipe(first()).subscribe((res) => {
+      existingUsers = res;
+    });
+    const dialogRef = this.dialog.open(EditUserDialogComponent, {
+      data: {
+        title: `Edit your details`,
+        user: this.currentUser,
+        existingUsers,
+        formType: 'teacher',
+      },
+    });
+    dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
+      if (result) {
+        console.log(result);
+        this.userService.update(result, this.currentUser!._id!).subscribe({
+          next: () => {
+            this.snackbarService.open(
+              'info',
+              'Your profile has successfully been updated'
+            );
+            this.getCurrentUser();
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -71,7 +118,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
 }
 
 export const menuItems: MenuItemDTO[] = [
-  // todo - seperate into seperate component
+  // todo - move into seperate component
   {
     name: 'Home Page',
     use: ['student', 'teacher'],

@@ -4,6 +4,7 @@
   mat-mini-fab
   #tooltip="matTooltip"
   matTooltip="Edit your profile"
+  (click)="openEditUserDialog()"
 >
   <mat-icon>edit</mat-icon>
 </button>
@@ -21,7 +22,7 @@
       >Login / Signup</mat-chip
     ></mat-chip-list
   >
-  <h2 class="user-name-header">{{currentUser?.name}}</h2>
+  <h2 class="user-name-header" *ngIf="!hideNavText">{{currentUser?.name}}</h2>
   <h2
     class="text-warning"
     *ngIf="currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"

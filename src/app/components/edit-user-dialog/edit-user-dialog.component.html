@@ -7,20 +7,20 @@
     <mat-form-field
       class="form-field"
       appearance="outline"
-      *ngIf="data.title !== 'Set User Level'"
+      *ngIf="data.formType !== 'level'"
     >
       <mat-label>Name</mat-label>
       <input
         matInput
-        id="nameInput"
-        formControlName="nameInput"
+        id="name"
+        formControlName="name"
         type="text"
         placeholder="Enter your first and last name"
         required
       />
       <mat-error>
         <app-error-message
-          [control]="userForm.controls['nameInput'].errors"
+          [control]="userForm.controls['name'].errors"
         ></app-error-message>
       </mat-error>
     </mat-form-field>
@@ -28,20 +28,21 @@
     <mat-form-field
       class="form-field"
       appearance="outline"
-      *ngIf="data.title !== 'Set User Level'"
+      *ngIf="data.formType !== 'level'"
     >
       <mat-label>Email</mat-label>
       <input
         matInput
-        id="emailInput"
-        formControlName="emailInput"
+        id="email"
+        formControlName="email"
         type="email"
         placeholder="Email address (e.g. john@gmail.com)"
         required
       />
+      <mat-icon matSuffix>email</mat-icon>
       <mat-error>
         <app-error-message
-          [control]="userForm.controls['emailInput'].errors"
+          [control]="userForm.controls['email'].errors"
         ></app-error-message>
       </mat-error>
     </mat-form-field>
@@ -49,25 +50,78 @@
     <mat-form-field
       class="form-field"
       appearance="outline"
-      *ngIf="data.title !== 'Set User Level'"
+      *ngIf="data.formType !== 'level'"
+    >
+      <mat-label>Phone Number</mat-label>
+      <input
+        matInput
+        id="phone"
+        formControlName="phone"
+        type="phone"
+        placeholder="include country and area code (e.g. +61 111 222 333)"
+      />
+      <mat-icon matSuffix>phone</mat-icon>
+      <mat-error>
+        <app-error-message
+          [control]="userForm.controls['phone'].errors"
+        ></app-error-message>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field
+      class="form-field"
+      appearance="outline"
+      *ngIf="data.formType !== 'level'"
     >
       <mat-label>Country of Origin</mat-label>
-      <mat-select formControlName="countryInput" required>
+      <mat-select formControlName="nationality" required>
         <mat-option value="other">Select country...</mat-option>
         <mat-option *ngFor="let country of countryList" [value]="country">
           {{ country }}
         </mat-option>
         <mat-option value="other">OTHER</mat-option>
       </mat-select>
+      <mat-icon matSuffix>language</mat-icon>
     </mat-form-field>
 
-    <mat-form-field class="form-field" appearance="outline">
+    <mat-form-field
+      class="form-field"
+      appearance="outline"
+      *ngIf="data.formType !== 'teacher'"
+    >
       <mat-label>Level</mat-label>
-      <mat-select formControlName="levelInput" required>
+      <mat-select
+        formControlName="level"
+        [required]="data.formType === 'level'"
+      >
         <mat-option *ngFor="let level of demoLevels" [value]="level">
           {{ level }}
         </mat-option>
+        <mat-option *ngIf="data?.user?.level" [value]="undefined">
+          Remove level
+        </mat-option>
       </mat-select>
+    </mat-form-field>
+
+    <mat-form-field
+      class="form-field"
+      appearance="outline"
+      *ngIf="data.formType === 'teacher'"
+    >
+      <mat-label>Personal Statement</mat-label>
+      <textarea
+        matInput
+        id="statement"
+        formControlName="statement"
+        type="text"
+        placeholder="Tell your students a little bit about yourself..."
+        [required]="data.formType === 'teacher'"
+      ></textarea>
+      <mat-error>
+        <app-error-message
+          [control]="userForm.controls['statement'].errors"
+        ></app-error-message>
+      </mat-error>
     </mat-form-field>
   </div>
 </mat-dialog-content>
@@ -77,7 +131,8 @@
     class="okButton"
     mat-raised-button
     cdkFocusInitial
-    [mat-dialog-close]="true"
+    [mat-dialog-close]="this.userForm.value"
+    [disabled]="this.userForm.invalid"
   >
     Save
   </button>

@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { EditUserDialogModule } from 'src/app/components/edit-user-dialog/edit-user-dialog.module';
 
 import { SideNavComponent } from './side-nav.component';
 
@@ -23,6 +24,7 @@ import { SideNavComponent } from './side-nav.component';
     RouterModule,
     MatChipsModule,
     MatDividerModule,
+    EditUserDialogModule,
   ],
   exports: [SideNavComponent],
 })

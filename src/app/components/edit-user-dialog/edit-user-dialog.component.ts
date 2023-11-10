@@ -10,7 +10,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subject } from 'rxjs/internal/Subject';
 import { countryList } from 'src/app/shared/country-list';
 import { demoLevels } from 'src/app/shared/demo-data';
-import { UserDTO } from 'src/app/shared/models/user.model';
+import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-edit-user-dialog',
@@ -19,11 +19,12 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 })
 export class EditUserDialogComponent implements OnInit {
   userForm: FormGroup<{
-    nameInput: FormControl<string>;
-    emailInput: FormControl<string>;
-    countryInput: FormControl<string>;
-    level: FormControl<string>;
-    personalStatement: FormControl<string>;
+    name: FormControl<string>;
+    email: FormControl<string>;
+    phone: FormControl<string>;
+    nationality: FormControl<string>;
+    level: FormControl<LevelDTO | null>;
+    statement: FormControl<string>;
   }>;
   countryList = countryList;
   hidePassword = true;
@@ -35,42 +36,44 @@ export class EditUserDialogComponent implements OnInit {
       title: string;
       user: UserDTO | undefined;
       existingUsers: UserDTO[] | undefined;
+      formType: string;
     }
   ) {}
 
   formPopulated = new Subject<boolean>();
 
   ngOnInit(): void {
-    console.log('test');
+    console.log(this.data.user);
     this.populateForm();
   }
 
   populateForm(): void {
     this.userForm = new FormGroup({
-      nameInput: new FormControl(this.data.user?.name ?? '', {
+      name: new FormControl(this.data.user?.name ?? '', {
         validators: [],
         nonNullable: true,
       }),
-      emailInput: new FormControl(this.data.user?.email ?? '', {
+      email: new FormControl(this.data.user?.email ?? '', {
         validators: [Validators.required, this.emailValidator()],
         nonNullable: true,
       }),
-      countryInput: new FormControl(this.data.user?.nationality ?? '', {
+      phone: new FormControl(this.data.user?.phone ?? '', {
         validators: [],
         nonNullable: true,
       }),
-      level: new FormControl(this.data.user?.level ?? '', {
+      nationality: new FormControl(this.data.user?.nationality ?? '', {
         validators: [],
         nonNullable: true,
       }),
-      personalStatement: new FormControl(
-        this.data.user?.teacherStatement ?? '',
-        {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-          validators: [this.wordCountValidator(10, 200)],
-          nonNullable: true,
-        }
-      ),
+      level: new FormControl(this.data.user?.level ?? null, {
+        validators: [],
+        nonNullable: false,
+      }),
+      statement: new FormControl(this.data.user?.statement ?? '', {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        validators: [this.wordCountValidator(10, 200)],
+        nonNullable: true,
+      }),
     });
     this.formPopulated.next(true);
   }
@@ -81,11 +84,12 @@ export class EditUserDialogComponent implements OnInit {
       if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/u.test(value)) {
         return { invalidEmail: true }; // check if email is valid
       }
-      if (this.data.existingUsers && this.data.title === 'signup') {
+      if (this.data.existingUsers) {
         if (
           this.data.existingUsers
             .map((user: UserDTO) => user.email)
-            .includes(value)
+            .includes(value) &&
+          value !== this.data.user?.email
         ) {
           return { existingEmail: true }; // check if email already exists
         } else {

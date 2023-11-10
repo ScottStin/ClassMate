@@ -5,6 +5,10 @@
 ></mat-progress-bar>
 <div class="page-content">
   <div *ngFor="let user of (users$ | async)">
-    <app-user-card [user]="user" [userType]="userType"></app-user-card>
+    <app-user-card
+      [user]="user"
+      [userType]="userType"
+      (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
+    ></app-user-card>
   </div>
 </div>
