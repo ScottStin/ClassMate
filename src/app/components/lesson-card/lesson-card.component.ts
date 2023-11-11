@@ -51,7 +51,8 @@ export class LessonCardComponent implements OnChanges {
 
   getLevels(): string {
     if (this.lesson) {
-      return `${this.lesson.level.join(', ')}`;
+      const levelNames = this.lesson.level.map((level) => level.longName);
+      return `${levelNames.join(', ')}`;
     } else {
       return '';
     }
@@ -65,34 +66,30 @@ export class LessonCardComponent implements OnChanges {
     }
   }
 
-  getTimes(): string {
-    if (this.lesson) {
-      const inputDate = new Date(this.lesson.startTime);
-      const day = inputDate.toLocaleDateString('en-US', {
-        weekday: this.largeScreen ? 'short' : 'long',
-      });
-      const date = inputDate.getDate();
-      const month = inputDate.toLocaleDateString('en-US', {
-        month: this.largeScreen ? 'short' : 'long',
-      });
-      const year = inputDate.getFullYear();
-      const hours = inputDate.getHours();
-      const minutes = inputDate.getMinutes();
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      const amPm = hours >= 12 ? 'PM' : 'AM';
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-      const formattedDate = `${day} ${date} ${month} ${year} ${formattedHours}:${formattedMinutes} ${amPm}`;
-
-      return formattedDate;
+  filterLessonType(lesson: LessonDTO): boolean {
+    const user = JSON.parse(localStorage.getItem('auth_data_token')!) as {
+          user: UserDTO;
+        }
+      | undefined; // todo - move to component level
+    console.log(lesson.level);
+    console.log(user?.user.level);
+    if (
+      user?.user === undefined ||
+      user.user.level === null ||
+      user.user.userType.toLocaleLowerCase() === 'teacher' ||
+      (user.user.level &&
+        lesson.level
+          .map((level) => level.longName)
+          .includes(user.user.level.longName))
+    ) {
+      return true;
     } else {
-      return '';
+      return false;
     }
   }
 
   deleteLessonClick(): void {
+    console.log('click');
     this.deleteLesson.emit(this.lesson);
   }
 

@@ -55,7 +55,7 @@
         Level
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <span *ngIf="row.level">{{ row.level }}</span>
+        <span *ngIf="row.level">{{ row.level.longName }}</span>
         <span *ngIf="!row.level"
           ><a
             class="set-level-anchor"

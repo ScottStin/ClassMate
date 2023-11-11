@@ -14,13 +14,14 @@ export interface UserDTO {
     url: string;
     filename: string;
   } | null;
-  level?: LevelDTO;
+  level?: LevelDTO | null;
+  // level?: string | null;
   schoolId: number | string; // replace with number only
   eltComplete: boolean;
   createdAt?: Date | null;
   updatedAt?: Date | null;
 }
 
-export interface LevelDTO {level: "A1 Beginner" | "A2 Lower-Intermediate" | "B1 Intermediate" | "B2 Upper-Intermediate" | "C1 Advanced" | "C2 Native" | null}
+export interface LevelDTO {longName: string | null; shortName: string | null}
 
 export type UserLoginDTO = Pick<UserDTO, 'email' | 'unhashedPassword'>

@@ -10,7 +10,9 @@
       [label]="lessonStatus"
     >
       <div *ngFor="let lesson of (lessons$ | async)">
-        <ng-container *ngIf="getLessonStatus(lessonStatus, lesson)">
+        <ng-container
+          *ngIf="getLessonStatus(lessonStatus, lesson) && !lessonPageLoading"
+        >
           <app-lesson-card
             *ngIf="lesson.name"
             [lessonTypeFilter]="undefined"

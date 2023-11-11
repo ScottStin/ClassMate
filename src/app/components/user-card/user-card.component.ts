@@ -30,7 +30,6 @@ export class UserCardComponent implements OnInit, OnDestroy {
   constructor(public readonly authStoreService: AuthStoreService) {}
 
   ngOnInit(): void {
-    console.log(this.authStoreService.user$);
     if (this.user.profilePicture) {
       this.profilePictureSrc = this.user.profilePicture.url.replace(
         '/upload',

@@ -9,7 +9,6 @@ import { LessonCardModule } from 'src/app/components/lesson-card/lesson-card.mod
 import { UserCardModule } from 'src/app/components/user-card/user-card.module';
 import { UserTableModule } from 'src/app/components/user-table/user-table.module';
 
-import { TeacherPageModule } from '../teacher-page/teacher-page.module';
 import { UserPageComponent } from './user-page.component';
 import { UserPageRoutingModule } from './user-page-routing.module';
 
@@ -23,7 +22,6 @@ import { UserPageRoutingModule } from './user-page-routing.module';
     UserPageRoutingModule,
     LessonCardModule,
     UserCardModule,
-    TeacherPageModule,
     UserTableModule,
     EditUserDialogModule,
     MatCardModule,

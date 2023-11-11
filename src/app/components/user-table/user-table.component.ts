@@ -41,7 +41,6 @@ export class UserTableComponent implements OnInit, AfterViewInit {
   ];
 
   ngOnInit(): void {
-    console.log(this.userData);
     this.dataSource = new MatTableDataSource<UserDTO>(this.userData ?? []);
   }
 

@@ -132,6 +132,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
         this.lessonService.create(result).subscribe({
           next: () => {
             this.snackbarService.open('info', 'Lessons successfully created');
+            this.loadPageData();
           },
           error: (error: Error) => {
             this.error = error;

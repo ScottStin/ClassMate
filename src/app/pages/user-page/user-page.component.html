@@ -4,7 +4,20 @@
   mode="query"
 ></mat-progress-bar>
 <div class="page-content" *ngIf="!this.userPageLoading">
-  <mat-tab-group class="home-tab-group" mat-stretch-tabs>
+  <div *ngIf="pageType==='Card'">
+    <div *ngFor="let user of (users$ | async)">
+      <app-user-card
+        [user]="user"
+        [userType]="userType"
+        (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
+      ></app-user-card>
+    </div>
+  </div>
+  <mat-tab-group
+    class="home-tab-group"
+    mat-stretch-tabs
+    *ngIf="pageType==='Table'"
+  >
     <mat-tab
       *ngFor="let viewType of ['All', 'Active','Inactive']"
       [label]="viewType"

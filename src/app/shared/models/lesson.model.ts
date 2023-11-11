@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier *//* eslint-disable linebreak-style */
-import { UserDTO } from './user.model';
+import { LevelDTO, UserDTO } from './user.model';
 
 export interface LessonDTO {
   _id?: string;
@@ -7,7 +7,7 @@ export interface LessonDTO {
   type: LessonTypeDTO;
   startTime: string;
   duration: number;
-  level: string[];
+  level: LevelDTO[];
   name: string;
   description: string;
   casualPrice: number;

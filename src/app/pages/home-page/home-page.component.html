@@ -5,7 +5,7 @@
 ></mat-progress-bar>
 <div class="page-content">
   <mat-tab-group class="home-tab-group" mat-stretch-tabs>
-    <mat-tab *ngIf="!mediumScreen" label="All">
+    <mat-tab label="All">
       <div *ngFor="let lesson of (lessons$ | async)">
         <app-lesson-card
           *ngIf="lesson.name && getLessonStatus('Upcoming Lessons', lesson)"

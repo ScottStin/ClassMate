@@ -27,7 +27,7 @@
     class="text-warning"
     *ngIf="currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
   >
-    <mat-icon>star</mat-icon> C2
+    <mat-icon>star</mat-icon> {{currentUser?.level?.shortName}}
     <mat-icon>star</mat-icon>
   </h2>
   <mat-chip-list

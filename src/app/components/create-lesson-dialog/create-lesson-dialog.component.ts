@@ -21,6 +21,7 @@ import { Subject } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { demoLessonTypes, demoLevels } from 'src/app/shared/demo-data';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
+import { LevelDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-create-lesson-dialog',
@@ -41,7 +42,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     typeInput: FormControl<LessonTypeDTO | null>;
     sizeInput: FormControl<number>;
     lengthInput: FormControl<number>;
-    levelInput: FormControl<string[]>;
+    levelInput: FormControl<LevelDTO[]>;
   }>;
 
   public cronOptions: CronOptions = {

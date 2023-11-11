@@ -95,9 +95,9 @@
         [required]="data.formType === 'level'"
       >
         <mat-option *ngFor="let level of demoLevels" [value]="level">
-          {{ level }}
+          {{ level.longName }}
         </mat-option>
-        <mat-option *ngIf="data?.user?.level" [value]="undefined">
+        <mat-option *ngIf="data?.user?.level" [value]="null">
           Remove level
         </mat-option>
       </mat-select>

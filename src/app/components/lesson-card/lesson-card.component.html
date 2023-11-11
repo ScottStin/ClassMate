@@ -3,7 +3,8 @@
   *ngIf="
     lesson && 
     (lessonTypeFilter?.name === lesson.type.name || !lessonTypeFilter) && 
-    ((pageName==='lessons' && (authStoreService.user$ | async)?.user?.email === teacher?.email) || pageName!=='lessons')
+    ((pageName==='lessons' && (authStoreService.user$ | async)?.user?.email === teacher?.email) || pageName!=='lessons') &&
+    filterLessonType(lesson)
     "
 >
   <div class="row">
@@ -34,7 +35,8 @@
           <p>{{lesson.description}}</p>
         </mat-card-content>
         <mat-card-actions align="end">
-          <h5>{{getTimes()}}</h5>
+          <h5>{{lesson.startTime | date:'dd MMMM yyyy h:mm a'}}&nbsp;</h5>
+          <h6><i>({{lesson.startTime | date:'z' }})</i></h6>
           <button
             mat-mini-fab
             style="background-color: orange"

@@ -107,7 +107,7 @@
           <mat-label>Level</mat-label>
           <mat-select formControlName="levelInput" multiple>
             <mat-option *ngFor="let level of demoLevels" [value]="level"
-              >{{level}}</mat-option
+              >{{level.longName}}</mat-option
             >
           </mat-select>
           <mat-error>
@@ -156,7 +156,7 @@
           Start Date/Time
         </mat-header-cell>
         <mat-cell *matCellDef="let row">
-          <span>{{ row.startTime }}</span>
+          <span>{{ row.startTime | date:'dd MMM yyyy h:mm a z' }}</span>
         </mat-cell>
       </ng-container>
 
@@ -207,7 +207,7 @@
         </mat-header-cell>
         <mat-cell *matCellDef="let row">
           <span *ngFor="let item of row.level; let last = last">
-            {{ item }}{{ !last ? ', ' : '' }}
+            {{ item.shortName }}{{ !last ? ',&nbsp;' : '' }}
           </span>
         </mat-cell>
       </ng-container>

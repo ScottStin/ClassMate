@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute } from '@angular/router';
 import { finalize, first, Observable, of } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
@@ -16,16 +17,23 @@ export class UserPageComponent implements OnInit {
   error: Error;
   userPageLoading = false;
   users$: Observable<UserDTO[]>;
+  userType: string;
+  pageType: string;
 
   constructor(
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService,
-    public dialog: MatDialog
-  ) {}
+    public dialog: MatDialog,
+    private readonly route: ActivatedRoute
+  ) {
+    this.userType = this.route.snapshot.data['userType'] as string;
+    this.pageType = this.route.snapshot.data['pageType'] as string;
+  }
 
   ngOnInit(): void {
     this.users$ = this.userService.users$;
     this.getUsers();
+    console.log(this.pageType);
   }
 
   getUsers(): void {
@@ -41,7 +49,8 @@ export class UserPageComponent implements OnInit {
       .subscribe({
         next: (res) => {
           const students = res.filter(
-            (user) => user.userType.toLowerCase() === 'student'
+            (user) =>
+              user.userType.toLowerCase() === this.userType.toLowerCase()
           );
           this.users$ = of(students);
         },

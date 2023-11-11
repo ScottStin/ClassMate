@@ -60,3 +60,8 @@
 .form-field {
   width: 100%;
 }
+
+.login-signup-button {
+  background-color: #6200EE;
+  color: white;
+}

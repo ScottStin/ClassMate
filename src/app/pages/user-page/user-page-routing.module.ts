@@ -2,7 +2,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { TeacherPageComponent } from '../teacher-page/teacher-page.component';
 import { UserPageComponent } from './user-page.component';
 
 const routes: Routes = [
@@ -11,22 +10,23 @@ const routes: Routes = [
     children: [
         {
           path: 'teachers',
-          component: TeacherPageComponent,
-          data: { userType: 'Teacher' },
+          component: UserPageComponent,
+          data: { userType: 'Teacher', pageType: 'Card' },
         },
         {
           path: 'classmates',
-          component: TeacherPageComponent,
-          data: { userType: 'Student' },
+          component: UserPageComponent,
+          data: { userType: 'Student', pageType: 'Card' },
         },
         {
           path: 'students',
           component: UserPageComponent,
+          data: { userType: 'Student', pageType: 'Table' },
         },
         {
           path: 'colleagues',
-          component: TeacherPageComponent,
-          data: { userType: 'Teacher' },
+          component: UserPageComponent,
+          data: { userType: 'Teacher', pageType: 'Card' },
         },
         {
           path: '',

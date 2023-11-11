@@ -17,6 +17,7 @@ export class TeacherPageComponent implements OnInit {
   teacherPageLoading = false;
   users$: Observable<UserDTO[]>;
   userType: string;
+  pageType: string;
 
   constructor(
     private readonly userService: UserService,
@@ -25,6 +26,7 @@ export class TeacherPageComponent implements OnInit {
     public dialog: MatDialog
   ) {
     this.userType = this.route.snapshot.data['userType'] as string;
+    this.pageType = this.route.snapshot.data['pageType'] as string;
   }
 
   ngOnInit(): void {

@@ -24,6 +24,7 @@ export class EditUserDialogComponent implements OnInit {
     phone: FormControl<string>;
     nationality: FormControl<string>;
     level: FormControl<LevelDTO | null>;
+    // level: FormControl<string | null>;
     statement: FormControl<string>;
   }>;
   countryList = countryList;
@@ -75,6 +76,13 @@ export class EditUserDialogComponent implements OnInit {
         nonNullable: true,
       }),
     });
+    if (this.data.user?.level) {
+      const level = this.demoLevels.find(
+        (obj) => this.data.user?.level?.shortName === obj.shortName
+      );
+      this.userForm.get('level')?.patchValue(level as LevelDTO | null);
+    }
+
     this.formPopulated.next(true);
   }
 
