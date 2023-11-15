@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { ErrorService } from '../error-message.service/error-message.service';
@@ -36,6 +37,26 @@ export class LessonService {
         this.handleError(error, 'Failed to create new lesson');
       })
     );
+  }
+
+  joinLesson(lesson: LessonDTO, student: UserDTO): Observable<LessonDTO> {
+    return this.httpClient
+      .patch<LessonDTO>(`${this.baseUrl}/register/${lesson._id!}`, student)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to create new lesson');
+        })
+      );
+  }
+
+  cancelLesson(lesson: LessonDTO, student: UserDTO): Observable<LessonDTO> {
+    return this.httpClient
+      .patch<LessonDTO>(`${this.baseUrl}/cancel/${lesson._id!}`, student)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to cancel lesson');
+        })
+      );
   }
 
   delete(data: LessonDTO): Observable<LessonDTO> {

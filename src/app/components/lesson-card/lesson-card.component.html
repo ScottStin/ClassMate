@@ -1,4 +1,4 @@
-<mat-card
+<!-- <mat-card
   class="card"
   *ngIf="
     lesson && 
@@ -6,6 +6,10 @@
     ((pageName==='lessons' && (authStoreService.user$ | async)?.user?.email === teacher?.email) || pageName!=='lessons') &&
     filterLessonType(lesson)
     "
+> -->
+<mat-card
+  class="card"
+  *ngIf="lesson && filterLessonUsers(lesson)"
 >
   <div class="row">
     <div class="column">
@@ -63,10 +67,7 @@
             <mat-icon>delete</mat-icon>
           </button>
           <button
-            *ngIf="
-            (authStoreService.user$ | async)?.user?.userType?.toLowerCase() === 'student' &&
-            pageName!=='lessons'
-            "
+            *ngIf="showJoinButton(lesson)"
             mat-mini-fab
             color="primary"
             class="button"
@@ -74,6 +75,16 @@
             (click)="joinLessonClick()"
           >
             <mat-icon>person_add</mat-icon>
+          </button>
+          <button
+            *ngIf="showLeaveButton(lesson)"
+            mat-mini-fab
+            style="background-color: orange"
+            class="button"
+            matTooltip="Click here to cancel this lesson"
+            (click)="cancelLessonClick()"
+          >
+            <mat-icon>cancel</mat-icon>
           </button>
         </mat-card-actions>
       </div>

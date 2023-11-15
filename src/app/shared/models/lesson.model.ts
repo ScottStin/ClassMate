@@ -12,7 +12,7 @@ export interface LessonDTO {
   description: string;
   casualPrice: number;
   maxStudents: number;
-  studentsEnrolled: UserDTO[];
+  studentsEnrolled: string[];
   disableFirtsLesson: boolean;
 }
 

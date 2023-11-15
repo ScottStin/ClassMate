@@ -33,7 +33,6 @@ export class UserPageComponent implements OnInit {
   ngOnInit(): void {
     this.users$ = this.userService.users$;
     this.getUsers();
-    console.log(this.pageType);
   }
 
   getUsers(): void {
@@ -85,7 +84,6 @@ export class UserPageComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
       if (result) {
-        console.log(result);
         this.userService.update(result, data.user._id!).subscribe({
           next: () => {
             this.snackbarService.open(

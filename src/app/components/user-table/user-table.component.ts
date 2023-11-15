@@ -91,7 +91,7 @@ export class UserTableComponent implements OnInit, AfterViewInit {
   }
 
   openEditDialogClick(student: UserDTO): void {
-    this.openEditUserDialog.emit({ user: student, formType: null });
+    this.openEditUserDialog.emit({ user: student, formType: 'student' });
   }
 
   openConfirmDeleteDialogClick(student: UserDTO): void {

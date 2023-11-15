@@ -13,6 +13,7 @@
           [lesson]="lesson"
           [users]="users$ | async"
           (joinLesson)="joinLesson($event)"
+          (cancelLesson)="cancelLesson($event)"
         ></app-lesson-card>
       </div>
     </mat-tab>

@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { finalize, first, forkJoin, Observable, of } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { LessonTypeService } from 'src/app/services/lesson-type-service/lesson-type.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -24,6 +25,7 @@ export class HomePageComponent implements OnInit {
   lessons$: Observable<LessonDTO[]>;
   lessonTypes$: Observable<LessonTypeDTO[]>;
   homePageLoading = true;
+  currentUser: UserDTO | null;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -38,6 +40,7 @@ export class HomePageComponent implements OnInit {
     private readonly userService: UserService,
     private readonly lessonService: LessonService,
     private readonly lessonTypeService: LessonTypeService,
+    private readonly authStoreService: AuthStoreService,
     public dialog: MatDialog
   ) {}
 
@@ -48,6 +51,13 @@ export class HomePageComponent implements OnInit {
     this.loadPageData();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
+    if (localStorage.getItem('auth_data_token') !== null) {
+      this.currentUser = (
+        JSON.parse(localStorage.getItem('auth_data_token')!) as {
+          user: UserDTO;
+        }
+      ).user;
+    }
   }
 
   loadPageData(): void {
@@ -106,15 +116,83 @@ export class HomePageComponent implements OnInit {
   } // todo - move to lesson service
 
   joinLesson(lesson: LessonDTO): void {
-    this.dialog.open(ConfirmDialogComponent, {
-      data: {
+    let joinClass = true;
+    let data = {
+      title: 'Join this class?',
+      message: 'A seat will be reserved for you in this lesson',
+      okLabel: 'Join',
+      cancelLabel: 'Cancel',
+      routerLink: '',
+    };
+    if (!this.currentUser) {
+      data = {
         title: 'Wait! You have to sign in first',
         message:
           'You must be signed in to join a class. Click below to login or regiser a new account',
         okLabel: 'Login / Sign up',
         cancelLabel: 'Cancel',
         routerLink: 'student/signup',
-      },
+      };
+      joinClass = false;
+    }
+    if (this.currentUser && !this.currentUser.level) {
+      data = {
+        title:
+          'You must take your English level test before you can join this class',
+        message:
+          'In order to take this class we need to assess your level to see if it is the right class for you. <br> Click below to take your free English level test, it only takes a few minutes!',
+        okLabel: 'Take my English level test',
+        cancelLabel: 'Cancel',
+        routerLink: 'exams',
+      };
+      joinClass = false;
+    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, { data });
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result && joinClass) {
+        this.lessonService.joinLesson(lesson, this.currentUser!).subscribe({
+          next: () => {
+            this.snackbarService.open(
+              'info',
+              "A seat for you in this lesson has been reserved. You will be able to enter the lesson 5 minutes before the start time. Go to 'My Classes' to view all your lessons. "
+            );
+            this.loadPageData();
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
+      }
+    });
+  }
+
+  cancelLesson(lesson: LessonDTO): void {
+    const data = {
+      title: 'Cancel this class?',
+      message:
+        'Your spot in this lesson will no longer be reserved and another student may take it. If the lessons is not full, you may be able to join again.',
+      okLabel: 'Leave Lesson',
+      cancelLabel: 'Close',
+      routerLink: '',
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, { data });
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.lessonService.cancelLesson(lesson, this.currentUser!).subscribe({
+          next: () => {
+            this.snackbarService.open(
+              'info',
+              'You have successfully cancelled your place in this lesson.'
+            );
+            this.loadPageData();
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
+      }
     });
   }
 }

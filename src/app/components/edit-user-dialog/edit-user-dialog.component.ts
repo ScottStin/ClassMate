@@ -44,7 +44,6 @@ export class EditUserDialogComponent implements OnInit {
   formPopulated = new Subject<boolean>();
 
   ngOnInit(): void {
-    console.log(this.data.user);
     this.populateForm();
   }
 
@@ -111,7 +110,7 @@ export class EditUserDialogComponent implements OnInit {
 
   wordCountValidator(minWords: number, maxWords: number): ValidatorFn {
     return (control: AbstractControl): Record<string, unknown> | null => {
-      if (this.data.user?.userType === 'teacher') {
+      if (this.data.user?.userType.toLowerCase() === 'teacher') {
         const value = control.value as string;
         const words = value ? value.trim().split(/\s+/u) : [];
         const wordCount = words.length;

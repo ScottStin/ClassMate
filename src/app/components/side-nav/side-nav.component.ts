@@ -84,12 +84,10 @@ export class SideNavComponent implements OnInit, OnDestroy {
         title: `Edit your details`,
         user: this.currentUser,
         existingUsers,
-        formType: 'teacher',
       },
     });
     dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
       if (result) {
-        console.log(result);
         this.userService.update(result, this.currentUser!._id!).subscribe({
           next: () => {
             this.snackbarService.open(

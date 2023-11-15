@@ -39,7 +39,6 @@ export class UserService {
   }
 
   update(data: Partial<UserDTO>, id: string): Observable<UserDTO> {
-    console.log(data);
     return this.httpClient.patch<UserDTO>(`${this.baseUrl}/${id}`, data).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to update user');

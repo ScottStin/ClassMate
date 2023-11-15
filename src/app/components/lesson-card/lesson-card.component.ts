@@ -24,6 +24,7 @@ export class LessonCardComponent implements OnChanges {
   @Input() pageName: string;
   @Output() deleteLesson = new EventEmitter<LessonDTO>();
   @Output() joinLesson = new EventEmitter<LessonDTO>();
+  @Output() cancelLesson = new EventEmitter<LessonDTO>();
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -40,6 +41,9 @@ export class LessonCardComponent implements OnChanges {
   largeScreen = false;
   profilePictureSrc =
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
+  currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
+    | { user: UserDTO }
+    | undefined;
 
   constructor(public readonly authStoreService: AuthStoreService) {}
 
@@ -66,21 +70,62 @@ export class LessonCardComponent implements OnChanges {
     }
   }
 
-  filterLessonType(lesson: LessonDTO): boolean {
-    const user = JSON.parse(localStorage.getItem('auth_data_token')!) as {
-          user: UserDTO;
-        }
-      | undefined; // todo - move to component level
-    console.log(lesson.level);
-    console.log(user?.user.level);
+  filterLessonLevel(lesson: LessonDTO): boolean {
     if (
-      user?.user === undefined ||
-      user.user.level === null ||
-      user.user.userType.toLocaleLowerCase() === 'teacher' ||
-      (user.user.level &&
+      this.currentUser?.user === undefined ||
+      this.currentUser.user.level === null ||
+      this.currentUser.user.userType.toLocaleLowerCase() === 'teacher' ||
+      (this.currentUser.user.level &&
         lesson.level
           .map((level) => level.longName)
-          .includes(user.user.level.longName))
+          .includes(this.currentUser.user.level.longName))
+    ) {
+      return true; // if the lesson matches the current user's level, or there's no current user, or the current user is a teacher or doesn't have a level, show the lesson
+    } else {
+      return false; // if the lesson does not match the current user's level, hide the lesson
+    }
+  }
+
+  filterLessonUsers(lesson: LessonDTO): boolean {
+    if (
+      (this.lessonTypeFilter?.name === lesson.type.name ||
+        !this.lessonTypeFilter) &&
+      this.pageName !== 'lessons'
+    ) {
+      return this.filterLessonLevel(lesson); // If we're on the home page and the lesson type matches the type filter, show the lesson
+    } else if (
+      this.pageName === 'lessons' &&
+      this.currentUser?.user.email === this.teacher?.email
+    ) {
+      return true; // if we're on the 'my classes' page and the class belongs to the current logged in teacher
+    } else if (
+      this.pageName === 'lessons' &&
+      this.currentUser?.user &&
+      lesson.studentsEnrolled.includes(this.currentUser.user.email)
+    ) {
+      return true; // if we're on the 'my classes' page and the current enrolled student is a enrolled in that class
+    } else {
+      return false; // hide the lesson from display
+    }
+  }
+
+  showJoinButton(lesson: LessonDTO): boolean {
+    if (!this.currentUser) {
+      return true; // if there's not current user.
+    } else if (
+      this.currentUser.user.userType.toLowerCase() === 'student' &&
+      !lesson.studentsEnrolled.includes(this.currentUser.user.email)
+    ) {
+      return true; // if the current user is a student and they're not enrolled in the lesson.
+    } else {
+      return false; // if the current user is a teacher or a student who is already enrolled in the lesson, hide the 'join' button.
+    }
+  }
+
+  showLeaveButton(lesson: LessonDTO): boolean {
+    if (
+      this.currentUser?.user.userType.toLowerCase() === 'student' &&
+      lesson.studentsEnrolled.includes(this.currentUser.user.email)
     ) {
       return true;
     } else {
@@ -89,11 +134,14 @@ export class LessonCardComponent implements OnChanges {
   }
 
   deleteLessonClick(): void {
-    console.log('click');
     this.deleteLesson.emit(this.lesson);
   }
 
   joinLessonClick(): void {
     this.joinLesson.emit(this.lesson);
+  }
+
+  cancelLessonClick(): void {
+    this.cancelLesson.emit(this.lesson);
   }
 }

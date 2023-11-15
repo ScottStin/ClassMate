@@ -87,13 +87,10 @@
     <mat-form-field
       class="form-field"
       appearance="outline"
-      *ngIf="data.formType !== 'teacher'"
+      *ngIf="data.formType?.toLowerCase() === 'level' || data.formType === 'student'"
     >
       <mat-label>Level</mat-label>
-      <mat-select
-        formControlName="level"
-        [required]="data.formType === 'level'"
-      >
+      <mat-select formControlName="level">
         <mat-option *ngFor="let level of demoLevels" [value]="level">
           {{ level.longName }}
         </mat-option>
@@ -106,7 +103,7 @@
     <mat-form-field
       class="form-field"
       appearance="outline"
-      *ngIf="data.formType === 'teacher'"
+      *ngIf="data.user?.userType?.toLowerCase() === 'teacher'"
     >
       <mat-label>Personal Statement</mat-label>
       <textarea
@@ -115,7 +112,7 @@
         formControlName="statement"
         type="text"
         placeholder="Tell your students a little bit about yourself..."
-        [required]="data.formType === 'teacher'"
+        [required]="this.data.user?.userType === 'teacher'"
       ></textarea>
       <mat-error>
         <app-error-message
