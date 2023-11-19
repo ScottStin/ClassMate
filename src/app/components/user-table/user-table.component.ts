@@ -71,13 +71,6 @@ export class UserTableComponent implements OnInit, AfterViewInit {
     }
   }
 
-  filterChannels(data: string): void {
-    this.filterText = data;
-    if (this.dataSource) {
-      this.dataSource.filter = this.filterText;
-    }
-  }
-
   cropImage(imageSrc: { url: string } | undefined): string {
     if (imageSrc?.url !== undefined) {
       return imageSrc.url.replace('/upload', '/upload/w_50,h_50,c_thumb,');
@@ -96,5 +89,12 @@ export class UserTableComponent implements OnInit, AfterViewInit {
 
   openConfirmDeleteDialogClick(student: UserDTO): void {
     this.openConfirmDeleteDialog.emit(student);
+  }
+
+  filterResults(text: string): void {
+    this.filterText = text;
+    if (this.dataSource) {
+      this.dataSource.filter = this.filterText;
+    }
   }
 }

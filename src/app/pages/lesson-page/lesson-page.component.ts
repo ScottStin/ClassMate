@@ -8,7 +8,7 @@ import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
-import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
+import { LessonDTO } from 'src/app/shared/models/lesson.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -22,6 +22,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   smallScreen = false;
   users$: Observable<UserDTO[]>;
   lessons$: Observable<LessonDTO[]>;
+  filteredLessons$: Observable<LessonDTO[]>;
   lessonPageLoading = true;
   pageName = '';
   private readonly routerSubscription: Subscription | undefined;
@@ -92,6 +93,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
             }
           });
           this.lessons$ = of(lessons);
+          this.filteredLessons$ = of(lessons);
         },
         error: (error: Error) => {
           const snackbar = this.snackbarService.openPermanent(
@@ -166,6 +168,20 @@ export class LessonPageComponent implements OnInit, OnDestroy {
           },
         });
       }
+    });
+  }
+
+  filterResults(text: string): void {
+    this.lessons$.subscribe({
+      next: (res) => {
+        const lessons = res.filter(
+          (obj: LessonDTO) =>
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            obj.name?.toLowerCase().includes(text.toLowerCase()) ||
+            obj.description.toLowerCase().includes(text.toLowerCase())
+        );
+        this.filteredLessons$ = of(lessons);
+      },
     });
   }
 }

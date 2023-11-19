@@ -12,8 +12,13 @@
   <span class="spacer"></span>
 
   <form *ngIf="searchBar" class="search-bar-form">
-    <mat-form-field class="form-field" appearance="outline">
-      <input matInput [placeholder]="searchBar" />
+    <mat-form-field class="form-field" appearance="outline" id="filter-field">
+      <input
+        #filter
+        matInput
+        [placeholder]="searchBar"
+        (keyup)="filterResultsKeyup(filter.value)"
+      />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
   </form>

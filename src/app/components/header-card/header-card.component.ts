@@ -17,6 +17,7 @@ import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
 export class HeaderCardComponent implements OnDestroy {
   @Output() closeSideNav = new EventEmitter();
   @Output() headerButtonAction = new EventEmitter();
+  @Output() filterResults = new EventEmitter<string>();
   breadCrumb: string | undefined = '';
   searchBar: string | undefined = '';
   icon: string | undefined = '';
@@ -85,5 +86,10 @@ export class HeaderCardComponent implements OnDestroy {
         this.authStoreService.logout();
       }
     });
+  }
+
+  filterResultsKeyup(text: string): void {
+    console.log(text);
+    this.filterResults.emit(text);
   }
 }

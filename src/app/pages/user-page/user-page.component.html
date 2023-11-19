@@ -1,11 +1,11 @@
-<app-header-card></app-header-card>
+<app-header-card (filterResults)="filterResults($event)"></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: userPageLoading ? 'visible' : 'hidden' }"
   mode="query"
 ></mat-progress-bar>
 <div class="page-content" *ngIf="!this.userPageLoading">
   <div *ngIf="pageType==='Card'">
-    <div *ngFor="let user of (users$ | async)">
+    <div *ngFor="let user of (filteredUsers$ | async)">
       <app-user-card
         [user]="user"
         [userType]="userType"

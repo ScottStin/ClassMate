@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier *//* eslint-disable linebreak-style */
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthTeacherGuard } from 'src/app/core/guards/auth-teacher.guard';
 
 import { UserPageComponent } from './user-page.component';
 
@@ -20,11 +21,13 @@ const routes: Routes = [
         },
         {
           path: 'students',
+          canActivate: [AuthTeacherGuard],
           component: UserPageComponent,
           data: { userType: 'Student', pageType: 'Table' },
         },
         {
           path: 'colleagues',
+          canActivate: [AuthTeacherGuard],
           component: UserPageComponent,
           data: { userType: 'Teacher', pageType: 'Card' },
         },

@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, first, Observable, of } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
+import { UserTableComponent } from 'src/app/components/user-table/user-table.component';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
@@ -14,9 +15,13 @@ import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
   styleUrls: ['./user-page.component.css'],
 })
 export class UserPageComponent implements OnInit {
+  @ViewChild(UserTableComponent)
+  userTableComponent: UserTableComponent;
+
   error: Error;
   userPageLoading = false;
   users$: Observable<UserDTO[]>;
+  filteredUsers$: Observable<UserDTO[]>;
   userType: string;
   pageType: string;
 
@@ -32,6 +37,7 @@ export class UserPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.users$ = this.userService.users$;
+    this.filteredUsers$ = this.userService.users$;
     this.getUsers();
   }
 
@@ -52,6 +58,7 @@ export class UserPageComponent implements OnInit {
               user.userType.toLowerCase() === this.userType.toLowerCase()
           );
           this.users$ = of(students);
+          this.filteredUsers$ = of(students);
         },
         error: (error: Error) => {
           const snackbar = this.snackbarService.openPermanent(
@@ -128,5 +135,25 @@ export class UserPageComponent implements OnInit {
 
   addStudent(): void {
     console.log('test');
+  }
+
+  filterResults(text: string): void {
+    if (this.pageType.toLowerCase() === 'card') {
+      this.users$.subscribe({
+        next: (res) => {
+          const students = res.filter(
+            (obj: UserDTO) =>
+              obj.name.toLowerCase().includes(text.toLowerCase()) ||
+              obj.email.toLowerCase().includes(text.toLowerCase()) ||
+              obj.nationality.toLowerCase().includes(text.toLowerCase()) ||
+              obj.statement?.toLowerCase().includes(text.toLowerCase())
+          );
+          this.filteredUsers$ = of(students);
+        },
+      });
+    }
+    if (this.pageType.toLowerCase() === 'table') {
+      this.userTableComponent.filterResults(text);
+    }
   }
 }

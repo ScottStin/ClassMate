@@ -1,16 +1,4 @@
-<!-- <mat-card
-  class="card"
-  *ngIf="
-    lesson && 
-    (lessonTypeFilter?.name === lesson.type.name || !lessonTypeFilter) && 
-    ((pageName==='lessons' && (authStoreService.user$ | async)?.user?.email === teacher?.email) || pageName!=='lessons') &&
-    filterLessonType(lesson)
-    "
-> -->
-<mat-card
-  class="card"
-  *ngIf="lesson && filterLessonUsers(lesson)"
->
+<mat-card class="card" *ngIf="lesson && filterLessonUsers(lesson)">
   <div class="row">
     <div class="column">
       <div class="photo-column">

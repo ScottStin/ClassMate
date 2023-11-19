@@ -1,4 +1,7 @@
-<app-header-card (headerButtonAction)="createLesson()"></app-header-card>
+<app-header-card
+  (headerButtonAction)="createLesson()"
+  (filterResults)="filterResults($event)"
+></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: lessonPageLoading ? 'visible' : 'hidden' }"
   mode="query"
@@ -9,7 +12,7 @@
       *ngFor="let lessonStatus of ['Past Lessons','Upcoming Lessons']"
       [label]="lessonStatus"
     >
-      <div *ngFor="let lesson of (lessons$ | async)">
+      <div *ngFor="let lesson of (filteredLessons$ | async)">
         <ng-container
           *ngIf="getLessonStatus(lessonStatus, lesson) && !lessonPageLoading"
         >
