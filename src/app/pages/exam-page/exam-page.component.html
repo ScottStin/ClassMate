@@ -1,0 +1,26 @@
+<app-header-card
+  (headerButtonAction)="createExam()"
+  (filterResults)="filterResults($event)"
+></app-header-card>
+
+<mat-progress-bar
+  [style]="{ visibility: examPageLoading ? 'visible' : 'hidden' }"
+  mode="query"
+></mat-progress-bar>
+
+<div class="page-content">
+  <mat-tab-group class="home-tab-group" mat-stretch-tabs>
+    <mat-tab
+      *ngFor="let examType of ['My Exams','All Exams']"
+      [label]="examType"
+    >
+      <div *ngIf="!examPageLoading" class="table-container">
+        <app-exam-table
+          [examData]="getUserExams(examType)"
+          (openEditExamDialog)="openEditExamDialog($event)"
+          (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
+        ></app-exam-table>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

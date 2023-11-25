@@ -75,33 +75,32 @@ export class SideNavComponent implements OnInit, OnDestroy {
   }
 
   openEditUserDialog(): void {
-    let existingUsers;
     this.users$.pipe(first()).subscribe((res) => {
-      existingUsers = res;
-    });
-    const dialogRef = this.dialog.open(EditUserDialogComponent, {
-      data: {
-        title: `Edit your details`,
-        user: this.currentUser,
-        existingUsers,
-      },
-    });
-    dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
-      if (result) {
-        this.userService.update(result, this.currentUser!._id!).subscribe({
-          next: () => {
-            this.snackbarService.open(
-              'info',
-              'Your profile has successfully been updated'
-            );
-            this.getCurrentUser();
-          },
-          error: (error: Error) => {
-            this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
-          },
-        });
-      }
+      const existingUsers = res;
+      const dialogRef = this.dialog.open(EditUserDialogComponent, {
+        data: {
+          title: `Edit your details`,
+          user: this.currentUser,
+          existingUsers,
+        },
+      });
+      dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
+        if (result) {
+          this.userService.update(result, this.currentUser!._id!).subscribe({
+            next: () => {
+              this.snackbarService.open(
+                'info',
+                'Your profile has successfully been updated'
+              );
+              this.getCurrentUser();
+            },
+            error: (error: Error) => {
+              this.error = error;
+              this.snackbarService.openPermanent('error', error.message);
+            },
+          });
+        }
+      });
     });
   }
 
@@ -138,6 +137,9 @@ export const menuItems: MenuItemDTO[] = [
     use: ['student'],
     icon: 'assignment',
     routerLink: '/exams',
+    searchBar: 'Search exams...',
+    headerButton: 'Add New Exam',
+    headerButtonIcon: 'add',
   },
   { name: 'My Coursework', icon: 'work', use: ['Student'], routerLink: '' },
   {

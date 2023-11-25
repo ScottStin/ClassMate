@@ -41,6 +41,7 @@ export class LessonCardComponent implements OnChanges {
   largeScreen = false;
   profilePictureSrc =
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
     | { user: UserDTO }
     | undefined;

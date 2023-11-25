@@ -27,10 +27,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   padding:25px;
 }
 
-.table-row:hover {
-  background: whitesmoke;
-}
-
 /**
  * ==============================
  *  SnackBar
@@ -71,4 +67,32 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 .snackbar-error .mat-simple-snackbar-action {
   color: white;
+}
+
+/**
+ * ==============================
+ *  Tables
+ * ==============================
+*/
+
+.table-container {
+  margin-top:20px;
+}
+
+.mat-table {    
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    overflow:hidden !important;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.mat-paginator {    
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    overflow:hidden !important;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.table-row:hover {
+  background: whitesmoke;
 }

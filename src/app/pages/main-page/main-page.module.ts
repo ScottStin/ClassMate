@@ -4,6 +4,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { FilterCardModule } from 'src/app/components/filter-card/filter-card.module';
 import { SideNavModule } from 'src/app/components/side-nav/side-nav.module';
 
+import { ExamPageModule } from '../exam-page/exam-page.module';
 import { LessonPageModule } from '../lesson-page/lesson-page.module';
 import { UserPageModule } from '../user-page/user-page.module';
 import { MainPageComponent } from './main-page.component';
@@ -19,6 +20,7 @@ import { MainPageRoutingModule } from './main-page-routing.module';
     FilterCardModule,
     LessonPageModule,
     UserPageModule,
+    ExamPageModule,
   ],
   providers: [],
 })

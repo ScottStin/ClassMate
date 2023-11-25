@@ -77,34 +77,33 @@ export class UserPageComponent implements OnInit {
   }
 
   openEditUserDialog(data: { user: UserDTO; formType: string | null }): void {
-    let existingUsers;
     this.users$.pipe(first()).subscribe((res) => {
-      existingUsers = res;
-    });
-    const dialogRef = this.dialog.open(EditUserDialogComponent, {
-      data: {
-        title: `Edit ${data.user.name}`,
-        user: data.user,
-        existingUsers,
-        formType: data.formType,
-      },
-    });
-    dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
-      if (result) {
-        this.userService.update(result, data.user._id!).subscribe({
-          next: () => {
-            this.snackbarService.open(
-              'info',
-              'User level successfully updated'
-            );
-            this.getUsers();
-          },
-          error: (error: Error) => {
-            this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
-          },
-        });
-      }
+      const existingUsers = res;
+      const dialogRef = this.dialog.open(EditUserDialogComponent, {
+        data: {
+          title: `Edit ${data.user.name}`,
+          user: data.user,
+          existingUsers,
+          formType: data.formType,
+        },
+      });
+      dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
+        if (result) {
+          this.userService.update(result, data.user._id!).subscribe({
+            next: () => {
+              this.snackbarService.open(
+                'info',
+                'User level successfully updated'
+              );
+              this.getUsers();
+            },
+            error: (error: Error) => {
+              this.error = error;
+              this.snackbarService.openPermanent('error', error.message);
+            },
+          });
+        }
+      });
     });
   }
 

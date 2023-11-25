@@ -26,6 +26,12 @@ const routes: Routes = [
         canActivate: [AuthLoggedInGuard],
         loadChildren: async () =>
               (await import('../user-page/user-page.module')).UserPageModule,
+      },
+      {
+        path: 'exams',
+        canActivate: [AuthLoggedInGuard],
+        loadChildren: async () =>
+              (await import('../exam-page/exam-page.module')).ExamPageModule,
       }
     ]
   },

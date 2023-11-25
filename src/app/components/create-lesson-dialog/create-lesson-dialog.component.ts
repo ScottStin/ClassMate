@@ -12,12 +12,17 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { CronOptions } from 'ngx-cron-editor';
 import { Subject } from 'rxjs';
+import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { demoLessonTypes, demoLevels } from 'src/app/shared/demo-data';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
@@ -86,7 +91,9 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
       leftButton: string;
       body: LessonDTO | undefined;
     },
-    public readonly authStoreService: AuthStoreService
+    public readonly authStoreService: AuthStoreService,
+    public dialogRef: MatDialogRef<CreateLessonDialogComponent>,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -236,5 +243,27 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         return null;
       }
     };
+  }
+
+  closeDialog(): void {
+    // if (this.lessonForm.pristine) {
+    if (this.lessons === undefined || this.lessons.length === 0) {
+      this.dialogRef.close();
+    } else {
+      const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: `Close New Lesson Form`,
+          message: `Your new lessons haven't been saved yet. Are you sure you want to close this form?`,
+          okLabel: `Close`,
+          cancelLabel: `Cancel`,
+          routerLink: '',
+        },
+      });
+      confirmDialogRef.afterClosed().subscribe((result) => {
+        if (result === true) {
+          this.dialogRef.close();
+        }
+      });
+    }
   }
 }
