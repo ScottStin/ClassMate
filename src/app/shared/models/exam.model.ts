@@ -11,4 +11,5 @@ export interface ExamDTO {
     createdAt?: Date | null;
     assignedTeacher: string;
     autoMarking: boolean;
+    school: string | null;
   }

@@ -1,0 +1,22 @@
+.form-field {
+    width: 100%;
+  }
+
+.thumbnail-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  padding: 10px;
+}
+
+.step-container {
+  padding-top: 16px;
+}
+
+.stepper-navigation {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px; 
+}

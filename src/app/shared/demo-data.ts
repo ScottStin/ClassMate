@@ -20,15 +20,15 @@ export const demoLevels: LevelDTO[] = [
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const DemoExams: ExamDTO[] = [
-  {name: 'PTE Mini Mock Exam 1', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 10, default: false, assignedTeacher:"test@gmail.com", autoMarking:false},
-  {name: 'PTE Mini Mock Exam 2', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 10, default: false, assignedTeacher:"test@gmail.com", autoMarking:true},
-  {name: 'PTE Full Length Mock Exam 1', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: false, assignedTeacher:"test@gmail.com", autoMarking:false},
-  {name: 'IELTS Mini Mock Exam 1', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: false, assignedTeacher:"elvisp@gmail.com", autoMarking:false},
-  {name: 'IELTS Full Length Mock Exam 1', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: false, assignedTeacher:"elvisp@gmail.com", autoMarking:true},
-  {name: 'Cambridge First Mock Exam', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: false, assignedTeacher:"test@gmail.com", autoMarking:false},
-  {name: 'English Level Test', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: true, assignedTeacher:"test@gmail.com", autoMarking:true},
-  {name: 'English Progress Test', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 5, default: false, assignedTeacher:"test@gmail.com", autoMarking:false},
-  {name: 'Free English Progress Test', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 0, default: false, assignedTeacher:"test@gmail.com", autoMarking:false},
+  {name: 'PTE Mini Mock Exam 1', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 10, default: false, assignedTeacher:"test@gmail.com", autoMarking:false, school: null},
+  {name: 'PTE Mini Mock Exam 2', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 10, default: false, assignedTeacher:"test@gmail.com", autoMarking:true, school: null},
+  {name: 'PTE Full Length Mock Exam 1', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: false, assignedTeacher:"test@gmail.com", autoMarking:false, school: null},
+  {name: 'IELTS Mini Mock Exam 1', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: false, assignedTeacher:"elvisp@gmail.com", autoMarking:false, school: null},
+  {name: 'IELTS Full Length Mock Exam 1', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: false, assignedTeacher:"elvisp@gmail.com", autoMarking:true, school: null},
+  {name: 'Cambridge First Mock Exam', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: false, assignedTeacher:"test@gmail.com", autoMarking:false, school: null},
+  {name: 'English Level Test', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 15, default: true, assignedTeacher:"test@gmail.com", autoMarking:true, school: null},
+  {name: 'English Progress Test', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 5, default: false, assignedTeacher:"test@gmail.com", autoMarking:false, school: null},
+  {name: 'Free English Progress Test', studentsEnrolled: [], studentsCompleted: [], description: 'test description', casualPrice: 0, default: false, assignedTeacher:"test@gmail.com", autoMarking:false, school: null},
 ]
 // export const demoLevels: string[] = [
 //  'A1 Beginner',

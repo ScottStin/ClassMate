@@ -44,7 +44,7 @@ export class LessonService {
       .patch<LessonDTO>(`${this.baseUrl}/register/${lesson._id!}`, student)
       .pipe(
         catchError((error: Error) => {
-          this.handleError(error, 'Failed to create new lesson');
+          this.handleError(error, 'Failed to join lesson');
         })
       );
   }
@@ -66,7 +66,7 @@ export class LessonService {
         .delete<LessonDTO>(`${this.baseUrl}/${data._id!}`)
         .pipe(
           catchError((error: Error) => {
-            this.handleError(error, 'Failed to create new lesson');
+            this.handleError(error, 'Failed to delete lesson');
           })
         )
     );

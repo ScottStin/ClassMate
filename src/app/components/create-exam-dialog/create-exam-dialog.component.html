@@ -1,0 +1,150 @@
+<!-- <div class="dialog-title-container">
+  <h2 mat-dialog-title>{{data.title}}</h2>
+</div> -->
+
+<mat-toolbar role="toolbar" class="dialog-title-container">
+  <h2 mat-dialog-title>
+    <button mat-icon-button (click)="closeDialog()">
+      <mat-icon>close</mat-icon></button
+    >{{data.title}}
+  </h2>
+</mat-toolbar>
+
+<div mat-dialog-content>
+  <mat-stepper [linear]="!data.exam" #stepper>
+    <div [formGroup]="examForm">
+      <mat-step [stepControl]="examForm" label="Exam Details" [editable]="true">
+        <div class="step-container">
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Exam name</mat-label>
+            <input
+              matInput
+              id="name"
+              formControlName="name"
+              type="text"
+              placeholder="E.g. PTE Mini Mock Test 1"
+              required
+            />
+            <mat-error>
+              <app-error-message
+                [control]="examForm.controls['name'].errors"
+              ></app-error-message>
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Exam description</mat-label>
+            <textarea
+              matInput
+              id="description"
+              formControlName="description"
+              type="text"
+              placeholder="Tell your students about this exam..."
+              required
+            ></textarea>
+            <mat-error>
+              <app-error-message
+                [control]="examForm.controls['description'].errors"
+              ></app-error-message>
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Casual Price (USD)</mat-label>
+            <input
+              matInput
+              id="casualPrice"
+              formControlName="casualPrice"
+              type="number"
+              placeholder="The price that students without a subscription plan will pay for this exam (USD)"
+            />
+            <mat-icon matSuffix>attach_money</mat-icon>
+            <mat-error>
+              <app-error-message
+                [control]="examForm.controls['casualPrice'].errors"
+              ></app-error-message>
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field
+            #tooltip="matTooltip"
+            matTooltip="The assigned teacher will be responsible for marking this exam and giving feedback. Note that any teacher can mark any exam, but only the assigned teacher will be notified when an exam needs marking."
+            appearance="outline"
+            class="form-field"
+          >
+            <mat-label>Assigned teacher</mat-label>
+            <mat-select formControlName="assignedTeacher">
+              <mat-option
+                *ngFor="let teacher of data.teachers"
+                [value]="teacher.email"
+                ><img
+                  [src]="teacher.profilePicture?.url"
+                  alt="teacher image"
+                  class="thumbnail-image"
+                />{{teacher.name}}</mat-option
+              >
+            </mat-select>
+
+            <mat-error>
+              <app-error-message
+                [control]="examForm.controls['assignedTeacher'].errors"
+              ></app-error-message>
+            </mat-error>
+          </mat-form-field>
+
+          <form [formGroup]="examForm" class="form-field">
+            <mat-slide-toggle
+              formControlName="default"
+              id="default"
+              name="default"
+            >
+              Default level test?
+              <mat-icon
+                style="font-size: 20px"
+                #tooltip="matTooltip"
+                matTooltip="This will be the free level test assigned to students when they first sign up for the platform."
+                >info</mat-icon
+              >
+            </mat-slide-toggle>
+            <mat-error>
+              <app-error-message
+                [control]="examForm.controls['default'].errors"
+              ></app-error-message>
+            </mat-error>
+          </form>
+        </div>
+        <div class="stepper-navigation">
+          <button
+            mat-button
+            matStepperNext
+            type="button"
+            [disabled]="this.examForm.invalid"
+          >
+            <b>Next</b>
+          </button>
+        </div>
+      </mat-step>
+      <mat-step label="Add Questions to Exam" [editable]="true">
+        <div class="step-container">
+          Add Questions placeholder
+          <div class="stepper-navigation">
+            <button mat-button matStepperPrevious type="button">Back</button>
+            <button mat-button type="button"><b>Save Exam</b></button>
+          </div>
+        </div>
+      </mat-step>
+    </div>
+  </mat-stepper>
+</div>
+<!-- <mat-dialog-actions align="end">
+  <button mat-button color="primary" [mat-dialog-close]="false">Cancel</button>
+  <button
+    class="okButton"
+    mat-raised-button
+    cdkFocusInitial
+    [mat-dialog-close]="this.examForm.value"
+    [disabled]="this.examForm.invalid"
+  >
+    Save
+  </button>
+</mat-dialog-actions> -->
