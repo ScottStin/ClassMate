@@ -9,16 +9,21 @@
 ></mat-progress-bar>
 
 <div class="page-content">
-  <mat-tab-group class="home-tab-group" mat-stretch-tabs>
+  <mat-tab-group
+    class="home-tab-group"
+    mat-stretch-tabs
+    [(selectedIndex)]="selectedTabIndex"
+  >
     <mat-tab
       *ngFor="let examType of ['My Exams','All Exams']"
       [label]="examType"
     >
       <div *ngIf="!examPageLoading" class="table-container">
         <app-exam-table
-          [examData]="getUserExams(examType)"
+          [examData]="getUserExams(examType) | async"
           (openEditExamDialog)="openEditExamDialog($event)"
           (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
+          (registerForExam)="registerForExam($event)"
         ></app-exam-table>
       </div>
     </mat-tab>

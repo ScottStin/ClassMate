@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { ErrorService } from '../error-message.service/error-message.service';
@@ -29,6 +30,25 @@ export class ExamService {
         this.examSubject.next(exams);
       })
     );
+  }
+
+  create(data: ExamDTO): Observable<ExamDTO> {
+    return this.httpClient.post<ExamDTO>(`${this.baseUrl}/new`, data).pipe(
+      catchError((error: Error) => {
+        this.handleError(error, 'Failed to create new exam');
+      })
+    );
+  }
+
+  registerForExam(exam: ExamDTO, student: UserDTO): Observable<ExamDTO> {
+    console.log(exam);
+    return this.httpClient
+      .patch<ExamDTO>(`${this.baseUrl}/register/${exam._id!}`, student)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to sign up for exam');
+        })
+      );
   }
 
   delete(data: ExamDTO): Observable<ExamDTO> {

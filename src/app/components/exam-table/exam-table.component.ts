@@ -27,6 +27,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   @Input() examData: ExamDTO[] | null;
   @Output() openEditExamDialog = new EventEmitter<ExamDTO>();
   @Output() openConfirmDeleteDialog = new EventEmitter<ExamDTO>();
+  @Output() registerForExam = new EventEmitter<ExamDTO>();
 
   filterText: string;
   dataSource?: MatTableDataSource<ExamDTO> | undefined;
@@ -124,16 +125,19 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     });
     confirmDialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        // eslint-disable-next-line no-console
-        console.log(exam);
+        this.registerForExam.emit(exam as ExamDTO | undefined);
       }
     });
+  }
+
+  getStudentsList(studentsEnrolled: string[]): string {
+    return studentsEnrolled.join(', ');
   }
 
   filterResults(text: string): void {
     this.filterText = text;
     if (this.dataSource) {
-      console.log(text);
+      console.log(this.filterText);
       this.dataSource.filter = this.filterText;
     }
   }

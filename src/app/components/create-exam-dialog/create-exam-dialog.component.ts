@@ -1,7 +1,9 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
+import { ExamService } from 'src/app/services/exam-service/exam.service';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -11,6 +13,8 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   styleUrls: ['./create-exam-dialog.component.scss'],
 })
 export class CreateExamDialogComponent implements OnInit {
+  error: Error;
+  @Output() saveExam = new EventEmitter<ExamDTO>();
   examForm: FormGroup<{
     name: FormControl<string>;
     description: FormControl<string>;
@@ -27,7 +31,9 @@ export class CreateExamDialogComponent implements OnInit {
       exam: ExamDTO | undefined;
       teachers: UserDTO[];
     },
-    private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>
+    private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
+    private readonly examService: ExamService,
+    private readonly snackbarService: SnackbarService
   ) {}
 
   formPopulated = new Subject<boolean>();
@@ -66,7 +72,22 @@ export class CreateExamDialogComponent implements OnInit {
     this.formPopulated.next(true);
   }
 
-  closeDialog(): void {
-    this.dialogRef.close();
+  saveExamClick(): void {
+    console.log(this.examForm);
+    // this.saveExam.emit(this.examForm.value as ExamDTO);
+    this.examService.create(this.examForm.value as ExamDTO).subscribe({
+      next: () => {
+        this.snackbarService.open('info', 'Exam successfully created');
+        this.closeDialog(true);
+      },
+      error: (error: Error) => {
+        this.error = error;
+        this.snackbarService.openPermanent('error', error.message);
+      },
+    });
+  }
+
+  closeDialog(result: boolean | null): void {
+    this.dialogRef.close(result);
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { finalize, first, forkJoin, Observable, of } from 'rxjs';
+import { finalize, first, forkJoin, map, Observable, of } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { CreateExamDialogComponent } from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
 import { ExamTableComponent } from 'src/app/components/exam-table/exam-table.component';
@@ -18,8 +18,8 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 })
 export class ExamPageComponent implements OnInit {
   @ViewChild(ExamTableComponent)
-  error: Error;
   examTableComponent: ExamTableComponent;
+  error: Error;
   exams$: Observable<ExamDTO[]>;
   examPageLoading = false;
   demoExams: ExamDTO[];
@@ -28,6 +28,7 @@ export class ExamPageComponent implements OnInit {
   currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
     | { user: UserDTO }
     | undefined;
+  selectedTabIndex: number;
 
   constructor(
     private readonly examService: ExamService,
@@ -38,10 +39,10 @@ export class ExamPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.exams$ = this.examService.exams$;
-    this.getExams();
+    this.loadPageData();
   }
 
-  getExams(): void {
+  loadPageData(): void {
     this.examPageLoading = true;
     forkJoin([this.examService.getAll(), this.userService.getAll()])
       .pipe(
@@ -52,6 +53,7 @@ export class ExamPageComponent implements OnInit {
       )
       .subscribe({
         next: ([exams, users]) => {
+          console.log(exams);
           const teachers = users.filter(
             (user) => user.userType.toLowerCase() === 'teacher'
           );
@@ -67,7 +69,7 @@ export class ExamPageComponent implements OnInit {
             .onAction()
             .pipe(first())
             .subscribe(() => {
-              this.getExams();
+              this.loadPageData();
             });
         },
       });
@@ -88,7 +90,7 @@ export class ExamPageComponent implements OnInit {
       });
       dialogRef.afterClosed().subscribe((result: ExamDTO | undefined) => {
         if (result) {
-          console.log(result);
+          this.loadPageData();
         }
       });
     });
@@ -98,27 +100,34 @@ export class ExamPageComponent implements OnInit {
     this.examTableComponent.filterResults(text);
   }
 
-  getUserExams(tab: string): ExamDTO[] {
+  getUserExams(tab: string): Observable<ExamDTO[]> {
     if (
       tab === 'My Exams' &&
       this.currentUser?.user.userType.toLowerCase() === 'teacher'
     ) {
-      const exams = this.demoExams.filter(
-        (obj) => obj.assignedTeacher === this.currentUser?.user.email
+      return this.exams$.pipe(
+        first(),
+        map((res) =>
+          res.filter(
+            (obj) => obj.assignedTeacher === this.currentUser?.user.email // return exams where the current teacher is the assigned marker
+          )
+        )
       );
-      return exams; // return exams where the current teacher is the assigned marker
     } else if (
       tab === 'My Exams' &&
       this.currentUser &&
       this.currentUser.user.userType.toLowerCase() === 'student'
     ) {
-      const exams = this.demoExams.filter((obj) =>
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        obj.studentsEnrolled.includes(this.currentUser!.user.email)
+      return this.exams$.pipe(
+        first(),
+        map((res) =>
+          res.filter(
+            (obj) => obj.studentsEnrolled.includes(this.currentUser!.user.email) // return exams where the current student is enrolled
+          )
+        )
       );
-      return exams; // return exams where the current student is enrolled
     } else {
-      return this.demoExams; // return all exams
+      return this.exams$.pipe(first()); // return all exams
     }
   }
 
@@ -140,7 +149,7 @@ export class ExamPageComponent implements OnInit {
         this.examService.delete(exam).subscribe({
           next: () => {
             this.snackbarService.open('info', 'Exam successfully deleted');
-            this.getExams();
+            this.loadPageData();
           },
           error: (error: Error) => {
             this.error = error;
@@ -148,6 +157,29 @@ export class ExamPageComponent implements OnInit {
           },
         });
       }
+    });
+  }
+
+  changeTabs(): void {
+    this.selectedTabIndex = 0;
+  }
+
+  registerForExam(exam: ExamDTO): void {
+    console.log(exam);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.examService.registerForExam(exam, this.currentUser!.user).subscribe({
+      next: () => {
+        this.snackbarService.open(
+          'info',
+          "This exam has been added to your exam list in 'My Exams;'"
+        );
+        this.changeTabs();
+        this.loadPageData();
+      },
+      error: (error: Error) => {
+        this.error = error;
+        this.snackbarService.openPermanent('error', error.message);
+      },
     });
   }
 }

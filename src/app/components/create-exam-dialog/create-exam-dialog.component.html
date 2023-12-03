@@ -4,7 +4,7 @@
 
 <mat-toolbar role="toolbar" class="dialog-title-container">
   <h2 mat-dialog-title>
-    <button mat-icon-button (click)="closeDialog()">
+    <button mat-icon-button (click)="closeDialog(null)">
       <mat-icon>close</mat-icon></button
     >{{data.title}}
   </h2>
@@ -129,7 +129,9 @@
           Add Questions placeholder
           <div class="stepper-navigation">
             <button mat-button matStepperPrevious type="button">Back</button>
-            <button mat-button type="button"><b>Save Exam</b></button>
+            <button mat-button type="button" (click)="saveExamClick()">
+              <b>Save Exam</b>
+            </button>
           </div>
         </div>
       </mat-step>
