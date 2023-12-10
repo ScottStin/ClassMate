@@ -124,9 +124,167 @@
           </button>
         </div>
       </mat-step>
+    </div>
+
+    <div [formGroup]="questionForm">
       <mat-step label="Add Questions to Exam" [editable]="true">
         <div class="step-container">
-          Add Questions placeholder
+          <mat-grid-list cols="4" rowHeight="250px">
+            <mat-grid-tile colspan="3" rowspan="1">
+              <mat-card style="width: 100%">
+                <mat-card-content
+                  ><br /><br />Question Preview<br /><br
+                /></mat-card-content>
+              </mat-card>
+            </mat-grid-tile>
+
+            <mat-grid-tile colspan="1" rowspan="2" style="overflow-y: auto">
+              <div style="display: flex; flex-direction: column">
+                <div class="tree-container">
+                  <mat-tree
+                    [dataSource]="dataSource"
+                    [treeControl]="treeControl"
+                  >
+                    <mat-tree-node
+                      *matTreeNodeDef="let node"
+                      matTreeNodeToggle
+                      matTreeNodePadding
+                    >
+                      <button mat-icon-button disabled></button>{{node.item}}
+                      <button
+                        mat-icon-button
+                        (click)="deleteItem(node)"
+                        #tooltip="matTooltip"
+                        matTooltip="Remove this question."
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </mat-tree-node>
+
+                    <mat-tree-node
+                      *matTreeNodeDef="let childNode; when: hasNoContent"
+                      matTreeNodePadding
+                    >
+                      <button mat-icon-button disabled></button>
+                      <mat-form-field appearance="fill">
+                        <mat-label>New question...</mat-label>
+                        <input
+                          matInput
+                          #itemValue
+                          placeholder="E.g. Question 1"
+                        />
+                      </mat-form-field>
+                      <button
+                        mat-button
+                        (click)="saveNode(childNode, itemValue.value)"
+                      >
+                        Save
+                      </button>
+                      <button
+                        mat-icon-button
+                        #tooltip="matTooltip"
+                        matTooltip="Remove this question."
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </mat-tree-node>
+
+                    <mat-tree-node
+                      *matTreeNodeDef="let node; when: hasChild"
+                      matTreeNodePadding
+                    >
+                      <button
+                        mat-icon-button
+                        matTreeNodeToggle
+                        [attr.aria-label]="'Toggle ' + node.item"
+                      >
+                        <mat-icon class="mat-icon-rtl-mirror">
+                          {{treeControl.isExpanded(node) ? 'expand_more' :
+                          'chevron_right'}}
+                        </mat-icon>
+                      </button>
+                      {{node.item}}
+                      <button
+                        mat-icon-button
+                        (click)="addNewItem(node)"
+                        #tooltip="matTooltip"
+                        matTooltip="Add a new question to this section."
+                      >
+                        <mat-icon>add</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        (click)="deleteItem(node)"
+                        #tooltip="matTooltip"
+                        matTooltip="Remove this section."
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </mat-tree-node>
+                  </mat-tree>
+                </div>
+                <mat-divider></mat-divider>
+                <div class="tree-button-container">
+                  <button
+                    mat-raised-button
+                    type="button"
+                    (click)="addNewQuestion()"
+                  >
+                    <mat-icon>add</mat-icon> Add New Question
+                  </button>
+                  <button
+                    mat-raised-button
+                    type="button"
+                    (click)="addNewSection()"
+                  >
+                    <mat-icon>add</mat-icon>Add New Section
+                  </button>
+                </div>
+              </div>
+            </mat-grid-tile>
+
+            <mat-grid-tile
+              colspan="3"
+              rowspan="1"
+              style="background: 'lightpink'"
+            >
+              <mat-form-field class="form-field" appearance="outline">
+                <mat-label>Question name</mat-label>
+                <input
+                  matInput
+                  id="questionName"
+                  formControlName="questionName"
+                  type="text"
+                  placeholder="E.g. Question 1 - Multiple Choice"
+                  required
+                />
+                <mat-error>
+                  <app-error-message
+                    [control]="questionForm.controls['questionName'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Question Type</mat-label>
+                <mat-select formControlName="questionType">
+                  <mat-option
+                    *ngFor="let questionType of questionTypes"
+                    [value]="questionType.type"
+                    #tooltip="matTooltip"
+                    [matTooltip]="questionType.label + ': ' + questionType.description"
+                    >{{questionType.label}}</mat-option
+                  >
+                </mat-select>
+                <mat-error>
+                  <app-error-message
+                    [control]="examForm.controls['assignedTeacher'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+
           <div class="stepper-navigation">
             <button mat-button matStepperPrevious type="button">Back</button>
             <button mat-button type="button" (click)="saveExamClick()">

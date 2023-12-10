@@ -87,6 +87,10 @@ export class ExamPageComponent implements OnInit {
           cancelLabel: 'Cancel',
           teachers,
         },
+        panelClass: 'fullscreen-dialog',
+        autoFocus: false,
+        hasBackdrop: true,
+        disableClose: true,
       });
       dialogRef.afterClosed().subscribe((result: ExamDTO | undefined) => {
         if (result) {

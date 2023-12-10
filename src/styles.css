@@ -96,3 +96,18 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .table-row:hover {
   background: whitesmoke;
 }
+
+/**
+ * ==============================
+ *  Dialogs
+ * ==============================
+*/
+
+.fullscreen-dialog {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  height: 100vh;
+  float: right;
+  margin-left: 256px;
+  width: calc(100vw - 256px);
+}
