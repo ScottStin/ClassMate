@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -19,10 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 
 import { ErrorMessageModule } from '../error-message/error-message.module';
-import {
-  ChecklistDatabase,
-  CreateExamDialogComponent,
-} from './create-exam-dialog.component';
+import { CreateExamDialogComponent } from './create-exam-dialog.component';
 
 @NgModule({
   declarations: [CreateExamDialogComponent],
@@ -47,8 +45,8 @@ import {
     MatGridListModule,
     MatDividerModule,
     MatCheckboxModule,
+    MatListModule,
   ],
-  providers: [ChecklistDatabase],
   exports: [CreateExamDialogComponent],
 })
 export class CreateExamDialogModule {}

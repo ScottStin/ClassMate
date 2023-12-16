@@ -129,7 +129,7 @@
     <div [formGroup]="questionForm">
       <mat-step label="Add Questions to Exam" [editable]="true">
         <div class="step-container">
-          <mat-grid-list cols="4" rowHeight="250px">
+          <mat-grid-list cols="5" rowHeight="250px">
             <mat-grid-tile colspan="3" rowspan="1">
               <mat-card style="width: 100%">
                 <mat-card-content
@@ -138,106 +138,102 @@
               </mat-card>
             </mat-grid-tile>
 
-            <mat-grid-tile colspan="1" rowspan="2" style="overflow-y: auto">
+            <mat-grid-tile colspan="2" rowspan="2" style="overflow-y: auto">
               <div style="display: flex; flex-direction: column">
                 <div class="tree-container">
-                  <mat-tree
-                    [dataSource]="dataSource"
-                    [treeControl]="treeControl"
-                  >
-                    <mat-tree-node
-                      *matTreeNodeDef="let node"
-                      matTreeNodeToggle
-                      matTreeNodePadding
+                  <mat-list role="list" *ngFor="let question of demoQuestions">
+                    <mat-list-item role="listitem">
+                      <div style="display: flex; align-items: center">
+                        {{question.name}}
+                        <mat-icon
+                          style="
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-left: 10px;
+                          "
+                          #tooltip="matTooltip"
+                          [matTooltip]="'Edit ' + question.type"
+                          >edit</mat-icon
+                        >
+                        <mat-icon
+                          style="cursor: pointer; font-size: 16px"
+                          #tooltip="matTooltip"
+                          [matTooltip]="'Delete ' + question.type"
+                          (click)="deleteQuestion(question, null)"
+                          >delete</mat-icon
+                        >
+                        <span
+                          *ngIf="question.subQuestions"
+                          (click)="expandSection(question)"
+                          style="cursor: pointer; margin-left: auto"
+                        >
+                          <mat-icon *ngIf="question.expanded === false"
+                            >keyboard_arrow_right</mat-icon
+                          >
+                          <mat-icon *ngIf="question.expanded === true"
+                            >keyboard_arrow_down</mat-icon
+                          >
+                        </span>
+                      </div></mat-list-item
                     >
-                      <button mat-icon-button disabled></button>{{node.item}}
-                      <button
-                        mat-icon-button
-                        (click)="deleteItem(node)"
-                        #tooltip="matTooltip"
-                        matTooltip="Remove this question."
+                    <div *ngIf="question.expanded">
+                      <mat-list-item
+                        class="subQuestionList"
+                        *ngFor="let subQuestion of question.subQuestions"
                       >
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </mat-tree-node>
-
-                    <mat-tree-node
-                      *matTreeNodeDef="let childNode; when: hasNoContent"
-                      matTreeNodePadding
-                    >
-                      <button mat-icon-button disabled></button>
-                      <mat-form-field appearance="fill">
-                        <mat-label>New question...</mat-label>
-                        <input
-                          matInput
-                          #itemValue
-                          placeholder="E.g. Question 1"
-                        />
-                      </mat-form-field>
-                      <button
-                        mat-button
-                        (click)="saveNode(childNode, itemValue.value)"
+                        &#x2022; {{subQuestion.name}}
+                        <mat-icon
+                          style="
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-left: 10px;
+                          "
+                          #tooltip="matTooltip"
+                          matTooltip="Edit question"
+                          >edit</mat-icon
+                        >
+                        <mat-icon
+                          style="cursor: pointer; font-size: 16px"
+                          #tooltip="matTooltip"
+                          matTooltip="Delete question"
+                          (click)="deleteQuestion(question, subQuestion)"
+                          >delete</mat-icon
+                        >
+                      </mat-list-item>
+                      <span
+                        style="
+                          display: flex;
+                          align-items: center;
+                          font-size: small;
+                          cursor: pointer;
+                        "
+                        class="subQuestionList"
+                        (click)="addQuestionToSection(question)"
+                        ><mat-icon>add</mat-icon
+                        ><b>Add question to section</b></span
                       >
-                        Save
-                      </button>
-                      <button
-                        mat-icon-button
-                        #tooltip="matTooltip"
-                        matTooltip="Remove this question."
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </mat-tree-node>
-
-                    <mat-tree-node
-                      *matTreeNodeDef="let node; when: hasChild"
-                      matTreeNodePadding
-                    >
-                      <button
-                        mat-icon-button
-                        matTreeNodeToggle
-                        [attr.aria-label]="'Toggle ' + node.item"
-                      >
-                        <mat-icon class="mat-icon-rtl-mirror">
-                          {{treeControl.isExpanded(node) ? 'expand_more' :
-                          'chevron_right'}}
-                        </mat-icon>
-                      </button>
-                      {{node.item}}
-                      <button
-                        mat-icon-button
-                        (click)="addNewItem(node)"
-                        #tooltip="matTooltip"
-                        matTooltip="Add a new question to this section."
-                      >
-                        <mat-icon>add</mat-icon>
-                      </button>
-                      <button
-                        mat-icon-button
-                        (click)="deleteItem(node)"
-                        #tooltip="matTooltip"
-                        matTooltip="Remove this section."
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </mat-tree-node>
-                  </mat-tree>
+                    </div>
+                  </mat-list>
                 </div>
                 <mat-divider></mat-divider>
                 <div class="tree-button-container">
                   <button
                     mat-raised-button
                     type="button"
+                    class="add-new-question-button"
                     (click)="addNewQuestion()"
                   >
-                    <mat-icon>add</mat-icon> Add New Question
+                    <mat-icon>add</mat-icon>
+                    <span class="new-question-text">Add New Question</span>
                   </button>
                   <button
                     mat-raised-button
                     type="button"
                     (click)="addNewSection()"
+                    class="add-new-question-button"
                   >
-                    <mat-icon>add</mat-icon>Add New Section
+                    <mat-icon>add</mat-icon
+                    ><span class="new-question-text">Add New Section</span>
                   </button>
                 </div>
               </div>
