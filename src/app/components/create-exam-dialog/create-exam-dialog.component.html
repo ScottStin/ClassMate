@@ -129,22 +129,39 @@
     <div [formGroup]="questionForm">
       <mat-step label="Add Questions to Exam" [editable]="true">
         <div class="step-container">
-          <mat-grid-list cols="5" rowHeight="250px">
-            <mat-grid-tile colspan="3" rowspan="1">
+          <mat-grid-list
+            cols="4"
+            [rowHeight]="demoQuestions.length>0 && currentQuestionDisplay ? '125px' : '100px'"
+          >
+            <mat-grid-tile
+              [class.expanded]="demoQuestions.length > 0 && currentQuestionDisplay"
+              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              rowspan="1"
+            >
               <mat-card style="width: 100%">
                 <mat-card-content
-                  ><br /><br />Question Preview<br /><br
-                /></mat-card-content>
+                  >{{currentQuestionDisplay?.name | titlecase}}
+                  Preview</mat-card-content
+                >
               </mat-card>
             </mat-grid-tile>
 
-            <mat-grid-tile colspan="2" rowspan="2" style="overflow-y: auto">
+            <mat-grid-tile
+              [class.expanded]="demoQuestions.length === 0 || !currentQuestionDisplay"
+              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 1 : 4"
+              rowspan="3"
+              style="overflow-y: auto"
+              [class]="demoQuestions.length>0 && currentQuestionDisplay ? 'border-left' : ''"
+            >
               <div style="display: flex; flex-direction: column">
                 <div class="tree-container">
                   <mat-list role="list" *ngFor="let question of demoQuestions">
                     <mat-list-item role="listitem">
                       <div style="display: flex; align-items: center">
-                        {{question.name}}
+                        <span
+                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          >{{question.name}}</span
+                        >
                         <mat-icon
                           style="
                             cursor: pointer;
@@ -153,6 +170,8 @@
                           "
                           #tooltip="matTooltip"
                           [matTooltip]="'Edit ' + question.type"
+                          (click)="editQuestion(question, null)"
+                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
                           >edit</mat-icon
                         >
                         <mat-icon
@@ -160,6 +179,7 @@
                           #tooltip="matTooltip"
                           [matTooltip]="'Delete ' + question.type"
                           (click)="deleteQuestion(question, null)"
+                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
                           >delete</mat-icon
                         >
                         <span
@@ -180,8 +200,9 @@
                       <mat-list-item
                         class="subQuestionList"
                         *ngFor="let subQuestion of question.subQuestions"
+                        [class]="subQuestion.id === currentQuestionDisplay?.id ? 'current-question' : ''"
                       >
-                        &#x2022; {{subQuestion.name}}
+                        <span>&#x2022; {{subQuestion.name}}</span>
                         <mat-icon
                           style="
                             cursor: pointer;
@@ -190,6 +211,7 @@
                           "
                           #tooltip="matTooltip"
                           matTooltip="Edit question"
+                          (click)="editQuestion(question, subQuestion)"
                           >edit</mat-icon
                         >
                         <mat-icon
@@ -215,44 +237,53 @@
                     </div>
                   </mat-list>
                 </div>
-                <mat-divider></mat-divider>
+                <mat-divider
+                  *ngIf="demoQuestions.length>0 && currentQuestionDisplay"
+                ></mat-divider>
                 <div class="tree-button-container">
                   <button
                     mat-raised-button
                     type="button"
-                    class="add-new-question-button"
+                    class="button add-new-question-button"
                     (click)="addNewQuestion()"
                   >
                     <mat-icon>add</mat-icon>
-                    <span class="new-question-text">Add New Question</span>
+                    <span
+                      [class]="demoQuestions.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
+                      >Add New Question</span
+                    >
                   </button>
                   <button
                     mat-raised-button
                     type="button"
                     (click)="addNewSection()"
-                    class="add-new-question-button"
+                    class="button add-new-question-button"
                   >
                     <mat-icon>add</mat-icon
-                    ><span class="new-question-text">Add New Section</span>
+                    ><span
+                      [class]="demoQuestions.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
+                      >Add New Section</span
+                    >
                   </button>
                 </div>
               </div>
             </mat-grid-tile>
 
             <mat-grid-tile
-              colspan="3"
+              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
-              style="background: 'lightpink'"
             >
               <mat-form-field class="form-field" appearance="outline">
                 <mat-label>Question name</mat-label>
                 <input
                   matInput
                   id="questionName"
+                  #questionName
                   formControlName="questionName"
                   type="text"
                   placeholder="E.g. Question 1 - Multiple Choice"
                   required
+                  (keyup)="formChange(questionName.value, 'name')"
                 />
                 <mat-error>
                   <app-error-message
@@ -263,7 +294,11 @@
 
               <mat-form-field appearance="outline" class="form-field">
                 <mat-label>Question Type</mat-label>
-                <mat-select formControlName="questionType">
+                <mat-select
+                  formControlName="type"
+                  (selectionChange)="formChange($event.value, 'type')"
+                  [disabled]="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
+                >
                   <mat-option
                     *ngFor="let questionType of questionTypes"
                     [value]="questionType.type"
@@ -277,6 +312,229 @@
                     [control]="examForm.controls['assignedTeacher'].errors"
                   ></app-error-message>
                 </mat-error>
+              </mat-form-field>
+
+              <mat-form-field class="form-field" appearance="outline">
+                <mat-label>Question prompt</mat-label>
+                <input
+                  matInput
+                  id="writtenPrompt"
+                  formControlName="writtenPrompt"
+                  #writtenPrompt
+                  type="text"
+                  placeholder="A short description of the question/section"
+                  required
+                  (keyup)="formChange(writtenPrompt.value, 'writtenPrompt')"
+                />
+                <mat-error>
+                  <app-error-message
+                    [control]="questionForm.controls['writtenPrompt'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </mat-form-field>
+            </mat-grid-tile>
+            <mat-grid-tile
+              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              rowspan="1"
+            >
+              <mat-form-field class="form-field" appearance="outline">
+                <mat-label for="imagePrompt" class="file-label"
+                  ><mat-icon>attach_file</mat-icon> Image prompt
+                  URL...</mat-label
+                >
+                <input
+                  matInput
+                  id="imagePrompt"
+                  #imagePrompt
+                  formControlName="imagePrompt"
+                  type="text"
+                  placeholder="Add a URL to an image prompt for this question"
+                  (keyup)="formChange(imagePrompt.value, 'imagePrompt')"
+                />
+                <!-- <mat-label for="imagePrompt" class="file-label">
+                  <mat-icon>attach_file</mat-icon>
+                  Image prompt
+                </mat-label> -->
+                <!-- <div class="file-upload">
+                  <label for="imagePrompt" class="file-label">
+                    <mat-icon>attach_file</mat-icon> Image prompt
+                  </label>
+                  <input
+                    id="imagePrompt"
+                    type="file"
+                    (change)="onFileSelected($event)"
+                    accept="image/*"
+                    aria-label="Image prompt"
+                    #imagePrompt
+                    style="display: none"
+                  />
+                  <input
+                    matInput
+                    [value]="imagePromptFile"
+                    placeholder="Upload an image prompt for this question"
+                    readonly
+                  />
+                </div> -->
+              </mat-form-field>
+
+              <mat-form-field class="form-field" appearance="outline">
+                <!-- <mat-label for="imagePrompt" class="file-label">
+                  <mat-icon>attach_file</mat-icon>
+                  Image prompt
+                </mat-label> -->
+                <!-- <div class="file-upload">
+                  <label for="audioPrompt" class="file-label">
+                    <mat-icon>attach_file</mat-icon> Audio prompt
+                  </label> -->
+                <!-- <input
+                  id="audioPrompt"
+                  type="file"
+                  (change)="onFileSelected($event)"
+                  accept=".mp3,audio/*"
+                  aria-label="Audio prompt"
+                  #audioPrompt
+                  style="display: none"
+                /> -->
+                <mat-label for="audioPrompt" class="file-label"
+                  ><mat-icon>attach_file</mat-icon> Audio prompt
+                  URL...</mat-label
+                >
+                <input
+                  matInput
+                  id="audioPrompt"
+                  #audioPrompt
+                  formControlName="audioPrompt"
+                  type="text"
+                  placeholder="Add a URL to an audio prompt for this question"
+                  (keyup)="formChange(audioPrompt.value, 'audioPrompt')"
+                />
+                <!-- <input
+                  matInput
+                  [value]="audioPromptFile"
+                  placeholder="Upload an audio prompt for this question"
+                  readonly
+                /> -->
+                <!-- </div> -->
+              </mat-form-field>
+
+              <mat-form-field class="form-field" appearance="outline">
+                <mat-label for="videoPrompt" class="file-label"
+                  ><mat-icon>attach_file</mat-icon> Video prompt
+                  URL...</mat-label
+                >
+                <input
+                  matInput
+                  id="videoPrompt"
+                  #videoPrompt
+                  formControlName="videoPrompt"
+                  type="text"
+                  placeholder="Add a URL to a video prompt for this question"
+                  (keyup)="formChange(videoPrompt.value, 'videoPrompt')"
+                />
+                <!-- <mat-error>
+                  <app-error-message
+                    [control]="questionForm.controls['videoPrompt'].errors"
+                  ></app-error-message>
+                </mat-error> -->
+              </mat-form-field>
+            </mat-grid-tile>
+            <mat-grid-tile
+              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              rowspan="1"
+            >
+              <form [formGroup]="examForm" class="form-field">
+                <mat-slide-toggle
+                  id="teacherFeedback"
+                  #teacherFeedback
+                  name="teacherFeedback"
+                  formControlName="teacherFeedback"
+                  (change)="formChange(teacherFeedback.checked, 'teacherFeedback')"
+                  [checked]="currentQuestionDisplay?.teacherFeedback"
+                >
+                  Teacher feedback required?
+                  <mat-icon
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, the teacher will be prompted to give written feedback when marking this exam."
+                    >info</mat-icon
+                  >
+                </mat-slide-toggle>
+                <mat-error>
+                  <app-error-message
+                    [control]="questionForm.controls['teacherFeedback'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </form>
+
+              <form [formGroup]="examForm" class="form-field">
+                <mat-slide-toggle
+                  formControlName="autoMarking"
+                  id="autoMarking"
+                  name="autoMarking"
+                  #autoMarking
+                  (change)="formChange(autoMarking.checked, 'autoMarking')"
+                  [checked]="currentQuestionDisplay?.autoMarking"
+                >
+                  Auto marking?
+                  <mat-icon
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, this exam will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher will have to provide the student with a score."
+                    >info</mat-icon
+                  >
+                </mat-slide-toggle>
+                <mat-error>
+                  <app-error-message
+                    [control]="questionForm.controls['autoMarking'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </form>
+
+              <mat-form-field class="form-field" appearance="outline">
+                <mat-label>Total points</mat-label>
+                <input
+                  matInput
+                  id="totalPoints"
+                  #totalPoints
+                  formControlName="totalPoints"
+                  type="number"
+                  placeholder="How many points will this question be worth? (default = 1)"
+                  (change)="formChange(totalPoints.value, 'totalPoints')"
+                />
+              </mat-form-field>
+              <!-- <mat-error>
+                <app-error-message
+                  [control]="questionForm.controls['totalPoints']?.errors"
+                ></app-error-message>
+              </mat-error> -->
+            </mat-grid-tile>
+
+            <mat-grid-tile
+              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              rowspan="1"
+            >
+              <mat-form-field
+                class="form-field"
+                appearance="outline"
+                *ngIf="['written-response','audio-response','repeat-sentence'].includes(this.questionForm.getRawValue().type.toLowerCase())"
+              >
+                <mat-label
+                  *ngIf="this.questionForm.getRawValue().type === 'written-response'"
+                  >Response word limit</mat-label
+                >
+                <mat-label
+                  *ngIf="this.questionForm.getRawValue().type === 'audio-response' || this.questionForm.getRawValue().type === 'repeat-sentence'"
+                  >Response time limit (seconds)</mat-label
+                >
+                <input
+                  matInput
+                  id="length"
+                  #length
+                  formControlName="length"
+                  type="number"
+                  [placeholder]="this.questionForm.getRawValue().type === 'written-response' ? 'Enter word limit' : 'Enter audio response time (seconds)'"
+                  (change)="formChange(length.value, 'length')"
+                />
               </mat-form-field>
             </mat-grid-tile>
           </mat-grid-list>

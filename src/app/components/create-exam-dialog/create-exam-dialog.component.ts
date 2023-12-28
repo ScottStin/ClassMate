@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -24,20 +25,25 @@ export class CreateExamDialogComponent implements OnInit {
     defaultExam: FormControl<boolean>;
   }>;
   demoQuestions: QuestionList[] = [];
+  currentQuestionDisplay: QuestionList | null = null;
+  imagePromptFile = '';
+  audioPromptFile = '';
+  sectionCounter = 1; // used to assign an id to a new section;
+  questionCounter = 1; //  used to assign an id to a new question;
 
   questionForm: FormGroup<{
     questionName: FormControl<string>;
-    writtenPrompt?: FormControl<string | null>; // a short description of the question task
+    writtenPrompt: FormControl<string>; // a short description of the question task
     time?: FormControl<number | null>; // question time limit (seconds)
     type: FormControl<string>;
-    imagePrompt?: FormControl<string | null>; // a visual prompt for the question
-    audioPrompt?: FormControl<string | null>; // an audio prompt for the question
-    videoPrompt?: FormControl<string | null>; // a video prompt for the question
+    imagePrompt: FormControl<string | null>; // a visual prompt for the question
+    audioPrompt: FormControl<string | null>; // an audio prompt for the question
+    videoPrompt: FormControl<string | null>; // a video prompt for the question
     teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
     autoMarking: FormControl<boolean>; // false = teacher has to assign mark
-    totalPoints?: FormControl<number | null>;
+    totalPoints: FormControl<number>;
     randomQuestionOrder?: FormControl<boolean | null>; // for multiple choiuce question, the questions will be in random order
-    length?: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
+    length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
     answers?: FormControl<{ question: string; correct: boolean }[] | null>; // used for multiple choice questions
   }>;
 
@@ -58,6 +64,7 @@ export class CreateExamDialogComponent implements OnInit {
       label: 'Fill in the Blanks',
     },
     { type: 'information-page', description: '', label: 'Information Page' },
+    { type: 'section', description: '', label: 'Section' },
   ];
 
   constructor(
@@ -85,11 +92,11 @@ export class CreateExamDialogComponent implements OnInit {
         expanded: false,
         id: 1,
         subQuestions: [
-          { name: 'section1 q1' },
-          { name: 'section1 q2' },
-          { name: 'section1 q3' },
-          { name: 'section1 q3' },
-          { name: 'section1 q5' },
+          { name: 'section1 q1', id: 543 },
+          { name: 'section1 q2', id: 547 },
+          { name: 'section1 q3', id: 549 },
+          { name: 'section1 q3', id: 556 },
+          { name: 'section1 q5', id: 579 },
         ],
       },
       {
@@ -98,11 +105,11 @@ export class CreateExamDialogComponent implements OnInit {
         expanded: false,
         id: 2,
         subQuestions: [
-          { name: 'section2 q1' },
-          { name: 'section2 q2' },
-          { name: 'section2 q3' },
-          { name: 'section2 q3' },
-          { name: 'section2 q5' },
+          { name: 'section2 q1', id: 242 },
+          { name: 'section2 q2', id: 243 },
+          { name: 'section2 q3', id: 244 },
+          { name: 'section2 q3', id: 245 },
+          { name: 'section2 q5', id: 246 },
         ],
       },
       { name: 'question3', type: 'question', subQuestions: null, id: 4 },
@@ -150,12 +157,31 @@ export class CreateExamDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
+      writtenPrompt: new FormControl('', {
+        validators: [Validators.required],
+        nonNullable: true,
+      }),
+      imagePrompt: new FormControl('', {
+        nonNullable: false,
+      }),
+      videoPrompt: new FormControl('', {
+        nonNullable: false,
+      }),
+      audioPrompt: new FormControl('', {
+        nonNullable: false,
+      }),
+      length: new FormControl(NaN, {
+        nonNullable: false,
+      }),
       teacherFeedback: new FormControl(false, {
         validators: [Validators.required],
         nonNullable: true,
       }),
       autoMarking: new FormControl(false, {
         validators: [Validators.required],
+        nonNullable: true,
+      }),
+      totalPoints: new FormControl(1, {
         nonNullable: true,
       }),
     });
@@ -178,25 +204,33 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   addNewSection(): void {
-    this.demoQuestions.push({
-      name: `New section ${this.demoQuestions.length + 2}`,
+    const newQuestion = {
+      name: `New section ${this.sectionCounter}`,
       type: 'section',
-      expanded: true,
-      id: this.demoQuestions.length + 2,
+      expanded: false,
+      id: `section-${this.sectionCounter}`,
       subQuestions: [
         {
-          name: `New section ${this.demoQuestions.length + 2}, Q1`,
+          name: `New section ${this.sectionCounter}, Q1`,
         },
       ],
-    });
+    };
+    this.demoQuestions.push(newQuestion);
+    this.currentQuestionDisplay = newQuestion;
+    this.sectionCounter = this.sectionCounter + 1;
+    this.updateForm();
   }
 
   addNewQuestion(): void {
-    this.demoQuestions.push({
-      name: `New question ${this.demoQuestions.length + 2}`,
+    const newQuestion = {
+      name: `New question ${this.questionCounter}`,
       type: 'question',
-      id: this.demoQuestions.length + 2,
-    });
+      id: `question-${this.questionCounter}`,
+    };
+    this.demoQuestions.push(newQuestion);
+    this.currentQuestionDisplay = newQuestion;
+    this.questionCounter = this.questionCounter + 1;
+    this.updateForm();
   }
 
   addQuestionToSection(question: QuestionList): void {
@@ -210,7 +244,77 @@ export class CreateExamDialogComponent implements OnInit {
           name: `${clickedQuestion.name} q${
             clickedQuestion.subQuestions.length + 2
           }`,
+          id: `${clickedQuestion.name} q${
+            clickedQuestion.subQuestions.length + 2
+          }`,
         });
+      this.currentQuestionDisplay = clickedQuestion;
+    }
+    this.updateForm();
+  }
+
+  editQuestion(question: QuestionList, subQuestion: QuestionList | null): void {
+    if (!subQuestion) {
+      this.currentQuestionDisplay = question;
+    } else {
+      this.currentQuestionDisplay = subQuestion;
+      this.currentQuestionDisplay.parent = question;
+    }
+    this.updateForm();
+  }
+
+  updateForm(): void {
+    if (this.currentQuestionDisplay) {
+      this.questionForm.controls.questionName.setValue(
+        this.currentQuestionDisplay.name
+      );
+      this.questionForm.controls.writtenPrompt.setValue(
+        this.currentQuestionDisplay.writtenPrompt ?? ''
+      );
+      this.questionForm.controls.type.setValue(
+        this.currentQuestionDisplay.type ?? ''
+      );
+      this.questionForm.controls.teacherFeedback.setValue(
+        this.currentQuestionDisplay.teacherFeedback ?? false
+      );
+      this.questionForm.controls.autoMarking.setValue(
+        this.currentQuestionDisplay.autoMarking ?? false
+      );
+      this.questionForm.controls.imagePrompt.setValue(
+        this.currentQuestionDisplay.imagePrompt ?? ''
+      );
+      this.questionForm.controls.videoPrompt.setValue(
+        this.currentQuestionDisplay.videoPrompt ?? ''
+      );
+      this.questionForm.controls.audioPrompt.setValue(
+        this.currentQuestionDisplay.audioPrompt ?? ''
+      );
+      this.questionForm.controls.length.setValue(
+        this.currentQuestionDisplay.length ?? NaN
+      );
+      this.questionForm.controls.totalPoints.setValue(
+        this.currentQuestionDisplay.totalPoints ?? NaN
+      );
+    }
+  }
+
+  formChange(text: string | boolean, field: string): void {
+    if (this.currentQuestionDisplay?.parent) {
+      const foundQuestion = this.demoQuestions
+        .find((obj) => obj.id === this.currentQuestionDisplay?.parent?.id)
+        ?.subQuestions?.find(
+          (obj) => obj.id === this.currentQuestionDisplay?.id
+        );
+      if (foundQuestion) {
+        foundQuestion[field] = text;
+      }
+    } else {
+      const foundQuestion = this.demoQuestions.find(
+        (obj) => obj.id === this.currentQuestionDisplay?.id
+      );
+      if (foundQuestion) {
+        foundQuestion[field] = text;
+      }
     }
   }
 
@@ -228,7 +332,15 @@ export class CreateExamDialogComponent implements OnInit {
     } else {
       this.demoQuestions = this.demoQuestions.filter((obj) => obj !== question);
     }
+    this.currentQuestionDisplay = null;
   }
+
+  // onFileSelected(event: Event): void {
+  //   const input = event.target as HTMLInputElement;
+  //   if (input.files && input.files.length > 0) {
+  //     this.imagePromptFile = input.files[0].name;
+  //   }
+  // }
 
   expandSection(question: QuestionList): void {
     const clickedQuestion = this.demoQuestions.find(
@@ -248,8 +360,25 @@ export class CreateExamDialogComponent implements OnInit {
 export interface QuestionList {
   name: string;
   subQuestions?: QuestionList[] | null;
+  writtenPrompt?: string | null;
+  teacherFeedback?: boolean | null;
+  autoMarking?: boolean | null;
   type?: string;
+  audioPrompt?: string | null;
+  totalPoints?: number | null;
+  length?: number | null;
+  videoPrompt?: string | null;
+  imagePrompt?: string | null;
   expanded?: boolean;
-  id?: number;
+  id?: number | string;
+  parent?: QuestionList | null;
+  [key: string]:
+    | string
+    | undefined
+    | null
+    | QuestionList
+    | number
+    | boolean
+    | QuestionList[];
 }
 [];

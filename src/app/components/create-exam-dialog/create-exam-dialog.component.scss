@@ -38,9 +38,27 @@
 }
 
 .add-new-question-button {
-  margin:5px;
+  margin:1px;
+  padding:5px;
 }
 
 .new-question-text{
-  font-size:smaller
+  font-size:xx-small
+}
+
+.mat-grid-tile {
+  transition: width 0.3s ease-in-out;
+}
+
+.mat-grid-tile.expanded {
+  width: 100%;
+}
+
+.border-left {
+  border-left: 2px solid #ccc;
+}
+
+.current-question {
+  color: #6200EE;
+  font-weight: bolder;
 }
