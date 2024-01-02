@@ -43,8 +43,9 @@ export class CreateExamDialogComponent implements OnInit {
     teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
     autoMarking: FormControl<boolean>; // false = teacher has to assign mark
     totalPoints: FormControl<number>;
-    randomQuestionOrder: FormControl<boolean | null>; // for multiple choiuce question, the questions will be in random order
-    partialMarking: FormControl<boolean | null>; // for multiple choiuce question, partial marks will be awarded if he user gets some of the questions correct
+    randomQuestionOrder: FormControl<boolean | null>; // for multiple choice question, the questions will be in random order
+    partialMarking: FormControl<boolean | null>; // for fill-in-blanks question, partial marks will be awarded if he user gets some of the questions correct
+    // caseSensitive: FormControl<boolean | null>; // for fill-in-blanks question, the student will have to get the case correct to score the points
     length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
     answers?: FormControl<{ question: string; correct: boolean }[] | null>; // used for multiple choice questions
   }>;
@@ -342,6 +343,29 @@ export class CreateExamDialogComponent implements OnInit {
         foundQuestion[field] = text;
       }
     }
+    if (field === 'type') {
+      if (this.currentQuestionDisplay) {
+        if (this.currentQuestionDisplay.fillBlanksQuestionList) {
+          this.currentQuestionDisplay.fillBlanksQuestionList = null;
+        }
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        if (this.currentQuestionDisplay.length) {
+          this.currentQuestionDisplay.length = null;
+          this.questionForm.controls.length.setValue(NaN);
+        }
+        if (this.currentQuestionDisplay.matchOptionQuestionList) {
+          this.currentQuestionDisplay.matchOptionQuestionList = null;
+        }
+        if (this.currentQuestionDisplay.multipleChoiceQuestionList) {
+          this.currentQuestionDisplay.multipleChoiceQuestionList = null;
+        }
+        if (this.currentQuestionDisplay.reorderSentenceQuestionList) {
+          this.currentQuestionDisplay.reorderSentenceQuestionList = null;
+        }
+        this.currentQuestionDisplay.partialMarking = null;
+        this.currentQuestionDisplay.randomQuestionOrder = null;
+      }
+    }
   }
 
   changeMultiChoice(index: number, checked: boolean): void {
@@ -355,9 +379,6 @@ export class CreateExamDialogComponent implements OnInit {
       }
     }
     if (this.currentQuestionDisplay?.multipleChoiceQuestionList) {
-      console.log(
-        this.currentQuestionDisplay.multipleChoiceQuestionList[index]
-      );
       this.currentQuestionDisplay.multipleChoiceQuestionList[index].correct =
         checked;
     }
@@ -379,6 +400,18 @@ export class CreateExamDialogComponent implements OnInit {
   changeMultiChoiceText(index: number, text: string): void {
     if (this.currentQuestionDisplay?.multipleChoiceQuestionList) {
       this.currentQuestionDisplay.multipleChoiceQuestionList[index].text = text;
+    }
+  }
+
+  changeReorderSentenceText(index: number, text: string): void {
+    if (this.currentQuestionDisplay?.reorderSentenceQuestionList) {
+      this.currentQuestionDisplay.reorderSentenceQuestionList[index] = text;
+    }
+  }
+
+  changeFillBlankText(index: number, text: string): void {
+    if (this.currentQuestionDisplay?.fillBlanksQuestionList) {
+      this.currentQuestionDisplay.fillBlanksQuestionList[index].text = text;
     }
   }
 
@@ -410,7 +443,6 @@ export class CreateExamDialogComponent implements OnInit {
     const clickedQuestion = this.demoQuestions.find(
       (obj) => obj.id === question.id
     );
-    console.log(clickedQuestion);
     if (clickedQuestion?.expanded !== undefined) {
       clickedQuestion.expanded = !clickedQuestion.expanded;
     }
@@ -431,6 +463,44 @@ export class CreateExamDialogComponent implements OnInit {
       this.currentQuestionDisplay?.multipleChoiceQuestionList?.push({
         text: '',
         correct: false,
+      });
+    }
+  }
+
+  addReorderSentenceOption(): void {
+    if (
+      this.currentQuestionDisplay &&
+      !this.currentQuestionDisplay.reorderSentenceQuestionList
+    ) {
+      this.currentQuestionDisplay.reorderSentenceQuestionList = [''];
+    } else {
+      this.currentQuestionDisplay?.reorderSentenceQuestionList?.push('');
+    }
+  }
+
+  addFillBlank(option: string): void {
+    if (
+      this.currentQuestionDisplay &&
+      !this.currentQuestionDisplay.fillBlanksQuestionList
+    ) {
+      if (option === 'blank') {
+        this.currentQuestionDisplay.fillBlanksQuestionList = [
+          { text: '', blank: true },
+        ];
+      } else {
+        this.currentQuestionDisplay.fillBlanksQuestionList = [
+          { text: '', blank: false },
+        ];
+      }
+    } else if (option === 'blank') {
+      this.currentQuestionDisplay?.fillBlanksQuestionList?.push({
+        text: '',
+        blank: true,
+      });
+    } else {
+      this.currentQuestionDisplay?.fillBlanksQuestionList?.push({
+        text: '',
+        blank: false,
       });
     }
   }
@@ -471,6 +541,8 @@ export interface QuestionList {
   randomQuestionOrder?: boolean | null;
   partialMarking?: boolean | null;
   multipleChoiceQuestionList?: { text: string; correct: boolean }[] | null;
+  reorderSentenceQuestionList?: string[] | null;
+  fillBlanksQuestionList?: { text: string; blank: boolean }[] | null;
   matchOptionQuestionList?:
     | { leftOption: string; rightOption: string }[]
     | null;
