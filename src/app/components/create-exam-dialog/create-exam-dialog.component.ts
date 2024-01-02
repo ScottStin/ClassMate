@@ -30,11 +30,12 @@ export class CreateExamDialogComponent implements OnInit {
   audioPromptFile = '';
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
+  letters: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''); // used for labelling options in multiple choice questions;
 
   questionForm: FormGroup<{
     questionName: FormControl<string>;
     writtenPrompt: FormControl<string>; // a short description of the question task
-    time?: FormControl<number | null>; // question time limit (seconds)
+    time: FormControl<number | null>; // question time limit (seconds)
     type: FormControl<string>;
     imagePrompt: FormControl<string | null>; // a visual prompt for the question
     audioPrompt: FormControl<string | null>; // an audio prompt for the question
@@ -42,7 +43,8 @@ export class CreateExamDialogComponent implements OnInit {
     teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
     autoMarking: FormControl<boolean>; // false = teacher has to assign mark
     totalPoints: FormControl<number>;
-    randomQuestionOrder?: FormControl<boolean | null>; // for multiple choiuce question, the questions will be in random order
+    randomQuestionOrder: FormControl<boolean | null>; // for multiple choiuce question, the questions will be in random order
+    partialMarking: FormControl<boolean | null>; // for multiple choiuce question, partial marks will be awarded if he user gets some of the questions correct
     length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
     answers?: FormControl<{ question: string; correct: boolean }[] | null>; // used for multiple choice questions
   }>;
@@ -55,7 +57,16 @@ export class CreateExamDialogComponent implements OnInit {
       description: '',
       label: 'Audio response - repeat word/sentence/paragraph',
     },
-    { type: 'multiple-choice', description: '', label: 'Multiple Choice' },
+    {
+      type: 'multiple-choice-single',
+      description: '',
+      label: 'Multiple Choice Single Answer',
+    },
+    {
+      type: 'multiple-choice-multi',
+      description: '',
+      label: 'Multiple Choice Multiple Answer',
+    },
     { type: 'reorder-sentence', description: '', label: 'Reorder Sentence' },
     { type: 'match-options', description: '', label: 'Match Options' },
     {
@@ -181,6 +192,15 @@ export class CreateExamDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
+      randomQuestionOrder: new FormControl(false, {
+        nonNullable: false,
+      }),
+      partialMarking: new FormControl(false, {
+        nonNullable: false,
+      }),
+      time: new FormControl(60, {
+        nonNullable: false,
+      }),
       totalPoints: new FormControl(1, {
         nonNullable: true,
       }),
@@ -295,6 +315,12 @@ export class CreateExamDialogComponent implements OnInit {
       this.questionForm.controls.totalPoints.setValue(
         this.currentQuestionDisplay.totalPoints ?? NaN
       );
+      this.questionForm.controls.time.setValue(
+        this.currentQuestionDisplay.time ?? null
+      );
+      this.questionForm.controls.randomQuestionOrder.setValue(
+        this.currentQuestionDisplay.randomQuestionOrder ?? false
+      );
     }
   }
 
@@ -315,6 +341,44 @@ export class CreateExamDialogComponent implements OnInit {
       if (foundQuestion) {
         foundQuestion[field] = text;
       }
+    }
+  }
+
+  changeMultiChoice(index: number, checked: boolean): void {
+    if (
+      this.currentQuestionDisplay?.type === 'multiple-choice-single' &&
+      this.currentQuestionDisplay.multipleChoiceQuestionList
+    ) {
+      for (const question of this.currentQuestionDisplay
+        .multipleChoiceQuestionList) {
+        question.correct = false;
+      }
+    }
+    if (this.currentQuestionDisplay?.multipleChoiceQuestionList) {
+      console.log(
+        this.currentQuestionDisplay.multipleChoiceQuestionList[index]
+      );
+      this.currentQuestionDisplay.multipleChoiceQuestionList[index].correct =
+        checked;
+    }
+  }
+
+  changeMatchOptionText(index: number, text: string, option: string): void {
+    if (this.currentQuestionDisplay?.matchOptionQuestionList) {
+      if (option === 'right') {
+        this.currentQuestionDisplay.matchOptionQuestionList[index].rightOption =
+          text;
+      }
+      if (option === 'left') {
+        this.currentQuestionDisplay.matchOptionQuestionList[index].leftOption =
+          text;
+      }
+    }
+  }
+
+  changeMultiChoiceText(index: number, text: string): void {
+    if (this.currentQuestionDisplay?.multipleChoiceQuestionList) {
+      this.currentQuestionDisplay.multipleChoiceQuestionList[index].text = text;
     }
   }
 
@@ -352,6 +416,44 @@ export class CreateExamDialogComponent implements OnInit {
     }
   }
 
+  addMultipleChoiceOption(): void {
+    if (
+      this.currentQuestionDisplay &&
+      !this.currentQuestionDisplay.multipleChoiceQuestionList
+    ) {
+      this.currentQuestionDisplay.multipleChoiceQuestionList = [
+        {
+          text: '',
+          correct: false,
+        },
+      ];
+    } else {
+      this.currentQuestionDisplay?.multipleChoiceQuestionList?.push({
+        text: '',
+        correct: false,
+      });
+    }
+  }
+
+  addMatchOption(): void {
+    if (
+      this.currentQuestionDisplay &&
+      !this.currentQuestionDisplay.matchOptionQuestionList
+    ) {
+      this.currentQuestionDisplay.matchOptionQuestionList = [
+        {
+          rightOption: '',
+          leftOption: '',
+        },
+      ];
+    } else {
+      this.currentQuestionDisplay?.matchOptionQuestionList?.push({
+        rightOption: '',
+        leftOption: '',
+      });
+    }
+  }
+
   closeDialog(result: boolean | null): void {
     this.dialogRef.close(result);
   }
@@ -364,6 +466,14 @@ export interface QuestionList {
   teacherFeedback?: boolean | null;
   autoMarking?: boolean | null;
   type?: string;
+  timed?: boolean | null;
+  time?: number | null;
+  randomQuestionOrder?: boolean | null;
+  partialMarking?: boolean | null;
+  multipleChoiceQuestionList?: { text: string; correct: boolean }[] | null;
+  matchOptionQuestionList?:
+    | { leftOption: string; rightOption: string }[]
+    | null;
   audioPrompt?: string | null;
   totalPoints?: number | null;
   length?: number | null;
@@ -372,13 +482,6 @@ export interface QuestionList {
   expanded?: boolean;
   id?: number | string;
   parent?: QuestionList | null;
-  [key: string]:
-    | string
-    | undefined
-    | null
-    | QuestionList
-    | number
-    | boolean
-    | QuestionList[];
+  [key: string]: unknown;
 }
 [];

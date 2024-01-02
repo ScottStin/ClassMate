@@ -12,6 +12,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+// import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -46,6 +47,7 @@ import { CreateExamDialogComponent } from './create-exam-dialog.component';
     MatDividerModule,
     MatCheckboxModule,
     MatListModule,
+    // MatRadioModule,
   ],
   exports: [CreateExamDialogComponent],
 })

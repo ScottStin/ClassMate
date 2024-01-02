@@ -126,6 +126,10 @@
       </mat-step>
     </div>
 
+    <!-- --- --- -->
+    <!-- Step 2 -->
+    <!-- --- --- -->
+
     <div [formGroup]="questionForm">
       <mat-step label="Add Questions to Exam" [editable]="true">
         <div class="step-container">
@@ -133,10 +137,11 @@
             cols="4"
             [rowHeight]="demoQuestions.length>0 && currentQuestionDisplay ? '125px' : '100px'"
           >
-            <mat-grid-tile
+            <!-- <mat-grid-tile
               [class.expanded]="demoQuestions.length > 0 && currentQuestionDisplay"
               [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
+              style="background-color: aqua"
             >
               <mat-card style="width: 100%">
                 <mat-card-content
@@ -144,13 +149,13 @@
                   Preview</mat-card-content
                 >
               </mat-card>
-            </mat-grid-tile>
+            </mat-grid-tile> -->
 
             <mat-grid-tile
               [class.expanded]="demoQuestions.length === 0 || !currentQuestionDisplay"
               [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 1 : 4"
-              rowspan="3"
-              style="overflow-y: auto"
+              rowspan="4"
+              style="overflow-y: auto; background-color: red"
               [class]="demoQuestions.length>0 && currentQuestionDisplay ? 'border-left' : ''"
             >
               <div style="display: flex; flex-direction: column">
@@ -272,6 +277,7 @@
             <mat-grid-tile
               [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
+              style="background-color: aqua"
             >
               <mat-form-field class="form-field" appearance="outline">
                 <mat-label>Question name</mat-label>
@@ -333,9 +339,11 @@
                 </mat-error>
               </mat-form-field>
             </mat-grid-tile>
+
             <mat-grid-tile
               [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
+              style="background-color: aqua"
             >
               <mat-form-field class="form-field" appearance="outline">
                 <mat-label for="imagePrompt" class="file-label"
@@ -438,11 +446,13 @@
                 </mat-error> -->
               </mat-form-field>
             </mat-grid-tile>
+
             <mat-grid-tile
-              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              [colspan]="(demoQuestions.length>0 && currentQuestionDisplay && (currentQuestionDisplay?.timed === false || !currentQuestionDisplay?.timed)) ? 3 : (demoQuestions.length>0 && currentQuestionDisplay && currentQuestionDisplay?.timed === true) ? 3 : 0"
               rowspan="1"
+              style="background-color: aqua"
             >
-              <form [formGroup]="examForm" class="form-field">
+              <form [formGroup]="questionForm" class="form-field">
                 <mat-slide-toggle
                   id="teacherFeedback"
                   #teacherFeedback
@@ -451,7 +461,7 @@
                   (change)="formChange(teacherFeedback.checked, 'teacherFeedback')"
                   [checked]="currentQuestionDisplay?.teacherFeedback"
                 >
-                  Teacher feedback required?
+                  Teacher feedback?
                   <mat-icon
                     style="font-size: 20px"
                     #tooltip="matTooltip"
@@ -466,7 +476,7 @@
                 </mat-error>
               </form>
 
-              <form [formGroup]="examForm" class="form-field">
+              <form [formGroup]="questionForm" class="form-field">
                 <mat-slide-toggle
                   formControlName="autoMarking"
                   id="autoMarking"
@@ -490,7 +500,49 @@
                 </mat-error>
               </form>
 
-              <mat-form-field class="form-field" appearance="outline">
+              <div class="form-field">
+                <mat-slide-toggle
+                  id="timed"
+                  name="timed"
+                  #timed
+                  (change)="formChange(timed.checked, 'timed')"
+                  [checked]="currentQuestionDisplay?.timed"
+                >
+                  Timed?
+                  <mat-icon
+                    *ngIf="!currentQuestionDisplay?.timed"
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, this question/section will have a time limit"
+                    >info</mat-icon
+                  >
+                </mat-slide-toggle>
+              </div>
+
+              <mat-form-field
+                class="form-field"
+                appearance="outline"
+                *ngIf="currentQuestionDisplay?.timed"
+              >
+                <mat-label>Time limit (seconds)</mat-label>
+                <input
+                  matInput
+                  id="time"
+                  #time
+                  formControlName="time"
+                  type="text"
+                  placeholder="Time limit (seconds)"
+                  [required]="currentQuestionDisplay?.timed === true"
+                  (keyup)="formChange(time.value, 'time')"
+                />
+                <mat-error>
+                  <app-error-message
+                    [control]="questionForm.controls['time'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </mat-form-field>
+
+              <!-- <mat-form-field class="form-field" appearance="outline">
                 <mat-label>Total points</mat-label>
                 <input
                   matInput
@@ -501,7 +553,7 @@
                   placeholder="How many points will this question be worth? (default = 1)"
                   (change)="formChange(totalPoints.value, 'totalPoints')"
                 />
-              </mat-form-field>
+              </mat-form-field> -->
               <!-- <mat-error>
                 <app-error-message
                   [control]="questionForm.controls['totalPoints']?.errors"
@@ -512,6 +564,7 @@
             <mat-grid-tile
               [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
+              style="background-color: aqua; overflow-y: auto"
             >
               <mat-form-field
                 class="form-field"
@@ -536,6 +589,146 @@
                   (change)="formChange(length.value, 'length')"
                 />
               </mat-form-field>
+
+              <div
+                class="form-field"
+                *ngIf="this.questionForm.getRawValue().type === 'match-options'"
+                style="max-height: 400px; overflow-y: auto"
+              >
+                <mat-list role="list">
+                  <div
+                    *ngFor="let question of currentQuestionDisplay?.matchOptionQuestionList; let i = index"
+                  >
+                    <input
+                      type="text"
+                      [value]="question.leftOption"
+                      placeholder="type left here"
+                      id="matchOptionInputLeft"
+                      #matchOptionInputLeft
+                      (keyup)="changeMatchOptionText(i, matchOptionInputLeft.value, 'left')"
+                      style="width: 40%; margin-bottom: 2px"
+                    />
+                    <input
+                      type="text"
+                      [value]="question.rightOption"
+                      placeholder="type right match here"
+                      id="matchOptionInputRight"
+                      #matchOptionInputRight
+                      (keyup)="changeMatchOptionText(i, matchOptionInputRight.value, 'right')"
+                      style="width: 40%"
+                    />
+                  </div>
+                </mat-list>
+                <span
+                  style="
+                    display: flex;
+                    align-items: center;
+                    font-size: small;
+                    cursor: pointer;
+                  "
+                  class="subQuestionList"
+                  (click)="addMatchOption()"
+                  ><mat-icon>add</mat-icon><b>Add pair</b></span
+                >
+              </div>
+
+              <div
+                class="form-field"
+                *ngIf="this.questionForm.getRawValue().type === 'multiple-choice-single' || this.questionForm.getRawValue().type === 'multiple-choice-multi'"
+                style="max-height: 400px; overflow-y: auto"
+              >
+                <mat-list role="list">
+                  <!-- <mat-radio-group
+                  role="listitem"
+                  class="multichoice-radio-group"
+                > -->
+                  <div
+                    *ngFor="let question of currentQuestionDisplay?.multipleChoiceQuestionList; let i = index"
+                  >
+                    <span *ngIf="!currentQuestionDisplay?.randomQuestionOrder"
+                      >{{ letters[i] }}:
+                    </span>
+                    <input
+                      type="text"
+                      [value]="question.text"
+                      placeholder="type option here"
+                      id="multiChoiceInput"
+                      #multiChoiceInput
+                      (keyup)="changeMultiChoiceText(i, multiChoiceInput.value)"
+                      style="width: 30%; margin-bottom: 2px"
+                    />
+                    <mat-checkbox
+                      [checked]="question.correct"
+                      (change)="changeMultiChoice(i, $event.checked)"
+                      [class]="this.questionForm.getRawValue().type === 'multiple-choice-single' ? 'multi-choice-single-button' : ''"
+                      >Correct option?</mat-checkbox
+                    >
+                    <!-- <mat-radio-button
+                      class="multichoice-radio-button"
+                      [value]="question.correct"
+                      (change)="changeMultiChoice(currentQuestionDisplay,question, i)"
+                      >correct?</mat-radio-button
+                    > -->
+                  </div>
+                  <!-- </mat-radio-group> -->
+                </mat-list>
+                <span
+                  style="
+                    display: flex;
+                    align-items: center;
+                    font-size: small;
+                    cursor: pointer;
+                  "
+                  class="subQuestionList"
+                  (click)="addMultipleChoiceOption()"
+                  ><mat-icon>add</mat-icon><b>Add answer</b></span
+                >
+              </div>
+
+              <form
+                [formGroup]="questionForm"
+                class="form-field"
+                *ngIf="this.questionForm.getRawValue().type === 'multiple-choice-single' || this.questionForm.getRawValue().type === 'multiple-choice-multi'"
+              >
+                <mat-slide-toggle
+                  id="randomQuestionOrder"
+                  name="randomQuestionOrder"
+                  #randomQuestionOrder
+                  formControlName="randomQuestionOrder"
+                  (change)="formChange(randomQuestionOrder.checked, 'randomQuestionOrder')"
+                  [checked]="currentQuestionDisplay?.randomQuestionOrder"
+                >
+                  Random question order?
+                  <mat-icon
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, the multiple choice options you create will appear in a random order when the student takes the exam. When turned off, they will appear in the order you create them."
+                    >info</mat-icon
+                  >
+                </mat-slide-toggle>
+              </form>
+              <form
+                [formGroup]="questionForm"
+                class="form-field"
+                *ngIf="['multiple-choice-single', 'multiple-choice-multi', 'match-options'].includes(this.questionForm.getRawValue().type)"
+              >
+                <mat-slide-toggle
+                  id="partialMarking"
+                  name="partialMarking"
+                  #partialMarking
+                  formControlName="partialMarking"
+                  (change)="formChange(partialMarking.checked, 'partialMarking')"
+                  [checked]="currentQuestionDisplay?.partialMarking"
+                >
+                  Partial marking?
+                  <mat-icon
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, the student will be rewarded partial marking for getting some of the questions correct. When turned off, the student will have to get the whole question correct to be awarded the marks."
+                    >info</mat-icon
+                  >
+                </mat-slide-toggle>
+              </form>
             </mat-grid-tile>
           </mat-grid-list>
 

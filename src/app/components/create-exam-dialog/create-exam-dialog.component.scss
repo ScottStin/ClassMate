@@ -62,3 +62,20 @@
   color: #6200EE;
   font-weight: bolder;
 }
+
+// .multichoice-radio-group {
+//   display: flex;
+//   flex-direction: column;
+//   margin: 15px 0;
+//   align-items: flex-start;
+// }
+
+// .multichoice-radio-button {
+//   margin: 5px;
+// }
+
+::ng-deep .multi-choice-single-button {
+  & .mat-checkbox-background, .mat-checkbox-frame {
+    border-radius: 70% !important;
+  }
+}
