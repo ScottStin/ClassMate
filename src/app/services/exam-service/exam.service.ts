@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
+import { QuestionList } from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
@@ -32,12 +33,14 @@ export class ExamService {
     );
   }
 
-  create(data: ExamDTO): Observable<ExamDTO> {
-    return this.httpClient.post<ExamDTO>(`${this.baseUrl}/new`, data).pipe(
-      catchError((error: Error) => {
-        this.handleError(error, 'Failed to create new exam');
-      })
-    );
+  create(exam: ExamDTO, questions: QuestionList[]): Observable<ExamDTO> {
+    return this.httpClient
+      .post<ExamDTO>(`${this.baseUrl}/new`, { exam, questions })
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to create new exam');
+        })
+      );
   }
 
   registerForExam(exam: ExamDTO, student: UserDTO): Observable<ExamDTO> {

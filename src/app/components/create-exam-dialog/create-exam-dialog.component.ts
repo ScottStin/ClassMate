@@ -24,7 +24,7 @@ export class CreateExamDialogComponent implements OnInit {
     assignedTeacher: FormControl<string>;
     defaultExam: FormControl<boolean>;
   }>;
-  demoQuestions: QuestionList[] = [];
+  questionList: QuestionList[] = [];
   currentQuestionDisplay: QuestionList | null = null;
   imagePromptFile = '';
   audioPromptFile = '';
@@ -97,36 +97,36 @@ export class CreateExamDialogComponent implements OnInit {
     this.populateExamForm();
     this.populateQuestionForm();
 
-    this.demoQuestions = [
-      {
-        name: 'section1',
-        type: 'section',
-        expanded: false,
-        id: 1,
-        subQuestions: [
-          { name: 'section1 q1', id: 543 },
-          { name: 'section1 q2', id: 547 },
-          { name: 'section1 q3', id: 549 },
-          { name: 'section1 q3', id: 556 },
-          { name: 'section1 q5', id: 579 },
-        ],
-      },
-      {
-        name: 'section2',
-        type: 'section',
-        expanded: false,
-        id: 2,
-        subQuestions: [
-          { name: 'section2 q1', id: 242 },
-          { name: 'section2 q2', id: 243 },
-          { name: 'section2 q3', id: 244 },
-          { name: 'section2 q3', id: 245 },
-          { name: 'section2 q5', id: 246 },
-        ],
-      },
-      { name: 'question3', type: 'question', subQuestions: null, id: 4 },
-      { name: 'question4', type: 'question', subQuestions: null, id: 5 },
-    ];
+    // this.questionList = [
+    //   {
+    //     name: 'section1',
+    //     type: 'section',
+    //     expanded: false,
+    //     id: 1,
+    //     subQuestions: [
+    //       { name: 'section1 q1', id: 543 },
+    //       { name: 'section1 q2', id: 547 },
+    //       { name: 'section1 q3', id: 549 },
+    //       { name: 'section1 q3', id: 556 },
+    //       { name: 'section1 q5', id: 579 },
+    //     ],
+    //   },
+    //   {
+    //     name: 'section2',
+    //     type: 'section',
+    //     expanded: false,
+    //     id: 2,
+    //     subQuestions: [
+    //       { name: 'section2 q1', id: 242 },
+    //       { name: 'section2 q2', id: 243 },
+    //       { name: 'section2 q3', id: 244 },
+    //       { name: 'section2 q3', id: 245 },
+    //       { name: 'section2 q5', id: 246 },
+    //     ],
+    //   },
+    //   { name: 'question3', type: 'question', subQuestions: null, id: 4 },
+    //   { name: 'question4', type: 'question', subQuestions: null, id: 5 },
+    // ];
   }
 
   populateExamForm(): void {
@@ -211,17 +211,20 @@ export class CreateExamDialogComponent implements OnInit {
 
   saveExamClick(): void {
     console.log(this.examForm);
+    console.log(this.questionList);
     // this.saveExam.emit(this.examForm.value as ExamDTO);
-    this.examService.create(this.examForm.value as ExamDTO).subscribe({
-      next: () => {
-        this.snackbarService.open('info', 'Exam successfully created');
-        this.closeDialog(true);
-      },
-      error: (error: Error) => {
-        this.error = error;
-        this.snackbarService.openPermanent('error', error.message);
-      },
-    });
+    this.examService
+      .create(this.examForm.value as ExamDTO, this.questionList)
+      .subscribe({
+        next: () => {
+          this.snackbarService.open('info', 'Exam successfully created');
+          this.closeDialog(true);
+        },
+        error: (error: Error) => {
+          this.error = error;
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
   }
 
   addNewSection(): void {
@@ -236,7 +239,7 @@ export class CreateExamDialogComponent implements OnInit {
         },
       ],
     };
-    this.demoQuestions.push(newQuestion);
+    this.questionList.push(newQuestion);
     this.currentQuestionDisplay = newQuestion;
     this.sectionCounter = this.sectionCounter + 1;
     this.updateForm();
@@ -248,18 +251,19 @@ export class CreateExamDialogComponent implements OnInit {
       type: 'question',
       id: `question-${this.questionCounter}`,
     };
-    this.demoQuestions.push(newQuestion);
+    this.questionList.push(newQuestion);
     this.currentQuestionDisplay = newQuestion;
     this.questionCounter = this.questionCounter + 1;
     this.updateForm();
   }
 
   addQuestionToSection(question: QuestionList): void {
-    const clickedQuestion = this.demoQuestions.find(
+    const clickedQuestion = this.questionList.find(
       (obj) => obj.id === question.id
     );
     if (clickedQuestion?.subQuestions) {
-      this.demoQuestions
+      this.questionList
+
         .find((obj) => obj.id === question.id)
         ?.subQuestions?.push({
           name: `${clickedQuestion.name} q${
@@ -279,7 +283,7 @@ export class CreateExamDialogComponent implements OnInit {
       this.currentQuestionDisplay = question;
     } else {
       this.currentQuestionDisplay = subQuestion;
-      this.currentQuestionDisplay.parent = question;
+      this.currentQuestionDisplay.parent = question.id as number;
     }
     this.updateForm();
   }
@@ -326,9 +330,9 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   formChange(text: string | boolean, field: string): void {
-    if (this.currentQuestionDisplay?.parent) {
-      const foundQuestion = this.demoQuestions
-        .find((obj) => obj.id === this.currentQuestionDisplay?.parent?.id)
+    if (this.currentQuestionDisplay?.parent !== undefined) {
+      const foundQuestion = this.questionList
+        .find((obj) => obj.id === this.currentQuestionDisplay?.parent)
         ?.subQuestions?.find(
           (obj) => obj.id === this.currentQuestionDisplay?.id
         );
@@ -336,7 +340,7 @@ export class CreateExamDialogComponent implements OnInit {
         foundQuestion[field] = text;
       }
     } else {
-      const foundQuestion = this.demoQuestions.find(
+      const foundQuestion = this.questionList.find(
         (obj) => obj.id === this.currentQuestionDisplay?.id
       );
       if (foundQuestion) {
@@ -421,13 +425,13 @@ export class CreateExamDialogComponent implements OnInit {
   ): void {
     if (subQuestions !== null) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.demoQuestions.find(
+      this.questionList.find(
         (obj: QuestionList) => obj.id === question.id
-      )!.subQuestions = this.demoQuestions
+      )!.subQuestions = this.questionList
         .find((obj: QuestionList) => obj.id === question.id)
         ?.subQuestions?.filter((obj: QuestionList) => obj !== subQuestions);
     } else {
-      this.demoQuestions = this.demoQuestions.filter((obj) => obj !== question);
+      this.questionList = this.questionList.filter((obj) => obj !== question);
     }
     this.currentQuestionDisplay = null;
   }
@@ -440,7 +444,7 @@ export class CreateExamDialogComponent implements OnInit {
   // }
 
   expandSection(question: QuestionList): void {
-    const clickedQuestion = this.demoQuestions.find(
+    const clickedQuestion = this.questionList.find(
       (obj) => obj.id === question.id
     );
     if (clickedQuestion?.expanded !== undefined) {
@@ -553,7 +557,7 @@ export interface QuestionList {
   imagePrompt?: string | null;
   expanded?: boolean;
   id?: number | string;
-  parent?: QuestionList | null;
+  parent?: number | null;
   [key: string]: unknown;
 }
 [];

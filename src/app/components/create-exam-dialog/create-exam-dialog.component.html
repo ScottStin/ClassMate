@@ -135,11 +135,11 @@
         <div class="step-container">
           <mat-grid-list
             cols="4"
-            [rowHeight]="demoQuestions.length>0 && currentQuestionDisplay ? '125px' : '100px'"
+            [rowHeight]="questionList.length>0 && currentQuestionDisplay ? '125px' : '100px'"
           >
             <!-- <mat-grid-tile
-              [class.expanded]="demoQuestions.length > 0 && currentQuestionDisplay"
-              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              [class.expanded]="questionList.length > 0 && currentQuestionDisplay"
+              [colspan]="questionList.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
               style="background-color: aqua"
             >
@@ -152,15 +152,15 @@
             </mat-grid-tile> -->
 
             <mat-grid-tile
-              [class.expanded]="demoQuestions.length === 0 || !currentQuestionDisplay"
-              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 1 : 4"
+              [class.expanded]="questionList.length === 0 || !currentQuestionDisplay"
+              [colspan]="questionList.length>0 && currentQuestionDisplay ? 1 : 4"
               rowspan="4"
               style="overflow-y: auto"
-              [class]="demoQuestions.length>0 && currentQuestionDisplay ? 'border-right' : ''"
+              [class]="questionList.length>0 && currentQuestionDisplay ? 'border-right' : ''"
             >
               <div style="display: flex; flex-direction: column">
                 <div class="tree-container">
-                  <mat-list role="list" *ngFor="let question of demoQuestions">
+                  <mat-list role="list" *ngFor="let question of questionList">
                     <mat-list-item role="listitem">
                       <div style="display: flex; align-items: center">
                         <span
@@ -243,7 +243,7 @@
                   </mat-list>
                 </div>
                 <mat-divider
-                  *ngIf="demoQuestions.length>0 && currentQuestionDisplay"
+                  *ngIf="questionList.length>0 && currentQuestionDisplay"
                 ></mat-divider>
                 <div class="tree-button-container">
                   <button
@@ -254,7 +254,7 @@
                   >
                     <mat-icon>add</mat-icon>
                     <span
-                      [class]="demoQuestions.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
+                      [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
                       >Add New Question</span
                     >
                   </button>
@@ -266,7 +266,7 @@
                   >
                     <mat-icon>add</mat-icon
                     ><span
-                      [class]="demoQuestions.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
+                      [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
                       >Add New Section</span
                     >
                   </button>
@@ -275,7 +275,7 @@
             </mat-grid-tile>
 
             <mat-grid-tile
-              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              [colspan]="questionList.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
             >
               <mat-form-field class="form-field" appearance="outline">
@@ -345,7 +345,7 @@
             </mat-grid-tile>
 
             <mat-grid-tile
-              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              [colspan]="questionList.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
             >
               <mat-form-field class="form-field" appearance="outline">
@@ -451,7 +451,7 @@
             </mat-grid-tile>
 
             <mat-grid-tile
-              [colspan]="(demoQuestions.length>0 && currentQuestionDisplay && (currentQuestionDisplay?.timed === false || !currentQuestionDisplay?.timed)) ? 3 : (demoQuestions.length>0 && currentQuestionDisplay && currentQuestionDisplay?.timed === true) ? 3 : 0"
+              [colspan]="(questionList.length>0 && currentQuestionDisplay && (currentQuestionDisplay?.timed === false || !currentQuestionDisplay?.timed)) ? 3 : (questionList.length>0 && currentQuestionDisplay && currentQuestionDisplay?.timed === true) ? 3 : 0"
               rowspan="1"
             >
               <form [formGroup]="questionForm" class="form-field">
@@ -564,7 +564,7 @@
             </mat-grid-tile>
 
             <mat-grid-tile
-              [colspan]="demoQuestions.length>0 && currentQuestionDisplay ? 3 : 0"
+              [colspan]="questionList.length>0 && currentQuestionDisplay ? 3 : 0"
               rowspan="1"
             >
               <mat-form-field

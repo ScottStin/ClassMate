@@ -134,6 +134,10 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     return studentsEnrolled.join(', ');
   }
 
+  displayExam(exam: ExamDTO): void {
+    console.log(exam);
+  }
+
   filterResults(text: string): void {
     this.filterText = text;
     if (this.dataSource) {
