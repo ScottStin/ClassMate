@@ -21,9 +21,12 @@
       <div *ngIf="!examPageLoading" class="table-container">
         <app-exam-table
           [examData]="getUserExams(examType) | async"
+          [examType]="examType"
+          [questionData]="questions$ | async"
           (openEditExamDialog)="openEditExamDialog($event)"
           (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
           (registerForExam)="registerForExam($event)"
+          (startExam)="startExam($event)"
         ></app-exam-table>
       </div>
     </mat-tab>

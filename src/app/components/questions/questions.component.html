@@ -1,0 +1,20 @@
+<mat-card style="padding: 100px; width: 50vw">
+  <mat-card-header>
+    <mat-card-title><b>{{question?.name}}</b></mat-card-title>
+    <mat-card-subtitle>dsfsdf{{question?.writtenPrompt}}</mat-card-subtitle>
+  </mat-card-header>
+  <img
+    mat-card-image
+    src="https://material.angular.io/assets/img/examples/shiba2.jpg"
+    alt="image prompt"
+    style="width: '25vw'"
+  />
+  <mat-card-content style="padding-top: 50px; width: 100vw">
+    <app-written-response-question
+      *ngIf="question?.type==='written-response'"
+      [question]="question"
+      [disableForms]="currentUser?.user?.userType?.toLowerCase() === 'teacher'"
+      (response)="updateResponse($event)"
+    ></app-written-response-question>
+  </mat-card-content>
+</mat-card>

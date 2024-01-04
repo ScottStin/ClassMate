@@ -50,6 +50,23 @@
           </mat-form-field>
 
           <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Exam instructions</mat-label>
+            <textarea
+              matInput
+              id="instructions"
+              formControlName="instructions"
+              type="text"
+              placeholder="Optional instructions for the students that they will see before starting the exam."
+              required
+            ></textarea>
+            <mat-error>
+              <app-error-message
+                [control]="examForm.controls['instructions'].errors"
+              ></app-error-message>
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="form-field" appearance="outline">
             <mat-label>Casual Price (USD)</mat-label>
             <input
               matInput

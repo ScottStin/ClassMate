@@ -5,6 +5,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { CreateExamDialogModule } from 'src/app/components/create-exam-dialog/create-exam-dialog.module';
 import { ExamTableModule } from 'src/app/components/exam-table/exam-table.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
+import { ShowExamDialogModule } from 'src/app/components/show-exam-dialog/show-exam-dialog.module';
 
 import { ExamPageComponent } from './exam-page.component';
 import { ExamPageRoutingModule } from './exam-page-routing.module';
@@ -19,6 +20,7 @@ import { ExamPageRoutingModule } from './exam-page-routing.module';
     MatTabsModule,
     CreateExamDialogModule,
     ExamTableModule,
+    ShowExamDialogModule,
   ],
   exports: [ExamPageComponent],
 })

@@ -19,6 +19,7 @@ export class CreateExamDialogComponent implements OnInit {
   examForm: FormGroup<{
     name: FormControl<string>;
     description: FormControl<string>;
+    instructions: FormControl<string>;
     casualPrice: FormControl<number>;
     default: FormControl<boolean>;
     assignedTeacher: FormControl<string>;
@@ -136,6 +137,10 @@ export class CreateExamDialogComponent implements OnInit {
         nonNullable: true,
       }),
       description: new FormControl(this.data.exam?.description ?? '', {
+        validators: [Validators.required],
+        nonNullable: true,
+      }),
+      instructions: new FormControl(this.data.exam?.instructions ?? '', {
         validators: [Validators.required],
         nonNullable: true,
       }),
@@ -534,6 +539,7 @@ export class CreateExamDialogComponent implements OnInit {
 }
 
 export interface QuestionList {
+  // todo = move this to models.
   name: string;
   subQuestions?: QuestionList[] | null;
   writtenPrompt?: string | null;
@@ -559,5 +565,11 @@ export interface QuestionList {
   id?: number | string;
   parent?: number | null;
   [key: string]: unknown;
+  studentResponse?: {
+    student?: string | null;
+    response?: string | null;
+    mark?: number | null;
+    feedback?: { text: string; teacher: string } | null;
+  }; // [];
 }
 [];

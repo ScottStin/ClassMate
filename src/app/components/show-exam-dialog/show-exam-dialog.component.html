@@ -1,0 +1,120 @@
+<mat-toolbar role="toolbar" class="dialog-title-container">
+  <h2 mat-dialog-title>
+    <button mat-icon-button (click)="closeDialog(null)">
+      <mat-icon>close</mat-icon></button
+    >{{data.title}}
+  </h2>
+</mat-toolbar>
+
+<div mat-dialog-content>
+  <mat-grid-list
+    cols="4"
+    [rowHeight]="questionList.length>0 ? '400px' : '100px'"
+  >
+    <mat-grid-tile
+      [class.expanded]="examStarted"
+      [colspan]="examStarted ? 1 : 0"
+      rowspan="2"
+      style="overflow-y: auto"
+      [class]="examStarted ? 'border-right' : ''"
+    >
+      <div style="display: flex; flex-direction: column">
+        <div class="tree-container">
+          <mat-list role="list" *ngFor="let question of questionList">
+            <mat-list-item role="listitem">
+              <div style="display: flex; align-items: center">
+                <span
+                  [class]="question === currentQuestionDisplay ? 'current-question' : ''"
+                  (click)="selectQuestion(question)"
+                  style="cursor: pointer"
+                  >{{question.name}}</span
+                >
+              </div>
+            </mat-list-item>
+            <div>
+              <mat-list-item
+                class="subQuestionList"
+                *ngFor="let subQuestion of question.subQuestions"
+                [class]="subQuestion === currentQuestionDisplay ? 'current-question' : ''"
+              >
+                <span
+                  (click)="selectQuestion(subQuestion)"
+                  style="cursor: pointer"
+                  >&#x2022; {{subQuestion.name}}</span
+                >
+              </mat-list-item>
+            </div>
+          </mat-list>
+        </div>
+      </div>
+    </mat-grid-tile>
+    <mat-grid-tile [colspan]="!examStarted ? 4 : 0" rowspan="2">
+      <div class="tree-button-container">
+        <span>{{data.exam?.instructions}}</span>
+        <button
+          mat-raised-button
+          type="button"
+          class="button add-new-question-button"
+          (click)="startExam()"
+        >
+          <mat-icon>play_circle_filled</mat-icon>
+          <span
+            [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
+            >Start Exam</span
+          >
+        </button>
+      </div>
+    </mat-grid-tile>
+    <mat-grid-tile [colspan]="!examStarted ? 0 : 3" rowspan="2">
+      <app-questions
+        [question]="currentQuestionDisplay"
+        (response)="response($event)"
+      ></app-questions>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
+<div mat-dialog-actions align="end" *ngIf="examStarted">
+  <button
+    mat-button
+    *ngIf="currentQuestionDisplay !== questionList[0] && (subQuestionIndex() !== 'first' || subQuestionIndex() === '')"
+    (click)="previousQuestion()"
+  >
+    <mat-icon>navigate_before</mat-icon>Previous
+  </button>
+  <button
+    mat-button
+    cdkFocusInitial
+    (click)="nextQuestion()"
+    *ngIf="
+        currentQuestionDisplay?.type?.toLowerCase() !== 'section' && 
+        (subQuestionIndex() !== 'last' || subQuestionIndex() === '') &&
+        questionIndex() !== 'last'
+    "
+  >
+    Next <mat-icon>navigate_next</mat-icon>
+  </button>
+  <button
+    mat-button
+    cdkFocusInitial
+    (click)="completeSection()"
+    *ngIf="currentQuestionDisplay?.type?.toLowerCase() !== 'section' && subQuestionIndex() === 'last'"
+  >
+    Complete section
+  </button>
+  <button
+    mat-button
+    cdkFocusInitial
+    (click)="completeExam()"
+    *ngIf="questionIndex() === 'last'"
+  >
+    Submit exam <mat-icon>done</mat-icon>
+  </button>
+  <button
+    mat-button
+    cdkFocusInitial
+    (click)="startSection()"
+    *ngIf="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
+  >
+    Start section
+  </button>
+</div>

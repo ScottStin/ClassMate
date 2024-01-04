@@ -105,9 +105,22 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .fullscreen-dialog {
   max-width: 100% !important;
-  max-height: 100% !important;
-  height: 100vh;
+  /* max-height: 100% !important; */
+  /* height: 100vh; */
   float: right;
   margin-left: 256px;
   width: calc(100vw - 256px);
+
+  max-width: unset !important;
+  /* width: 100%; */
+  height: 100%;
+  .mat-dialog-container {
+    /* max-width: 100vw; */
+    max-height: 100vh;
+    height: 100%;
+    /* width: 100%; */
+    .mat-dialog-content {
+      max-height: unset !important;
+    }
+  }
 }

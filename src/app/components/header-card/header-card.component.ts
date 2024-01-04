@@ -27,6 +27,10 @@ export class HeaderCardComponent implements OnDestroy {
   menuItems: MenuItemDTO[] = menuItems;
   private readonly routerSubscription: Subscription | undefined;
 
+  currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
+    | { user: UserDTO }
+    | undefined;
+
   constructor(
     private readonly router: Router,
     public readonly authStoreService: AuthStoreService,

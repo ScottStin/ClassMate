@@ -1,0 +1,27 @@
+<h5>Answer:</h5>
+<div [formGroup]="questionForm" *ngIf="!loading">
+  <mat-form-field class="form-field" appearance="outline" style="width: 500px">
+    <mat-label>Response</mat-label>
+    <textarea
+      matInput
+      id="writtenResponse"
+      #writtenResponse
+      formControlName="writtenResponse"
+      type="text"
+      placeholder="Write your answer here"
+      required
+      (keyup)="wordCounter(writtenResponse.value)"
+      style="width: 500px; font-size: 16px"
+      maxlength="question?.length ? ''"
+      [rows]="!question?.length || question?.length === undefined || question === undefined ? 5 : (question!.length! < 20 ? 3 : (question!.length! <= 100 ? 10 : 15))"
+    ></textarea>
+    <span *ngIf="wordCount && question?.length"
+      >Words: {{wordCount}}/{{question?.length}}</span
+    >
+    <mat-error>
+      <app-error-message
+        [control]="questionForm.controls['writtenResponse'].errors"
+      ></app-error-message>
+    </mat-error>
+  </mat-form-field>
+</div>

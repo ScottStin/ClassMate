@@ -31,10 +31,12 @@
         Price (USD)
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <span *ngIf="row.casualPrice && row.casualPrice !== 0"
-          >$ {{ row.casualPrice }}</span
-        >
-        <span *ngIf="!row.casualPrice || row.casualPrice === 0">Free</span>
+        <div *ngIf="!row.studentsEnrolled.includes(currentUser?.user?.email)">
+          <span *ngIf="row.casualPrice && row.casualPrice !== 0"
+            >$ {{ row.casualPrice }}</span
+          >
+          <span *ngIf="!row.casualPrice || row.casualPrice === 0">Free</span>
+        </div>
       </mat-cell>
     </ng-container>
 
@@ -150,7 +152,7 @@
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="displayExam(row)">
+            <button mat-menu-item (click)="displayExam(row, true)">
               <mat-icon>remove_red_eye</mat-icon>
               <span>View</span>
             </button>
@@ -173,6 +175,17 @@
             style="cursor: pointer; color: green"
             (click)="enrolExam(row)"
             >add_shopping_cart</mat-icon
+          >
+        </div>
+        <div
+          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && !row.studentsCompleted.includes(currentUser?.user?.email)"
+        >
+          <mat-icon
+            #tooltip="matTooltip"
+            matTooltip="Start exam"
+            style="cursor: pointer; color: blue"
+            (click)="startExamClick(row)"
+            >play_circle_filled</mat-icon
           >
         </div>
       </mat-cell>

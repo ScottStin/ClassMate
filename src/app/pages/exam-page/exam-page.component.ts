@@ -2,9 +2,14 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { finalize, first, forkJoin, map, Observable, of } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
-import { CreateExamDialogComponent } from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
+import {
+  CreateExamDialogComponent,
+  QuestionList,
+} from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
 import { ExamTableComponent } from 'src/app/components/exam-table/exam-table.component';
+import { ShowExamDialogComponent } from 'src/app/components/show-exam-dialog/show-exam-dialog.component';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
+import { QuestionService } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { DemoExams } from 'src/app/shared/demo-data';
@@ -24,7 +29,7 @@ export class ExamPageComponent implements OnInit {
   examPageLoading = false;
   demoExams: ExamDTO[];
   teachers$: Observable<UserDTO[]>;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  questions$: Observable<QuestionList[]>;
   currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
     | { user: UserDTO }
     | undefined;
@@ -33,18 +38,24 @@ export class ExamPageComponent implements OnInit {
   constructor(
     private readonly examService: ExamService,
     private readonly userService: UserService,
+    private readonly questionService: QuestionService,
     private readonly snackbarService: SnackbarService,
     public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.exams$ = this.examService.exams$;
+    this.questions$ = this.questionService.questions$;
     this.loadPageData();
   }
 
   loadPageData(): void {
     this.examPageLoading = true;
-    forkJoin([this.examService.getAll(), this.userService.getAll()])
+    forkJoin([
+      this.examService.getAll(),
+      this.userService.getAll(),
+      this.questionService.getAll(),
+    ])
       .pipe(
         first(),
         finalize(() => {
@@ -52,8 +63,8 @@ export class ExamPageComponent implements OnInit {
         })
       )
       .subscribe({
-        next: ([exams, users]) => {
-          console.log(exams);
+        next: ([exams, users, questions]) => {
+          console.log(questions);
           const teachers = users.filter(
             (user) => user.userType.toLowerCase() === 'teacher'
           );
@@ -168,9 +179,11 @@ export class ExamPageComponent implements OnInit {
     this.selectedTabIndex = 0;
   }
 
-  registerForExam(exam: ExamDTO): void {
+  startExam(exam: ExamDTO): void {
     console.log(exam);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  }
+
+  registerForExam(exam: ExamDTO): void {
     this.examService.registerForExam(exam, this.currentUser!.user).subscribe({
       next: () => {
         this.snackbarService.open(

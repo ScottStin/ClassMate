@@ -5,6 +5,7 @@ export interface ExamDTO {
     studentsEnrolled: string[];
     studentsCompleted: string[];
     description: string;
+    instructions?: string | null;
     casualPrice: number;
     default: boolean;
     questions?: string[] | null;

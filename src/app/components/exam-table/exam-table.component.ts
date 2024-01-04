@@ -12,8 +12,12 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
+
+import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component';
+import { ShowExamDialogComponent } from '../show-exam-dialog/show-exam-dialog.component';
 
 @Component({
   selector: 'app-exam-table',
@@ -25,8 +29,11 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<ExamDTO>;
   @Input() examData: ExamDTO[] | null;
+  @Input() questionData: QuestionList[] | null;
+  @Input() examType: string;
   @Output() openEditExamDialog = new EventEmitter<ExamDTO>();
   @Output() openConfirmDeleteDialog = new EventEmitter<ExamDTO>();
+  @Output() startExam = new EventEmitter<ExamDTO>();
   @Output() registerForExam = new EventEmitter<ExamDTO>();
 
   filterText: string;
@@ -48,9 +55,13 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     | { user: UserDTO }
     | undefined;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(
+    public dialog: MatDialog,
+    private readonly snackbarService: SnackbarService
+  ) {}
 
   ngOnInit(): void {
+    console.log(this.questionData);
     this.dataSource = new MatTableDataSource<ExamDTO>(this.examData ?? []);
     if (
       this.currentUser?.user.userType.toLowerCase() === 'student' ||
@@ -63,6 +74,11 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
         'autoMarking',
         'actions',
       ];
+      if (this.examType.toLocaleLowerCase() === 'my exams') {
+        this.displayedColumns = this.displayedColumns.filter(
+          (item) => item !== 'casualPrice'
+        );
+      }
     }
   }
 
@@ -109,6 +125,28 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     this.openConfirmDeleteDialog.emit(exam);
   }
 
+  startExamClick(exam: ExamDTO): void {
+    if (exam.casualPrice && exam.casualPrice > 0) {
+      const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: 'Start exam?',
+          message:
+            'Once you start the exam, you may not be able to retake it again.',
+          okLabel: `Start`,
+          cancelLabel: `Cancel`,
+          routerLink: '',
+        },
+      });
+      confirmDialogRef.afterClosed().subscribe((result) => {
+        if (result === true) {
+          this.displayExam(exam, false);
+        }
+      });
+    } else {
+      this.displayExam(exam, false);
+    }
+  }
+
   enrolExam(exam: ExamDTO): void {
     let message = 'Are you sure you want to enrol in this exam?';
     if (exam.casualPrice && exam.casualPrice > 0) {
@@ -134,8 +172,49 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     return studentsEnrolled.join(', ');
   }
 
-  displayExam(exam: ExamDTO): void {
-    console.log(exam);
+  displayExam(exam: ExamDTO, displayMode: boolean): void {
+    const questions = [];
+    if (exam.questions && exam.questions.length > 0) {
+      for (const question of exam.questions) {
+        const foundQuestion = this.questionData?.find(
+          (obj) => obj['_id'] === question
+        );
+        if (
+          foundQuestion?.subQuestions !== undefined &&
+          foundQuestion.subQuestions !== null &&
+          foundQuestion.subQuestions.length > 0
+        ) {
+          const subQuestions = [];
+          for (const subQuestion of foundQuestion.subQuestions) {
+            const foundSubQuestion = this.questionData?.find(
+              (obj) => obj['_id'] === subQuestion
+            );
+            if (foundSubQuestion) {
+              subQuestions.push(foundSubQuestion);
+            }
+          }
+          foundQuestion.subQuestions = subQuestions;
+        }
+        if (foundQuestion) {
+          questions.push(foundQuestion);
+        }
+      }
+      this.dialog.open(ShowExamDialogComponent, {
+        data: {
+          title: exam.name,
+          exam,
+          questions,
+          displayMode,
+        },
+        panelClass: 'fullscreen-dialog',
+        // height: '100%',
+        autoFocus: false,
+        hasBackdrop: true,
+        disableClose: true,
+      });
+    } else {
+      this.snackbarService.openPermanent('error', 'This exam has no questions');
+    }
   }
 
   filterResults(text: string): void {
