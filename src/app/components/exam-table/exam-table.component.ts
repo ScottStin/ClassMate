@@ -18,6 +18,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component';
 import { ShowExamDialogComponent } from '../show-exam-dialog/show-exam-dialog.component';
+import { StudentsCompletedExamDialogComponent } from '../students-completed-exam-dialog/students-completed-exam-dialog.component';
 
 @Component({
   selector: 'app-exam-table',
@@ -170,6 +171,34 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
 
   getStudentsList(studentsEnrolled: string[]): string {
     return studentsEnrolled.join(', ');
+  }
+
+  openStudentsCompletedList(exam: ExamDTO): void {
+    // const confirmDialogRef =
+    this.dialog.open(StudentsCompletedExamDialogComponent, {
+      data: { exam },
+    });
+    // confirmDialogRef.afterClosed().subscribe((result) => {
+    //   if (result === true) {
+    //   }
+    // });
+  }
+
+  examMarkPending(exam: ExamDTO): void {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Exam completed',
+        message: `You have already completed this exam. Please wait while it's being marked. <br> <br> You can click below to view your answers.`,
+        okLabel: `View answers`,
+        cancelLabel: `Cancel`,
+        routerLink: '',
+      },
+    });
+    confirmDialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.displayExam(exam, true);
+      }
+    });
   }
 
   displayExam(exam: ExamDTO, displayMode: boolean): void {

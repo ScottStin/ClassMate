@@ -19,6 +19,7 @@ import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component
   styleUrls: ['./show-exam-dialog.component.css'],
 })
 export class ShowExamDialogComponent implements OnInit {
+  error: Error;
   questionList: QuestionList[] = [];
   currentQuestionDisplay: QuestionList | null = null;
   currentQuestionIndex = 0;
@@ -35,6 +36,7 @@ export class ShowExamDialogComponent implements OnInit {
       title: string;
       exam: ExamDTO | undefined;
       questions: QuestionList[];
+      displayMode: boolean;
     },
     private readonly dialogRef: MatDialogRef<ShowExamDialogComponent>,
     // private readonly examService: ExamService,
@@ -46,6 +48,9 @@ export class ShowExamDialogComponent implements OnInit {
   ngOnInit(): void {
     console.log(this.data);
     this.questionList = this.data.questions;
+    if (this.data.displayMode) {
+      this.startExam();
+    }
   }
 
   startExam(): void {
@@ -161,12 +166,12 @@ export class ShowExamDialogComponent implements OnInit {
   completeExam(): void {
     const missingAnswers: string[] = [];
     for (const question of this.questionList) {
-      // const studentResponse = question.studentResponse?.find(
-      //   (obj) => obj.student === this.currentUser?.user.email
-      // );
+      const studentResponse = question.studentResponse?.find(
+        (obj) => obj.student === this.currentUser?.user.email
+      );
       if (
-        (question.studentResponse?.response === undefined ||
-          question.studentResponse.response === null) &&
+        (studentResponse?.response === undefined ||
+          studentResponse.response === null) &&
         question.type?.toLocaleLowerCase() !== 'section'
       ) {
         [missingAnswers.push(question.name)];
@@ -178,9 +183,12 @@ export class ShowExamDialogComponent implements OnInit {
         question.subQuestions.length > 0
       ) {
         for (const subQuestion of question.subQuestions) {
+          const studentResponseSubQuestion = subQuestion.studentResponse?.find(
+            (obj) => obj.student === this.currentUser?.user.email
+          );
           if (
-            subQuestion.studentResponse?.response === undefined ||
-            subQuestion.studentResponse.response === null
+            studentResponseSubQuestion?.response === undefined ||
+            studentResponseSubQuestion.response === null
           ) {
             missingAnswers.push(`${question.name}, ${subQuestion.name}`);
           }
@@ -206,12 +214,21 @@ export class ShowExamDialogComponent implements OnInit {
       });
       confirmDialogRef.afterClosed().subscribe((result) => {
         if (result === true) {
-          console.log(result);
-          this.questionService.submitStudentResponse(
-            this.questionList,
-            this.currentUser?.user.email,
-            this.data.exam?._id
-          );
+          this.questionService
+            .submitStudentResponse(
+              this.questionList,
+              this.currentUser?.user.email,
+              this.data.exam?._id
+            )
+            .subscribe({
+              next: () => {
+                this.snackbarService.open('info', 'Exam completed! Well done.');
+              },
+              error: (error: Error) => {
+                this.error = error;
+                this.snackbarService.openPermanent('error', error.message);
+              },
+            });
         }
       });
     }
@@ -229,20 +246,40 @@ export class ShowExamDialogComponent implements OnInit {
           (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
         );
       if (currentQuestion) {
-        currentQuestion.studentResponse = {
-          response: text,
-          // student: this.currentUser?.user.email,
-        };
+        if (!currentQuestion.studentResponse) {
+          currentQuestion.studentResponse = [];
+        }
+        const studentResponse = currentQuestion.studentResponse.find(
+          (obj) => obj.student === this.currentUser?.user.email
+        );
+        if (!studentResponse) {
+          currentQuestion.studentResponse.push({
+            response: text,
+            student: this.currentUser?.user.email,
+          });
+        } else {
+          studentResponse.response = text;
+        }
       }
     } else {
       const currentQuestion = this.questionList.find(
         (obj) => obj === this.currentQuestionDisplay
       );
       if (currentQuestion) {
-        currentQuestion.studentResponse = {
-          response: text,
-          // student: this.currentUser?.user.email,
-        };
+        if (!currentQuestion.studentResponse) {
+          currentQuestion.studentResponse = [];
+        }
+        const studentResponse = currentQuestion.studentResponse.find(
+          (obj) => obj.student === this.currentUser?.user.email
+        );
+        if (!studentResponse) {
+          currentQuestion.studentResponse.push({
+            response: text,
+            student: this.currentUser?.user.email,
+          });
+        } else {
+          studentResponse.response = text;
+        }
       }
     }
   }

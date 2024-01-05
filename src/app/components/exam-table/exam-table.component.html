@@ -72,7 +72,7 @@
         <span
           #tooltip="matTooltip"
           [matTooltip]="getStudentsList(row.studentsEnrolled)"
-          ><b>{{row.studentsEnrolled.length}}</b></span
+          >{{row.studentsEnrolled.length}}</span
         >
       </mat-cell>
     </ng-container>
@@ -92,7 +92,15 @@
         >
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <span>{{row.studentsCompleted}}</span>
+        <span
+          (click)="openStudentsCompletedList(row)"
+          #tooltip="matTooltip"
+          [matTooltip]="getStudentsList(row.studentsCompleted)"
+          style="cursor: pointer"
+          ><b *ngIf="row.studentsCompleted.length > 0"
+            >{{row.studentsCompleted.length}}</b
+          ></span
+        >
       </mat-cell>
     </ng-container>
 
@@ -186,6 +194,17 @@
             style="cursor: pointer; color: blue"
             (click)="startExamClick(row)"
             >play_circle_filled</mat-icon
+          >
+        </div>
+        <div
+          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && row.studentsCompleted.includes(currentUser?.user?.email)"
+        >
+          <mat-icon
+            #tooltip="matTooltip"
+            matTooltip="Your exam is being marked."
+            style="cursor: pointer"
+            (click)="examMarkPending(row)"
+            >hourglass_empty</mat-icon
           >
         </div>
       </mat-cell>

@@ -10,6 +10,7 @@ import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component
 })
 export class QuestionsComponent implements OnInit {
   @Input() question: QuestionList | null;
+  @Input() displayMode: boolean;
   @Output() response = new EventEmitter<string>();
 
   currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as

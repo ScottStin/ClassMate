@@ -570,6 +570,6 @@ export interface QuestionList {
     response?: string | null;
     mark?: number | null;
     feedback?: { text: string; teacher: string } | null;
-  }; // [];
+  }[];
 }
 [];

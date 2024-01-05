@@ -68,6 +68,7 @@
     <mat-grid-tile [colspan]="!examStarted ? 0 : 3" rowspan="2">
       <app-questions
         [question]="currentQuestionDisplay"
+        [displayMode]="data.displayMode"
         (response)="response($event)"
       ></app-questions>
     </mat-grid-tile>
@@ -105,7 +106,7 @@
     mat-button
     cdkFocusInitial
     (click)="completeExam()"
-    *ngIf="questionIndex() === 'last'"
+    *ngIf="questionIndex() === 'last' && currentUser?.user?.userType?.toLowerCase() === 'student' && !data.displayMode"
   >
     Submit exam <mat-icon>done</mat-icon>
   </button>
@@ -115,6 +116,13 @@
     (click)="startSection()"
     *ngIf="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
   >
-    Start section
+    <span
+      *ngIf="currentUser?.user?.userType?.toLowerCase() === 'student' && !data.displayMode"
+      >Start section</span
+    >
+    <span
+      *ngIf="currentUser?.user?.userType?.toLowerCase() !== 'student' || data.displayMode"
+      >View section</span
+    >
   </button>
 </div>

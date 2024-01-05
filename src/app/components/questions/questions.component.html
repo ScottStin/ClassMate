@@ -13,7 +13,8 @@
     <app-written-response-question
       *ngIf="question?.type==='written-response'"
       [question]="question"
-      [disableForms]="currentUser?.user?.userType?.toLowerCase() === 'teacher'"
+      [disableForms]="currentUser?.user?.userType?.toLowerCase() === 'teacher' || displayMode"
+      [currentUser]="currentUser?.user?.email"
       (response)="updateResponse($event)"
     ></app-written-response-question>
   </mat-card-content>

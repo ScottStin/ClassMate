@@ -20,7 +20,6 @@ export class QuestionService {
   ) {}
 
   getAll(): Observable<QuestionList[]> {
-    console.log('HIT!');
     return this.httpClient.get<QuestionList[]>(`${this.baseUrl}`).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to load questions');
@@ -36,10 +35,20 @@ export class QuestionService {
     questions: QuestionList[],
     currentUser: string | undefined,
     examId: string | number | undefined
-  ): void {
+  ): Observable<QuestionList[]> {
     console.log(questions);
     console.log(currentUser);
     console.log(examId);
+    return this.httpClient
+      .patch<QuestionList[]>(`${this.baseUrl}/submit-exam/${examId!}`, {
+        currentUser,
+        questions,
+      })
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to submit exam');
+        })
+      );
   }
 
   private handleError(error: Error, message: string): never {

@@ -20,6 +20,7 @@ import { QuestionList } from '../../create-exam-dialog/create-exam-dialog.compon
 export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   @Input() question: QuestionList | null;
   @Input() disableForms: boolean;
+  @Input() currentUser: string | undefined;
   @Output() response = new EventEmitter<string>();
   wordCount: number;
   loading = true;
@@ -43,10 +44,13 @@ export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   }
 
   populateQuestionForm(): void {
+    const studentResponse = this.question?.studentResponse?.find(
+      (obj) => obj.student === this.currentUser
+    );
     this.questionForm = new FormGroup({
       writtenResponse: new FormControl(
         {
-          value: this.question?.studentResponse?.response ?? '',
+          value: studentResponse?.response ?? '',
           disabled: this.disableForms,
         },
         {
