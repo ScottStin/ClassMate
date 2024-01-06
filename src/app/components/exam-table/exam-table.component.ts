@@ -36,6 +36,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   @Output() openConfirmDeleteDialog = new EventEmitter<ExamDTO>();
   @Output() startExam = new EventEmitter<ExamDTO>();
   @Output() registerForExam = new EventEmitter<ExamDTO>();
+  @Output() reloadExams = new EventEmitter();
 
   filterText: string;
   dataSource?: MatTableDataSource<ExamDTO> | undefined;
@@ -140,11 +141,11 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
       });
       confirmDialogRef.afterClosed().subscribe((result) => {
         if (result === true) {
-          this.displayExam(exam, false);
+          this.displayExam(exam, false, false, null);
         }
       });
     } else {
-      this.displayExam(exam, false);
+      this.displayExam(exam, false, false, null);
     }
   }
 
@@ -169,19 +170,42 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getStudentsList(studentsEnrolled: string[]): string {
+  studentCompleted(exam: ExamDTO): boolean {
+    const result = exam.studentsCompleted.find(
+      (obj) => obj.email === this.currentUser?.user.email
+    );
+    if (result) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  getStudentsEnrolledList(studentsEnrolled: string[]): string {
     return studentsEnrolled.join(', ');
   }
 
+  getStudentsCompletedList(
+    studentsCompleted: { email: string; mark: boolean }[]
+  ): string {
+    const studentNames = studentsCompleted.map((obj) => obj.email);
+    return studentNames.join(', ');
+  }
+
   openStudentsCompletedList(exam: ExamDTO): void {
-    // const confirmDialogRef =
-    this.dialog.open(StudentsCompletedExamDialogComponent, {
-      data: { exam },
-    });
-    // confirmDialogRef.afterClosed().subscribe((result) => {
-    //   if (result === true) {
-    //   }
-    // });
+    const confirmDialogRef = this.dialog.open(
+      StudentsCompletedExamDialogComponent,
+      {
+        data: { exam },
+      }
+    );
+    confirmDialogRef
+      .afterClosed()
+      .subscribe((result: { email: string } | null) => {
+        if (result) {
+          this.displayExam(exam, false, true, result.email);
+        }
+      });
   }
 
   examMarkPending(exam: ExamDTO): void {
@@ -196,12 +220,17 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     });
     confirmDialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.displayExam(exam, true);
+        this.displayExam(exam, true, false, null);
       }
     });
   }
 
-  displayExam(exam: ExamDTO, displayMode: boolean): void {
+  displayExam(
+    exam: ExamDTO,
+    displayMode: boolean,
+    markMode: boolean,
+    student: string | null
+  ): void {
     const questions = [];
     if (exam.questions && exam.questions.length > 0) {
       for (const question of exam.questions) {
@@ -228,18 +257,25 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
           questions.push(foundQuestion);
         }
       }
-      this.dialog.open(ShowExamDialogComponent, {
+      const dialogRef = this.dialog.open(ShowExamDialogComponent, {
         data: {
           title: exam.name,
           exam,
           questions,
           displayMode,
+          markMode,
+          student,
         },
         panelClass: 'fullscreen-dialog',
         // height: '100%',
         autoFocus: false,
         hasBackdrop: true,
         disableClose: true,
+      });
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result === true) {
+          this.reloadExams.emit();
+        }
       });
     } else {
       this.snackbarService.openPermanent('error', 'This exam has no questions');

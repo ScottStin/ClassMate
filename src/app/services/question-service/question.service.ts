@@ -51,6 +51,31 @@ export class QuestionService {
       );
   }
 
+  submitTeacherFeedback(
+    questions: QuestionList[],
+    currentUser: string | undefined,
+    examId: string | number | undefined,
+    student: string | undefined,
+    score: string | number
+  ): Observable<QuestionList[]> {
+    console.log(questions);
+    console.log(currentUser);
+    console.log(examId);
+    console.log(student);
+    return this.httpClient
+      .patch<QuestionList[]>(`${this.baseUrl}/submit-feedback/${examId!}`, {
+        currentUser,
+        questions,
+        student,
+        score,
+      })
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to submit exam');
+        })
+      );
+  }
+
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {
       throw this.errorService.handleHttpError(error);

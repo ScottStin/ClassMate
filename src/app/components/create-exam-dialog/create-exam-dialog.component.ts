@@ -568,7 +568,7 @@ export interface QuestionList {
   studentResponse?: {
     student?: string | null;
     response?: string | null;
-    mark?: number | null;
+    mark?: number | string | null;
     feedback?: { text: string; teacher: string } | null;
   }[];
 }

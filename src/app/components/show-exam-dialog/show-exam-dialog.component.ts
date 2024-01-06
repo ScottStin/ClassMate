@@ -1,5 +1,11 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import {
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogRef,
@@ -26,6 +32,16 @@ export class ShowExamDialogComponent implements OnInit {
   currentSubQuestionIndex = 0;
   examStarted = false;
 
+  // examScoreForm: FormGroup = new FormGroup({
+  //   examScore: new FormControl<string>('', [Validators.required]),
+  //   totalExamScore: new FormControl<string>('', [Validators.required])
+  // });
+
+  examScoreForm: FormGroup = this.formBuilder.group({
+    examScore: ['', Validators.required],
+    totalExamScore: ['', Validators.required],
+  });
+
   currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
     | { user: UserDTO }
     | undefined;
@@ -37,20 +53,30 @@ export class ShowExamDialogComponent implements OnInit {
       exam: ExamDTO | undefined;
       questions: QuestionList[];
       displayMode: boolean;
+      markMode: boolean;
+      student: string;
     },
     private readonly dialogRef: MatDialogRef<ShowExamDialogComponent>,
     // private readonly examService: ExamService,
     private readonly questionService: QuestionService,
     private readonly snackbarService: SnackbarService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private readonly formBuilder: FormBuilder
   ) {}
 
   ngOnInit(): void {
     console.log(this.data);
     this.questionList = this.data.questions;
-    if (this.data.displayMode) {
+    if (this.data.displayMode || this.data.markMode) {
       this.startExam();
     }
+    const score = this.data.exam?.studentsCompleted.find(
+      (obj) => obj.email === this.data.student
+    )?.mark;
+    this.examScoreForm.patchValue({
+      examScore: score ?? '',
+      totalExamScore: '',
+    });
   }
 
   startExam(): void {
@@ -163,6 +189,127 @@ export class ShowExamDialogComponent implements OnInit {
     }
   }
 
+  parentQuestionIndex(): string {
+    const index = this.questionList.findIndex(
+      (obj) => obj['_id'] === this.currentQuestionDisplay?.parent
+    );
+    if (index === this.questionList.length - 1) {
+      return 'last';
+    } else {
+      return '';
+    }
+  }
+
+  submitFeedback(): void {
+    const missingFeedback: string[] = [];
+    for (const question of this.questionList) {
+      const studentResponse = question.studentResponse?.find(
+        (obj) => obj.student === this.data.student
+      );
+      if (
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        (!studentResponse?.mark || !studentResponse.feedback) &&
+        question.teacherFeedback === true
+      ) {
+        [missingFeedback.push(question.name)];
+      }
+      if (
+        question.type === 'section' &&
+        question.subQuestions !== null &&
+        question.subQuestions !== undefined &&
+        question.subQuestions.length > 0
+      ) {
+        for (const subQuestion of question.subQuestions) {
+          const studentResponseSubQuestion = subQuestion.studentResponse?.find(
+            (obj) => obj.student === this.currentUser?.user.email
+          );
+          if (
+            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+            (!studentResponseSubQuestion?.mark ||
+              !studentResponseSubQuestion.feedback) &&
+            question.teacherFeedback === true
+          ) {
+            missingFeedback.push(`${question.name}, ${subQuestion.name}`);
+          }
+        }
+      }
+    }
+    if (
+      missingFeedback.length > 0 ||
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+      !this.examScoreForm.getRawValue().examScore
+    ) {
+      let title = 'Wait! You have not answered all the questions.';
+      let message = `You have not given feedback/marks for the following question(s): <br> <br> 
+      <b>${missingFeedback.join(
+        ',<br>'
+      )}. </b> <br> <br> Are you sure you want to submit the exam? The student will receive a score of zero for the question you have not marked.`;
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+      if (!this.examScoreForm.getRawValue().examScore) {
+        title = 'Wait! You have not given a score.';
+        message = 'You must give a score for this exam before proceeding.';
+      }
+      const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title,
+          message,
+          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+          okLabel: this.examScoreForm.getRawValue().examScore ? `Submit` : null,
+          cancelLabel: `Return`,
+          routerLink: '',
+        },
+      });
+      confirmDialogRef.afterClosed().subscribe((result) => {
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+        if (result === true && this.examScoreForm.getRawValue().examScore) {
+          this.questionService
+            .submitTeacherFeedback(
+              this.questionList,
+              this.currentUser?.user.email,
+              this.data.exam?._id,
+              this.data.student,
+              this.examScoreForm.get('examScore')?.value as string
+            )
+            .subscribe({
+              next: () => {
+                this.snackbarService.open(
+                  'info',
+                  'Your feedback has been submitted. Thank you.'
+                );
+                this.closeDialog(true);
+              },
+              error: (error: Error) => {
+                this.error = error;
+                this.snackbarService.openPermanent('error', error.message);
+              },
+            });
+        }
+      });
+    } else {
+      this.questionService
+        .submitTeacherFeedback(
+          this.questionList,
+          this.currentUser?.user.email,
+          this.data.exam?._id,
+          this.data.student,
+          this.examScoreForm.get('examScore')?.value as string
+        )
+        .subscribe({
+          next: () => {
+            this.snackbarService.open(
+              'info',
+              'Your feedback has been submitted. Thank you.'
+            );
+            this.closeDialog(true);
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
+    }
+  }
+
   completeExam(): void {
     const missingAnswers: string[] = [];
     for (const question of this.questionList) {
@@ -223,6 +370,7 @@ export class ShowExamDialogComponent implements OnInit {
             .subscribe({
               next: () => {
                 this.snackbarService.open('info', 'Exam completed! Well done.');
+                this.closeDialog(true);
               },
               error: (error: Error) => {
                 this.error = error;
@@ -231,6 +379,23 @@ export class ShowExamDialogComponent implements OnInit {
             });
         }
       });
+    } else {
+      this.questionService
+        .submitStudentResponse(
+          this.questionList,
+          this.currentUser?.user.email,
+          this.data.exam?._id
+        )
+        .subscribe({
+          next: () => {
+            this.snackbarService.open('info', 'Exam completed! Well done.');
+            this.closeDialog(true);
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
     }
   }
 
@@ -281,6 +446,102 @@ export class ShowExamDialogComponent implements OnInit {
           studentResponse.response = text;
         }
       }
+    }
+  }
+
+  feedback(data: { feedback: string; mark: string; student: string }): void {
+    if (
+      this.currentQuestionDisplay?.parent !== null &&
+      this.currentQuestionDisplay !== null
+    ) {
+      const currentQuestion = this.questionList
+        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
+        ?.subQuestions?.find(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
+        );
+      if (currentQuestion) {
+        if (!currentQuestion.studentResponse) {
+          currentQuestion.studentResponse = [];
+        }
+        const studentResponse = currentQuestion.studentResponse.find(
+          (obj) => obj.student === data.student
+        );
+        if (!studentResponse) {
+          currentQuestion.studentResponse.push({
+            student: data.student,
+            feedback: {
+              text: data.feedback,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              teacher: this.currentUser!.user.email,
+            },
+            mark: data.mark,
+          });
+          this.snackbarService.openPermanent('info', 'feedback and mark saved');
+        } else {
+          // if (this.currentUser?.user.email) {
+          studentResponse.feedback = {
+            text: data.feedback,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            teacher: this.currentUser!.user.email,
+          };
+          studentResponse.mark = data.mark;
+          this.snackbarService.openPermanent('info', 'feedback and mark saved');
+          // }
+        }
+      }
+    } else {
+      const currentQuestion = this.questionList.find(
+        (obj) => obj === this.currentQuestionDisplay
+      );
+      if (currentQuestion) {
+        if (!currentQuestion.studentResponse) {
+          currentQuestion.studentResponse = [];
+        }
+        const studentResponse = currentQuestion.studentResponse.find(
+          (obj) => obj.student === data.student
+        );
+        if (!studentResponse) {
+          currentQuestion.studentResponse.push({
+            student: data.student,
+            feedback: {
+              text: data.feedback,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              teacher: this.currentUser!.user.email,
+            },
+            mark: data.mark,
+          });
+          this.snackbarService.openPermanent('info', 'feedback and mark saved');
+        } else {
+          // if (this.currentUser?.user.email) {
+          studentResponse.feedback = {
+            text: data.feedback,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            teacher: this.currentUser!.user.email,
+          };
+          studentResponse.mark = data.mark;
+          this.snackbarService.openPermanent('info', 'feedback and mark saved');
+          // }
+        }
+      }
+    }
+  }
+
+  getStudentMark(question: QuestionList): string | number | null | undefined {
+    if (question.type?.toLocaleUpperCase() !== 'section') {
+      const studentResponse = question.studentResponse?.find(
+        (obj) => obj.student === this.data.student
+      );
+      return studentResponse?.mark;
+    } else {
+      const subQuestion = this.questionList.find(
+        (obj) => obj['_id'] === question['_id']
+      );
+      console.log(subQuestion);
+      const studentResponse = subQuestion?.studentResponse?.find(
+        (obj) => obj.student === this.data.student
+      );
+      return studentResponse?.mark;
     }
   }
 

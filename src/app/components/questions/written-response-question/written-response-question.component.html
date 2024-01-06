@@ -1,14 +1,14 @@
 <h5>Answer:</h5>
 <div [formGroup]="questionForm" *ngIf="!loading">
   <mat-form-field class="form-field" appearance="outline" style="width: 500px">
-    <mat-label>Response</mat-label>
+    <mat-label *ngIf="!disableForms">Response</mat-label>
     <textarea
       matInput
       id="writtenResponse"
       #writtenResponse
       formControlName="writtenResponse"
       type="text"
-      placeholder="Write your answer here"
+      [placeholder]="!disableForms ? 'Write your answer here': 'No response given'"
       required
       (keyup)="wordCounter(writtenResponse.value)"
       style="width: 500px; font-size: 16px"

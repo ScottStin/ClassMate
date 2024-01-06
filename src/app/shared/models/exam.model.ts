@@ -3,9 +3,9 @@ export interface ExamDTO {
     _id?: string;
     name: string;
     studentsEnrolled: string[];
-    studentsCompleted: string[];
-    // studentsCompleted: {email: string; mark?: string | number | null}[];
-    // totalPoints?: number | null;
+    // studentsCompleted: string[];
+    studentsCompleted: {email: string; mark?: string | number | null}[];
+    totalPoints?: number | null;
     description: string;
     instructions?: string | null;
     casualPrice: number;

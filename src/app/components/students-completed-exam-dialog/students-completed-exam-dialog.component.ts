@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { first, Observable } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
@@ -18,13 +18,14 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
   studentNames: {
     name: string | undefined;
     email: string | undefined;
-    marked: boolean | undefined;
+    marked?: string | number | null;
   }[] = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { exam: ExamDTO },
     private readonly userService: UserService,
-    private readonly snackbarService: SnackbarService
+    private readonly snackbarService: SnackbarService,
+    private readonly dialogRef: MatDialogRef<StudentsCompletedExamDialogComponent>
   ) {
     this.exam = data.exam;
   }
@@ -39,10 +40,10 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
     this.userService.getAll().subscribe({
       next: (res) => {
         for (const student of this.exam.studentsCompleted) {
-          const marked = false;
+          const marked = student.mark;
           this.studentNames.push({
-            name: res.find((obj) => obj.email === student)?.name,
-            email: res.find((obj) => obj.email === student)?.email,
+            name: res.find((obj) => obj.email === student.email)?.name,
+            email: res.find((obj) => obj.email === student.email)?.email,
             marked,
           });
         }
@@ -65,7 +66,23 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
     });
   }
 
-  // getStudentName(userEmail: string): string {
+  markExam(student: {
+    name: string | undefined;
+    email: string | undefined;
+    marked?: string | number | null;
+  }): void {
+    this.dialogRef.close(student);
+  }
+
+  studentsAwaitingMarkCount(): number {
+    console.log(this.studentNames);
+    const awaiaitng = this.studentNames.filter(
+      (obj) => obj.marked === null || obj.marked === undefined
+    ).length;
+    return awaiaitng;
+  }
+
+  // getStudentName(userEmail: string): string { //todo: fix race issues
   //   let studentName: string | undefined = '';
   //   this.users$.pipe(first()).subscribe((res) => {
   //     studentName = res.find((obj) => obj.email === userEmail)?.name;

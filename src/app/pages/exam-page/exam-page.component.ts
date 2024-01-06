@@ -199,4 +199,8 @@ export class ExamPageComponent implements OnInit {
       },
     });
   }
+
+  reloadExams(): void {
+    this.loadPageData();
+  }
 }

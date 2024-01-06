@@ -5,16 +5,71 @@
 <mat-dialog-content>
   <mat-tab-group>
     <mat-tab label="Students awaiting marking">
-      <mat-list role="list" *ngFor="let student of studentNames">
-        <!-- <mat-list-item role="listitem"
-          >{{getStudentName(student)}}</mat-list-item
-        > -->
-        <mat-list-item role="listitem"
-          >{{student.name}} ({{student.email}})</mat-list-item
+      <div *ngIf="studentsAwaitingMarkCount() === 0" style="margin-top: 5px">
+        No exams to be marked.
+      </div>
+      <mat-list>
+        <mat-list-item
+          *ngFor="let student of studentNames"
+          style="margin-bottom: 10px"
         >
+          <div
+            style="display: flex; justify-content: space-between; width: 100%"
+            *ngIf="!student.marked"
+          >
+            <div>
+              <div>{{ student.name }}</div>
+              <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+            </div>
+            <div
+              style="cursor: pointer"
+              (click)="markExam(student)"
+              #tooltip="matTooltip"
+              [matTooltip]="'Mark exam of ' + student.name"
+            >
+              <b
+                >mark exam
+                <mat-icon style="font-size: larger">rate_review</mat-icon></b
+              >
+            </div>
+          </div>
+        </mat-list-item>
       </mat-list>
     </mat-tab>
-    <mat-tab label="All Students Completed"> Content 2 </mat-tab>
+    <mat-tab label="All Students Completed">
+      <mat-list>
+        <mat-list-item
+          *ngFor="let student of studentNames"
+          style="margin-bottom: 30px"
+        >
+          <div
+            style="display: flex; justify-content: space-between; width: 100%"
+          >
+            <div>
+              <div>{{ student.name }}</div>
+              <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+              <div *ngIf="student.marked">Exam Mark: {{ student.marked }}</div>
+            </div>
+            <div
+              style="cursor: pointer"
+              (click)="markExam(student)"
+              #tooltip="matTooltip"
+              [matTooltip]="'Mark exam of ' + student.name"
+            >
+              <b *ngIf="student.marked"
+                >edit feedback
+                <mat-icon style="font-size: larger">rate_review</mat-icon></b
+              >
+              <b *ngIf="!student.marked"
+                >mark exam
+                <mat-icon style="font-size: larger">rate_review</mat-icon></b
+              >
+            </div>
+          </div>
+          <hr />
+        </mat-list-item>
+      </mat-list>
+    </mat-tab>
   </mat-tab-group>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

@@ -29,6 +29,9 @@
                   style="cursor: pointer"
                   >{{question.name}}</span
                 >
+                <span *ngIf="getStudentMark(question)" style="opacity: 0.6">
+                  &nbsp; - {{getStudentMark(question)}}</span
+                >
               </div>
             </mat-list-item>
             <div>
@@ -42,34 +45,78 @@
                   style="cursor: pointer"
                   >&#x2022; {{subQuestion.name}}</span
                 >
+                <span *ngIf="getStudentMark(subQuestion)" style="opacity: 0.6">
+                  &nbsp; - {{getStudentMark(subQuestion)}}</span
+                >
               </mat-list-item>
             </div>
           </mat-list>
+          <mat-divider></mat-divider>
+          <div
+            style="margin-top: 10px"
+            *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && currentUser?.user?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+          >
+            <span><b>Total Score:</b></span>
+            <form [formGroup]="examScoreForm">
+              <mat-form-field appearance="fill">
+                <mat-label>Score</mat-label>
+                <input
+                  matInput
+                  formControlName="examScore"
+                  #examScore
+                  id="examScore"
+                />
+              </mat-form-field>
+              <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Out of</mat-label>
+                <input
+                  matInput
+                  formControlName="totalExamScore"
+                  #totalExamScore
+                  id="totalExamScore"
+                />
+              </mat-form-field>
+            </form>
+          </div>
         </div>
       </div>
     </mat-grid-tile>
     <mat-grid-tile [colspan]="!examStarted ? 4 : 0" rowspan="2">
       <div class="tree-button-container">
-        <span>{{data.exam?.instructions}}</span>
-        <button
-          mat-raised-button
-          type="button"
-          class="button add-new-question-button"
-          (click)="startExam()"
+        <div>
+          <span>{{data.exam?.instructions}}</span>
+        </div>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 100px;
+          "
         >
-          <mat-icon>play_circle_filled</mat-icon>
-          <span
-            [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
-            >Start Exam</span
+          <button
+            mat-raised-button
+            type="button"
+            class="button add-new-question-button"
+            (click)="startExam()"
           >
-        </button>
+            <mat-icon>play_circle_filled</mat-icon>
+            <span
+              [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
+              >Start Exam</span
+            >
+          </button>
+        </div>
       </div>
     </mat-grid-tile>
     <mat-grid-tile [colspan]="!examStarted ? 0 : 3" rowspan="2">
       <app-questions
         [question]="currentQuestionDisplay"
         [displayMode]="data.displayMode"
+        [student]="data.student"
+        [markMode]="data.markMode"
         (response)="response($event)"
+        (feedback)="feedback($event)"
       ></app-questions>
     </mat-grid-tile>
   </mat-grid-list>
@@ -89,7 +136,8 @@
     *ngIf="
         currentQuestionDisplay?.type?.toLowerCase() !== 'section' && 
         (subQuestionIndex() !== 'last' || subQuestionIndex() === '') &&
-        questionIndex() !== 'last'
+        questionIndex() !== 'last' &&
+        parentQuestionIndex() !== 'last'
     "
   >
     Next <mat-icon>navigate_next</mat-icon>
@@ -106,9 +154,17 @@
     mat-button
     cdkFocusInitial
     (click)="completeExam()"
-    *ngIf="questionIndex() === 'last' && currentUser?.user?.userType?.toLowerCase() === 'student' && !data.displayMode"
+    *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && currentUser?.user?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
   >
     Submit exam <mat-icon>done</mat-icon>
+  </button>
+  <button
+    mat-button
+    cdkFocusInitial
+    (click)="submitFeedback()"
+    *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && currentUser?.user?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+  >
+    Submit feedback <mat-icon>done</mat-icon>
   </button>
   <button
     mat-button
@@ -117,11 +173,11 @@
     *ngIf="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
   >
     <span
-      *ngIf="currentUser?.user?.userType?.toLowerCase() === 'student' && !data.displayMode"
+      *ngIf="currentUser?.user?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode"
       >Start section</span
     >
     <span
-      *ngIf="currentUser?.user?.userType?.toLowerCase() !== 'student' || data.displayMode"
+      *ngIf="currentUser?.user?.userType?.toLowerCase() !== 'student' || data.displayMode || data.markMode"
       >View section</span
     >
   </button>

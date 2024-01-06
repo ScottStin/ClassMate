@@ -71,7 +71,7 @@
       <mat-cell *matCellDef="let row">
         <span
           #tooltip="matTooltip"
-          [matTooltip]="getStudentsList(row.studentsEnrolled)"
+          [matTooltip]="getStudentsEnrolledList(row.studentsEnrolled)"
           >{{row.studentsEnrolled.length}}</span
         >
       </mat-cell>
@@ -95,7 +95,7 @@
         <span
           (click)="openStudentsCompletedList(row)"
           #tooltip="matTooltip"
-          [matTooltip]="getStudentsList(row.studentsCompleted)"
+          [matTooltip]="getStudentsCompletedList(row.studentsCompleted)"
           style="cursor: pointer"
           ><b *ngIf="row.studentsCompleted.length > 0"
             >{{row.studentsCompleted.length}}</b
@@ -160,7 +160,7 @@
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="displayExam(row, true)">
+            <button mat-menu-item (click)="displayExam(row, true, false, null)">
               <mat-icon>remove_red_eye</mat-icon>
               <span>View</span>
             </button>
@@ -186,7 +186,7 @@
           >
         </div>
         <div
-          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && !row.studentsCompleted.includes(currentUser?.user?.email)"
+          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && !studentCompleted(row)"
         >
           <mat-icon
             #tooltip="matTooltip"
@@ -197,7 +197,7 @@
           >
         </div>
         <div
-          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && row.studentsCompleted.includes(currentUser?.user?.email)"
+          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && studentCompleted(row)"
         >
           <mat-icon
             #tooltip="matTooltip"

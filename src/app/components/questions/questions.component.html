@@ -7,15 +7,74 @@
     mat-card-image
     src="https://material.angular.io/assets/img/examples/shiba2.jpg"
     alt="image prompt"
-    style="width: '25vw'"
+    style="width: '20vw'"
   />
   <mat-card-content style="padding-top: 50px; width: 100vw">
     <app-written-response-question
       *ngIf="question?.type==='written-response'"
       [question]="question"
-      [disableForms]="currentUser?.user?.userType?.toLowerCase() === 'teacher' || displayMode"
-      [currentUser]="currentUser?.user?.email"
+      [disableForms]="currentUser?.user?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
+      [currentUser]="student ? student : currentUser?.user?.email"
       (response)="updateResponse($event)"
     ></app-written-response-question>
   </mat-card-content>
+  <div
+    *ngIf="question?.teacherFeedback && markMode && currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+    [formGroup]="feedbackForm"
+  >
+    <hr />
+    <mat-form-field
+      class="form-field"
+      appearance="outline"
+      style="width: 500px"
+    >
+      <mat-label>Feedback</mat-label>
+      <textarea
+        matInput
+        id="teacherFeedback"
+        #teacherFeedback
+        formControlName="teacherFeedback"
+        type="text"
+        placeholder="Give the student some helpful feedback..."
+        [required]="markMode && currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+        style="width: 500px; font-size: 16px"
+        rows="5"
+      ></textarea>
+      <mat-error>
+        <app-error-message
+          [control]="feedbackForm.controls['teacherFeedback'].errors"
+        ></app-error-message>
+      </mat-error>
+    </mat-form-field>
+    <mat-card-actions align="end" style="display: flex; align-items: center">
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        style="margin-right: 15px"
+      >
+        <mat-label>Mark this question</mat-label>
+        <input
+          matInput
+          id="mark"
+          #mark
+          formControlName="mark"
+          type="text"
+          placeholder="Question score"
+        />
+        <mat-error>
+          <app-error-message
+            [control]="feedbackForm.controls['mark'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+      <button
+        mat-raised-button
+        class="submit-feedback-button"
+        [disabled]="this.feedbackForm.invalid"
+        (click)="saveFeedback(teacherFeedback.value, mark.value)"
+      >
+        Save feedback
+      </button>
+    </mat-card-actions>
+  </div>
 </mat-card>

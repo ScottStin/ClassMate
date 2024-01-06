@@ -27,6 +27,11 @@
 
 .tree-button-container {
   margin-top:10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center; /* Optionally center text within the container */
 }
 
 .subQuestionList {
