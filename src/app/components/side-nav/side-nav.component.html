@@ -35,7 +35,7 @@
     class="chip-container"
     #tooltip="matTooltip"
     matTooltip="Take your free English level test before you enrol in a class"
-    ><mat-chip class="button chip" selected
+    ><mat-chip class="button chip" selected [routerLink]="'/exams'"
       >Click here to test your English Level</mat-chip
     ></mat-chip-list
   >
@@ -54,7 +54,14 @@
         matTooltipPosition="right"
         >{{ menuItem.icon}}</mat-icon
       >
-      <div matListItemTitle *ngIf="!hideNavText">{{ menuItem.name}}</div>
+      <div
+        matListItemTitle
+        *ngIf="!hideNavText"
+        [matBadge]="badgeCounts[menuItem.name] !== null && badgeCounts[menuItem.name] !== 0 ? badgeCounts[menuItem.name] : ''"
+        matBadgeOverlap="false"
+      >
+        {{ menuItem.name}}
+      </div>
     </mat-list-item>
   </div>
 </mat-list>

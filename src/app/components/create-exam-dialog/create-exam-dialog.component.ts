@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { Subject } from 'rxjs';
+import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
@@ -89,7 +94,8 @@ export class CreateExamDialogComponent implements OnInit {
     },
     private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
     private readonly examService: ExamService,
-    private readonly snackbarService: SnackbarService
+    private readonly snackbarService: SnackbarService,
+    public dialog: MatDialog
   ) {}
 
   formPopulated = new Subject<boolean>();
@@ -531,6 +537,23 @@ export class CreateExamDialogComponent implements OnInit {
         leftOption: '',
       });
     }
+  }
+
+  updateDefaultExam(): void {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: `Change default exam?`,
+        message: `The default exam is a level test assigned to the students when they first sign up to the platform. You can only have one default exam at a time. If you make this your new default exam, it will be assigned to all new students who sign up. The default exam for students who signed up previously will not change, however.`,
+        okLabel: `Continue`,
+        cancelLabel: `Cancel`,
+        routerLink: '',
+      },
+    });
+    confirmDialogRef.afterClosed().subscribe((result: boolean) => {
+      if (!result) {
+        this.examForm.get('default')?.patchValue(false);
+      }
+    });
   }
 
   closeDialog(result: boolean | null): void {

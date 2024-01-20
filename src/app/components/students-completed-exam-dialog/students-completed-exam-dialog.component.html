@@ -8,13 +8,15 @@
       <div *ngIf="studentsAwaitingMarkCount() === 0" style="margin-top: 5px">
         No exams to be marked.
       </div>
-      <mat-list>
-        <mat-list-item
-          *ngFor="let student of studentNames"
-          style="margin-bottom: 10px"
-        >
-          <div
-            style="display: flex; justify-content: space-between; width: 100%"
+      <mat-list style="margin-top: 10px">
+        <ng-container *ngFor="let student of studentNames">
+          <mat-list-item
+            style="
+              display: flex;
+              justify-content: space-between;
+              width: 100%;
+              margin-bottom: 10px;
+            "
             *ngIf="!student.marked"
           >
             <div>
@@ -32,15 +34,15 @@
                 <mat-icon style="font-size: larger">rate_review</mat-icon></b
               >
             </div>
-          </div>
-        </mat-list-item>
+          </mat-list-item>
+        </ng-container>
       </mat-list>
     </mat-tab>
     <mat-tab label="All Students Completed">
-      <mat-list>
+      <mat-list style="margin-top: 10px">
         <mat-list-item
           *ngFor="let student of studentNames"
-          style="margin-bottom: 30px"
+          style="margin-bottom: 40px"
         >
           <div
             style="display: flex; justify-content: space-between; width: 100%"

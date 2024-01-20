@@ -87,7 +87,7 @@
         <mat-icon
           style="font-size: 15px"
           #tooltip="matTooltip"
-          matTooltip="A violet number indicated that there are exams to be marked."
+          matTooltip="A bold number indicated that there are exams to be marked."
           >info</mat-icon
         >
       </mat-header-cell>
@@ -97,10 +97,16 @@
           #tooltip="matTooltip"
           [matTooltip]="getStudentsCompletedList(row.studentsCompleted)"
           style="cursor: pointer"
-          ><b *ngIf="row.studentsCompleted.length > 0"
-            >{{row.studentsCompleted.length}}</b
-          ></span
         >
+          <b
+            *ngIf="row.studentsCompleted.length > 0 && getMarkPendingCompletedList(row.studentsCompleted)"
+            >{{row.studentsCompleted.length}}</b
+          >
+          <span
+            *ngIf="row.studentsCompleted.length > 0 && !getMarkPendingCompletedList(row.studentsCompleted)"
+            >{{row.studentsCompleted.length}}</span
+          >
+        </span>
       </mat-cell>
     </ng-container>
 
@@ -151,6 +157,19 @@
       </mat-cell>
     </ng-container>
 
+    <!-- default Column -->
+    <ng-container
+      matColumnDef="result"
+      *ngIf="currentUser?.user?.userType?.toLowerCase() ==='student'"
+    >
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Result
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span *ngIf="row.default">{{getResult(row)}}</span>
+      </mat-cell>
+    </ng-container>
+
     <!-- Actions Column -->
     <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef></mat-header-cell>
@@ -197,7 +216,7 @@
           >
         </div>
         <div
-          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && studentCompleted(row)"
+          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && studentCompleted(row) && !getResult(row)"
         >
           <mat-icon
             #tooltip="matTooltip"
@@ -205,6 +224,17 @@
             style="cursor: pointer"
             (click)="examMarkPending(row)"
             >hourglass_empty</mat-icon
+          >
+        </div>
+        <div
+          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && getResult(row)"
+        >
+          <mat-icon
+            #tooltip="matTooltip"
+            matTooltip="Click here to view your feedback."
+            style="cursor: pointer; color: purple"
+            (click)="displayExam(row, false, true, currentUser?.user?.email)"
+            >remove_red_eye</mat-icon
           >
         </div>
       </mat-cell>

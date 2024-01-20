@@ -19,12 +19,12 @@ import { SideNavComponent } from './side-nav.component';
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,
-    MatBadgeModule,
     MatListModule,
     RouterModule,
     MatChipsModule,
     MatDividerModule,
     EditUserDialogModule,
+    MatBadgeModule,
   ],
   exports: [SideNavComponent],
 })

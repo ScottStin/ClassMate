@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { first, Observable, Subscription } from 'rxjs';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import { ExamService } from 'src/app/services/exam-service/exam.service';
+import { QuestionService } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
@@ -25,7 +27,9 @@ export class SideNavComponent implements OnInit, OnDestroy {
   breadCrumb: string | undefined = '';
   private readonly routerSubscription: Subscription | undefined;
   users$: Observable<UserDTO[]>;
+  feedbackSubmitted$: Observable<undefined>;
   error: Error;
+  badgeCounts: Record<string, number | null> = {};
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -38,6 +42,8 @@ export class SideNavComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService,
+    private readonly examService: ExamService,
+    private readonly questionService: QuestionService,
     public dialog: MatDialog
   ) {
     this.routerSubscription = this.router.events.subscribe(() => {
@@ -52,12 +58,22 @@ export class SideNavComponent implements OnInit, OnDestroy {
     }); // todo = move routerSubscription to service
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.users$ = this.userService.users$;
     this.user$ = this.authStoreService.user$;
     this.getCurrentUser();
     this.hideNavText =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
+
+    this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
+      'Exam Marking'
+    );
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.questionService.feedbackSubmitted$.subscribe(async () => {
+      this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
+        'Exam Marking'
+      );
+    });
   }
 
   getCurrentUser(): void {
@@ -102,6 +118,27 @@ export class SideNavComponent implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  async getBadgeNumber(menuItem: string): Promise<number | null> {
+    if (menuItem === 'Exam Marking') {
+      const exams = await this.examService.getAll().toPromise();
+      let count = 0;
+
+      exams?.forEach((exam) => {
+        if (exam.assignedTeacher === this.currentUser?.email) {
+          exam.studentsCompleted.forEach((student) => {
+            if (student.mark === null) {
+              count++;
+            }
+          });
+        }
+      });
+
+      return count;
+    } else {
+      return null;
+    }
   }
 
   ngOnDestroy(): void {
@@ -209,6 +246,7 @@ export const menuItems: MenuItemDTO[] = [
   {
     name: 'Exam Marking',
     use: ['teacher'],
+    badge: 'getMarkPendingList',
     icon: 'assignment',
     routerLink: '/exams',
   },
@@ -243,6 +281,7 @@ export interface MenuItemDTO {
   icon: string;
   use: string[];
   routerLink: string;
+  badge?: string; // () => unknown; // number; // () => unknown;
   searchBar?: string;
   headerButton?: string;
   headerButtonIcon?: string;

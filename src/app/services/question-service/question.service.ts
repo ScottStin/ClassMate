@@ -14,6 +14,11 @@ export class QuestionService {
   private readonly questionSubject = new BehaviorSubject<QuestionList[]>([]);
   questions$ = this.questionSubject.asObservable();
 
+  private readonly feedbackSubmittedSubject = new BehaviorSubject<void>(
+    undefined
+  );
+  feedbackSubmitted$ = this.feedbackSubmittedSubject.asObservable();
+
   constructor(
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService
@@ -70,6 +75,10 @@ export class QuestionService {
         score,
       })
       .pipe(
+        tap(() => {
+          // Emit an event when feedback is successfully submitted
+          this.feedbackSubmittedSubject.next();
+        }),
         catchError((error: Error) => {
           this.handleError(error, 'Failed to submit exam');
         })

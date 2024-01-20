@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
   AfterViewInit,
   Component,
@@ -80,6 +81,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
         this.displayedColumns = this.displayedColumns.filter(
           (item) => item !== 'casualPrice'
         );
+        this.displayedColumns.splice(3, 0, 'result');
       }
     }
   }
@@ -181,6 +183,17 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     }
   }
 
+  getResult(exam: ExamDTO): string | null | undefined | number {
+    const result = exam.studentsCompleted.find(
+      (obj) => obj.email === this.currentUser?.user.email
+    );
+    if (result?.mark === null) {
+      return null;
+    } else {
+      return result?.mark;
+    }
+  }
+
   getStudentsEnrolledList(studentsEnrolled: string[]): string {
     return studentsEnrolled.join(', ');
   }
@@ -189,6 +202,15 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     studentsCompleted: { email: string; mark: boolean }[]
   ): string {
     const studentNames = studentsCompleted.map((obj) => obj.email);
+    return studentNames.join(', ');
+  }
+
+  getMarkPendingCompletedList(
+    studentsCompleted: { email: string; mark: boolean }[]
+  ): string | null {
+    const studentNames = studentsCompleted
+      .filter((obj) => !obj.mark)
+      .map((obj) => obj.email);
     return studentNames.join(', ');
   }
 
@@ -229,7 +251,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     exam: ExamDTO,
     displayMode: boolean,
     markMode: boolean,
-    student: string | null
+    student?: string | null
   ): void {
     const questions = [];
     if (exam.questions && exam.questions.length > 0) {

@@ -62,14 +62,14 @@ export class QuestionsComponent implements OnInit, OnChanges {
       teacherFeedback: new FormControl(
         {
           value: studentResponse?.feedback?.text ?? '',
-          disabled: false,
+          disabled: this.currentUser?.user.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
       ),
       mark: new FormControl(
         {
           value: studentResponse?.mark ?? '',
-          disabled: false,
+          disabled: this.currentUser?.user.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
       ),

@@ -113,7 +113,9 @@
             <mat-slide-toggle
               formControlName="default"
               id="default"
+              #default
               name="default"
+              (change)="default.checked ? updateDefaultExam() : ''"
             >
               Default level test?
               <mat-icon
@@ -468,7 +470,7 @@
             </mat-grid-tile>
 
             <mat-grid-tile
-              [colspan]="(questionList.length>0 && currentQuestionDisplay && (currentQuestionDisplay?.timed === false || !currentQuestionDisplay?.timed)) ? 3 : (questionList.length>0 && currentQuestionDisplay && currentQuestionDisplay?.timed === true) ? 3 : 0"
+              [colspan]="(questionList.length>0 && currentQuestionDisplay && (currentQuestionDisplay.timed === false || !currentQuestionDisplay.timed)) ? 3 : (questionList.length>0 && currentQuestionDisplay && currentQuestionDisplay.timed === true) ? 3 : 0"
               rowspan="1"
             >
               <form [formGroup]="questionForm" class="form-field">

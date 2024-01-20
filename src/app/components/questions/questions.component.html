@@ -1,4 +1,4 @@
-<mat-card style="padding: 100px; width: 50vw">
+<mat-card style="padding: 25px">
   <mat-card-header>
     <mat-card-title><b>{{question?.name}}</b></mat-card-title>
     <mat-card-subtitle>dsfsdf{{question?.writtenPrompt}}</mat-card-subtitle>
@@ -18,17 +18,14 @@
       (response)="updateResponse($event)"
     ></app-written-response-question>
   </mat-card-content>
-  <div
-    *ngIf="question?.teacherFeedback && markMode && currentUser?.user?.userType?.toLowerCase() ==='teacher'"
-    [formGroup]="feedbackForm"
-  >
+  <div *ngIf="question?.teacherFeedback && markMode" [formGroup]="feedbackForm">
     <hr />
     <mat-form-field
       class="form-field"
       appearance="outline"
       style="width: 500px"
     >
-      <mat-label>Feedback</mat-label>
+      <mat-label [style]="markMode ? 'color:black' : ''">Feedback</mat-label>
       <textarea
         matInput
         id="teacherFeedback"
@@ -39,6 +36,7 @@
         [required]="markMode && currentUser?.user?.userType?.toLowerCase() ==='teacher'"
         style="width: 500px; font-size: 16px"
         rows="5"
+        [style]="markMode ? 'color:black' : ''"
       ></textarea>
       <mat-error>
         <app-error-message
@@ -52,7 +50,15 @@
         appearance="outline"
         style="margin-right: 15px"
       >
-        <mat-label>Mark this question</mat-label>
+        <mat-label
+          *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+          >Mark this question</mat-label
+        >
+        <mat-label
+          *ngIf="currentUser?.user?.userType?.toLowerCase() ==='student'"
+          [style]="markMode ? 'color:black' : ''"
+          >Your score:</mat-label
+        >
         <input
           matInput
           id="mark"
@@ -60,6 +66,7 @@
           formControlName="mark"
           type="text"
           placeholder="Question score"
+          [style]="markMode ? 'color:black' : ''"
         />
         <mat-error>
           <app-error-message
@@ -72,6 +79,7 @@
         class="submit-feedback-button"
         [disabled]="this.feedbackForm.invalid"
         (click)="saveFeedback(teacherFeedback.value, mark.value)"
+        *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
       >
         Save feedback
       </button>
