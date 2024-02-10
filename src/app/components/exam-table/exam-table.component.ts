@@ -64,7 +64,6 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    console.log(this.questionData);
     this.dataSource = new MatTableDataSource<ExamDTO>(this.examData ?? []);
     if (
       this.currentUser?.user.userType.toLowerCase() === 'student' ||

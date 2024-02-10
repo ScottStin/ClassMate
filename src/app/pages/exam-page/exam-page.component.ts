@@ -64,7 +64,6 @@ export class ExamPageComponent implements OnInit {
       )
       .subscribe({
         next: ([exams, users, questions]) => {
-          console.log(questions);
           const teachers = users.filter(
             (user) => user.userType.toLowerCase() === 'teacher'
           );

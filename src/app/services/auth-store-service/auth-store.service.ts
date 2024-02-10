@@ -36,6 +36,17 @@ export class AuthStoreService {
     }
   }
 
+  updateCurrentUser(user: UserDTO): void {
+    this.subject.next({ user });
+    const currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
+      | { user: UserDTO }
+      | undefined;
+    if (currentUser) {
+      currentUser.user = user;
+      localStorage.setItem('auth_data_token', JSON.stringify(currentUser));
+    }
+  }
+
   login(user: UserLoginDTO): Observable<{ user: UserDTO }> {
     return this.httpClient
       .post<{ user: UserDTO }>(`${this.baseUrl}/login`, user)

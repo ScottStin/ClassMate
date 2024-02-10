@@ -27,7 +27,6 @@ export class ExamService {
         this.handleError(error, 'Failed to load exams');
       }),
       tap((exams) => {
-        console.log(exams);
         this.examSubject.next(exams);
       })
     );
@@ -45,7 +44,6 @@ export class ExamService {
   }
 
   registerForExam(exam: ExamDTO, student: UserDTO): Observable<ExamDTO> {
-    console.log(exam);
     return this.httpClient
       .patch<ExamDTO>(`${this.baseUrl}/register/${exam._id!}`, student)
       .pipe(
@@ -54,6 +52,16 @@ export class ExamService {
         })
       );
   }
+
+  // registerForDefaultExam(student: UserDTO): Observable<ExamDTO> {
+  //   return this.httpClient
+  //     .patch<ExamDTO>(`${this.baseUrl}/registerdefault`, student)
+  //     .pipe(
+  //       catchError((error: Error) => {
+  //         this.handleError(error, 'Failed to sign up for default exam');
+  //       })
+  //     );
+  // }
 
   delete(data: ExamDTO): Observable<ExamDTO> {
     return (

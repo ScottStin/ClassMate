@@ -102,19 +102,21 @@ export class SideNavComponent implements OnInit, OnDestroy {
       });
       dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
         if (result) {
-          this.userService.update(result, this.currentUser!._id!).subscribe({
-            next: () => {
-              this.snackbarService.open(
-                'info',
-                'Your profile has successfully been updated'
-              );
-              this.getCurrentUser();
-            },
-            error: (error: Error) => {
-              this.error = error;
-              this.snackbarService.openPermanent('error', error.message);
-            },
-          });
+          this.userService
+            .updateCurrentUser(result, this.currentUser!._id!)
+            .subscribe({
+              next: () => {
+                this.snackbarService.open(
+                  'info',
+                  'Your profile has successfully been updated'
+                );
+                this.getCurrentUser();
+              },
+              error: (error: Error) => {
+                this.error = error;
+                this.snackbarService.openPermanent('error', error.message);
+              },
+            });
         }
       });
     });

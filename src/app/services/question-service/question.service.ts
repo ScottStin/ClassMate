@@ -30,7 +30,6 @@ export class QuestionService {
         this.handleError(error, 'Failed to load questions');
       }),
       tap((questions) => {
-        console.log(questions);
         this.questionSubject.next(questions);
       })
     );

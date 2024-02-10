@@ -75,11 +75,12 @@ export class LessonCardComponent implements OnChanges {
     if (
       this.currentUser?.user === undefined ||
       this.currentUser.user.level === null ||
+      this.currentUser.user.level === undefined ||
       this.currentUser.user.userType.toLocaleLowerCase() === 'teacher' ||
-      (this.currentUser.user.level &&
-        lesson.level
-          .map((level) => level.longName)
-          .includes(this.currentUser.user.level.longName))
+      // (this.currentUser.user.level &&
+      lesson.level
+        .map((level) => level.longName)
+        .includes(this.currentUser.user.level.longName)
     ) {
       return true; // if the lesson matches the current user's level, or there's no current user, or the current user is a teacher or doesn't have a level, show the lesson
     } else {
