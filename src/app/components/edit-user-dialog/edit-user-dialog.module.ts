@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 import { ErrorMessageModule } from '../../components/error-message/error-message.module';
 import { EditUserDialogComponent } from './edit-user-dialog.component';
@@ -24,6 +25,7 @@ import { EditUserDialogComponent } from './edit-user-dialog.component';
     MatSelectModule,
     ErrorMessageModule,
     MatIconModule,
+    ImageCropperModule,
   ],
   exports: [EditUserDialogComponent],
 })

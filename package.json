@@ -24,6 +24,7 @@
     "@angular/router": "^14.1.0",
     "bootstrap": "^5.3.1",
     "ngx-cron-editor": "^0.7.4",
+    "ngx-image-cropper": "^6.3.4",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

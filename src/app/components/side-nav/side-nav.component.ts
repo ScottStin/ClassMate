@@ -111,6 +111,21 @@ export class SideNavComponent implements OnInit, OnDestroy {
                   'Your profile has successfully been updated'
                 );
                 this.getCurrentUser();
+
+                // refresh lessons:
+                // if (
+                //   this.breadCrumb !== undefined &&
+                //   [
+                //     'home page',
+                //     'my classes',
+                //     'my teachers',
+                //     'my classmates',
+                //     'my students',
+                //     'my colleague',
+                //   ].includes(this.breadCrumb.toLowerCase())
+                // ) {
+                //   location.reload();
+                // }
               },
               error: (error: Error) => {
                 this.error = error;

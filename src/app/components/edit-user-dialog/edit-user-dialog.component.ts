@@ -7,7 +7,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { Subject } from 'rxjs/internal/Subject';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { countryList } from 'src/app/shared/country-list';
 import { demoLevels } from 'src/app/shared/demo-data';
 import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
@@ -26,10 +29,19 @@ export class EditUserDialogComponent implements OnInit {
     level: FormControl<LevelDTO | null>;
     // level: FormControl<string | null>;
     statement: FormControl<string>;
+    profilePicture: FormControl<{
+      url: string;
+      filename: string;
+    } | null>;
   }>;
   countryList = countryList;
   hidePassword = true;
   demoLevels = demoLevels;
+
+  imageChangedEvent: Event | string = '';
+  imageCropper: ImageCropperComponent;
+  photoLink: string | null | undefined;
+  photoName: string;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -38,13 +50,16 @@ export class EditUserDialogComponent implements OnInit {
       user: UserDTO | undefined;
       existingUsers: UserDTO[] | undefined;
       formType: string;
-    }
+    },
+    private readonly sanitizer: DomSanitizer,
+    private readonly snackbarService: SnackbarService
   ) {}
 
   formPopulated = new Subject<boolean>();
 
   ngOnInit(): void {
     this.populateForm();
+    console.log(this.data.user?.profilePicture);
   }
 
   populateForm(): void {
@@ -73,6 +88,13 @@ export class EditUserDialogComponent implements OnInit {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         validators: [this.wordCountValidator(10, 200)],
         nonNullable: true,
+      }),
+      profilePicture: new FormControl<{
+        url: string;
+        filename: string;
+      } | null>(null, {
+        validators: [],
+        nonNullable: false,
       }),
     });
     if (this.data.user?.level) {
@@ -125,5 +147,72 @@ export class EditUserDialogComponent implements OnInit {
         return null;
       }
     };
+  }
+
+  /**
+   * Photo Cropping and Upload
+   */
+
+  fileChangeEvent(event: Event): void {
+    this.imageChangedEvent = event;
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      if (this.validateImage(input.files[0])) {
+        this.photoName = input.files[0].name;
+      }
+    }
+  }
+
+  imageCropped(event: ImageCroppedEvent): void {
+    // this.photoLink = event.base64; // todo fix: photolink not working
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl!);
+    console.log(event);
+    this.photoLink = event.base64;
+    console.log(this.photoLink);
+    console.log(this.photoName);
+    this.userForm.controls.profilePicture.setValue({
+      url: this.photoLink!,
+      filename: this.photoName,
+    });
+    console.log(this.userForm.getRawValue().profilePicture);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  imageLoaded(): void {}
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  cropperReady(): void {}
+
+  loadImageFailed(): void {
+    this.snackbarService.openPermanent(
+      'error',
+      'image failed to load',
+      'dismiss'
+    );
+  }
+
+  validateImage(image: File): boolean {
+    const types = ['image/png', 'image/gif', 'image/tiff', 'image/jpeg'];
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    const maxSize = 1000 * 1024; // 1000 KB
+    if (!types.includes(image.type)) {
+      this.snackbarService.openPermanent(
+        'error',
+        'Picture must be .png/.gif/.tif/.jpg type',
+        'dismiss'
+      );
+      return false;
+    }
+    if (image.size > maxSize) {
+      this.snackbarService.openPermanent(
+        'error',
+        'File must be 1-1000 kb in size',
+        'dismiss'
+      );
+      return false;
+    }
+
+    return true;
   }
 }

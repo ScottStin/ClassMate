@@ -52,7 +52,7 @@
       appearance="outline"
       *ngIf="data.formType !== 'level'"
     >
-      <mat-label>Phone Number</mat-label>
+      <mat-label>Phone Number (Optional)</mat-label>
       <input
         matInput
         id="phone"
@@ -120,7 +120,54 @@
         ></app-error-message>
       </mat-error>
     </mat-form-field>
+
+    <!-- Image Cropper: -->
+    <mat-form-field
+      *ngIf="data.formType !== 'level'"
+      class="form-field"
+      appearance="outline"
+    >
+      <mat-label>Image (Optional)</mat-label>
+      <input
+        #photoInput
+        type="file"
+        hidden="true"
+        (change)="fileChangeEvent($event)"
+        accept="image/png, image/jpeg, image/gif, image/tiff"
+      />
+      <input
+        (click)="photoInput.click()"
+        matInput
+        readonly
+        [placeholder]="photoName || 'No file chosen'"
+      />
+      <mat-icon matSuffix style="cursor: pointer" (click)="photoInput.click()"
+        >add_photo_alternate</mat-icon
+      >
+    </mat-form-field>
   </div>
+  <!-- <div *ngIf="data.user?.profilePicture && !photoLink">
+    <img
+      [src]="photoLink ? photoLink : data.user?.profilePicture?.url"
+      alt="User Photo"
+    />
+  </div> -->
+  <div
+    *ngIf="data.user?.profilePicture && !photoName && data.formType !== 'level'"
+  >
+    <img [src]=" data.user?.profilePicture?.url" alt="User Photo" />
+  </div>
+  <image-cropper
+    format="png"
+    [imageChangedEvent]="imageChangedEvent"
+    [maintainAspectRatio]="true"
+    [aspectRatio]="4 / 3"
+    [resizeToWidth]="128"
+    (imageCropped)="imageCropped($event)"
+    (imageLoaded)="imageLoaded()"
+    (cropperReady)="cropperReady()"
+    (loadImageFailed)="loadImageFailed()"
+  ></image-cropper>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button color="primary" [mat-dialog-close]="false">Cancel</button>
