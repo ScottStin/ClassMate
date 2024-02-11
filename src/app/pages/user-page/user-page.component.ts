@@ -89,16 +89,24 @@ export class UserPageComponent implements OnInit {
       });
       dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
         if (result) {
-          this.userService.update(result, data.user._id!).subscribe({
-            next: () => {
-              this.snackbarService.open('info', 'User successfully updated');
-              this.getUsers();
-            },
-            error: (error: Error) => {
-              this.error = error;
-              this.snackbarService.openPermanent('error', error.message);
-            },
-          });
+          this.userService
+            .update(
+              {
+                ...result,
+                previousProfilePicture: data.user.profilePicture,
+              },
+              data.user._id!
+            )
+            .subscribe({
+              next: () => {
+                this.snackbarService.open('info', 'User successfully updated');
+                this.getUsers();
+              },
+              error: (error: Error) => {
+                this.error = error;
+                this.snackbarService.openPermanent('error', error.message);
+              },
+            });
         }
       });
     });

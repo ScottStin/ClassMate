@@ -45,7 +45,15 @@ export class UserService {
     );
   }
 
-  update(data: Partial<UserDTO>, id: string): Observable<UserDTO> {
+  update(
+    data: Partial<UserDTO> & {
+      previousProfilePicture?: {
+        url: string;
+        filename: string;
+      } | null;
+    },
+    id: string
+  ): Observable<UserDTO> {
     return this.httpClient.patch<UserDTO>(`${this.baseUrl}/${id}`, data).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to update user');
@@ -53,7 +61,15 @@ export class UserService {
     );
   }
 
-  updateCurrentUser(data: Partial<UserDTO>, id: string): Observable<UserDTO> {
+  updateCurrentUser(
+    data: Partial<UserDTO> & {
+      previousProfilePicture?: {
+        url: string;
+        filename: string;
+      } | null;
+    },
+    id: string
+  ): Observable<UserDTO> {
     return this.httpClient.patch<UserDTO>(`${this.baseUrl}/${id}`, data).pipe(
       tap((updatedUser) => {
         this.authStoreService.updateCurrentUser(updatedUser);

@@ -103,7 +103,13 @@ export class SideNavComponent implements OnInit, OnDestroy {
       dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
         if (result) {
           this.userService
-            .updateCurrentUser(result, this.currentUser!._id!)
+            .updateCurrentUser(
+              {
+                ...result,
+                previousProfilePicture: this.currentUser?.profilePicture,
+              },
+              this.currentUser!._id!
+            )
             .subscribe({
               next: () => {
                 this.snackbarService.open(

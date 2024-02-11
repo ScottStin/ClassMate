@@ -59,7 +59,6 @@ export class EditUserDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.populateForm();
-    console.log(this.data.user?.profilePicture);
   }
 
   populateForm(): void {
@@ -164,18 +163,11 @@ export class EditUserDialogComponent implements OnInit {
   }
 
   imageCropped(event: ImageCroppedEvent): void {
-    // this.photoLink = event.base64; // todo fix: photolink not working
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    // this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl!);
-    console.log(event);
     this.photoLink = event.base64;
-    console.log(this.photoLink);
-    console.log(this.photoName);
     this.userForm.controls.profilePicture.setValue({
       url: this.photoLink!,
       filename: this.photoName,
     });
-    console.log(this.userForm.getRawValue().profilePicture);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
