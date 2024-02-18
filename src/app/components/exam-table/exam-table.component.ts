@@ -214,13 +214,13 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   }
 
   openStudentsCompletedList(exam: ExamDTO): void {
-    const confirmDialogRef = this.dialog.open(
+    const studentsCompletedDialogRef = this.dialog.open(
       StudentsCompletedExamDialogComponent,
       {
         data: { exam },
       }
     );
-    confirmDialogRef
+    studentsCompletedDialogRef
       .afterClosed()
       .subscribe((result: { email: string } | null) => {
         if (result) {

@@ -7,10 +7,14 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
+
+import { AddStudentToLessonDialogComponent } from '../add-student-to-lesson-dialog/add-student-to-lesson-dialog.component';
+import { StudentsEnrolledLessonDialogComponent } from '../students-enrolled-lesson-dialog/students-enrolled-lesson-dialog.component';
 
 @Component({
   selector: 'app-lesson-card',
@@ -21,10 +25,12 @@ export class LessonCardComponent implements OnChanges {
   @Input() lessonTypeFilter: LessonTypeDTO | undefined;
   @Input() lesson: LessonDTO | undefined;
   @Input() users?: UserDTO[] | null;
+  @Input() pastLesson?: boolean | undefined;
   @Input() pageName: string;
   @Output() deleteLesson = new EventEmitter<LessonDTO>();
   @Output() joinLesson = new EventEmitter<LessonDTO>();
   @Output() cancelLesson = new EventEmitter<LessonDTO>();
+  @Output() refreshLessons = new EventEmitter<LessonDTO>();
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -46,7 +52,10 @@ export class LessonCardComponent implements OnChanges {
     | { user: UserDTO }
     | undefined;
 
-  constructor(public readonly authStoreService: AuthStoreService) {}
+  constructor(
+    public readonly authStoreService: AuthStoreService,
+    public dialog: MatDialog
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('users' in changes) {
@@ -133,6 +142,43 @@ export class LessonCardComponent implements OnChanges {
     } else {
       return false;
     }
+  }
+
+  openAddStudentDialog(lesson: LessonDTO): void {
+    const filteredStudents = this.users?.filter((obj) => {
+      if (obj.level) {
+        return lesson.level
+          .map((level) => level.shortName)
+          .includes(obj.level.shortName);
+      } else {
+        return false;
+      }
+    });
+    const addStudentToLessonDialogRef = this.dialog.open(
+      AddStudentToLessonDialogComponent,
+      {
+        data: { lesson, filteredStudents, users: this.users },
+      }
+    );
+    addStudentToLessonDialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.refreshLessons.emit();
+      }
+    });
+  }
+
+  openStudentsEnrolledDialog(lesson: LessonDTO): void {
+    const studentsEnrolledDialogRef = this.dialog.open(
+      StudentsEnrolledLessonDialogComponent,
+      {
+        data: { lesson, pastLesson: this.pastLesson, users: this.users },
+      }
+    );
+    studentsEnrolledDialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.refreshLessons.emit();
+      }
+    });
   }
 
   deleteLessonClick(): void {

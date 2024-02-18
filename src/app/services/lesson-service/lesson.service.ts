@@ -49,6 +49,22 @@ export class LessonService {
       );
   }
 
+  joinLessonMultipleStudents(
+    lesson: LessonDTO,
+    students: UserDTO[]
+  ): Observable<LessonDTO> {
+    return this.httpClient
+      .patch<LessonDTO>(
+        `${this.baseUrl}/register-multi/${lesson._id!}`,
+        students
+      )
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to add students to lesson');
+        })
+      );
+  }
+
   cancelLesson(lesson: LessonDTO, student: UserDTO): Observable<LessonDTO> {
     return this.httpClient
       .patch<LessonDTO>(`${this.baseUrl}/cancel/${lesson._id!}`, student)

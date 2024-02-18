@@ -22,6 +22,7 @@
             [lesson]="lesson"
             [users]="users$ | async"
             [pageName]="pageName"
+            [pastLesson]="getLessonStatus('Past Lessons', lesson)"
             (deleteLesson)="deleteLesson($event)"
           ></app-lesson-card>
         </ng-container>

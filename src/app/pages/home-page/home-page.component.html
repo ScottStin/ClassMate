@@ -14,6 +14,7 @@
           [users]="users$ | async"
           (joinLesson)="joinLesson($event)"
           (cancelLesson)="cancelLesson($event)"
+          (refreshLessons)="loadPageData()"
         ></app-lesson-card>
       </div>
     </mat-tab>

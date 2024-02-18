@@ -41,6 +41,18 @@
           >
             <mat-icon>edit</mat-icon>
           </button>
+          <!-- <button
+            (click)="openAddStudentDialog(lesson)"
+            mat-mini-fab
+            class="button"
+            matTooltip="Click here to enrol a student in this lesson..."
+            *ngIf="
+              pageName==='lessons' &&
+              (authStoreService.user$ | async)?.user?.email === teacher?.email
+            "
+          >
+            <mat-icon>add</mat-icon>
+          </button> -->
           <button
             mat-mini-fab
             style="background-color: red"
@@ -59,13 +71,14 @@
             mat-mini-fab
             color="primary"
             class="button"
-            matTooltip="Click here to reserve your seat in this class"
+            [matTooltip]="lesson.studentsEnrolled.length >= lesson.maxStudents ? 'Sorry, this lesson is full' : 'Click here to reserve your seat in this class'"
             (click)="joinLessonClick()"
+            [disabled]="lesson.studentsEnrolled.length >= lesson.maxStudents"
           >
             <mat-icon>person_add</mat-icon>
           </button>
           <button
-            *ngIf="showLeaveButton(lesson)"
+            *ngIf="showLeaveButton(lesson) && !this.pastLesson"
             mat-mini-fab
             style="background-color: orange"
             class="button"
@@ -74,6 +87,17 @@
           >
             <mat-icon>cancel</mat-icon>
           </button>
+          <mat-chip-list
+            style="position: absolute; bottom: -15px; right: -20px"
+            aria-label="Fish selection"
+            (click)="currentUser?.user?.userType?.toLowerCase()==='teacher' ? openStudentsEnrolledDialog(lesson) : ''"
+            ><mat-chip
+              [style]="currentUser?.user?.userType?.toLowerCase()==='teacher' ? 'cursor: pointer' : ''"
+              [class]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson) ? 'active-chip' : (lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) ? 'active-chip-joined' : '')"
+              >Seats: {{lesson.studentsEnrolled.length}} /
+              {{lesson.maxStudents}}</mat-chip
+            ></mat-chip-list
+          >
         </mat-card-actions>
       </div>
     </div>
