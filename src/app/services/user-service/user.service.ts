@@ -36,9 +36,6 @@ export class UserService {
 
   create(data: UserDTO): Observable<UserDTO> {
     return this.httpClient.post<UserDTO>(`${this.baseUrl}`, data).pipe(
-      // tap((createdUser: UserDTO) => {
-      //   this.examService.registerForDefaultExam(createdUser);
-      // }),
       catchError((error: Error) => {
         this.handleError(error, 'Failed to create new user');
       })

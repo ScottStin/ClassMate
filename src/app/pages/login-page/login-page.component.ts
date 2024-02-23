@@ -97,18 +97,19 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       let message = '';
       if (res?.userType === 'student') {
         message = `Thank you for joining, ${res.name}. Remember, your first class is free. But before you join, you need to complete your free English Level Test. Click on 'My Exams' to get started.`;
-      }
-      if (res?.userType === 'Teacher') {
+        this.login(user, message, true);
+      } else if (res?.userType === 'Teacher') {
         message = `Thank you for joining, ${res.name}. Click the 'My Classes' tab to schedule your first lesson`;
+        this.login(user, message, true);
+      } else {
+        this.snackbarService.openPermanent('error', 'unable to sign up');
       }
-      this.snackbarService.openPermanent('info', message);
-      await this.router.navigateByUrl('/home');
     } catch (error) {
       this.snackbarService.openPermanent('error', 'unable to sign up');
     }
   }
 
-  login(userDetails: UserLoginDTO): void {
+  login(userDetails: UserLoginDTO, message: string, signup?: boolean): void {
     this.authStoreService.login(userDetails).subscribe(
       () => {
         this.router
@@ -119,7 +120,11 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                 user: UserDTO;
               }
             ).user.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
-            this.snackbarService.open('info', `Welcome back, ${firstName}!`);
+            if (!(signup ?? false)) {
+              this.snackbarService.open('info', `Welcome back, ${firstName}!`);
+            } else {
+              this.snackbarService.open('info', message);
+            }
           })
           .catch((error) => {
             console.log(error);
