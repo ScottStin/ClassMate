@@ -24,6 +24,7 @@
             [pageName]="pageName"
             [pastLesson]="getLessonStatus('Past Lessons', lesson)"
             (deleteLesson)="deleteLesson($event)"
+            (refreshLessons)="loadPageData()"
           ></app-lesson-card>
         </ng-container>
       </div>

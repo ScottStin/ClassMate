@@ -30,7 +30,7 @@ export class LessonCardComponent implements OnChanges {
   @Output() deleteLesson = new EventEmitter<LessonDTO>();
   @Output() joinLesson = new EventEmitter<LessonDTO>();
   @Output() cancelLesson = new EventEmitter<LessonDTO>();
-  @Output() refreshLessons = new EventEmitter<LessonDTO>();
+  @Output() refreshLessons = new EventEmitter();
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {

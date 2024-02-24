@@ -119,7 +119,14 @@
         Assigned Teacher
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <span>{{row.assignedTeacher}}</span>
+        <span *ngIf="getUserName(row.assignedTeacher)"
+          >{{getUserName(row.assignedTeacher)}}</span
+        >
+        <span *ngIf="!getUserName(row.assignedTeacher)" style="opacity: 0.5"
+          ><i
+            >Unassigned (open the menu click 'edit' to assign a teacher)</i
+          ></span
+        >
       </mat-cell>
     </ng-container>
 

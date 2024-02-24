@@ -26,6 +26,7 @@ export class ExamPageComponent implements OnInit {
   examTableComponent: ExamTableComponent;
   error: Error;
   exams$: Observable<ExamDTO[]>;
+  users$: Observable<UserDTO[]>;
   examPageLoading = false;
   demoExams: ExamDTO[];
   teachers$: Observable<UserDTO[]>;
@@ -45,6 +46,7 @@ export class ExamPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.exams$ = this.examService.exams$;
+    this.users$ = this.userService.users$;
     this.questions$ = this.questionService.questions$;
     this.loadPageData();
   }

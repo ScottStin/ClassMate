@@ -23,6 +23,7 @@
           [examData]="getUserExams(examType) | async"
           [examType]="examType"
           [questionData]="questions$ | async"
+          [users]="users$ | async"
           (openEditExamDialog)="openEditExamDialog($event)"
           (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
           (registerForExam)="registerForExam($event)"

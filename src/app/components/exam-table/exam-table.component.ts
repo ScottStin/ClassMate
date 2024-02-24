@@ -33,6 +33,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   @Input() examData: ExamDTO[] | null;
   @Input() questionData: QuestionList[] | null;
   @Input() examType: string;
+  @Input() users: UserDTO[] | null;
   @Output() openEditExamDialog = new EventEmitter<ExamDTO>();
   @Output() openConfirmDeleteDialog = new EventEmitter<ExamDTO>();
   @Output() startExam = new EventEmitter<ExamDTO>();
@@ -194,14 +195,32 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   }
 
   getStudentsEnrolledList(studentsEnrolled: string[]): string {
-    return studentsEnrolled.join(', ');
+    const studentNameArray = [];
+    for (const studentEmail of studentsEnrolled) {
+      const studentName = this.getUserName(studentEmail);
+      if (studentName !== null) {
+        studentNameArray.push(`${studentName} (${studentEmail})`);
+      } else {
+        studentNameArray.push(`${studentEmail} (user deleted)`);
+      }
+    }
+    return studentNameArray.join(', ');
   }
 
   getStudentsCompletedList(
     studentsCompleted: { email: string; mark: boolean }[]
   ): string {
-    const studentNames = studentsCompleted.map((obj) => obj.email);
-    return studentNames.join(', ');
+    const studentEmails = studentsCompleted.map((obj) => obj.email);
+    const studentNameArray = [];
+    for (const studentEmail of studentEmails) {
+      const studentName = this.getUserName(studentEmail);
+      if (studentName !== null) {
+        studentNameArray.push(`${studentName} (${studentEmail})`);
+      } else {
+        studentNameArray.push(`${studentEmail} (user deleted)`);
+      }
+    }
+    return studentNameArray.join(', ');
   }
 
   getMarkPendingCompletedList(
@@ -211,6 +230,16 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
       .filter((obj) => !obj.mark)
       .map((obj) => obj.email);
     return studentNames.join(', ');
+  }
+
+  getUserName(userEmail: string): string | null {
+    // TODO = replace with service or directive
+    const foundUser = this.users?.find((obj) => obj.email === userEmail);
+    if (foundUser) {
+      return foundUser.name;
+    } else {
+      return null;
+    }
   }
 
   openStudentsCompletedList(exam: ExamDTO): void {
