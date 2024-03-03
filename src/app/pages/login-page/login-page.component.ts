@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first, Observable, Subscription } from 'rxjs';
+import { finalize, first, forkJoin, Observable, Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -14,6 +16,7 @@ import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 export class LoginPageComponent implements OnInit, OnDestroy {
   error: Error;
   isFlipped = false;
+  schools$: Observable<SchoolDTO[]>;
   users$: Observable<UserDTO[]>;
   usersLoading = true;
   userType: 'student' | 'teacher' | 'school' | '' = '';
@@ -24,6 +27,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
+    private readonly schoolService: SchoolService,
     private readonly snackbarService: SnackbarService,
     public readonly authStoreService: AuthStoreService,
     private readonly route: ActivatedRoute
@@ -54,7 +58,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.getUsers();
+    this.schools$ = this.schoolService.schools$;
+    this.users$ = this.userService.users$;
+    this.loadPageData();
   }
 
   ngOnDestroy(): void {
@@ -72,28 +78,33 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  getUsers(): void {
+  loadPageData(): void {
     this.usersLoading = true;
-    this.users$ = this.userService.users$;
-    this.userService.getAll().subscribe({
-      next: () => {
-        this.usersLoading = false;
-      },
-      error: (error: Error) => {
-        const snackbar = this.snackbarService.openPermanent(
-          'error',
-          'Error: Failed to load page.',
-          'retry'
-        );
-        console.log(error);
-        snackbar
-          .onAction()
-          .pipe(first())
-          .subscribe(() => {
-            this.getUsers();
-          });
-      },
-    });
+    forkJoin([this.schoolService.getAll(), this.userService.getAll()])
+      .pipe(
+        first(),
+        finalize(() => {
+          this.usersLoading = false;
+        })
+      )
+      .subscribe({
+        // next: ([schools, users]) => {
+        //   console.log(schools);
+        // },
+        error: (error: Error) => {
+          const snackbar = this.snackbarService.openPermanent(
+            'error',
+            `Error: Failed to load page: ${error.message}`,
+            'retry'
+          );
+          snackbar
+            .onAction()
+            .pipe(first())
+            .subscribe(() => {
+              this.loadPageData();
+            });
+        },
+      });
   }
 
   async signup(user: UserDTO): Promise<void> {
@@ -110,6 +121,18 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       } else {
         this.snackbarService.openPermanent('error', 'unable to sign up');
       }
+    } catch (error) {
+      this.snackbarService.openPermanent('error', 'unable to sign up');
+    }
+  }
+
+  async signupSchool(school: SchoolDTO): Promise<void> {
+    try {
+      const res = await this.schoolService.create(school).toPromise();
+      this.snackbarService.openPermanent(
+        'info',
+        `Wecome to ClassMate, ${school.name}!`
+      );
     } catch (error) {
       this.snackbarService.openPermanent('error', 'unable to sign up');
     }
@@ -155,7 +178,6 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     label: string;
     shadow: string;
   }): void {
-    console.log(name);
     this.selectedBackgroundImage = `../../../assets/${name}`;
     this.snackbarService.openPermanent(
       'info',

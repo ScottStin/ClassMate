@@ -8,7 +8,7 @@ export const backgroundImages: { name: string; label: string; shadow: string}[] 
   { name: 'triangles-6-ocean-blue.png', label: 'Triangles - Ocean Blue', shadow: '#48a0e2'  },
   { name: 'triangles-7-green-blue.png', label: 'Triangles - Green/Blue', shadow: '#489fb2'  },
   { name: 'triangles-8-sharp-red.png', label: 'Triangles - Sharp Red', shadow: '#9b2632'  },
-  { name: 'triangles-9-dark-blue.png', label: 'Triangles - Dark Blue', shadow: '#9b2632' },
+  { name: 'triangles-9-dark-blue.png', label: 'Triangles - Dark Blue', shadow: '#171267' },
   { name: 'triangles-10-blood-orange.png', label: 'Triangles - Blood Orange', shadow: '#7b4256' },
   { name: 'triangles-11-deep-pink.png', label: 'Triangles - Deep Pink', shadow: '#a1126f' },
   { name: 'triangles-12-aqua.png', label: 'Triangles - Aqua', shadow: '#388399' },

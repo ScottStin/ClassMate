@@ -62,6 +62,9 @@ export class ErrorMessageComponent implements OnChanges {
       case 'existingEmailLogin':
         return 'A user with this email already exists. Click below to login instead';
 
+      case 'existingNamelLogin':
+        return 'A user with this name already exists. Click below to login instead';
+
       case 'existingEmail':
         return 'A user with this email already exists.';
 

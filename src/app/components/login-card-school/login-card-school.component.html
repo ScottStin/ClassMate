@@ -1,0 +1,478 @@
+<div class="scene scene--card" style="height: 250vh">
+  <div
+    class="card-school"
+    [class.is-flipped]="isFlipped"
+    [style]="'box-shadow: 0 40px 60px ' + selectedBackgroundImage?.shadow"
+  >
+    <mat-card
+      [class]="title === 'signup' ? 'card__face card__face--front' : 'card__face card__face--back'"
+    >
+      <mat-card-header>
+        <mat-card-title>{{title | titlecase}}</mat-card-title>
+      </mat-card-header>
+
+      <div class="image-container">
+        <img
+          *ngIf="!photoName"
+          mat-card-image
+          [src]="photoSrc"
+          alt="Login Photo"
+        />
+        <image-cropper
+          format="png"
+          [imageChangedEvent]="imageChangedEvent"
+          [maintainAspectRatio]="true"
+          [aspectRatio]="5 / 3"
+          [resizeToWidth]="128"
+          (imageCropped)="imageCropped($event)"
+          (imageLoaded)="imageLoaded()"
+          (cropperReady)="cropperReady()"
+          (loadImageFailed)="loadImageFailed()"
+        ></image-cropper>
+      </div>
+
+      <mat-card-content *ngIf="userType === 'school'">
+        <div *ngIf="loginFormSchool" [formGroup]="loginFormSchool">
+          <mat-stepper
+            [linear]="true"
+            #stepper
+            [ngStyle]="{
+              '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+              '--primaryButtonTextColor': primaryButtonTextColor
+            }"
+          >
+            <!-- -- --- --- --- --- -- -->
+            <!-- --- ---  NAME STEP ----->
+            <!-- -- --- --- --- --- -- -->
+
+            <mat-step
+              *ngIf="loginFormSchool.controls['detailStep'] as detailStepForm"
+              label="Details"
+              [editable]="true"
+              [completed]="!detailStepForm.invalid"
+              [stepControl]="detailStepForm"
+              formGroupName="detailStep"
+            >
+              <div class="step-container">
+                <mat-form-field
+                  *ngIf="title === 'signup'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>Name of School</mat-label>
+                  <input
+                    matInput
+                    id="nameInput"
+                    #nameInput
+                    formControlName="nameInput"
+                    type="text"
+                    placeholder="Enter the name of your school"
+                    [required]="title === 'signup'"
+                  />
+                  <mat-error>
+                    <app-error-message
+                      [control]="detailStepForm.controls['nameInput'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- -- --- --- --- --- -- -->
+                <!-- --- ---  EMAIL --- --- ->
+                <!-- -- --- --- --- --- -- -->
+
+                <mat-form-field class="form-field" appearance="outline">
+                  <mat-label>School Email</mat-label>
+                  <input
+                    matInput
+                    id="emailInput"
+                    formControlName="emailInput"
+                    #emailInput
+                    type="email"
+                    placeholder="Email address of your school (e.g. admin@my-school.com)"
+                    required
+                    (change)="existingEmailFormatChange(emailInput.value)"
+                  />
+                  <mat-error>
+                    <app-error-message
+                      [control]="detailStepForm.controls['emailInput'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- -- --- --- --- --- -- -->
+                <!-- --- -  COUNTRY --- --- ->
+                <!-- -- --- --- --- --- -- -->
+
+                <mat-form-field
+                  *ngIf="title === 'signup'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>School's Base Country (Optional)</mat-label>
+                  <mat-select formControlName="countryInput">
+                    <mat-option value="other">Select country...</mat-option>
+                    <mat-option
+                      *ngFor="let country of countryList"
+                      [value]="country"
+                    >
+                      {{ country }}
+                    </mat-option>
+                    <mat-option value="other">OTHER</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <!-- -- --- --- --- --- -- -->
+                <!-- ---- STATEMENT --- --- ->
+                  <!-- -- --- --- --- --- -- -->
+
+                <mat-form-field
+                  *ngIf="title === 'signup'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>School Description</mat-label>
+                  <textarea
+                    matInput
+                    id="descriptionInput"
+                    formControlName="descriptionInput"
+                    type="text"
+                    placeholder="Tell your students a little bit about your school..."
+                    [required]="title === 'signup'"
+                  ></textarea>
+                  <mat-error>
+                    <app-error-message
+                      [control]="detailStepForm.controls['descriptionInput'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- -- --- --- --- --- -- -->
+                <!---------- PASSWORD ------->
+                <!-- -- --- --- --- --- -- -->
+
+                <mat-form-field class="form-field" appearance="outline">
+                  <mat-label>Password</mat-label>
+                  <input
+                    matInput
+                    id="passwordInput"
+                    formControlName="passwordInput"
+                    [type]="hidePassword ? 'password' : 'text'"
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    (click)="hidePassword = !hidePassword"
+                    [attr.aria-label]="'Hide password'"
+                    [attr.aria-pressed]="hidePassword"
+                  >
+                    <mat-icon
+                      *ngIf="this.loginFormSchool.controls['detailStep'].getRawValue().passwordInput !== ''"
+                      >{{hidePassword ? 'visibility_off' :
+                      'visibility'}}</mat-icon
+                    >
+                  </button>
+                  <mat-error>
+                    <app-error-message
+                      [control]="detailStepForm.controls['passwordInput'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  class="form-field"
+                  *ngIf="title === 'signup' && this.loginFormSchool.controls['detailStep'].getRawValue().passwordInput !== ''"
+                >
+                  <mat-label>Confirm Password</mat-label>
+                  <input
+                    matInput
+                    id="passwordMatchInput"
+                    formControlName="passwordMatchInput"
+                    [type]="hidePassword ? 'password' : 'text'"
+                    placeholder="Re-enter your password"
+                    [required]="title === 'signup'"
+                  />
+                  <mat-error>
+                    <app-error-message
+                      [control]="detailStepForm.controls['passwordMatchInput'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+                <div class="stepper-navigation">
+                  <button
+                    mat-button
+                    matStepperNext
+                    [disabled]="this.loginFormSchool.controls['detailStep'].invalid"
+                    class="stepper-next-button"
+                    [ngStyle]="{
+                      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                      '--primaryButtonTextColor': primaryButtonTextColor
+                    }"
+                  >
+                    <span>Next</span>
+                  </button>
+                </div>
+              </div>
+            </mat-step>
+
+            <mat-step
+              *ngIf="loginFormSchool.controls['formatStep'] as formatStepForm"
+              label="Format"
+              [editable]="true"
+              [stepControl]="formatStepForm"
+              formGroupName="formatStep"
+            >
+              <!-- -- --- --- --- --- -- -->
+              <!-- BACKGROUND IMAGE STEP -->
+              <!-- -- --- --- --- --- -- -->
+
+              <div class="step-container">
+                <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>Background image (Optional)</mat-label>
+                  <mat-select
+                    formControlName="backgroundImageInput"
+                    [required]="title === 'signup'"
+                  >
+                    <mat-option
+                      *ngFor="let backgroundImage of backgroundImages"
+                      [value]="backgroundImage"
+                    >
+                      <img
+                        [src]="'../../../assets/' + backgroundImage.name"
+                        [alt]="backgroundImage.label"
+                      />
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <!-- -- --- --- --- --- -- -->
+                <!------- BUTTON COLOR ------>
+                <!-- -- --- --- --- --- -- -->
+
+                <mat-form-field
+                  class="form-field"
+                  appearance="outline"
+                  *ngIf="userType === 'school'"
+                >
+                  <mat-label
+                    >Primary Button Background Color (Optional)</mat-label
+                  >
+                  <input
+                    matInput
+                    id="primaryButtonBackgroundColor"
+                    #primaryButtonBackgroundColor
+                    formControlName="primaryButtonBackgroundColor"
+                    type="color"
+                    placeholder="What color will your buttons be?"
+                    [value]="primaryButtonBackgroundColor"
+                    (change)="changePrimaryButtonBackgroundColor(primaryButtonBackgroundColor.value)"
+                  />
+                  <mat-error>
+                    <app-error-message
+                      [control]="formatStepForm.controls['primaryButtonBackgroundColor'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field
+                  class="form-field"
+                  appearance="outline"
+                  *ngIf="userType === 'school'"
+                >
+                  <mat-label>Primary Button Text Color (Optional)</mat-label>
+                  <input
+                    matInput
+                    id="primaryButtonTextColor"
+                    #primaryButtonTextColor
+                    formControlName="primaryButtonTextColor"
+                    type="color"
+                    placeholder="What color will your button text be?"
+                    value="#FFFFFF"
+                    (change)="changePrimaryButtonTextColor(primaryButtonTextColor.value)"
+                  />
+                  <mat-error>
+                    <app-error-message
+                      [control]="formatStepForm.controls['primaryButtonTextColor'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+                <div class="stepper-navigation">
+                  <button mat-button matStepperPrevious>Back</button>
+                  <button
+                    mat-button
+                    matStepperNext
+                    [disabled]="false"
+                    class="stepper-next-button"
+                    [ngStyle]="{
+                      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                      '--primaryButtonTextColor': primaryButtonTextColor
+                    }"
+                  >
+                    <span *ngIf="this.formatStepForm?.dirty">Next</span>
+                    <span
+                      *ngIf="!this.formatStepForm?.dirty"
+                      class="skip-button"
+                      >Skip this step <mat-icon>skip_next</mat-icon></span
+                    >
+                  </button>
+                </div>
+              </div>
+            </mat-step>
+            <mat-step label="Logo" [editable]="true">
+              <div class="step-container">
+                <!-- -- --- --- --- --- -- -->
+                <!------- SCHOOL LOGO ------->
+                <!-- -- --- --- --- --- -- -->
+
+                <!-- Image Cropper: -->
+                <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>School Logo (Optional)</mat-label>
+                  <input
+                    #photoInput
+                    type="file"
+                    hidden="true"
+                    (change)="fileChangeEvent($event)"
+                    accept="image/png, image/jpeg, image/gif, image/tiff"
+                  />
+                  <input
+                    (click)="photoInput.click()"
+                    matInput
+                    readonly
+                    [placeholder]="photoName || 'No file chosen'"
+                  />
+                  <mat-icon
+                    matSuffix
+                    style="cursor: pointer"
+                    (click)="photoInput.click()"
+                    >add_photo_alternate</mat-icon
+                  >
+                </mat-form-field>
+
+                <div class="stepper-navigation">
+                  <button mat-button matStepperPrevious>Back</button>
+                  <button
+                    mat-button
+                    matStepperNext
+                    [disabled]="false"
+                    class="stepper-next-button"
+                    [ngStyle]="{
+                      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                      '--primaryButtonTextColor': primaryButtonTextColor
+                    }"
+                  >
+                    <span *ngIf="photoName">Next</span>
+                    <span class="skip-button" *ngIf="!photoName"
+                      >Skip this step <mat-icon>skip_next</mat-icon></span
+                    >
+                  </button>
+                </div>
+              </div>
+            </mat-step>
+            <mat-step label="Lessons" [editable]="true">
+              <div class="step-container">
+                <div style="display: flex; align-items: center">
+                  <mat-form-field
+                    *ngIf="title === 'signup' && userType === 'school'"
+                    class="form-field"
+                    appearance="outline"
+                    style="padding: 5px; width: 50%"
+                  >
+                    <mat-label>Add a Lesson Type (full name)</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      placeholder="E.g. Buisness English"
+                      #lessonTypeLongName
+                      (change)="changeLessonType('lessonTypeLongName', lessonTypeLongName.value)"
+                    />
+                  </mat-form-field>
+                  <mat-form-field
+                    *ngIf="title === 'signup' && userType === 'school'"
+                    class="form-field"
+                    appearance="outline"
+                    style="padding: 5px; width: 50%"
+                  >
+                    <mat-label>Add a Lesson Type (abbreviated name)</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      #lessonTypeShortName
+                      (change)="changeLessonType('lessonTypeShortName', lessonTypeShortName.value)"
+                      placeholder="E.g. Buisness"
+                    />
+                  </mat-form-field>
+                  <mat-icon
+                    class="add-lesson-type"
+                    (click)="addLessonType(lessonTypeLongName, lessonTypeShortName)"
+                    >add_circle</mat-icon
+                  >
+                </div>
+
+                <mat-list role="list">
+                  <mat-list-item
+                    role="listitem"
+                    *ngFor="let lesson of lessonTypes"
+                    class="lesson-list-item"
+                  >
+                    <div class="lesson-list-content">
+                      {{ lesson.shortName }} ({{ lesson.name }})
+                    </div>
+                    <div
+                      class="lesson-list-delete-icon"
+                      (click)="removeLessonType(lesson.name, lesson.shortName)"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </div>
+                  </mat-list-item>
+                </mat-list>
+                <div class="stepper-navigation">
+                  <button mat-button matStepperPrevious>Back</button>
+                </div>
+              </div>
+            </mat-step>
+          </mat-stepper>
+        </div>
+      </mat-card-content>
+      <button
+        *ngIf="title === 'signup'"
+        mat-raised-button
+        class="login-signup-button"
+        [disabled]="(this.loginFormSchool?.invalid || this.usersLoading) || this.loginFormSchoolStepper.selectedIndex !== (this.loginFormSchoolStepper.steps.length - 1)"
+        (click)="signupClick()"
+        [ngStyle]="{
+            '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+            '--primaryButtonTextColor': primaryButtonTextColor
+          }"
+      >
+        Sign up
+      </button>
+      <button
+        mat-raised-button
+        *ngIf="title === 'login'"
+        class="login-signup-button"
+        [disabled]="(this.loginFormSchool?.invalid || this.usersLoading) || this.loginFormSchoolStepper.selectedIndex !== (this.loginFormSchoolStepper.steps.length - 1)"
+        (click)="loginClick()"
+      >
+        Login
+      </button>
+      <div class="text-container" (click)="toggleCardFlip()">
+        <h6 *ngIf="title === 'signup'" class="login-text">
+          Already have an account? Click <b>here</b> to login.
+        </h6>
+        <h6 *ngIf="title === 'login' " class="login-text">
+          New user? Click <b>here</b> to sign up.
+        </h6>
+      </div>
+    </mat-card>
+  </div>
+</div>

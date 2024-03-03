@@ -15,12 +15,12 @@
   transform-style: preserve-3d;
   transform-origin: center right;
   transition: transform 1s;
-  /* box-shadow: 0 40px 60px #6b0b64; */
+  box-shadow: 0 40px 60px #6b0b64;
   /* transform: scale(0.9); */
   margin-top: -200px;
 }
 
-.card-school {
+/* .card-school {
   position: relative;
   display: inline-block;
   width: 600px;
@@ -29,9 +29,8 @@
   transform-origin: center right;
   transition: transform 1s;
   margin-top: -1500px;
-  /* box-shadow: 0 40px 60px #6b0b64; */
   transform: scale(0.9);
-}
+} */
 
 .card.is-flipped {
   transform: translateX(-100%) rotateY(-180deg);
@@ -79,25 +78,3 @@
   color: white;
 }
 
-:host {
-  --primaryButtonBackgroundColor: #6200EE;
-  --primaryButtonTextColor: #FFFFFF;
-}
-
-::ng-deep .mat-step-header .mat-step-icon, .login-signup-button, .mat-stepper-next {
-  background-color: var(--primaryButtonBackgroundColor);
-  color: var(--primaryButtonTextColor);
-}
-
-/* todo: move to gloval stylings */
-.stepper-navigation {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px; 
-}
-
-.skip-button {
-  display: flex; 
-  align-items: center
-}

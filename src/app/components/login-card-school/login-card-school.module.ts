@@ -6,14 +6,17 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatStepperModule } from '@angular/material/stepper';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 import { ErrorMessageModule } from '../../components/error-message/error-message.module';
-import { LoginCardComponent } from './login-card.component';
+import { LoginCardSchoolComponent } from './login-card-school.component';
 
 @NgModule({
-  declarations: [LoginCardComponent],
+  declarations: [LoginCardSchoolComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -26,7 +29,10 @@ import { LoginCardComponent } from './login-card.component';
     MatInputModule,
     MatIconModule,
     MatProgressBarModule,
+    ImageCropperModule,
+    MatStepperModule,
+    MatListModule,
   ],
-  exports: [LoginCardComponent],
+  exports: [LoginCardSchoolComponent],
 })
-export class LoginCardModule {}
+export class LoginCardSchoolModule {}

@@ -3,6 +3,7 @@
   [style]="'background-image: url(' + selectedBackgroundImage + ')'"
 >
   <app-login-card
+    *ngIf="userType !== 'school'"
     [title]="isFlipped ? 'login' : 'signup'"
     [isFlipped]="isFlipped"
     [users]="users$ | async"
@@ -14,4 +15,19 @@
     (login)="login($event,'')"
     (changeBackgroundImage)="changeBackgroundImage($event)"
   ></app-login-card>
+
+  <app-login-card-school
+    *ngIf="userType === 'school'"
+    [title]="isFlipped ? 'login' : 'signup'"
+    [isFlipped]="isFlipped"
+    [users]="users$ | async"
+    [schools]="schools$ | async"
+    [usersLoading]="usersLoading"
+    [userType]="userType"
+    [photoSrc]="photoSrc"
+    (cardFlipped)="onCardFlipped($event)"
+    (signupSchool)="signupSchool($event)"
+    (login)="login($event,'')"
+    (changeBackgroundImage)="changeBackgroundImage($event)"
+  ></app-login-card-school>
 </div>

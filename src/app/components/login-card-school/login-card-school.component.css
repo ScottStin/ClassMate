@@ -1,0 +1,124 @@
+   /* ---------------------- */
+  /* ---------Card -- -----: */
+  /* ---------------------- */
+.scene {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    perspective: 600px;
+  }
+  
+  .card-school {
+    position: relative;
+    display: inline-block;
+    width: 600px;
+    min-height: 500px;
+    transform-style: preserve-3d;
+    transform-origin: center right;
+    transition: transform 1s;
+    margin-top: -1500px;
+    /* box-shadow: 0 40px 60px #6b0b64; */
+    transform: scale(0.9);
+  }
+  
+  .card.is-flipped {
+    transform: translateX(-100%) rotateY(-180deg);
+  }
+  
+  .card__face {
+    position: absolute;
+    width: 100%;
+    backface-visibility: hidden;
+  }
+  
+  .card__face--front {
+    background: white;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .card__face--back {
+    background: white;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    transform: rotateY(180deg);
+  }
+  
+  .text-container {
+    display:block;
+    margin-top: 0px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .login-text {
+    margin-top: 15px;
+    cursor: pointer;   
+  }
+  
+  .form-field {
+    width: 100%;
+  }
+  
+  .login-signup-button {
+    background-color: #6200EE;
+    color: white;
+  }
+
+  /* ---------------------- */
+  /* Dynamic Button Format: */
+  /* ---------------------- */
+  
+  :host {
+    --primaryButtonBackgroundColor: #6200EE;
+    --primaryButtonTextColor: #FFFFFF;
+  }
+  
+  ::ng-deep .mat-step-header .mat-step-icon, .login-signup-button, .mat-stepper-next, .login-signup-button {
+    background-color: var(--primaryButtonBackgroundColor);
+    color: var(--primaryButtonTextColor);
+  }
+
+  .add-lesson-type {
+    color: var(--primaryButtonBackgroundColor);
+    cursor: pointer;
+  }
+
+   /* ---------------------- */
+  /* ---------Stepper -----: */
+  /* ---------------------- */
+  
+  /* todo: move to gloval stylings */
+  .stepper-navigation {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px; 
+  }
+  
+  .skip-button {
+    display: flex; 
+    align-items: center
+  }
+  
+  /* ---------------------- */
+  /*------ Lesson List:---- */
+  /* ---------------------- */
+
+  .lesson-list-item {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .lesson-list-content {
+    flex: 1;
+  }
+  
+  .lesson-list-delete-icon {
+    margin-right: 10%;
+    cursor: pointer;
+  }
