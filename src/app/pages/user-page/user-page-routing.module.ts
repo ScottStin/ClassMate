@@ -9,34 +9,34 @@ const routes: Routes = [
   {
     path: '',
     children: [
-        {
-          path: 'teachers',
-          component: UserPageComponent,
-          data: { userType: 'Teacher', pageType: 'Card' },
-        },
-        {
-          path: 'classmates',
-          component: UserPageComponent,
-          data: { userType: 'Student', pageType: 'Card' },
-        },
-        {
-          path: 'students',
-          canActivate: [AuthTeacherGuard],
-          component: UserPageComponent,
-          data: { userType: 'Student', pageType: 'Table' },
-        },
-        {
-          path: 'colleagues',
-          canActivate: [AuthTeacherGuard],
-          component: UserPageComponent,
-          data: { userType: 'Teacher', pageType: 'Card' },
-        },
-        {
-          path: '',
-          pathMatch: 'prefix',
-          redirectTo: 'login',
-        },
-      ],
+      {
+        path: 'teachers',
+        component: UserPageComponent,
+        data: { userType: 'Teacher', pageType: 'Card' },
+      },
+      {
+        path: 'classmates',
+        component: UserPageComponent,
+        data: { userType: 'Student', pageType: 'Card' },
+      },
+      {
+        path: 'students',
+        canActivate: [AuthTeacherGuard],
+        component: UserPageComponent,
+        data: { userType: 'Student', pageType: 'Table' },
+      },
+      {
+        path: 'colleagues',
+        canActivate: [AuthTeacherGuard],
+        component: UserPageComponent,
+        data: { userType: 'Teacher', pageType: 'Card' },
+      },
+      {
+        path: '',
+        pathMatch: 'prefix',
+        redirectTo: 'login',
+      },
+    ],
   },
 ];
 

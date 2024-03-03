@@ -19,6 +19,11 @@ const routes: Routes = [
       (await import('./pages/login-page/login-page.module')).LoginPageModule,
   },
   {
+    path: 'school',
+    loadChildren: async () =>
+      (await import('./pages/login-page/login-page.module')).LoginPageModule,
+  },
+  {
     path: '',
     loadChildren: async () =>
       (await import('./pages/main-page/main-page.module')).MainPageModule,

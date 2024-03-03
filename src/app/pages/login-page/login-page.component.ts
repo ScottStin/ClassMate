@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { first, Observable, Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -9,22 +9,24 @@ import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
-  styleUrls: ['./login-page.component.css'],
+  styleUrls: ['./login-page.component.scss'],
 })
 export class LoginPageComponent implements OnInit, OnDestroy {
   error: Error;
   isFlipped = false;
   users$: Observable<UserDTO[]>;
   usersLoading = true;
-  userType: 'student' | 'teacher' | '' = '';
+  userType: 'student' | 'teacher' | 'school' | '' = '';
   photoSrc = '';
+  selectedBackgroundImage = '../../../assets/triangles-1-pink-purple.png';
   private readonly routerSubscription: Subscription | undefined;
 
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService,
-    public readonly authStoreService: AuthStoreService
+    public readonly authStoreService: AuthStoreService,
+    private readonly route: ActivatedRoute
   ) {
     this.routerSubscription = this.router.events.subscribe(() => {
       setTimeout(() => {
@@ -37,10 +39,14 @@ export class LoginPageComponent implements OnInit, OnDestroy {
           this.userType = 'teacher';
           this.photoSrc = '../../../assets/Teacher.png';
         }
-        if (urlAddress.includes('signup')) {
+        if (urlAddress.includes('school')) {
+          this.userType = 'school';
+          this.photoSrc = '../../../assets/School.png';
+        }
+        if (this.route.snapshot.data['pageType'] === 'signup') {
           this.isFlipped = false;
         }
-        if (urlAddress.includes('login')) {
+        if (this.route.snapshot.data['pageType'] === 'login') {
           this.isFlipped = true;
         }
       }, 0);
@@ -137,6 +143,23 @@ export class LoginPageComponent implements OnInit, OnDestroy {
           'Username or Password Incorrect'
         );
       }
+    );
+  }
+
+  changeBackgroundImage({
+    name,
+    label,
+    shadow,
+  }: {
+    name: string;
+    label: string;
+    shadow: string;
+  }): void {
+    console.log(name);
+    this.selectedBackgroundImage = `../../../assets/${name}`;
+    this.snackbarService.openPermanent(
+      'info',
+      "Can't decide on a good background image? Don't worry, you can always change it later!"
     );
   }
 }

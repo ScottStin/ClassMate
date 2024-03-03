@@ -19,7 +19,7 @@ export class WelcomePageComponent {
     },
     {
       source: '../../../assets/School.png',
-      route: '/home',
+      route: '/school/login',
       title: 'School',
     },
   ];

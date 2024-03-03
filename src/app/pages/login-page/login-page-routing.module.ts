@@ -12,10 +12,12 @@ const routes: Routes = [
       {
         path: 'login',
         component: LoginPageComponent,
+        data: {pageType: 'login'}
       },
       {
         path: 'signup',
         component: LoginPageComponent,
+        data: {pageType: 'signup'}
       },
       {
         path: '',

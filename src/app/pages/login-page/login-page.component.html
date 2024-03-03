@@ -1,4 +1,7 @@
-<div class="login-page">
+<div
+  class="login-page"
+  [style]="'background-image: url(' + selectedBackgroundImage + ')'"
+>
   <app-login-card
     [title]="isFlipped ? 'login' : 'signup'"
     [isFlipped]="isFlipped"
@@ -9,5 +12,6 @@
     (cardFlipped)="onCardFlipped($event)"
     (signup)="signup($event)"
     (login)="login($event,'')"
+    (changeBackgroundImage)="changeBackgroundImage($event)"
   ></app-login-card>
 </div>
