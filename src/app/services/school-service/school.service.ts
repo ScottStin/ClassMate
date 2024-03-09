@@ -27,7 +27,7 @@ export class SchoolService {
         this.handleError(error, 'Failed to load schools');
       }),
       tap((schools) => {
-        console.log(schools);
+        // console.log(schools);
         this.schoolSubject.next(schools);
       })
     );

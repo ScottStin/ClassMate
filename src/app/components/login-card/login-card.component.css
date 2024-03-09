@@ -20,18 +20,6 @@
   margin-top: -200px;
 }
 
-/* .card-school {
-  position: relative;
-  display: inline-block;
-  width: 600px;
-  min-height: 500px;
-  transform-style: preserve-3d;
-  transform-origin: center right;
-  transition: transform 1s;
-  margin-top: -1500px;
-  transform: scale(0.9);
-} */
-
 .card.is-flipped {
   transform: translateX(-100%) rotateY(-180deg);
 }

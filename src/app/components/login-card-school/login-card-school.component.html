@@ -1,6 +1,6 @@
 <div class="scene scene--card" style="height: 250vh">
   <div
-    class="card-school"
+    class="card"
     [class.is-flipped]="isFlipped"
     [style]="'box-shadow: 0 40px 60px ' + selectedBackgroundImage?.shadow"
   >
@@ -38,7 +38,8 @@
             #stepper
             [ngStyle]="{
               '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
-              '--primaryButtonTextColor': primaryButtonTextColor
+              '--primaryButtonTextColor': primaryButtonTextColor,
+              '--stepperDisplay': stepperDisplay
             }"
           >
             <!-- -- --- --- --- --- -- -->
@@ -123,7 +124,7 @@
 
                 <!-- -- --- --- --- --- -- -->
                 <!-- ---- STATEMENT --- --- ->
-                  <!-- -- --- --- --- --- -- -->
+                <!-- -- --- --- --- --- -- -->
 
                 <mat-form-field
                   *ngIf="title === 'signup'"
@@ -200,7 +201,7 @@
                     ></app-error-message>
                   </mat-error>
                 </mat-form-field>
-                <div class="stepper-navigation">
+                <div class="stepper-navigation" *ngIf="title === 'signup'">
                   <button
                     mat-button
                     matStepperNext
@@ -218,7 +219,7 @@
             </mat-step>
 
             <mat-step
-              *ngIf="loginFormSchool.controls['formatStep'] as formatStepForm"
+              *ngIf="title === 'signup' && loginFormSchool.controls['formatStep'] as formatStepForm"
               label="Format"
               [editable]="true"
               [stepControl]="formatStepForm"
@@ -324,7 +325,7 @@
                 </div>
               </div>
             </mat-step>
-            <mat-step label="Logo" [editable]="true">
+            <mat-step *ngIf="title === 'signup'" label="Logo" [editable]="true">
               <div class="step-container">
                 <!-- -- --- --- --- --- -- -->
                 <!------- SCHOOL LOGO ------->
@@ -378,7 +379,11 @@
                 </div>
               </div>
             </mat-step>
-            <mat-step label="Lessons" [editable]="true">
+            <mat-step
+              *ngIf="title === 'signup'"
+              label="Lessons"
+              [editable]="true"
+            >
               <div class="step-container">
                 <div style="display: flex; align-items: center">
                   <mat-form-field
@@ -460,8 +465,12 @@
         mat-raised-button
         *ngIf="title === 'login'"
         class="login-signup-button"
-        [disabled]="(this.loginFormSchool?.invalid || this.usersLoading) || this.loginFormSchoolStepper.selectedIndex !== (this.loginFormSchoolStepper.steps.length - 1)"
+        [disabled]="(this.loginFormSchool && this.loginFormSchool.controls['detailStep'] && (loginFormSchool.controls['detailStep'].controls['emailInput'].invalid || loginFormSchool.controls['detailStep'].controls['passwordInput'].invalid)) || this.usersLoading"
         (click)="loginClick()"
+        [ngStyle]="{
+          '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+          '--primaryButtonTextColor': primaryButtonTextColor
+        }"
       >
         Login
       </button>

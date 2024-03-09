@@ -57,6 +57,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   } | null = this.backgroundImages[0];
   primaryButtonBackgroundColor = '#6200EE';
   primaryButtonTextColor = '#FFFFFF';
+  stepperDisplay = 'flex';
   private subscription?: Subscription;
 
   // --- image cropping:
@@ -96,28 +97,37 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         this.populateSignupForm();
       }
     }
+    if ('title' in changes) {
+      if (this.title !== 'signup') {
+        this.stepperDisplay = 'none';
+      } else {
+        this.stepperDisplay = 'flex';
+      }
+      this.populateSignupForm();
+    }
   }
 
   populateSignupForm(): void {
+    // details step:
     const detailStepForm: DetailStep = new FormGroup({
       nameInput: new FormControl(
         { value: '', disabled: this.usersLoading },
         {
-          validators: [Validators.required, this.nameValidator()],
+          validators: [],
           nonNullable: true,
         }
       ),
       emailInput: new FormControl(
         { value: '', disabled: this.usersLoading },
         {
-          validators: [Validators.required, this.emailValidator()],
+          validators: [],
           nonNullable: true,
         }
       ),
       countryInput: new FormControl(
         { value: '', disabled: this.usersLoading },
         {
-          validators: [Validators.required],
+          validators: [],
           nonNullable: true,
         }
       ),
@@ -139,26 +149,69 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         { value: '', disabled: this.usersLoading },
         {
           // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-          validators: [this.wordCountValidator(10, 200)],
+          validators: [],
           nonNullable: true,
         }
       ),
       passwordInput: new FormControl(
         { value: '', disabled: this.usersLoading },
         {
-          validators: [Validators.required, this.passwordValidator()],
+          validators: [],
           nonNullable: true,
         }
       ),
       passwordMatchInput: new FormControl(
         { value: '', disabled: this.usersLoading },
         {
-          validators: [this.passwordMatchValidator()],
+          validators: [],
           nonNullable: true,
         }
       ),
     });
 
+    // add validators to details step:
+    if (this.title === 'signup') {
+      detailStepForm.controls.descriptionInput.setValidators([
+        Validators.required,
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        this.wordCountValidator(10, 200),
+      ]);
+      detailStepForm.controls.emailInput.setValidators([
+        this.emailValidator(),
+        Validators.required,
+      ]);
+      detailStepForm.controls.countryInput.setValidators(Validators.required);
+      detailStepForm.controls.passwordInput.setValidators([
+        this.passwordValidator(),
+        Validators.required,
+      ]);
+      detailStepForm.controls.passwordMatchInput.setValidators(
+        this.passwordMatchValidator()
+      );
+      detailStepForm.controls.nameInput.setValidators([
+        Validators.required,
+        this.nameValidator(),
+      ]);
+    } else {
+      detailStepForm.controls.descriptionInput.clearValidators();
+      detailStepForm.controls.emailInput.clearValidators();
+      detailStepForm.controls.countryInput.clearValidators();
+      detailStepForm.controls.passwordInput.clearValidators();
+      detailStepForm.controls.passwordMatchInput.clearValidators();
+      detailStepForm.controls.nameInput.clearValidators();
+
+      detailStepForm.controls.emailInput.setValidators(Validators.required);
+      detailStepForm.controls.passwordInput.setValidators(Validators.required);
+    }
+
+    detailStepForm.controls.descriptionInput.updateValueAndValidity();
+    detailStepForm.controls.emailInput.updateValueAndValidity();
+    detailStepForm.controls.countryInput.updateValueAndValidity();
+    detailStepForm.controls.passwordInput.updateValueAndValidity();
+    detailStepForm.controls.passwordMatchInput.updateValueAndValidity();
+    detailStepForm.controls.nameInput.updateValueAndValidity();
+
+    // format step:
     const formatStepForm: FormatStep = new FormGroup({
       backgroundImageInput: new FormControl(
         this.selectedBackgroundImage ?? null,
@@ -183,6 +236,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       ),
     });
 
+    // logo step:
     const logoStepForm: LogoStep = new FormGroup({
       schoolLogo: new FormControl<{
         url: string;
@@ -193,6 +247,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       }),
     });
 
+    // lesson type step:
     const lessonStepForm: LessonStep = new FormGroup({
       lessonType: new FormControl<
         | {
@@ -206,6 +261,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       }),
     });
 
+    // logn form group:
     this.loginFormSchool = new FormGroup({
       detailStep: detailStepForm,
       formatStep: formatStepForm,
@@ -214,7 +270,6 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // Subscribe to the combined changes
-
     const combinedChanges = combineLatest([
       this.loginFormSchool.controls.formatStep.controls.backgroundImageInput
         .valueChanges,
@@ -224,6 +279,10 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       if (backgroundImageValue) {
         this.selectedBackgroundImage = backgroundImageValue;
         this.changeBackgroundImage.emit(this.selectedBackgroundImage);
+        this.snackbarService.openPermanent(
+          'info',
+          "Can't decide on a good background image? Don't worry, you can always change it later!"
+        );
       }
     });
   }
@@ -290,6 +349,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   toggleCardFlip(): void {
+    this.existingEmailFormatChange('');
     this.isFlipped = !this.isFlipped;
     this.cardFlipped.emit(this.isFlipped);
   }
@@ -346,7 +406,9 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       }
       if (this.schools && this.title === 'signup') {
         if (
-          this.schools.map((school: SchoolDTO) => school.email).includes(value)
+          this.schools
+            .map((school: SchoolDTO) => school.email.toLowerCase())
+            .includes(value.toLowerCase())
         ) {
           return { existingEmailLogin: true }; // check if email already exists
         } else {
@@ -363,7 +425,9 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       const value = control.value as string;
       if (this.schools && this.title === 'signup') {
         if (
-          this.schools.map((school: SchoolDTO) => school.name).includes(value)
+          this.schools
+            .map((school: SchoolDTO) => school.name.toLowerCase())
+            .includes(value.toLowerCase())
         ) {
           return { existingNamelLogin: true }; // check if name already exists
         } else {
@@ -376,16 +440,20 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   existingEmailFormatChange(email: string): void {
-    const foundSchool = this.schools?.find((obj) => obj.email === email);
+    const foundSchool = this.schools?.find(
+      (obj) => obj.email.toLocaleLowerCase() === email.toLocaleLowerCase()
+    );
     if (foundSchool) {
       this.selectedBackgroundImage = foundSchool.backgroundImage;
       this.primaryButtonBackgroundColor =
         foundSchool.primaryButtonBackgroundColor;
       this.primaryButtonTextColor = foundSchool.primaryButtonTextColor;
+      this.photoSrc = foundSchool.logo?.url ?? '../../../assets/School.png';
     } else {
       this.selectedBackgroundImage = this.backgroundImages[0];
       this.primaryButtonBackgroundColor = '#6200EE';
       this.primaryButtonTextColor = '#FFFFFF';
+      this.photoSrc = '../../../assets/School.png';
     }
     this.changeBackgroundImage.emit(this.selectedBackgroundImage);
   }
@@ -422,6 +490,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         primaryButtonBackgroundColor: this.primaryButtonBackgroundColor,
         primaryButtonTextColor: this.primaryButtonTextColor,
         lessonTypes: this.lessonTypes,
+        logo: this.loginFormSchool?.controls.logoStep.controls.schoolLogo.value,
       };
       this.signupSchool.emit(newSchool);
     }
@@ -458,11 +527,11 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   imageCropped(event: ImageCroppedEvent): void {
-    // this.photoLink = event.base64;
-    // this.loginForm.controls.schoolLogo.setValue({
-    //   url: this.photoLink!,
-    //   filename: this.photoName,
-    // });
+    this.photoLink = event.base64;
+    this.loginFormSchool?.controls.logoStep.controls.schoolLogo.setValue({
+      url: this.photoLink!,
+      filename: this.photoName,
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function

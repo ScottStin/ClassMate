@@ -169,6 +169,42 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     );
   }
 
+  loginSchool(
+    userDetails: UserLoginDTO,
+    message: string,
+    signup?: boolean
+  ): void {
+    console.log(userDetails);
+    // this.authStoreService.login(userDetails).subscribe(
+    //   () => {
+    //     this.router
+    //       .navigateByUrl('/home')
+    //       .then(() => {
+    //         const firstName = (
+    //           JSON.parse(localStorage.getItem('auth_data_token')!) as {
+    //             user: UserDTO;
+    //           }
+    //         ).user.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
+    //         if (!(signup ?? false)) {
+    //           this.snackbarService.open('info', `Welcome back, ${firstName}!`);
+    //         } else {
+    //           this.snackbarService.open('info', message);
+    //         }
+    //       })
+    //       .catch((error) => {
+    //         console.log(error);
+    //       });
+    //   },
+    //   (error) => {
+    //     console.log(error);
+    //     this.snackbarService.openPermanent(
+    //       'error',
+    //       'Username or Password Incorrect'
+    //     );
+    //   }
+    // );
+  }
+
   changeBackgroundImage({
     name,
     label,
@@ -179,9 +215,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     shadow: string;
   }): void {
     this.selectedBackgroundImage = `../../../assets/${name}`;
-    this.snackbarService.openPermanent(
-      'info',
-      "Can't decide on a good background image? Don't worry, you can always change it later!"
-    );
+    // this.snackbarService.openPermanent(
+    //   'info',
+    //   "Can't decide on a good background image? Don't worry, you can always change it later!"
+    // );
   }
 }

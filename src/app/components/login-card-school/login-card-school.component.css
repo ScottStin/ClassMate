@@ -10,7 +10,7 @@
     perspective: 600px;
   }
   
-  .card-school {
+  .card {
     position: relative;
     display: inline-block;
     width: 600px;
@@ -103,6 +103,15 @@
   .skip-button {
     display: flex; 
     align-items: center
+  }
+
+    
+  :host {
+    --stepperDisplay: flex !important;
+  }
+
+  ::ng-deep .mat-horizontal-stepper-header-container {
+    display: var(--stepperDisplay) !important;
   }
   
   /* ---------------------- */

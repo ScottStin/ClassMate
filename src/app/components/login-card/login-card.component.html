@@ -168,7 +168,7 @@
         *ngIf="title === 'signup'"
         mat-raised-button
         class="login-signup-button"
-        [disabled]="this.loginForm?.invalid || this.usersLoading"
+        [disabled]="(this.loginForm && this.loginForm.invalid) || this.usersLoading"
         (click)="signupClick()"
       >
         Sign up
