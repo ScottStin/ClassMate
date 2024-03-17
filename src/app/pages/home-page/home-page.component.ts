@@ -1,15 +1,25 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { finalize, first, forkJoin, Observable, of } from 'rxjs';
+import {
+  finalize,
+  first,
+  forkJoin,
+  Observable,
+  of,
+  Subscription,
+  tap,
+} from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { LessonTypeService } from 'src/app/services/lesson-type-service/lesson-type.service';
+import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -17,7 +27,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.css'],
 })
-export class HomePageComponent implements OnInit {
+export class HomePageComponent implements OnInit, OnDestroy {
   error: Error;
   mediumScreen = false;
   smallScreen = false;
@@ -26,6 +36,8 @@ export class HomePageComponent implements OnInit {
   lessonTypes$: Observable<LessonTypeDTO[]>;
   homePageLoading = true;
   currentUser: UserDTO | null;
+  private currentSchoolSubscription: Subscription | null;
+  currentSchool$: Observable<SchoolDTO | null>;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -41,10 +53,12 @@ export class HomePageComponent implements OnInit {
     private readonly lessonService: LessonService,
     private readonly lessonTypeService: LessonTypeService,
     private readonly authStoreService: AuthStoreService,
+    public readonly schoolService: SchoolService,
     public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
+    this.currentSchool$ = this.schoolService.currentSchool$;
     this.users$ = this.userService.users$;
     this.lessons$ = this.lessonService.lessons$;
     this.lessonTypes$ = this.lessonTypeService.lessonTypes$;
@@ -69,6 +83,9 @@ export class HomePageComponent implements OnInit {
     ])
       .pipe(
         first(),
+        tap(() => {
+          this.currentSchoolSubscription = this.currentSchool$.subscribe();
+        }),
         finalize(() => {
           this.homePageLoading = false;
         })
@@ -194,5 +211,11 @@ export class HomePageComponent implements OnInit {
         });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.currentSchoolSubscription) {
+      this.currentSchoolSubscription.unsubscribe();
+    }
   }
 }

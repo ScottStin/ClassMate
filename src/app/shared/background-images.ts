@@ -36,3 +36,9 @@ export const backgroundImages: { name: string; label: string; shadow: string}[] 
   { name: 'gradient-26-twilight.png', label: 'Gradient - Twilight', shadow: '#6134d6' },
   { name: 'gradient-31-pink-yellow.png', label: 'Gradient - Pink/Yellow', shadow: '#f872a2' },
 ];
+
+export interface BackgroundImageDTO {
+    name: string;
+    label: string;
+    shadow: string;
+}

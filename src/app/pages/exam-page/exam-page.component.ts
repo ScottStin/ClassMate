@@ -1,6 +1,15 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { finalize, first, forkJoin, map, Observable, of } from 'rxjs';
+import {
+  finalize,
+  first,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  Subscription,
+  tap,
+} from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import {
   CreateExamDialogComponent,
@@ -10,10 +19,12 @@ import { ExamTableComponent } from 'src/app/components/exam-table/exam-table.com
 import { ShowExamDialogComponent } from 'src/app/components/show-exam-dialog/show-exam-dialog.component';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { QuestionService } from 'src/app/services/question-service/question.service';
+import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { DemoExams } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -35,16 +46,20 @@ export class ExamPageComponent implements OnInit {
     | { user: UserDTO }
     | undefined;
   selectedTabIndex: number;
+  private currentSchoolSubscription: Subscription | null;
+  currentSchool$: Observable<SchoolDTO | null>;
 
   constructor(
     private readonly examService: ExamService,
     private readonly userService: UserService,
     private readonly questionService: QuestionService,
     private readonly snackbarService: SnackbarService,
+    public readonly schoolService: SchoolService,
     public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
+    this.currentSchool$ = this.schoolService.currentSchool$;
     this.exams$ = this.examService.exams$;
     this.users$ = this.userService.users$;
     this.questions$ = this.questionService.questions$;
@@ -52,6 +67,7 @@ export class ExamPageComponent implements OnInit {
   }
 
   loadPageData(): void {
+    this.currentSchoolSubscription = this.currentSchool$.subscribe();
     this.examPageLoading = true;
     forkJoin([
       this.examService.getAll(),
@@ -60,6 +76,9 @@ export class ExamPageComponent implements OnInit {
     ])
       .pipe(
         first(),
+        tap(() => {
+          this.currentSchoolSubscription = this.currentSchool$.subscribe();
+        }),
         finalize(() => {
           this.examPageLoading = false;
         })

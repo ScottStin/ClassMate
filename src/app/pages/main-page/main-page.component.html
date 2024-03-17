@@ -1,4 +1,8 @@
-<mat-drawer-container class="main-page-container" autosize>
+<mat-drawer-container
+  [style]="'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')'"
+  class="main-page-container"
+  autosize
+>
   <mat-drawer
     #drawer
     mode="push"
@@ -7,7 +11,7 @@
     mode="side"
     opened="true"
   >
-    <app-side-nav></app-side-nav>
+    <app-side-nav [currentSchool]="currentSchool$ | async"></app-side-nav>
   </mat-drawer>
 
   <div>

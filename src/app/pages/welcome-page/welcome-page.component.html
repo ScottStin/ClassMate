@@ -1,4 +1,7 @@
-<div class="welcome-page">
+<div
+  class="welcome-page"
+  [style]="'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')'"
+>
   <div class="container" *ngFor="let imageCard of imageCards; let i = index">
     <div
       class="logIn-planels"
@@ -13,7 +16,15 @@
           class="logIn-img"
         />
       </a>
-      <h2 class="logIn-header">{{ imageCard.title }}</h2>
+      <h2
+        class="logIn-header"
+        [ngStyle]="{
+        '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+        '--primaryButtonTextColor': primaryButtonTextColor
+      }"
+      >
+        {{ imageCard.title }}
+      </h2>
     </div>
   </div>
 </div>

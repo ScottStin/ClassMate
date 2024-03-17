@@ -1,6 +1,6 @@
 <div
   class="login-page"
-  [style]="'background-image: url(' + selectedBackgroundImage + ')'"
+  [style]="'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')'"
 >
   <app-login-card
     *ngIf="userType !== 'school'"
@@ -10,6 +10,10 @@
     [usersLoading]="usersLoading"
     [userType]="userType"
     [photoSrc]="photoSrc"
+    [backgroundImages]="backgroundImages"
+    [selectedBackgroundImage]="selectedBackgroundImage"
+    [primaryButtonBackgroundColor]="primaryButtonBackgroundColor"
+    [primaryButtonTextColor]="primaryButtonTextColor"
     (cardFlipped)="onCardFlipped($event)"
     (signup)="signup($event)"
     (login)="login($event,'')"
@@ -25,6 +29,11 @@
     [usersLoading]="usersLoading"
     [userType]="userType"
     [photoSrc]="photoSrc"
+    [backgroundImages]="backgroundImages"
+    [selectedBackgroundImage]="selectedBackgroundImage"
+    [primaryButtonBackgroundColor]="primaryButtonBackgroundColor"
+    [primaryButtonTextColor]="primaryButtonTextColor"
+    [currentSchool]="currentSchool$ | async"
     (cardFlipped)="onCardFlipped($event)"
     (signupSchool)="signupSchool($event)"
     (login)="loginSchool($event,'')"

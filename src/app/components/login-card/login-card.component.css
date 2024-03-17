@@ -66,3 +66,17 @@
   color: white;
 }
 
+  /* ---------------------- */
+  /* Dynamic Button Format: */
+  /* ---------------------- */
+  
+  :host {
+    --primaryButtonBackgroundColor: #6200EE;
+    --primaryButtonTextColor: #FFFFFF;
+  }
+  
+  ::ng-deep .mat-step-header .mat-step-icon, .login-signup-button, .mat-stepper-next, .login-signup-button {
+    background-color: var(--primaryButtonBackgroundColor);
+    color: var(--primaryButtonTextColor);
+  }
+

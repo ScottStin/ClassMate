@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { finalize, first, Observable } from 'rxjs';
+import { finalize, first, Observable, Subscription, tap } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -12,17 +14,20 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './teacher-page.component.html',
   styleUrls: ['./teacher-page.component.css'],
 })
-export class TeacherPageComponent implements OnInit {
+export class TeacherPageComponent implements OnInit, OnDestroy {
   error: Error;
   teacherPageLoading = false;
   users$: Observable<UserDTO[]>;
   userType: string;
   pageType: string;
+  private currentSchoolSubscription: Subscription | null;
+  currentSchool$: Observable<SchoolDTO | null>;
 
   constructor(
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService,
     private readonly route: ActivatedRoute,
+    public readonly schoolService: SchoolService,
     public dialog: MatDialog
   ) {
     this.userType = this.route.snapshot.data['userType'] as string;
@@ -30,6 +35,7 @@ export class TeacherPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.currentSchool$ = this.schoolService.currentSchool$;
     this.users$ = this.userService.users$;
     this.getUsers();
   }
@@ -40,6 +46,9 @@ export class TeacherPageComponent implements OnInit {
       .getAll()
       .pipe(
         first(),
+        tap(() => {
+          this.currentSchoolSubscription = this.currentSchool$.subscribe();
+        }),
         finalize(() => {
           this.teacherPageLoading = false;
         })
@@ -91,5 +100,11 @@ export class TeacherPageComponent implements OnInit {
         });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.currentSchoolSubscription) {
+      this.currentSchoolSubscription.unsubscribe();
+    }
   }
 }

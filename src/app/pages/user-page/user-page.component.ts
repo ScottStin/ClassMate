@@ -1,12 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { finalize, first, Observable, of } from 'rxjs';
+import { finalize, first, Observable, of, Subscription, tap } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { UserTableComponent } from 'src/app/components/user-table/user-table.component';
+import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -24,21 +26,59 @@ export class UserPageComponent implements OnInit {
   filteredUsers$: Observable<UserDTO[]>;
   userType: string;
   pageType: string;
+  private currentSchoolSubscription: Subscription | null;
+  currentSchool$: Observable<SchoolDTO | null>;
+  pageName = '';
+  currentUser: UserDTO | null;
 
   constructor(
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService,
     public dialog: MatDialog,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    public readonly schoolService: SchoolService
   ) {
     this.userType = this.route.snapshot.data['userType'] as string;
     this.pageType = this.route.snapshot.data['pageType'] as string;
   }
 
   ngOnInit(): void {
+    this.currentSchool$ = this.schoolService.currentSchool$;
     this.users$ = this.userService.users$;
     this.filteredUsers$ = this.userService.users$;
     this.getUsers();
+    this.getPageName();
+  }
+
+  getPageName(): void {
+    if (localStorage.getItem('auth_data_token') !== null) {
+      this.currentUser = (
+        JSON.parse(localStorage.getItem('auth_data_token')!) as {
+          user: UserDTO;
+        }
+      ).user;
+    }
+    if (this.pageType === 'Table') {
+      this.pageName = 'students';
+    }
+    if (this.pageType === 'Card') {
+      if (this.userType === 'Teacher') {
+        if (this.currentUser?.userType.toLocaleLowerCase() === 'teacher') {
+          this.pageName = 'colleagues';
+        }
+        if (this.currentUser?.userType.toLocaleLowerCase() === 'student') {
+          this.pageName = 'teachers';
+        }
+      }
+      if (this.userType === 'Student') {
+        if (this.currentUser?.userType.toLocaleLowerCase() === 'teacher') {
+          this.pageName = 'teachers';
+        }
+        if (this.currentUser?.userType.toLocaleLowerCase() === 'student') {
+          this.pageName = 'class mates';
+        }
+      }
+    }
   }
 
   getUsers(): void {
@@ -47,6 +87,9 @@ export class UserPageComponent implements OnInit {
       .getAll()
       .pipe(
         first(),
+        tap(() => {
+          this.currentSchoolSubscription = this.currentSchool$.subscribe();
+        }),
         finalize(() => {
           this.userPageLoading = false;
         })

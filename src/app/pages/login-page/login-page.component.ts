@@ -1,10 +1,22 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, first, forkJoin, Observable, Subscription } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import {
+  filter,
+  finalize,
+  first,
+  forkJoin,
+  Observable,
+  Subscription,
+} from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
+import {
+  BackgroundImageDTO,
+  backgroundImages,
+} from 'src/app/shared/background-images';
+import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 
@@ -16,13 +28,24 @@ import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 export class LoginPageComponent implements OnInit, OnDestroy {
   error: Error;
   isFlipped = false;
+  photoSrc = '';
+
   schools$: Observable<SchoolDTO[]>;
   users$: Observable<UserDTO[]>;
   usersLoading = true;
   userType: 'student' | 'teacher' | 'school' | '' = '';
-  photoSrc = '';
-  selectedBackgroundImage = '../../../assets/triangles-1-pink-purple.png';
-  private readonly routerSubscription: Subscription | undefined;
+  currentSchool$: Observable<SchoolDTO | null>;
+  currentSchool: SchoolDTO | undefined = undefined;
+  private routerSubscription: Subscription | undefined;
+  private currentSchoolSubscription: Subscription | undefined;
+
+  backgroundImages = backgroundImages;
+  defaultStyles = defaultStyles;
+  selectedBackgroundImage: BackgroundImageDTO | null =
+    this.defaultStyles.selectedBackgroundImage;
+  primaryButtonBackgroundColor =
+    this.defaultStyles.primaryButtonBackgroundColor;
+  primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
 
   constructor(
     private readonly router: Router,
@@ -32,35 +55,96 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     public readonly authStoreService: AuthStoreService,
     private readonly route: ActivatedRoute
   ) {
-    this.routerSubscription = this.router.events.subscribe(() => {
-      setTimeout(() => {
+    this.getRouterDetails();
+  }
+
+  getRouterDetails(): void {
+    this.routerSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
         const urlAddress: string[] = this.router.url.split('/');
-        if (urlAddress.includes('student')) {
+
+        if (
+          [urlAddress[2].toLowerCase(), urlAddress[1].toLowerCase()].includes(
+            'student'
+          )
+        ) {
           this.userType = 'student';
           this.photoSrc = '../../../assets/Student.png';
-        }
-        if (urlAddress.includes('teacher')) {
+        } else if (
+          [urlAddress[2].toLowerCase(), urlAddress[1].toLowerCase()].includes(
+            'teacher'
+          )
+        ) {
           this.userType = 'teacher';
           this.photoSrc = '../../../assets/Teacher.png';
-        }
-        if (urlAddress.includes('school')) {
+        } else if (
+          [urlAddress[2].toLowerCase(), urlAddress[1].toLowerCase()].includes(
+            'school'
+          )
+        ) {
           this.userType = 'school';
           this.photoSrc = '../../../assets/School.png';
         }
-        if (this.route.snapshot.data['pageType'] === 'signup') {
+
+        if (
+          this.route.snapshot.firstChild &&
+          this.route.snapshot.firstChild.data['pageType'] === 'signup'
+        ) {
           this.isFlipped = false;
-        }
-        if (this.route.snapshot.data['pageType'] === 'login') {
+          if (this.userType === 'school') {
+            this.schoolService.schoolLogout();
+          }
+        } else if (
+          this.route.snapshot.firstChild &&
+          this.route.snapshot.firstChild.data['pageType'] === 'login'
+        ) {
           this.isFlipped = true;
         }
-      }, 0);
-    }); // todo = move routerSubscription to service
+      });
   }
 
   ngOnInit(): void {
     this.schools$ = this.schoolService.schools$;
+    this.currentSchool$ = this.schoolService.currentSchool$;
     this.users$ = this.userService.users$;
     this.loadPageData();
+    this.getCurrentSchoolDetails();
+  }
+
+  getCurrentSchoolDetails(): void {
+    this.currentSchoolSubscription = this.currentSchool$.subscribe(
+      (currentSchool) => {
+        if (currentSchool) {
+          const backgroundImage = currentSchool.backgroundImage as
+            | BackgroundImageDTO
+            | undefined;
+
+          const primaryButtonBackgroundColor =
+            currentSchool.primaryButtonBackgroundColor as string | undefined;
+
+          const primaryButtonTextColor =
+            currentSchool.primaryButtonTextColor as string | undefined;
+
+          const logo = currentSchool.logo;
+
+          if (backgroundImage !== undefined) {
+            this.selectedBackgroundImage = backgroundImage;
+          } else {
+            this.selectedBackgroundImage = this.backgroundImages[0];
+          }
+          if (primaryButtonBackgroundColor !== undefined) {
+            this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
+          }
+          if (primaryButtonTextColor !== undefined) {
+            this.primaryButtonTextColor = primaryButtonTextColor;
+          }
+          if (logo) {
+            this.photoSrc = logo.url;
+          }
+        }
+      }
+    );
   }
 
   ngOnDestroy(): void {
@@ -69,12 +153,29 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onCardFlipped(isFlipped: boolean): Promise<void> {
-    this.isFlipped = isFlipped;
-    if (!this.isFlipped) {
-      await this.router.navigateByUrl(`${this.userType}/signup`);
-    } else {
-      await this.router.navigateByUrl(`${this.userType}/login`);
+  async onCardFlipped(data: {
+    isFlipped: boolean;
+    removeCurrentSchool: boolean | undefined;
+  }): Promise<void> {
+    console.log(data);
+    this.isFlipped = data.isFlipped;
+    try {
+      const currentSchool = await this.currentSchool$.pipe(first()).toPromise();
+      let navPrefix = '';
+      if (currentSchool) {
+        navPrefix = `${currentSchool.name.replace(/ /gu, '-').toLowerCase()}/`;
+      }
+
+      if (!this.isFlipped && data.removeCurrentSchool === undefined) {
+        await this.router.navigateByUrl(`${navPrefix}${this.userType}/signup`);
+      } else if (this.isFlipped && data.removeCurrentSchool === undefined) {
+        await this.router.navigateByUrl(`${navPrefix}${this.userType}/login`);
+      } else if (!this.isFlipped && data.removeCurrentSchool !== undefined) {
+        await this.router.navigateByUrl('school/signup');
+      }
+    } catch (error) {
+      // Handle error here, e.g., logging or showing an error message.
+      console.error('An error occurred:', error);
     }
   }
 
@@ -141,23 +242,34 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   login(userDetails: UserLoginDTO, message: string, signup?: boolean): void {
     this.authStoreService.login(userDetails).subscribe(
       () => {
-        this.router
-          .navigateByUrl('/home')
-          .then(() => {
-            const firstName = (
-              JSON.parse(localStorage.getItem('auth_data_token')!) as {
-                user: UserDTO;
+        this.currentSchool$.pipe(first()).subscribe((currentSchool) => {
+          this.router
+            .navigateByUrl(
+              currentSchool
+                ? `/${currentSchool.name
+                    .replace(/ /gu, '-')
+                    .toLowerCase()}/home`
+                : '/home'
+            )
+            .then(() => {
+              const firstName = (
+                JSON.parse(localStorage.getItem('auth_data_token')!) as {
+                  user: UserDTO;
+                }
+              ).user.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
+              if (!(signup ?? false)) {
+                this.snackbarService.open(
+                  'info',
+                  `Welcome back, ${firstName}!`
+                );
+              } else {
+                this.snackbarService.open('info', message);
               }
-            ).user.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
-            if (!(signup ?? false)) {
-              this.snackbarService.open('info', `Welcome back, ${firstName}!`);
-            } else {
-              this.snackbarService.open('info', message);
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        });
       },
       (error) => {
         console.log(error);
@@ -205,16 +317,11 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     // );
   }
 
-  changeBackgroundImage({
-    name,
-    label,
-    shadow,
-  }: {
-    name: string;
-    label: string;
-    shadow: string;
-  }): void {
-    this.selectedBackgroundImage = `../../../assets/${name}`;
+  changeBackgroundImage(backgroundImage: BackgroundImageDTO): void {
+    if (this.selectedBackgroundImage) {
+      // this.selectedBackgroundImage.name = `../../../assets/${name}`;
+      this.selectedBackgroundImage = backgroundImage;
+    }
     // this.snackbarService.openPermanent(
     //   'info',
     //   "Can't decide on a good background image? Don't worry, you can always change it later!"

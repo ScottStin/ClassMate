@@ -1,6 +1,8 @@
 <app-header-card
   (headerButtonAction)="createLesson()"
   (filterResults)="filterResults($event)"
+  [currentSchool]="currentSchool$ | async"
+  [pageName]="'lessons'"
 ></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: lessonPageLoading ? 'visible' : 'hidden' }"

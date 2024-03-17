@@ -1,6 +1,8 @@
 <app-header-card
   (headerButtonAction)="createExam()"
   (filterResults)="filterResults($event)"
+  [currentSchool]="currentSchool$ | async"
+  [pageName]="'exams'"
 ></app-header-card>
 
 <mat-progress-bar

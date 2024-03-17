@@ -1,4 +1,7 @@
-<app-header-card></app-header-card>
+<app-header-card
+  [currentSchool]="currentSchool$ | async"
+  [pageName]="'home'"
+></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: homePageLoading ? 'visible' : 'hidden' }"
   mode="query"

@@ -13,13 +13,47 @@ import { ErrorService } from '../error-message.service/error-message.service';
 export class SchoolService {
   private readonly baseUrl = `${environment.apiUrl}/schools`;
   private readonly schoolSubject = new BehaviorSubject<SchoolDTO[]>([]);
+  private readonly currentSchoolSubject = new BehaviorSubject<SchoolSubject>(
+    null
+  );
+
   schools$ = this.schoolSubject.asObservable();
+
+  currentSchool$: Observable<SchoolSubject> =
+    this.currentSchoolSubject.asObservable();
 
   constructor(
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService,
     private readonly authStoreService: AuthStoreService
-  ) {}
+  ) {
+    const currentSchool: string | null = localStorage.getItem('current_school');
+    if (currentSchool !== null) {
+      this.currentSchoolSubject.next(
+        JSON.parse(currentSchool) as SchoolSubject
+      );
+    }
+  }
+
+  updateCurrentSchool(school: SchoolDTO): void {
+    this.currentSchoolSubject.next(school);
+    const currentSchoolString = localStorage.getItem('current_school');
+    let currentSchool;
+    if (currentSchoolString !== null) {
+      currentSchool = JSON.parse(currentSchoolString) as
+        | { school: SchoolDTO }
+        | undefined;
+    }
+    if (currentSchool) {
+      currentSchool.school = school;
+      localStorage.setItem('current_school', JSON.stringify(currentSchool));
+    }
+  }
+
+  schoolLogout(): void {
+    this.currentSchoolSubject.next(null);
+    localStorage.removeItem('current_school');
+  }
 
   getAll(): Observable<SchoolDTO[]> {
     return this.httpClient.get<SchoolDTO[]>(`${this.baseUrl}`).pipe(
@@ -27,14 +61,12 @@ export class SchoolService {
         this.handleError(error, 'Failed to load schools');
       }),
       tap((schools) => {
-        // console.log(schools);
         this.schoolSubject.next(schools);
       })
     );
   }
 
   create(data: SchoolDTO): Observable<SchoolDTO> {
-    console.log(data);
     return this.httpClient.post<SchoolDTO>(`${this.baseUrl}`, data).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to create new school');
@@ -49,3 +81,5 @@ export class SchoolService {
     throw this.errorService.handleGenericError(error, message);
   }
 }
+
+export type SchoolSubject = SchoolDTO | null;

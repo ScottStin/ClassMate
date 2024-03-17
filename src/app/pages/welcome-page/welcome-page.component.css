@@ -1,5 +1,5 @@
 .welcome-page {
-    background-image: url('../../../assets/triangles-1-pink-purple.png');
+    /* background-image: url('../../../assets/triangles-1-pink-purple.png'); */
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -14,7 +14,7 @@
     justify-content: space-evenly;
     pointer-events: none;
 }
-  
+
 .logIn-planels {
     background: white;
     border-radius: 150%;
@@ -27,17 +27,16 @@
     transition: filter 500ms, Transform 500ms, box-shadow 500ms, color 500ms ease-in-out;
     pointer-events: auto;
 }
-  
+
 .logIn-img {
     padding-top:2em;
     padding-bottom:1em;
     height:250px;
     width:200px;
 }
-  
+
 .logIn-header {
-    /* color: #888; */
-    color:purple;
+    /* color:purple; */
     font-weight: 600;
     letter-spacing: 1px;
     font-size: 25px; 
@@ -56,8 +55,20 @@
     box-shadow: 0 5em 5em -5em;
 }
   
-.container:hover > .logIn-planels:hover > h2{
+/* .container:hover > .logIn-planels:hover > h2{
     color:darkorchid
-}
+} */
 
+  /* ---------------------- */
+  /* Dynamic Button Format: */
+  /* ---------------------- */
   
+  :host {
+    --primaryButtonBackgroundColor: #6200EE;
+    /* --primaryButtonTextColor: #FFFFFF; */
+  }
+  
+  ::ng-deep .logIn-header, .container:hover > .logIn-planels:hover > h2 {
+    /* background-color: var(--primaryButtonBackgroundColor); */
+    color: var(--primaryButtonBackgroundColor);
+  }

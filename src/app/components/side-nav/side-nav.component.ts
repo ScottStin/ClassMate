@@ -1,4 +1,12 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { first, Observable, Subscription } from 'rxjs';
@@ -9,6 +17,7 @@ import { QuestionService } from 'src/app/services/question-service/question.serv
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -16,7 +25,9 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './side-nav.component.html',
   styleUrls: ['./side-nav.component.scss'],
 })
-export class SideNavComponent implements OnInit, OnDestroy {
+export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() currentSchool: SchoolDTO | null;
+
   currentUser: UserDTO | undefined;
   hideNavText = false;
   menuItems = menuItems;
@@ -74,6 +85,13 @@ export class SideNavComponent implements OnInit, OnDestroy {
         'Exam Marking'
       );
     });
+    this.addSchoolRoute();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('currentSchool' in changes) {
+      this.addSchoolRoute();
+    }
   }
 
   getCurrentUser(): void {
@@ -164,6 +182,18 @@ export class SideNavComponent implements OnInit, OnDestroy {
     }
   }
 
+  addSchoolRoute(): void {
+    console.log(this.currentSchool);
+    if (this.currentSchool) {
+      for (const menuItem of menuItems) {
+        menuItem.routerLink = `/${this.currentSchool.name
+          .replace(/ /gu, '-')
+          .toLowerCase()}${menuItem.label}`;
+      }
+      console.log(menuItems);
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -180,7 +210,9 @@ export const menuItems: MenuItemDTO[] = [
     name: 'Home Page',
     use: ['student', 'teacher'],
     icon: 'home',
+    label: '/home',
     routerLink: '/home',
+    breadcrumb: 'home',
   },
   {
     name: 'My Classes',
@@ -190,81 +222,110 @@ export const menuItems: MenuItemDTO[] = [
     searchBar: 'Search your lessons...',
     headerButton: 'Add New Lesson',
     headerButtonIcon: 'add',
+    label: '/lessons',
     headerButtonFunction: 'addNewLesson',
+    breadcrumb: 'lessons',
   },
   {
     name: 'My Exams',
     use: ['student'],
     icon: 'assignment',
     routerLink: '/exams',
+    label: '/exams',
     searchBar: 'Search exams...',
     headerButton: 'Add New Exam',
     headerButtonIcon: 'add',
+    breadcrumb: 'exams',
   },
-  { name: 'My Coursework', icon: 'work', use: ['Student'], routerLink: '' },
+  {
+    name: 'My Coursework',
+    icon: 'work',
+    use: ['Student'],
+    routerLink: '',
+    label: '',
+    breadcrumb: 'course work',
+  },
   {
     name: 'My Homework',
     use: ['student'],
     icon: 'assignment',
+    label: '',
     routerLink: '',
+    breadcrumb: 'homework',
   },
   {
     name: 'My Teachers',
     icon: 'school',
     use: ['student'],
     routerLink: '/users/teachers',
+    label: '/users/teachers',
     searchBar: 'Search for a teacher...',
+    breadcrumb: 'teachers',
   },
   {
     name: 'My Classmates',
     use: ['student'],
     icon: 'group',
     routerLink: '/users/classmates',
+    label: '/users/classmates',
     searchBar: 'Search for a class mate...',
+    breadcrumb: 'class mates',
   },
   {
     name: 'My Certificates',
     icon: 'grade',
     use: ['student'],
     routerLink: '',
+    label: '',
+    breadcrumb: 'certificates',
   },
   {
     name: 'My Students',
     icon: 'child_care',
     use: ['teacher'],
     routerLink: '/users/students',
+    label: '/users/students',
     searchBar: 'Search for a student...',
     headerButton: 'Add New Student',
     headerButtonIcon: 'add',
     headerButtonFunction: 'addNewStudent',
+    breadcrumb: 'students',
   },
   {
     name: 'My Colleagues',
     use: ['teacher'],
     icon: 'group',
     routerLink: '/users/colleagues',
+    label: '/users/colleagues',
     searchBar: 'Search for a colleague...',
     headerButton: 'Add New Teacher',
     headerButtonIcon: 'add',
     headerButtonFunction: 'addNewTeacher',
+    breadcrumb: 'colleagues',
   },
   {
     name: 'My Messages',
     use: ['teacher', 'student'],
     icon: 'question_answer',
     routerLink: '',
+    label: '',
+    breadcrumb: 'messages',
   },
   {
     name: 'My Announcements',
     icon: 'speaker_notes',
     use: ['teacher', 'student'],
     routerLink: '',
+    label: '',
+    breadcrumb: 'announcements',
   },
   {
     name: 'Class Material',
     use: ['teacher'],
     icon: 'notes',
     routerLink: '',
+    label: '',
+    breadcrumb: 'material',
   },
   {
     name: 'Exam Marking',
@@ -272,30 +333,40 @@ export const menuItems: MenuItemDTO[] = [
     badge: 'getMarkPendingList',
     icon: 'assignment',
     routerLink: '/exams',
+    label: '/exams',
+    breadcrumb: 'exam marking',
   },
   {
     name: 'My Packages',
     use: ['student'],
     icon: 'group_work',
     routerLink: '/packages',
+    label: '/packages',
+    breadcrumb: 'my packages',
   },
   {
     name: 'Packages',
     use: ['teacher'],
     icon: 'group_work',
     routerLink: '/packages',
+    label: '/packages',
+    breadcrumb: 'packages',
   },
   {
     name: 'My School',
     icon: 'location_city',
     use: ['student', 'teacher'],
     routerLink: '',
+    label: '',
+    breadcrumb: 'school',
   },
   {
     name: 'Administration',
     icon: 'settings',
     use: ['admin', 'teacher'],
     routerLink: '',
+    label: '',
+    breadcrumb: 'admin',
   },
 ];
 
@@ -309,4 +380,6 @@ export interface MenuItemDTO {
   headerButton?: string;
   headerButtonIcon?: string;
   headerButtonFunction?: string;
+  label: string;
+  breadcrumb: string;
 }

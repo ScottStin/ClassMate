@@ -1,6 +1,8 @@
 <app-header-card
   (filterResults)="filterResults($event)"
   (headerButtonAction)="addStudent()"
+  [currentSchool]="currentSchool$ | async"
+  [pageName]="'teachers'"
 ></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: teacherPageLoading ? 'visible' : 'hidden' }"

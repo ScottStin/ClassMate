@@ -18,6 +18,7 @@ import {
 import { MatStepper } from '@angular/material/stepper';
 import { Subject } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 
@@ -34,7 +35,14 @@ export class LoginCardComponent implements OnInit, OnChanges {
   @Input() userType: string;
   @Input() isFlipped!: boolean;
   @Input() photoSrc!: string;
-  @Output() cardFlipped = new EventEmitter<boolean>();
+  @Input() backgroundImages: BackgroundImageDTO[];
+  @Input() selectedBackgroundImage: BackgroundImageDTO | null;
+  @Input() primaryButtonBackgroundColor: string;
+  @Input() primaryButtonTextColor: string;
+  @Output() cardFlipped = new EventEmitter<{
+    isFlipped: boolean;
+    removeCurrentSchool: boolean | undefined;
+  }>();
   @Output() signup = new EventEmitter<UserDTO>();
   @Output() login = new EventEmitter<UserLoginDTO>();
   @Output() changeBackgroundImage = new EventEmitter<{
@@ -121,7 +129,10 @@ export class LoginCardComponent implements OnInit, OnChanges {
 
   toggleCardFlip(): void {
     this.isFlipped = !this.isFlipped;
-    this.cardFlipped.emit(this.isFlipped);
+    this.cardFlipped.emit({
+      isFlipped: this.isFlipped,
+      removeCurrentSchool: undefined,
+    });
   }
 
   passwordValidator(): ValidatorFn {

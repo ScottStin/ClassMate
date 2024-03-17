@@ -1,4 +1,8 @@
-<app-header-card (filterResults)="filterResults($event)"></app-header-card>
+<app-header-card
+  (filterResults)="filterResults($event)"
+  [currentSchool]="currentSchool$ | async"
+  [pageName]="pageName"
+></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: userPageLoading ? 'visible' : 'hidden' }"
   mode="query"

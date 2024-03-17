@@ -474,12 +474,17 @@
       >
         Login
       </button>
-      <div class="text-container" (click)="toggleCardFlip()">
+      <div class="text-container">
         <h6 *ngIf="title === 'signup'" class="login-text">
-          Already have an account? Click <b>here</b> to login.
+          Already have an account? Navigate to
+          <b>wwww.your-school-name/school/login</b> to login
         </h6>
-        <h6 *ngIf="title === 'login' " class="login-text">
-          New user? Click <b>here</b> to sign up.
+        <h6
+          *ngIf="title === 'login' "
+          class="login-text"
+          (click)="toggleCardFlip(true)"
+        >
+          New school? Click <b>here</b> to sign up.
         </h6>
       </div>
     </mat-card>

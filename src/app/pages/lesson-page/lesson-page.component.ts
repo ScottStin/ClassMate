@@ -1,14 +1,24 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { finalize, first, forkJoin, Observable, of, Subscription } from 'rxjs';
+import {
+  finalize,
+  first,
+  forkJoin,
+  Observable,
+  of,
+  Subscription,
+  tap,
+} from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { CreateLessonDialogComponent } from 'src/app/components/create-lesson-dialog/create-lesson-dialog.component';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
+import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -26,6 +36,8 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   lessonPageLoading = true;
   pageName = '';
   private readonly routerSubscription: Subscription | undefined;
+  private currentSchoolSubscription: Subscription | null;
+  currentSchool$: Observable<SchoolDTO | null>;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -40,6 +52,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     private readonly snackbarService: SnackbarService,
     private readonly userService: UserService,
     private readonly lessonService: LessonService,
+    public readonly schoolService: SchoolService,
     public dialog: MatDialog
   ) {
     this.routerSubscription = this.router.events.subscribe(() => {
@@ -58,6 +71,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.users$ = this.userService.users$;
     this.lessons$ = this.lessonService.lessons$;
+    this.currentSchool$ = this.schoolService.currentSchool$;
     this.loadPageData();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
@@ -67,6 +81,9 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
+    if (this.currentSchoolSubscription) {
+      this.currentSchoolSubscription.unsubscribe();
+    }
   }
 
   loadPageData(): void {
@@ -74,6 +91,9 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     forkJoin([this.userService.getAll(), this.lessonService.getAll()])
       .pipe(
         first(),
+        tap(() => {
+          this.currentSchoolSubscription = this.currentSchool$.subscribe();
+        }),
         finalize(() => {
           this.lessonPageLoading = false;
         })

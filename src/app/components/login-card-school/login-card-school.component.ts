@@ -20,7 +20,10 @@ import { MatStepper } from '@angular/material/stepper';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { combineLatest, Subject, Subscription } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
-import { backgroundImages } from 'src/app/shared/background-images';
+import {
+  BackgroundImageDTO,
+  backgroundImages,
+} from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
@@ -35,28 +38,33 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   @Input() title: string;
   @Input() users: UserDTO[] | null;
   @Input() schools: SchoolDTO[] | null;
+  @Input() currentSchool: SchoolDTO | null;
   @Input() usersLoading!: boolean;
   @Input() userType: string;
   @Input() isFlipped!: boolean;
   @Input() photoSrc!: string;
-  @Output() cardFlipped = new EventEmitter<boolean>();
+  @Input() backgroundImages: BackgroundImageDTO[];
+  @Input() selectedBackgroundImage: BackgroundImageDTO | null;
+  @Input() primaryButtonBackgroundColor: string;
+  @Input() primaryButtonTextColor: string;
+  @Output() cardFlipped = new EventEmitter<{
+    isFlipped: boolean;
+    removeCurrentSchool: boolean | undefined;
+  }>();
   @Output() signupSchool = new EventEmitter<SchoolDTO>();
   @Output() login = new EventEmitter<UserLoginDTO>();
-  @Output() changeBackgroundImage = new EventEmitter<{
-    name: string;
-    label: string;
-    shadow: string;
-  }>();
+  @Output() changeBackgroundImage = new EventEmitter<BackgroundImageDTO>();
 
   // --- formatiting options:
-  backgroundImages = backgroundImages;
-  selectedBackgroundImage: {
-    name: string;
-    label: string;
-    shadow: string;
-  } | null = this.backgroundImages[0];
-  primaryButtonBackgroundColor = '#6200EE';
-  primaryButtonTextColor = '#FFFFFF';
+  // backgroundImages = backgroundImages;
+  // selectedBackgroundImage: {
+  //   name: string;
+  //   label: string;
+  //   shadow: string;
+  // } | null = this.backgroundImages[0];
+  // primaryButtonBackgroundColor = '#6200EE';
+  // primaryButtonTextColor = '#FFFFFF';
+
   stepperDisplay = 'flex';
   private subscription?: Subscription;
 
@@ -88,6 +96,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   constructor(private readonly snackbarService: SnackbarService) {}
 
   ngOnInit(): void {
+    // this.toggleCardFlip();
     this.users?.map((user: UserDTO) => user.email);
   }
 
@@ -105,9 +114,14 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       }
       this.populateSignupForm();
     }
+
+    if ('currentSchool' in changes) {
+      this.populateSignupForm();
+    }
   }
 
   populateSignupForm(): void {
+    console.log(this.currentSchool);
     // details step:
     const detailStepForm: DetailStep = new FormGroup({
       nameInput: new FormControl(
@@ -118,7 +132,10 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         }
       ),
       emailInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        {
+          value: this.currentSchool ? this.currentSchool.email : '',
+          disabled: this.usersLoading || this.currentSchool !== null,
+        },
         {
           validators: [],
           nonNullable: true,
@@ -288,6 +305,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   changePrimaryButtonBackgroundColor(color: string): void {
+    console.log('hit3');
     this.primaryButtonBackgroundColor = color;
     this.snackbarService.openPermanent(
       'info',
@@ -348,10 +366,10 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
     );
   }
 
-  toggleCardFlip(): void {
+  toggleCardFlip(removeCurrentSchool: boolean | undefined): void {
     this.existingEmailFormatChange('');
     this.isFlipped = !this.isFlipped;
-    this.cardFlipped.emit(this.isFlipped);
+    this.cardFlipped.emit({ isFlipped: this.isFlipped, removeCurrentSchool });
   }
 
   passwordValidator(): ValidatorFn {
@@ -426,7 +444,9 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       if (this.schools && this.title === 'signup') {
         if (
           this.schools
-            .map((school: SchoolDTO) => school.name.toLowerCase())
+            .map((school: SchoolDTO) =>
+              school.name.replace(/ /gu, '-').toLowerCase()
+            )
             .includes(value.toLowerCase())
         ) {
           return { existingNamelLogin: true }; // check if name already exists
@@ -440,22 +460,33 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   existingEmailFormatChange(email: string): void {
-    const foundSchool = this.schools?.find(
-      (obj) => obj.email.toLocaleLowerCase() === email.toLocaleLowerCase()
-    );
-    if (foundSchool) {
-      this.selectedBackgroundImage = foundSchool.backgroundImage;
-      this.primaryButtonBackgroundColor =
-        foundSchool.primaryButtonBackgroundColor;
-      this.primaryButtonTextColor = foundSchool.primaryButtonTextColor;
-      this.photoSrc = foundSchool.logo?.url ?? '../../../assets/School.png';
-    } else {
-      this.selectedBackgroundImage = this.backgroundImages[0];
-      this.primaryButtonBackgroundColor = '#6200EE';
-      this.primaryButtonTextColor = '#FFFFFF';
-      this.photoSrc = '../../../assets/School.png';
+    console.log(email);
+    console.log('hit1');
+    if (email !== '') {
+      const foundSchool = this.schools?.find(
+        (obj) => obj.email.toLocaleLowerCase() === email.toLocaleLowerCase()
+      );
+      console.log(foundSchool);
+      if (foundSchool) {
+        this.selectedBackgroundImage = foundSchool.backgroundImage;
+        this.primaryButtonBackgroundColor =
+          foundSchool.primaryButtonBackgroundColor;
+        this.primaryButtonTextColor = foundSchool.primaryButtonTextColor;
+        this.photoSrc = foundSchool.logo?.url ?? '../../../assets/School.png';
+        this.changeBackgroundImage.emit(this.selectedBackgroundImage);
+      } else {
+        console.log(this.backgroundImages[0]);
+        this.selectedBackgroundImage = this.backgroundImages[0];
+        console.log(this.selectedBackgroundImage);
+        this.primaryButtonBackgroundColor = '#6200EE';
+        this.primaryButtonTextColor = '#FFFFFF';
+        this.photoSrc = '../../../assets/School.png';
+        this.changeBackgroundImage.emit(this.backgroundImages[0]);
+      }
     }
-    this.changeBackgroundImage.emit(this.selectedBackgroundImage);
+    // else if (this.currentSchool) {
+
+    // }
   }
 
   wordCountValidator(minWords: number, maxWords: number): ValidatorFn {
@@ -478,6 +509,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   signupClick(): void {
+    console.log('hit2');
     const formValue = this.loginFormSchool?.controls.detailStep.getRawValue();
     if (formValue) {
       const newSchool: SchoolDTO = {

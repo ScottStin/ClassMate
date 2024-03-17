@@ -168,6 +168,10 @@
         *ngIf="title === 'signup'"
         mat-raised-button
         class="login-signup-button"
+        [ngStyle]="{
+          '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+          '--primaryButtonTextColor': primaryButtonTextColor
+        }"
         [disabled]="(this.loginForm && this.loginForm.invalid) || this.usersLoading"
         (click)="signupClick()"
       >
@@ -177,6 +181,10 @@
         mat-raised-button
         *ngIf="title === 'login'"
         class="login-signup-button"
+        [ngStyle]="{
+          '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+          '--primaryButtonTextColor': primaryButtonTextColor
+        }"
         [disabled]="this.loginForm.getRawValue().passwordInput === '' || this.loginForm.getRawValue().emailInput === ''"
         (click)="loginClick()"
       >

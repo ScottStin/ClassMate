@@ -7,7 +7,9 @@
   >
     <mat-icon>{{icon}}</mat-icon>
   </button>
-  <h1>{{breadCrumb}}</h1>
+  <h1>{{currentSchool?.name}}</h1>
+  <mat-icon>navigate_next</mat-icon>
+  <h1>{{breadCrumb | titlecase}}</h1>
 
   <span class="spacer"></span>
 
