@@ -36,7 +36,7 @@
             matTooltip="Click here to edit this lesson..."
             *ngIf="
               pageName==='lessons' &&
-              (authStoreService.user$ | async)?.user?.email === teacher?.email
+              (authStoreService.currentUser$ | async)?.email === teacher?.email
             "
           >
             <mat-icon>edit</mat-icon>
@@ -60,7 +60,7 @@
             matTooltip="Click here to delete this lesson..."
             *ngIf="
               pageName==='lessons' &&
-              (authStoreService.user$ | async)?.user?.email === teacher?.email
+              (authStoreService.currentUser$ | async)?.email === teacher?.email
             "
             (click)="deleteLessonClick()"
           >

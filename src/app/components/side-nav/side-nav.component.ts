@@ -9,7 +9,14 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { first, Observable, Subscription } from 'rxjs';
+import {
+  combineLatest,
+  first,
+  from,
+  Observable,
+  Subscription,
+  switchMap,
+} from 'rxjs';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
@@ -28,11 +35,11 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   @Input() currentSchool: SchoolDTO | null;
 
-  currentUser: UserDTO | undefined;
+  // currentUser: UserDTO | undefined;
   hideNavText = false;
   menuItems = menuItems;
   private subscription: Subscription | null;
-  user$: Observable<{ user: UserDTO } | null>;
+  currentUser$: Observable<UserDTO | null>;
   profilePictureSrc =
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
   breadCrumb: string | undefined = '';
@@ -40,7 +47,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   users$: Observable<UserDTO[]>;
   feedbackSubmitted$: Observable<undefined>;
   error: Error;
-  badgeCounts: Record<string, number | null> = {};
+  badgeCounts: Record<string, number | null | undefined> = {};
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -71,7 +78,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
   async ngOnInit(): Promise<void> {
     this.users$ = this.userService.users$;
-    this.user$ = this.authStoreService.user$;
+    this.currentUser$ = this.authStoreService.currentUser$;
     this.getCurrentUser();
     this.hideNavText =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
@@ -95,11 +102,11 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   getCurrentUser(): void {
-    this.subscription = this.user$.subscribe((user) => {
-      if (user) {
-        this.currentUser = user.user;
-        if (user.user.profilePicture) {
-          this.profilePictureSrc = user.user.profilePicture.url.replace(
+    this.subscription = this.currentUser$.subscribe((currentUser) => {
+      if (currentUser) {
+        // this.currentUser = user.user;
+        if (currentUser.profilePicture) {
+          this.profilePictureSrc = currentUser.profilePicture.url.replace(
             '/upload',
             '/upload/w_900,h_900,c_thumb,c_crop,g_face'
           );
@@ -109,88 +116,99 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   openEditUserDialog(): void {
-    this.users$.pipe(first()).subscribe((res) => {
-      const existingUsers = res;
-      const dialogRef = this.dialog.open(EditUserDialogComponent, {
-        data: {
-          title: `Edit your details`,
-          user: this.currentUser,
-          existingUsers,
-        },
-      });
-      dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
-        if (result) {
-          this.userService
-            .updateCurrentUser(
-              {
-                ...result,
-                previousProfilePicture: this.currentUser?.profilePicture,
-              },
-              this.currentUser!._id!
-            )
-            .subscribe({
-              next: () => {
-                this.snackbarService.open(
-                  'info',
-                  'Your profile has successfully been updated'
-                );
-                this.getCurrentUser();
+    combineLatest([this.currentUser$, this.users$.pipe(first())]).subscribe(
+      ([currentUser, users]) => {
+        const existingUsers = users;
+        const dialogRef = this.dialog.open(EditUserDialogComponent, {
+          data: {
+            title: `Edit your details`,
+            currentUser,
+            existingUsers,
+          },
+        });
+        dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
+          if (
+            result &&
+            currentUser &&
+            currentUser._id !== null &&
+            currentUser._id !== undefined
+          ) {
+            this.userService
+              .updateCurrentUser(
+                {
+                  ...result,
+                  previousProfilePicture: currentUser.profilePicture,
+                },
+                currentUser._id
+              )
+              .subscribe({
+                next: () => {
+                  this.snackbarService.open(
+                    'info',
+                    'Your profile has successfully been updated'
+                  );
+                  this.getCurrentUser();
 
-                // refresh lessons:
-                // if (
-                //   this.breadCrumb !== undefined &&
-                //   [
-                //     'home page',
-                //     'my classes',
-                //     'my teachers',
-                //     'my classmates',
-                //     'my students',
-                //     'my colleague',
-                //   ].includes(this.breadCrumb.toLowerCase())
-                // ) {
-                //   location.reload();
-                // }
-              },
-              error: (error: Error) => {
-                this.error = error;
-                this.snackbarService.openPermanent('error', error.message);
-              },
-            });
-        }
-      });
-    });
+                  // refresh lessons:
+                  // if (
+                  //   this.breadCrumb !== undefined &&
+                  //   [
+                  //     'home page',
+                  //     'my classes',
+                  //     'my teachers',
+                  //     'my classmates',
+                  //     'my students',
+                  //     'my colleague',
+                  //   ].includes(this.breadCrumb.toLowerCase())
+                  // ) {
+                  //   location.reload();
+                  // }
+                },
+                error: (error: Error) => {
+                  this.error = error;
+                  this.snackbarService.openPermanent('error', error.message);
+                },
+              });
+          }
+        });
+      }
+    );
   }
 
-  async getBadgeNumber(menuItem: string): Promise<number | null> {
-    if (menuItem === 'Exam Marking') {
-      const exams = await this.examService.getAll().toPromise();
-      let count = 0;
+  async getBadgeNumber(menuItem: string): Promise<number | null | undefined> {
+    return await from(this.currentUser$)
+      .pipe(
+        switchMap(async (currentUser) => {
+          if (menuItem === 'Exam Marking') {
+            const exams = await this.examService.getAll().toPromise();
+            let count = 0;
 
-      exams?.forEach((exam) => {
-        if (exam.assignedTeacher === this.currentUser?.email) {
-          exam.studentsCompleted.forEach((student) => {
-            if (student.mark === null) {
-              count++;
-            }
-          });
-        }
-      });
+            exams?.forEach((exam) => {
+              if (exam.assignedTeacher === currentUser?.email) {
+                exam.studentsCompleted.forEach((student) => {
+                  if (student.mark === null) {
+                    count++;
+                  }
+                });
+              }
+            });
 
-      return count;
-    } else {
-      return null;
-    }
+            return count;
+          } else {
+            return null;
+          }
+        })
+      )
+      .toPromise();
   }
 
   addSchoolRoute(): void {
-    console.log(this.currentSchool);
     if (this.currentSchool) {
       for (const menuItem of menuItems) {
         menuItem.routerLink = `/${this.currentSchool.name
           .replace(/ /gu, '-')
           .toLowerCase()}${menuItem.label}`;
       }
-      console.log(menuItems);
     }
   }
 

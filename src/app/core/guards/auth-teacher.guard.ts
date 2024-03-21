@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  ActivatedRouteSnapshot,
-  CanActivate,
-  Router,
-  RouterStateSnapshot,
-  UrlTree,
-} from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { catchError, first, Observable, of, switchMap } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -16,7 +10,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 })
 export class AuthTeacherGuard implements CanActivate {
   isLoggedIn$: Observable<boolean>;
-  user$: Observable<{ user: UserDTO } | null>;
+  currentUser$: Observable<UserDTO | null>;
 
   constructor(
     private readonly snackbarService: SnackbarService,
@@ -33,12 +27,12 @@ export class AuthTeacherGuard implements CanActivate {
   }
 
   accessPermissionNotTeacher(): Observable<boolean> {
-    this.user$ = this.authStoreService.user$;
-    return this.user$.pipe(
-      switchMap((user: { user: UserDTO } | null) => {
+    this.currentUser$ = this.authStoreService.currentUser$;
+    return this.currentUser$.pipe(
+      switchMap((currentUser: UserDTO | null) => {
         if (
-          user &&
-          !['teacher', 'school'].includes(user.user.userType.toLowerCase())
+          currentUser &&
+          !['teacher', 'school'].includes(currentUser.userType.toLowerCase())
         ) {
           return of(false);
         } else {

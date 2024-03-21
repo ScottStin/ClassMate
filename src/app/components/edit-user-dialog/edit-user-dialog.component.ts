@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -47,7 +47,7 @@ export class EditUserDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     public data: {
       title: string;
-      user: UserDTO | undefined;
+      currentUser: UserDTO | undefined;
       existingUsers: UserDTO[] | undefined;
       formType: string;
     },
@@ -63,27 +63,27 @@ export class EditUserDialogComponent implements OnInit {
 
   populateForm(): void {
     this.userForm = new FormGroup({
-      name: new FormControl(this.data.user?.name ?? '', {
+      name: new FormControl(this.data.currentUser?.name ?? '', {
         validators: [],
         nonNullable: true,
       }),
-      email: new FormControl(this.data.user?.email ?? '', {
+      email: new FormControl(this.data.currentUser?.email ?? '', {
         validators: [Validators.required, this.emailValidator()],
         nonNullable: true,
       }),
-      phone: new FormControl(this.data.user?.phone ?? '', {
+      phone: new FormControl(this.data.currentUser?.phone ?? '', {
         validators: [],
         nonNullable: true,
       }),
-      nationality: new FormControl(this.data.user?.nationality ?? '', {
+      nationality: new FormControl(this.data.currentUser?.nationality ?? '', {
         validators: [],
         nonNullable: true,
       }),
-      level: new FormControl(this.data.user?.level ?? null, {
+      level: new FormControl(this.data.currentUser?.level ?? null, {
         validators: [],
         nonNullable: false,
       }),
-      statement: new FormControl(this.data.user?.statement ?? '', {
+      statement: new FormControl(this.data.currentUser?.statement ?? '', {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         validators: [this.wordCountValidator(10, 200)],
         nonNullable: true,
@@ -96,9 +96,9 @@ export class EditUserDialogComponent implements OnInit {
         nonNullable: false,
       }),
     });
-    if (this.data.user?.level) {
+    if (this.data.currentUser?.level) {
       const level = this.demoLevels.find(
-        (obj) => this.data.user?.level?.shortName === obj.shortName
+        (obj) => this.data.currentUser?.level?.shortName === obj.shortName
       );
       this.userForm.get('level')?.patchValue(level as LevelDTO | null);
     }
@@ -117,7 +117,7 @@ export class EditUserDialogComponent implements OnInit {
           this.data.existingUsers
             .map((user: UserDTO) => user.email)
             .includes(value) &&
-          value !== this.data.user?.email
+          value !== this.data.currentUser?.email
         ) {
           return { existingEmail: true }; // check if email already exists
         } else {
@@ -131,7 +131,7 @@ export class EditUserDialogComponent implements OnInit {
 
   wordCountValidator(minWords: number, maxWords: number): ValidatorFn {
     return (control: AbstractControl): Record<string, unknown> | null => {
-      if (this.data.user?.userType.toLowerCase() === 'teacher') {
+      if (this.data.currentUser?.userType.toLowerCase() === 'teacher') {
         const value = control.value as string;
         const words = value ? value.trim().split(/\s+/u) : [];
         const wordCount = words.length;
@@ -164,10 +164,12 @@ export class EditUserDialogComponent implements OnInit {
 
   imageCropped(event: ImageCroppedEvent): void {
     this.photoLink = event.base64;
-    this.userForm.controls.profilePicture.setValue({
-      url: this.photoLink!,
-      filename: this.photoName,
-    });
+    if (this.photoLink !== null && this.photoLink !== undefined) {
+      this.userForm.controls.profilePicture.setValue({
+        url: this.photoLink,
+        filename: this.photoName,
+      });
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function

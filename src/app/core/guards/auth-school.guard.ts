@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  ActivatedRouteSnapshot,
-  CanActivate,
-  Router,
-  RouterStateSnapshot,
-  UrlTree,
-} from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { catchError, first, Observable, of, switchMap } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -16,7 +10,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 })
 export class AuthSchoolGuard implements CanActivate {
   isLoggedIn$: Observable<boolean>;
-  user$: Observable<{ user: UserDTO } | null>;
+  currentUser$: Observable<UserDTO | null>;
 
   constructor(
     private readonly snackbarService: SnackbarService,
@@ -33,10 +27,10 @@ export class AuthSchoolGuard implements CanActivate {
   }
 
   accessPermissionNotSchool(): Observable<boolean> {
-    this.user$ = this.authStoreService.user$;
-    return this.user$.pipe(
-      switchMap((user: { user: UserDTO } | null) => {
-        if (user?.user.userType.toLowerCase() !== 'school') {
+    this.currentUser$ = this.authStoreService.currentUser$;
+    return this.currentUser$.pipe(
+      switchMap((currentUser: UserDTO | null) => {
+        if (currentUser?.userType.toLowerCase() !== 'school') {
           return of(false);
         } else {
           return of(true);

@@ -18,12 +18,12 @@ import { ErrorService } from '../error-message.service/error-message.service';
 })
 export class AuthStoreService {
   private readonly baseUrl = `${environment.apiUrl}/users`;
-  private readonly subject = new BehaviorSubject<UserSubject>(null);
+  // private readonly subject = new BehaviorSubject<UserSubject>(null);
   private readonly currentUserSubject = new BehaviorSubject<CurrentUserSubject>(
     null
   );
 
-  user$: Observable<UserSubject> = this.subject.asObservable();
+  // user$: Observable<UserSubject> = this.subject.asObservable();
   currentUser$: Observable<CurrentUserSubject> =
     this.currentUserSubject.asObservable();
 
@@ -34,13 +34,14 @@ export class AuthStoreService {
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService
   ) {
-    this.isLoggedIn$ = this.user$.pipe(map((user) => !!user));
+    // this.isLoggedIn$ = this.user$.pipe(map((user) => !!user));
+    this.isLoggedIn$ = this.currentUser$.pipe(map((user) => !!user));
     this.isLoggedOut$ = this.isLoggedIn$.pipe(map((isLoggedIn) => !isLoggedIn));
 
-    const currentUser: string | null = localStorage.getItem('auth_data_token');
-    if (currentUser !== null) {
-      this.subject.next(JSON.parse(currentUser) as UserSubject);
-    }
+    // const currentUser: string | null = localStorage.getItem('auth_data_token');
+    // if (currentUser !== null) {
+    //   this.subject.next(JSON.parse(currentUser) as UserSubject);
+    // }
 
     const currentUserTest: string | null = localStorage.getItem('current_user');
     if (currentUserTest !== null) {
@@ -50,18 +51,18 @@ export class AuthStoreService {
     }
   }
 
-  updateCurrentUser(user: UserDTO): void {
-    this.subject.next({ user });
-    const currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
-      | { user: UserDTO }
-      | undefined;
-    if (currentUser) {
-      currentUser.user = user;
-      localStorage.setItem('auth_data_token', JSON.stringify(currentUser));
-    }
-  }
+  // updateCurrentUser(user: UserDTO): void {
+  //   this.subject.next({ user });
+  //   const currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
+  //     | { user: UserDTO }
+  //     | undefined;
+  //   if (currentUser) {
+  //     currentUser.user = user;
+  //     localStorage.setItem('auth_data_token', JSON.stringify(currentUser));
+  //   }
+  // }
 
-  updateCurrentUserTest(user: UserDTO | null): void {
+  updateCurrentUser(user: UserDTO | null): void {
     this.currentUserSubject.next(user);
     const currentUserString = localStorage.getItem('current_user');
     let currentUser;
@@ -81,10 +82,10 @@ export class AuthStoreService {
       .post<{ user: UserDTO }>(`${this.baseUrl}/login`, user)
       .pipe(
         tap((res) => {
-          this.subject.next(res);
-          localStorage.setItem('auth_data_token', JSON.stringify(res));
+          // this.subject.next(res);
+          // localStorage.setItem('auth_data_token', JSON.stringify(res));
           localStorage.setItem('current_user', JSON.stringify(res.user));
-          this.updateCurrentUserTest(res.user);
+          this.updateCurrentUser(res.user);
         }),
         shareReplay(),
         catchError((error: Error) => {
@@ -94,10 +95,10 @@ export class AuthStoreService {
   }
 
   logout(): void {
-    this.subject.next(null);
-    localStorage.removeItem('auth_data_token');
+    // this.subject.next(null);
+    // localStorage.removeItem('auth_data_token');
     localStorage.removeItem('current_user');
-    this.updateCurrentUserTest(null);
+    this.updateCurrentUser(null);
   }
 
   private handleError(error: Error, message: string): never {
@@ -141,7 +142,7 @@ export class AuthStoreService {
   // }
 }
 
-export type UserSubject = { user: UserDTO } | null;
+// export type UserSubject = { user: UserDTO } | null;
 export type CurrentUserSubject = UserDTO | null;
 
 // interface TokenData {

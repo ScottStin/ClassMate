@@ -94,7 +94,7 @@
         <mat-option *ngFor="let level of demoLevels" [value]="level">
           {{ level.longName }}
         </mat-option>
-        <mat-option *ngIf="data?.user?.level" [value]="null">
+        <mat-option *ngIf="data?.currentUser?.level" [value]="null">
           Remove level
         </mat-option>
       </mat-select>
@@ -103,7 +103,7 @@
     <mat-form-field
       class="form-field"
       appearance="outline"
-      *ngIf="data.user?.userType?.toLowerCase() === 'teacher'"
+      *ngIf="data.currentUser?.userType?.toLowerCase() === 'teacher'"
     >
       <mat-label>Personal Statement</mat-label>
       <textarea
@@ -112,7 +112,7 @@
         formControlName="statement"
         type="text"
         placeholder="Tell your students a little bit about yourself..."
-        [required]="this.data.user?.userType === 'teacher'"
+        [required]="this.data.currentUser?.userType === 'teacher'"
       ></textarea>
       <mat-error>
         <app-error-message
@@ -146,16 +146,16 @@
       >
     </mat-form-field>
   </div>
-  <!-- <div *ngIf="data.user?.profilePicture && !photoLink">
+  <!-- <div *ngIf="data.currentUser?.profilePicture && !photoLink">
     <img
-      [src]="photoLink ? photoLink : data.user?.profilePicture?.url"
+      [src]="photoLink ? photoLink : data.currentUser?.profilePicture?.url"
       alt="User Photo"
     />
   </div> -->
   <div
-    *ngIf="data.user?.profilePicture && !photoName && data.formType !== 'level'"
+    *ngIf="data.currentUser?.profilePicture && !photoName && data.formType !== 'level'"
   >
-    <img [src]=" data.user?.profilePicture?.url" alt="User Photo" />
+    <img [src]=" data.currentUser?.profilePicture?.url" alt="User Photo" />
   </div>
   <image-cropper
     format="png"

@@ -17,7 +17,7 @@
         <mat-card-title>
           <b>{{user.name}}</b>
           <i
-            *ngIf="(authStoreService.user$ | async)?.user?._id === user._id"
+            *ngIf="(authStoreService.currentUser$ | async)?._id === user._id"
             style="opacity: 50%"
           >
             (You)</i
@@ -74,8 +74,8 @@
           class="button"
           matTooltip="Edit"
           *ngIf="
-            (authStoreService.user$ | async)?.user?.userType?.toLowerCase() === 'teacher' || 
-            (authStoreService.user$ | async)?.user?._id === user._id
+            (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher' || 
+            (authStoreService.currentUser$ | async)?._id === user._id
           "
         >
           <mat-icon>edit</mat-icon>
@@ -85,7 +85,7 @@
           color="primary"
           class="button"
           matTooltip="Message"
-          *ngIf="(authStoreService.user$ | async)?.user?._id !== user._id"
+          *ngIf="(authStoreService.currentUser$ | async)?._id !== user._id"
         >
           <mat-icon>message</mat-icon>
         </button>
@@ -94,7 +94,7 @@
           style="background-color: red"
           class="button"
           matTooltip="Delete"
-          *ngIf="(authStoreService.user$ | async)?.user?.userType?.toLowerCase() === 'teacher'"
+          *ngIf="(authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher'"
           (click)="openConfirmDeleteDialogClick(user)"
         >
           <mat-icon>delete</mat-icon>
