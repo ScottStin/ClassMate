@@ -1,10 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -42,10 +37,6 @@ export class ShowExamDialogComponent implements OnInit {
     totalExamScore: ['', Validators.required],
   });
 
-  currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
-    | { user: UserDTO }
-    | undefined;
-
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
@@ -55,9 +46,9 @@ export class ShowExamDialogComponent implements OnInit {
       displayMode: boolean;
       markMode: boolean;
       student: string;
+      currentUser: UserDTO | null;
     },
     private readonly dialogRef: MatDialogRef<ShowExamDialogComponent>,
-    // private readonly examService: ExamService,
     private readonly questionService: QuestionService,
     private readonly snackbarService: SnackbarService,
     public dialog: MatDialog,
@@ -65,7 +56,6 @@ export class ShowExamDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log(this.data);
     this.questionList = this.data.questions;
     if (this.data.displayMode || this.data.markMode) {
       this.startExam();
@@ -135,7 +125,6 @@ export class ShowExamDialogComponent implements OnInit {
         this.questionList[this.currentQuestionIndex];
     } else if (this.currentQuestionDisplay.subQuestions) {
       this.currentSubQuestionIndex = this.currentSubQuestionIndex - 1;
-      console.log(this.currentQuestionDisplay.parent);
       const parent = this.questionList.find(
         (obj) => obj['_id'] === this.currentQuestionDisplay?.parent
       );
@@ -221,7 +210,7 @@ export class ShowExamDialogComponent implements OnInit {
       ) {
         for (const subQuestion of question.subQuestions) {
           const studentResponseSubQuestion = subQuestion.studentResponse?.find(
-            (obj) => obj.student === this.currentUser?.user.email
+            (obj) => obj.student === this.data.currentUser?.email
           );
           if (
             // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -265,7 +254,7 @@ export class ShowExamDialogComponent implements OnInit {
           this.questionService
             .submitTeacherFeedback(
               this.questionList,
-              this.currentUser?.user.email,
+              this.data.currentUser?.email,
               this.data.exam?._id,
               this.data.student,
               this.examScoreForm.get('examScore')?.value as string
@@ -289,7 +278,7 @@ export class ShowExamDialogComponent implements OnInit {
       this.questionService
         .submitTeacherFeedback(
           this.questionList,
-          this.currentUser?.user.email,
+          this.data.currentUser?.email,
           this.data.exam?._id,
           this.data.student,
           this.examScoreForm.get('examScore')?.value as string
@@ -314,7 +303,7 @@ export class ShowExamDialogComponent implements OnInit {
     const missingAnswers: string[] = [];
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
-        (obj) => obj.student === this.currentUser?.user.email
+        (obj) => obj.student === this.data.currentUser?.email
       );
       if (
         (studentResponse?.response === undefined ||
@@ -331,7 +320,7 @@ export class ShowExamDialogComponent implements OnInit {
       ) {
         for (const subQuestion of question.subQuestions) {
           const studentResponseSubQuestion = subQuestion.studentResponse?.find(
-            (obj) => obj.student === this.currentUser?.user.email
+            (obj) => obj.student === this.data.currentUser?.email
           );
           if (
             studentResponseSubQuestion?.response === undefined ||
@@ -364,7 +353,7 @@ export class ShowExamDialogComponent implements OnInit {
           this.questionService
             .submitStudentResponse(
               this.questionList,
-              this.currentUser?.user.email,
+              this.data.currentUser?.email,
               this.data.exam?._id
             )
             .subscribe({
@@ -383,7 +372,7 @@ export class ShowExamDialogComponent implements OnInit {
       this.questionService
         .submitStudentResponse(
           this.questionList,
-          this.currentUser?.user.email,
+          this.data.currentUser?.email,
           this.data.exam?._id
         )
         .subscribe({
@@ -415,12 +404,12 @@ export class ShowExamDialogComponent implements OnInit {
           currentQuestion.studentResponse = [];
         }
         const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === this.currentUser?.user.email
+          (obj) => obj.student === this.data.currentUser?.email
         );
         if (!studentResponse) {
           currentQuestion.studentResponse.push({
             response: text,
-            student: this.currentUser?.user.email,
+            student: this.data.currentUser?.email,
           });
         } else {
           studentResponse.response = text;
@@ -435,12 +424,12 @@ export class ShowExamDialogComponent implements OnInit {
           currentQuestion.studentResponse = [];
         }
         const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === this.currentUser?.user.email
+          (obj) => obj.student === this.data.currentUser?.email
         );
         if (!studentResponse) {
           currentQuestion.studentResponse.push({
             response: text,
-            student: this.currentUser?.user.email,
+            student: this.data.currentUser?.email,
           });
         } else {
           studentResponse.response = text;
@@ -473,7 +462,7 @@ export class ShowExamDialogComponent implements OnInit {
             feedback: {
               text: data.feedback,
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              teacher: this.currentUser!.user.email,
+              teacher: this.data.currentUser!.email,
             },
             mark: data.mark,
           });
@@ -483,7 +472,7 @@ export class ShowExamDialogComponent implements OnInit {
           studentResponse.feedback = {
             text: data.feedback,
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            teacher: this.currentUser!.user.email,
+            teacher: this.data.currentUser!.email,
           };
           studentResponse.mark = data.mark;
           this.snackbarService.openPermanent('info', 'feedback and mark saved');
@@ -507,7 +496,7 @@ export class ShowExamDialogComponent implements OnInit {
             feedback: {
               text: data.feedback,
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              teacher: this.currentUser!.user.email,
+              teacher: this.data.currentUser!.email,
             },
             mark: data.mark,
           });
@@ -517,7 +506,7 @@ export class ShowExamDialogComponent implements OnInit {
           studentResponse.feedback = {
             text: data.feedback,
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            teacher: this.currentUser!.user.email,
+            teacher: this.data.currentUser!.email,
           };
           studentResponse.mark = data.mark;
           this.snackbarService.openPermanent('info', 'feedback and mark saved');
@@ -537,7 +526,6 @@ export class ShowExamDialogComponent implements OnInit {
       const subQuestion = this.questionList.find(
         (obj) => obj['_id'] === question['_id']
       );
-      console.log(subQuestion);
       const studentResponse = subQuestion?.studentResponse?.find(
         (obj) => obj.student === this.data.student
       );

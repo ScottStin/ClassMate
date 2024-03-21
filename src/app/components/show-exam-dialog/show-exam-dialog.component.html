@@ -54,7 +54,7 @@
           <mat-divider></mat-divider>
           <div
             style="margin-top: 10px"
-            *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && currentUser?.user?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+            *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
           >
             <span><b>Total Score:</b></span>
             <form [formGroup]="examScoreForm">
@@ -114,6 +114,7 @@
         [question]="currentQuestionDisplay"
         [displayMode]="data.displayMode"
         [student]="data.student"
+        [currentUser]="data.currentUser"
         [markMode]="data.markMode"
         (response)="response($event)"
         (feedback)="feedback($event)"
@@ -154,7 +155,7 @@
     mat-button
     cdkFocusInitial
     (click)="completeExam()"
-    *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && currentUser?.user?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+    *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
   >
     Submit exam <mat-icon>done</mat-icon>
   </button>
@@ -162,7 +163,7 @@
     mat-button
     cdkFocusInitial
     (click)="submitFeedback()"
-    *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && currentUser?.user?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+    *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
   >
     Submit feedback <mat-icon>done</mat-icon>
   </button>
@@ -173,11 +174,11 @@
     *ngIf="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
   >
     <span
-      *ngIf="currentUser?.user?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode"
+      *ngIf="data.currentUser?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode"
       >Start section</span
     >
     <span
-      *ngIf="currentUser?.user?.userType?.toLowerCase() !== 'student' || data.displayMode || data.markMode"
+      *ngIf="data.currentUser?.userType?.toLowerCase() !== 'student' || data.displayMode || data.markMode"
       >View section</span
     >
   </button>

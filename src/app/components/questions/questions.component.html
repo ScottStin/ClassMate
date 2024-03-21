@@ -13,8 +13,8 @@
     <app-written-response-question
       *ngIf="question?.type==='written-response'"
       [question]="question"
-      [disableForms]="currentUser?.user?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
-      [currentUser]="student ? student : currentUser?.user?.email"
+      [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
+      [currentUser]="student ? student : currentUser?.email"
       (response)="updateResponse($event)"
     ></app-written-response-question>
   </mat-card-content>
@@ -33,7 +33,7 @@
         formControlName="teacherFeedback"
         type="text"
         placeholder="Give the student some helpful feedback..."
-        [required]="markMode && currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+        [required]="markMode && currentUser?.userType?.toLowerCase() ==='teacher'"
         style="width: 500px; font-size: 16px"
         rows="5"
         [style]="markMode ? 'color:black' : ''"
@@ -50,12 +50,11 @@
         appearance="outline"
         style="margin-right: 15px"
       >
-        <mat-label
-          *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+        <mat-label *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
           >Mark this question</mat-label
         >
         <mat-label
-          *ngIf="currentUser?.user?.userType?.toLowerCase() ==='student'"
+          *ngIf="currentUser?.userType?.toLowerCase() ==='student'"
           [style]="markMode ? 'color:black' : ''"
           >Your score:</mat-label
         >
@@ -79,7 +78,7 @@
         class="submit-feedback-button"
         [disabled]="this.feedbackForm.invalid"
         (click)="saveFeedback(teacherFeedback.value, mark.value)"
-        *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+        *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
       >
         Save feedback
       </button>

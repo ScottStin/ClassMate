@@ -1,6 +1,7 @@
 <app-header-card
   (filterResults)="filterResults($event)"
   [currentSchool]="currentSchool$ | async"
+  [currentUser]="currentUser$ | async"
   [pageName]="pageName"
 ></app-header-card>
 <mat-progress-bar

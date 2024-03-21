@@ -34,10 +34,15 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   users$: Observable<UserDTO[]>;
   usersLoading = true;
   userType: 'student' | 'teacher' | 'school' | '' = '';
+
   currentSchool$: Observable<SchoolDTO | null>;
-  currentSchool: SchoolDTO | undefined = undefined;
-  private routerSubscription: Subscription | undefined;
   private currentSchoolSubscription: Subscription | undefined;
+  // currentSchool: SchoolDTO | undefined = undefined;
+
+  private readonly currentUserSubscription: Subscription | null;
+  currentUser$: Observable<UserDTO | null>;
+
+  private routerSubscription: Subscription | undefined;
 
   backgroundImages = backgroundImages;
   defaultStyles = defaultStyles;
@@ -107,6 +112,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.schools$ = this.schoolService.schools$;
     this.currentSchool$ = this.schoolService.currentSchool$;
+    this.currentUser$ = this.authStoreService.currentUser$;
     this.users$ = this.userService.users$;
     this.loadPageData();
     this.getCurrentSchoolDetails();
@@ -151,13 +157,18 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
+    if (this.currentSchoolSubscription) {
+      this.currentSchoolSubscription.unsubscribe();
+    }
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
+    }
   }
 
   async onCardFlipped(data: {
     isFlipped: boolean;
     removeCurrentSchool: boolean | undefined;
   }): Promise<void> {
-    console.log(data);
     this.isFlipped = data.isFlipped;
     try {
       const currentSchool = await this.currentSchool$.pipe(first()).toPromise();
@@ -174,7 +185,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         await this.router.navigateByUrl('school/signup');
       }
     } catch (error) {
-      // Handle error here, e.g., logging or showing an error message.
+      // eslint-disable-next-line no-console
       console.error('An error occurred:', error);
     }
   }
@@ -189,9 +200,6 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        // next: ([schools, users]) => {
-        //   console.log(schools);
-        // },
         error: (error: Error) => {
           const snackbar = this.snackbarService.openPermanent(
             'error',
@@ -229,7 +237,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
   async signupSchool(school: SchoolDTO): Promise<void> {
     try {
-      const res = await this.schoolService.create(school).toPromise();
+      await this.schoolService.create(school).toPromise();
       this.snackbarService.openPermanent(
         'info',
         `Wecome to ClassMate, ${school.name}!`
@@ -252,26 +260,28 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                 : '/home'
             )
             .then(() => {
-              const firstName = (
-                JSON.parse(localStorage.getItem('auth_data_token')!) as {
-                  user: UserDTO;
+              this.currentUser$.subscribe((currentUser) => {
+                if (currentUser) {
+                  const firstName = currentUser.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
+                  if (!(signup ?? false)) {
+                    this.snackbarService.open(
+                      'info',
+                      `Welcome back, ${firstName}!`
+                    );
+                  } else {
+                    this.snackbarService.open('info', message);
+                  }
                 }
-              ).user.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
-              if (!(signup ?? false)) {
-                this.snackbarService.open(
-                  'info',
-                  `Welcome back, ${firstName}!`
-                );
-              } else {
-                this.snackbarService.open('info', message);
-              }
+              });
             })
             .catch((error) => {
+              // eslint-disable-next-line no-console
               console.log(error);
             });
         });
       },
       (error) => {
+        // eslint-disable-next-line no-console
         console.log(error);
         this.snackbarService.openPermanent(
           'error',
@@ -286,7 +296,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     message: string,
     signup?: boolean
   ): void {
-    console.log(userDetails);
+    // eslint-disable-next-line no-console
+    console.log(userDetails, message, signup);
     // this.authStoreService.login(userDetails).subscribe(
     //   () => {
     //     this.router

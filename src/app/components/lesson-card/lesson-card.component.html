@@ -90,9 +90,9 @@
           <mat-chip-list
             style="position: absolute; bottom: -15px; right: -20px"
             aria-label="Fish selection"
-            (click)="currentUser?.user?.userType?.toLowerCase()==='teacher' ? openStudentsEnrolledDialog(lesson) : ''"
+            (click)="currentUser?.userType?.toLowerCase()==='teacher' ? openStudentsEnrolledDialog(lesson) : ''"
             ><mat-chip
-              [style]="currentUser?.user?.userType?.toLowerCase()==='teacher' ? 'cursor: pointer' : ''"
+              [style]="currentUser?.userType?.toLowerCase()==='teacher' ? 'cursor: pointer' : ''"
               [class]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson) ? 'active-chip' : (lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) ? 'active-chip-joined' : '')"
               >Seats: {{lesson.studentsEnrolled.length}} /
               {{lesson.maxStudents}}</mat-chip

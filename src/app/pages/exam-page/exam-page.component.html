@@ -2,6 +2,7 @@
   (headerButtonAction)="createExam()"
   (filterResults)="filterResults($event)"
   [currentSchool]="currentSchool$ | async"
+  [currentUser]="currentUser$ | async"
   [pageName]="'exams'"
 ></app-header-card>
 
@@ -25,6 +26,7 @@
           [examData]="getUserExams(examType) | async"
           [examType]="examType"
           [questionData]="questions$ | async"
+          [currentUser]="currentUser$ | async"
           [users]="users$ | async"
           (openEditExamDialog)="openEditExamDialog($event)"
           (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"

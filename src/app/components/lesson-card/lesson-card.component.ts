@@ -24,7 +24,8 @@ import { StudentsEnrolledLessonDialogComponent } from '../students-enrolled-less
 export class LessonCardComponent implements OnChanges {
   @Input() lessonTypeFilter: LessonTypeDTO | undefined;
   @Input() lesson: LessonDTO | undefined;
-  @Input() users?: UserDTO[] | null;
+  @Input() users: UserDTO[] | null;
+  @Input() currentUser: UserDTO | null;
   @Input() pastLesson?: boolean | undefined;
   @Input() pageName: string;
   @Output() deleteLesson = new EventEmitter<LessonDTO>();
@@ -47,10 +48,6 @@ export class LessonCardComponent implements OnChanges {
   largeScreen = false;
   profilePictureSrc =
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
-    | { user: UserDTO }
-    | undefined;
 
   constructor(
     public readonly authStoreService: AuthStoreService,
@@ -82,14 +79,14 @@ export class LessonCardComponent implements OnChanges {
 
   filterLessonLevel(lesson: LessonDTO): boolean {
     if (
-      this.currentUser?.user === undefined ||
-      this.currentUser.user.level === null ||
-      this.currentUser.user.level === undefined ||
-      this.currentUser.user.userType.toLocaleLowerCase() === 'teacher' ||
+      this.currentUser === null ||
+      this.currentUser.level === null ||
+      this.currentUser.level === undefined ||
+      this.currentUser.userType.toLocaleLowerCase() === 'teacher' ||
       // (this.currentUser.user.level &&
       lesson.level
         .map((level) => level.longName)
-        .includes(this.currentUser.user.level.longName)
+        .includes(this.currentUser.level.longName)
     ) {
       return true; // if the lesson matches the current user's level, or there's no current user, or the current user is a teacher or doesn't have a level, show the lesson
     } else {
@@ -106,13 +103,13 @@ export class LessonCardComponent implements OnChanges {
       return this.filterLessonLevel(lesson); // If we're on the home page and the lesson type matches the type filter, show the lesson
     } else if (
       this.pageName === 'lessons' &&
-      this.currentUser?.user.email === this.teacher?.email
+      this.currentUser?.email === this.teacher?.email
     ) {
       return true; // if we're on the 'my classes' page and the class belongs to the current logged in teacher
     } else if (
       this.pageName === 'lessons' &&
-      this.currentUser?.user &&
-      lesson.studentsEnrolled.includes(this.currentUser.user.email)
+      this.currentUser &&
+      lesson.studentsEnrolled.includes(this.currentUser.email)
     ) {
       return true; // if we're on the 'my classes' page and the current enrolled student is a enrolled in that class
     } else {
@@ -124,8 +121,8 @@ export class LessonCardComponent implements OnChanges {
     if (!this.currentUser) {
       return true; // if there's not current user.
     } else if (
-      this.currentUser.user.userType.toLowerCase() === 'student' &&
-      !lesson.studentsEnrolled.includes(this.currentUser.user.email)
+      this.currentUser.userType.toLowerCase() === 'student' &&
+      !lesson.studentsEnrolled.includes(this.currentUser.email)
     ) {
       return true; // if the current user is a student and they're not enrolled in the lesson.
     } else {
@@ -135,8 +132,8 @@ export class LessonCardComponent implements OnChanges {
 
   showLeaveButton(lesson: LessonDTO): boolean {
     if (
-      this.currentUser?.user.userType.toLowerCase() === 'student' &&
-      lesson.studentsEnrolled.includes(this.currentUser.user.email)
+      this.currentUser?.userType.toLowerCase() === 'student' &&
+      lesson.studentsEnrolled.includes(this.currentUser.email)
     ) {
       return true;
     } else {

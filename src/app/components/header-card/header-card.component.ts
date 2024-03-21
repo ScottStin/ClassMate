@@ -18,6 +18,7 @@ export class HeaderCardComponent implements OnInit {
   @Output() headerButtonAction = new EventEmitter();
   @Output() filterResults = new EventEmitter<string>();
   @Input() currentSchool: SchoolDTO | null;
+  @Input() currentUser: UserDTO | null;
   @Input() pageName: string;
   breadCrumb: string | undefined = '';
   searchBar: string | undefined = '';
@@ -26,10 +27,6 @@ export class HeaderCardComponent implements OnInit {
   headerButtonIcon: string | undefined = '';
   headerButtonFunction: string | undefined = '';
   menuItems: MenuItemDTO[] = menuItems;
-
-  currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
-    | { user: UserDTO }
-    | undefined;
 
   constructor(
     public readonly authStoreService: AuthStoreService,
@@ -76,11 +73,10 @@ export class HeaderCardComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        const firstName = (
-          JSON.parse(localStorage.getItem('auth_data_token')!) as {
-            user: UserDTO;
-          }
-        ).user.name.split(' ')[0];
+        let firstName = 'mate';
+        if (this.currentUser) {
+          firstName = this.currentUser.name.split(' ')[0];
+        }
         this.snackbarService.open('info', `Goodbye, ${firstName}!`);
         this.authStoreService.logout();
       }
@@ -88,7 +84,6 @@ export class HeaderCardComponent implements OnInit {
   }
 
   filterResultsKeyup(text: string): void {
-    console.log(text);
     this.filterResults.emit(text);
   }
 }

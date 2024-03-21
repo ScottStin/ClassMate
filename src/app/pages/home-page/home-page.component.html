@@ -1,5 +1,6 @@
 <app-header-card
   [currentSchool]="currentSchool$ | async"
+  [currentUser]="currentUser$ | async"
   [pageName]="'home'"
 ></app-header-card>
 <mat-progress-bar
@@ -15,6 +16,7 @@
           [lessonTypeFilter]="undefined"
           [lesson]="lesson"
           [users]="users$ | async"
+          [currentUser]="currentUser$ | async"
           (joinLesson)="joinLesson($event)"
           (cancelLesson)="cancelLesson($event)"
           (refreshLessons)="loadPageData()"
@@ -31,6 +33,7 @@
           [lessonTypeFilter]="lessonType"
           [lesson]="lesson"
           [users]="users$ | async"
+          [currentUser]="currentUser$ | async"
           (joinLesson)="joinLesson($event)"
         ></app-lesson-card></div
     ></mat-tab>

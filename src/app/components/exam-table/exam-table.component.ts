@@ -34,6 +34,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   @Input() questionData: QuestionList[] | null;
   @Input() examType: string;
   @Input() users: UserDTO[] | null;
+  @Input() currentUser: UserDTO | null;
   @Output() openEditExamDialog = new EventEmitter<ExamDTO>();
   @Output() openConfirmDeleteDialog = new EventEmitter<ExamDTO>();
   @Output() startExam = new EventEmitter<ExamDTO>();
@@ -54,11 +55,6 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     'actions',
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
-    | { user: UserDTO }
-    | undefined;
-
   constructor(
     public dialog: MatDialog,
     private readonly snackbarService: SnackbarService
@@ -67,7 +63,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.dataSource = new MatTableDataSource<ExamDTO>(this.examData ?? []);
     if (
-      this.currentUser?.user.userType.toLowerCase() === 'student' ||
+      this.currentUser?.userType.toLowerCase() === 'student' ||
       !this.currentUser
     ) {
       this.displayedColumns = [
@@ -174,7 +170,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
 
   studentCompleted(exam: ExamDTO): boolean {
     const result = exam.studentsCompleted.find(
-      (obj) => obj.email === this.currentUser?.user.email
+      (obj) => obj.email === this.currentUser?.email
     );
     if (result) {
       return true;
@@ -185,7 +181,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
 
   getResult(exam: ExamDTO): string | null | undefined | number {
     const result = exam.studentsCompleted.find(
-      (obj) => obj.email === this.currentUser?.user.email
+      (obj) => obj.email === this.currentUser?.email
     );
     if (result?.mark === null) {
       return null;
@@ -315,6 +311,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
           displayMode,
           markMode,
           student,
+          currentUser: this.currentUser,
         },
         panelClass: 'fullscreen-dialog',
         // height: '100%',
@@ -335,7 +332,6 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   filterResults(text: string): void {
     this.filterText = text;
     if (this.dataSource) {
-      console.log(this.filterText);
       this.dataSource.filter = this.filterText;
     }
   }

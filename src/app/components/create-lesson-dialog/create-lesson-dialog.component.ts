@@ -26,7 +26,7 @@ import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confir
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { demoLessonTypes, demoLevels } from 'src/app/shared/demo-data';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
-import { LevelDTO } from 'src/app/shared/models/user.model';
+import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-create-lesson-dialog',
@@ -90,6 +90,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
       rightButton: string;
       leftButton: string;
       body: LessonDTO | undefined;
+      currentUser: UserDTO;
     },
     public readonly authStoreService: AuthStoreService,
     public dialogRef: MatDialogRef<CreateLessonDialogComponent>,
@@ -191,10 +192,10 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
 
   addNewLessonRow(): void {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-non-null-assertion, prettier/prettier
-    const userEmail = JSON.parse(localStorage.getItem('auth_data_token')!).user.email;
+    const userEmail = this.data.currentUser.email;
     const formValue = this.lessonForm.getRawValue();
     this.lessons?.push({
-      teacher: userEmail as string,
+      teacher: userEmail,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       startTime: formValue.dateInput!,
       maxStudents: formValue.sizeInput,

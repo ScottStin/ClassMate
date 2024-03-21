@@ -24,6 +24,7 @@ export class QuestionsComponent implements OnInit, OnChanges {
   @Input() displayMode: boolean;
   @Input() student: string;
   @Input() markMode: boolean;
+  @Input() currentUser: UserDTO | null;
   @Output() response = new EventEmitter<string>();
   @Output() feedback = new EventEmitter<{
     feedback: string;
@@ -37,10 +38,6 @@ export class QuestionsComponent implements OnInit, OnChanges {
   }>;
 
   formPopulated = new Subject<boolean>();
-
-  currentUser = JSON.parse(localStorage.getItem('auth_data_token')!) as
-    | { user: UserDTO }
-    | undefined;
 
   constructor(private readonly snackbarService: SnackbarService) {}
 
@@ -62,14 +59,14 @@ export class QuestionsComponent implements OnInit, OnChanges {
       teacherFeedback: new FormControl(
         {
           value: studentResponse?.feedback?.text ?? '',
-          disabled: this.currentUser?.user.userType.toLowerCase() === 'student',
+          disabled: this.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
       ),
       mark: new FormControl(
         {
           value: studentResponse?.mark ?? '',
-          disabled: this.currentUser?.user.userType.toLowerCase() === 'student',
+          disabled: this.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
       ),

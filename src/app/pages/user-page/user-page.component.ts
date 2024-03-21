@@ -5,11 +5,12 @@ import { finalize, first, Observable, of, Subscription, tap } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { UserTableComponent } from 'src/app/components/user-table/user-table.component';
+import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
-import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-user-page',
@@ -26,17 +27,21 @@ export class UserPageComponent implements OnInit {
   filteredUsers$: Observable<UserDTO[]>;
   userType: string;
   pageType: string;
+  pageName = '';
+
   private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
-  pageName = '';
-  currentUser: UserDTO | null;
+
+  private currentUserSubscription: Subscription | null;
+  currentUser$: Observable<UserDTO | null>;
 
   constructor(
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService,
     public dialog: MatDialog,
     private readonly route: ActivatedRoute,
-    public readonly schoolService: SchoolService
+    public readonly schoolService: SchoolService,
+    public readonly authStoreService: AuthStoreService
   ) {
     this.userType = this.route.snapshot.data['userType'] as string;
     this.pageType = this.route.snapshot.data['pageType'] as string;
@@ -44,6 +49,7 @@ export class UserPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentSchool$ = this.schoolService.currentSchool$;
+    this.currentUser$ = this.authStoreService.currentUser$;
     this.users$ = this.userService.users$;
     this.filteredUsers$ = this.userService.users$;
     this.getUsers();
@@ -51,34 +57,31 @@ export class UserPageComponent implements OnInit {
   }
 
   getPageName(): void {
-    if (localStorage.getItem('auth_data_token') !== null) {
-      this.currentUser = (
-        JSON.parse(localStorage.getItem('auth_data_token')!) as {
-          user: UserDTO;
+    this.currentUser$.subscribe((currentUser) => {
+      if (currentUser) {
+        if (this.pageType === 'Table') {
+          this.pageName = 'students';
         }
-      ).user;
-    }
-    if (this.pageType === 'Table') {
-      this.pageName = 'students';
-    }
-    if (this.pageType === 'Card') {
-      if (this.userType === 'Teacher') {
-        if (this.currentUser?.userType.toLocaleLowerCase() === 'teacher') {
-          this.pageName = 'colleagues';
-        }
-        if (this.currentUser?.userType.toLocaleLowerCase() === 'student') {
-          this.pageName = 'teachers';
-        }
-      }
-      if (this.userType === 'Student') {
-        if (this.currentUser?.userType.toLocaleLowerCase() === 'teacher') {
-          this.pageName = 'teachers';
-        }
-        if (this.currentUser?.userType.toLocaleLowerCase() === 'student') {
-          this.pageName = 'class mates';
+        if (this.pageType === 'Card') {
+          if (this.userType === 'Teacher') {
+            if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
+              this.pageName = 'colleagues';
+            }
+            if (currentUser.userType.toLocaleLowerCase() === 'student') {
+              this.pageName = 'teachers';
+            }
+          }
+          if (this.userType === 'Student') {
+            if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
+              this.pageName = 'teachers';
+            }
+            if (currentUser.userType.toLocaleLowerCase() === 'student') {
+              this.pageName = 'class mates';
+            }
+          }
         }
       }
-    }
+    });
   }
 
   getUsers(): void {
@@ -89,6 +92,7 @@ export class UserPageComponent implements OnInit {
         first(),
         tap(() => {
           this.currentSchoolSubscription = this.currentSchool$.subscribe();
+          this.currentUserSubscription = this.currentUser$.subscribe();
         }),
         finalize(() => {
           this.userPageLoading = false;
@@ -138,7 +142,9 @@ export class UserPageComponent implements OnInit {
                 ...result,
                 previousProfilePicture: data.user.profilePicture,
               },
-              data.user._id!
+              data.user._id !== null && data.user._id !== undefined
+                ? data.user._id
+                : ''
             )
             .subscribe({
               next: () => {
@@ -165,8 +171,8 @@ export class UserPageComponent implements OnInit {
       },
     });
     dialogRef.afterClosed().subscribe((result: UserDTO[] | undefined) => {
-      if (result) {
-        this.userService.delete(user._id!).subscribe({
+      if (result && user._id !== null && user._id !== undefined) {
+        this.userService.delete(user._id).subscribe({
           next: () => {
             this.snackbarService.open('info', 'User successfully deleted');
             this.getUsers();
@@ -181,6 +187,7 @@ export class UserPageComponent implements OnInit {
   }
 
   addStudent(): void {
+    // eslint-disable-next-line no-console
     console.log('test');
   }
 

@@ -19,8 +19,14 @@ import { ErrorService } from '../error-message.service/error-message.service';
 export class AuthStoreService {
   private readonly baseUrl = `${environment.apiUrl}/users`;
   private readonly subject = new BehaviorSubject<UserSubject>(null);
+  private readonly currentUserSubject = new BehaviorSubject<CurrentUserSubject>(
+    null
+  );
 
   user$: Observable<UserSubject> = this.subject.asObservable();
+  currentUser$: Observable<CurrentUserSubject> =
+    this.currentUserSubject.asObservable();
+
   isLoggedIn$: Observable<boolean>;
   isLoggedOut$: Observable<boolean>;
 
@@ -30,9 +36,17 @@ export class AuthStoreService {
   ) {
     this.isLoggedIn$ = this.user$.pipe(map((user) => !!user));
     this.isLoggedOut$ = this.isLoggedIn$.pipe(map((isLoggedIn) => !isLoggedIn));
+
     const currentUser: string | null = localStorage.getItem('auth_data_token');
     if (currentUser !== null) {
       this.subject.next(JSON.parse(currentUser) as UserSubject);
+    }
+
+    const currentUserTest: string | null = localStorage.getItem('current_user');
+    if (currentUserTest !== null) {
+      this.currentUserSubject.next(
+        JSON.parse(currentUserTest) as CurrentUserSubject
+      );
     }
   }
 
@@ -47,6 +61,21 @@ export class AuthStoreService {
     }
   }
 
+  updateCurrentUserTest(user: UserDTO | null): void {
+    this.currentUserSubject.next(user);
+    const currentUserString = localStorage.getItem('current_user');
+    let currentUser;
+    if (currentUserString !== null) {
+      currentUser = JSON.parse(currentUserString) as
+        | { user: UserDTO }
+        | undefined;
+    }
+    if (currentUser && user) {
+      currentUser.user = user;
+      localStorage.setItem('current_user', JSON.stringify(currentUser));
+    }
+  }
+
   login(user: UserLoginDTO): Observable<{ user: UserDTO }> {
     return this.httpClient
       .post<{ user: UserDTO }>(`${this.baseUrl}/login`, user)
@@ -54,6 +83,8 @@ export class AuthStoreService {
         tap((res) => {
           this.subject.next(res);
           localStorage.setItem('auth_data_token', JSON.stringify(res));
+          localStorage.setItem('current_user', JSON.stringify(res.user));
+          this.updateCurrentUserTest(res.user);
         }),
         shareReplay(),
         catchError((error: Error) => {
@@ -65,6 +96,8 @@ export class AuthStoreService {
   logout(): void {
     this.subject.next(null);
     localStorage.removeItem('auth_data_token');
+    localStorage.removeItem('current_user');
+    this.updateCurrentUserTest(null);
   }
 
   private handleError(error: Error, message: string): never {
@@ -109,6 +142,7 @@ export class AuthStoreService {
 }
 
 export type UserSubject = { user: UserDTO } | null;
+export type CurrentUserSubject = UserDTO | null;
 
 // interface TokenData {
 //   exp: number;

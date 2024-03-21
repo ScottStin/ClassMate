@@ -12,6 +12,7 @@ import {
 } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { CreateLessonDialogComponent } from 'src/app/components/create-lesson-dialog/create-lesson-dialog.component';
+import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -35,9 +36,14 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   filteredLessons$: Observable<LessonDTO[]>;
   lessonPageLoading = true;
   pageName = '';
+
   private readonly routerSubscription: Subscription | undefined;
+
   private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
+
+  private currentUserSubscription: Subscription | null;
+  currentUser$: Observable<UserDTO | null>;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -53,6 +59,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     private readonly userService: UserService,
     private readonly lessonService: LessonService,
     public readonly schoolService: SchoolService,
+    public readonly authStoreService: AuthStoreService,
     public dialog: MatDialog
   ) {
     this.routerSubscription = this.router.events.subscribe(() => {
@@ -72,6 +79,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     this.users$ = this.userService.users$;
     this.lessons$ = this.lessonService.lessons$;
     this.currentSchool$ = this.schoolService.currentSchool$;
+    this.currentUser$ = this.authStoreService.currentUser$;
     this.loadPageData();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
@@ -93,13 +101,14 @@ export class LessonPageComponent implements OnInit, OnDestroy {
         first(),
         tap(() => {
           this.currentSchoolSubscription = this.currentSchool$.subscribe();
+          this.currentUserSubscription = this.currentUser$.subscribe();
         }),
         finalize(() => {
           this.lessonPageLoading = false;
         })
       )
       .subscribe({
-        next: ([users, lessons]) => {
+        next: ([, lessons]) => {
           lessons.sort((a, b) => {
             const dateA = new Date(a.startTime);
             const dateB = new Date(b.startTime);
@@ -142,24 +151,32 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   } // todo - move to lesson service
 
   createLesson(): void {
-    const dialogRef = this.dialog.open(CreateLessonDialogComponent, {
-      data: {
-        title: 'Create New Lesson',
-        rightButton: 'Create',
-        leftButton: 'Cancel',
-      },
-    });
-    dialogRef.afterClosed().subscribe((result: LessonDTO[] | undefined) => {
-      if (result) {
-        this.lessonService.create(result).subscribe({
-          next: () => {
-            this.snackbarService.open('info', 'Lessons successfully created');
-            this.loadPageData();
+    this.currentUser$.subscribe((currentUser) => {
+      if (currentUser) {
+        const dialogRef = this.dialog.open(CreateLessonDialogComponent, {
+          data: {
+            title: 'Create New Lesson',
+            rightButton: 'Create',
+            leftButton: 'Cancel',
+            currentUser,
           },
-          error: (error: Error) => {
-            this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
-          },
+        });
+        dialogRef.afterClosed().subscribe((result: LessonDTO[] | undefined) => {
+          if (result) {
+            this.lessonService.create(result).subscribe({
+              next: () => {
+                this.snackbarService.open(
+                  'info',
+                  'Lessons successfully created'
+                );
+                this.loadPageData();
+              },
+              error: (error: Error) => {
+                this.error = error;
+                this.snackbarService.openPermanent('error', error.message);
+              },
+            });
+          }
         });
       }
     });

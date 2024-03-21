@@ -54,7 +54,6 @@ export class AppComponent implements OnDestroy {
     this.schools$ = this.schoolService.schools$;
     this.schoolService.getAll().subscribe({
       next: (res) => {
-        console.log(res);
         const currentSchool = res.find(
           (obj) =>
             obj.name.replace(/ /gu, '-').toLowerCase() ===

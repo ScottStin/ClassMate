@@ -2,6 +2,7 @@
   (headerButtonAction)="createLesson()"
   (filterResults)="filterResults($event)"
   [currentSchool]="currentSchool$ | async"
+  [currentUser]="currentUser$ | async"
   [pageName]="'lessons'"
 ></app-header-card>
 <mat-progress-bar
@@ -23,6 +24,7 @@
             [lessonTypeFilter]="undefined"
             [lesson]="lesson"
             [users]="users$ | async"
+            [currentUser]="currentUser$ | async"
             [pageName]="pageName"
             [pastLesson]="getLessonStatus('Past Lessons', lesson)"
             (deleteLesson)="deleteLesson($event)"

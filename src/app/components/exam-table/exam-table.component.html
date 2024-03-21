@@ -31,7 +31,7 @@
         Price (USD)
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <div *ngIf="!row.studentsEnrolled.includes(currentUser?.user?.email)">
+        <div *ngIf="!row.studentsEnrolled.includes(currentUser?.email)">
           <span *ngIf="row.casualPrice && row.casualPrice !== 0"
             >$ {{ row.casualPrice }}</span
           >
@@ -43,7 +43,7 @@
     <!-- Marking Column -->
     <ng-container
       matColumnDef="autoMarking"
-      *ngIf="currentUser?.user?.userType?.toLowerCase() ==='student'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='student'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Marking Type
@@ -63,7 +63,7 @@
     <!-- studentsEnrolled Column -->
     <ng-container
       matColumnDef="studentsEnrolled"
-      *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Students Enrolled
@@ -80,7 +80,7 @@
     <!-- studentsCompleted Column -->
     <ng-container
       matColumnDef="studentsCompleted"
-      *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Students Completed
@@ -113,7 +113,7 @@
     <!-- assignedTeacher Column -->
     <ng-container
       matColumnDef="assignedTeacher"
-      *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Assigned Teacher
@@ -133,7 +133,7 @@
     <!-- Created Column -->
     <ng-container
       matColumnDef="createdAt"
-      *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Created
@@ -148,7 +148,7 @@
     <!-- default Column -->
     <ng-container
       matColumnDef="default"
-      *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Default Exam?
@@ -167,7 +167,7 @@
     <!-- default Column -->
     <ng-container
       matColumnDef="result"
-      *ngIf="currentUser?.user?.userType?.toLowerCase() ==='student'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='student'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Result
@@ -181,7 +181,7 @@
     <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef></mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <div *ngIf="currentUser?.user?.userType?.toLowerCase() ==='teacher'">
+        <div *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'">
           <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>more_vert</mat-icon>
           </button>
@@ -205,7 +205,7 @@
           </mat-menu>
         </div>
         <div
-          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && !row.studentsEnrolled.includes(currentUser?.user?.email)"
+          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && !row.studentsEnrolled.includes(currentUser?.email)"
         >
           <mat-icon
             #tooltip="matTooltip"
@@ -216,7 +216,7 @@
           >
         </div>
         <div
-          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && !studentCompleted(row)"
+          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && !studentCompleted(row)"
         >
           <mat-icon
             #tooltip="matTooltip"
@@ -227,7 +227,7 @@
           >
         </div>
         <div
-          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && studentCompleted(row) && !getResult(row)"
+          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && studentCompleted(row) && !getResult(row)"
         >
           <mat-icon
             #tooltip="matTooltip"
@@ -238,13 +238,13 @@
           >
         </div>
         <div
-          *ngIf="(currentUser?.user?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.user?.email) && getResult(row)"
+          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && getResult(row)"
         >
           <mat-icon
             #tooltip="matTooltip"
             matTooltip="Click here to view your feedback."
             style="cursor: pointer; color: purple"
-            (click)="displayExam(row, false, true, currentUser?.user?.email)"
+            (click)="displayExam(row, false, true, currentUser?.email)"
             >remove_red_eye</mat-icon
           >
         </div>
