@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, first, Observable, of, Subscription, tap } from 'rxjs';
@@ -9,6 +9,7 @@ import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -17,23 +18,31 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './user-page.component.html',
   styleUrls: ['./user-page.component.css'],
 })
-export class UserPageComponent implements OnInit {
+export class UserPageComponent implements OnInit, OnDestroy {
   @ViewChild(UserTableComponent)
   userTableComponent: UserTableComponent;
 
+  // --- page data:
   error: Error;
   userPageLoading = false;
-  users$: Observable<UserDTO[]>;
   filteredUsers$: Observable<UserDTO[]>;
   userType: string;
   pageType: string;
   pageName = '';
 
+  // --- auth data and subscriptions:
   private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
-
   private currentUserSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
+  private usersSubscription: Subscription | null;
+  users$: Observable<UserDTO[]>;
+
+  // --- styles:
+  defaultStyles = defaultStyles;
+  primaryButtonBackgroundColor =
+    this.defaultStyles.primaryButtonBackgroundColor;
+  primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
 
   constructor(
     private readonly userService: UserService,
@@ -54,34 +63,58 @@ export class UserPageComponent implements OnInit {
     this.filteredUsers$ = this.userService.users$;
     this.getUsers();
     this.getPageName();
+    this.getCurrentSchoolDetails();
+  }
+
+  getCurrentSchoolDetails(): void {
+    this.currentSchoolSubscription = this.currentSchool$.subscribe(
+      (currentSchool) => {
+        if (currentSchool) {
+          const primaryButtonBackgroundColor =
+            currentSchool.primaryButtonBackgroundColor as string | undefined;
+
+          const primaryButtonTextColor =
+            currentSchool.primaryButtonTextColor as string | undefined;
+
+          if (primaryButtonBackgroundColor !== undefined) {
+            this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
+          }
+          if (primaryButtonTextColor !== undefined) {
+            this.primaryButtonTextColor = primaryButtonTextColor;
+          }
+        }
+      }
+    );
   }
 
   getPageName(): void {
-    this.currentUser$.subscribe((currentUser) => {
-      if (currentUser) {
-        if (this.pageType === 'Table') {
-          this.pageName = 'students';
-        }
-        if (this.pageType === 'Card') {
-          if (this.userType === 'Teacher') {
-            if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
-              this.pageName = 'colleagues';
-            }
-            if (currentUser.userType.toLocaleLowerCase() === 'student') {
-              this.pageName = 'teachers';
-            }
+    this.currentUserSubscription = this.currentUser$.subscribe(
+      (currentUser) => {
+        if (currentUser) {
+          if (this.pageType === 'Table') {
+            this.pageName = 'students';
           }
-          if (this.userType === 'Student') {
-            if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
-              this.pageName = 'teachers';
+          if (this.pageType === 'Card') {
+            if (this.userType === 'Teacher') {
+              if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
+                this.pageName = 'colleagues';
+              }
+              if (currentUser.userType.toLocaleLowerCase() === 'student') {
+                this.pageName = 'teachers';
+              }
             }
-            if (currentUser.userType.toLocaleLowerCase() === 'student') {
-              this.pageName = 'class mates';
+            if (this.userType === 'Student') {
+              if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
+                this.pageName = 'teachers';
+              }
+              if (currentUser.userType.toLocaleLowerCase() === 'student') {
+                this.pageName = 'class mates';
+              }
             }
           }
         }
       }
-    });
+    );
   }
 
   getUsers(): void {
@@ -124,12 +157,12 @@ export class UserPageComponent implements OnInit {
   }
 
   openEditUserDialog(data: { user: UserDTO; formType: string | null }): void {
-    this.users$.pipe(first()).subscribe((res) => {
+    this.usersSubscription = this.users$.pipe(first()).subscribe((res) => {
       const existingUsers = res;
       const dialogRef = this.dialog.open(EditUserDialogComponent, {
         data: {
           title: `Edit ${data.user.name}`,
-          user: data.user,
+          currentUser: data.user,
           existingUsers,
           formType: data.formType,
         },
@@ -208,6 +241,18 @@ export class UserPageComponent implements OnInit {
     }
     if (this.pageType.toLowerCase() === 'table') {
       this.userTableComponent.filterResults(text);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.currentSchoolSubscription) {
+      this.currentSchoolSubscription.unsubscribe();
+    }
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
+    }
+    if (this.usersSubscription) {
+      this.usersSubscription.unsubscribe();
     }
   }
 }

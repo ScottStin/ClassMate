@@ -1,10 +1,8 @@
 import {
   Component,
-  ElementRef,
   Inject,
   OnInit,
   QueryList,
-  ViewChild,
   ViewChildren,
 } from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -93,7 +91,7 @@ export class AddStudentToLessonDialogComponent implements OnInit {
     }
   }
 
-  closeDialog(result: boolean | null): void {
+  closeDialog(result: boolean | null | UserDTO[]): void {
     this.dialogRef.close(result);
   }
 }

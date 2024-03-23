@@ -71,6 +71,8 @@
             mat-mini-fab
             color="primary"
             class="button"
+            [style.color]="pageStyles.primaryButtonTextColor"
+            [style.background-color]="pageStyles.primaryButtonBackgroundColor"
             [matTooltip]="lesson.studentsEnrolled.length >= lesson.maxStudents ? 'Sorry, this lesson is full' : 'Click here to reserve your seat in this class'"
             (click)="joinLessonClick()"
             [disabled]="lesson.studentsEnrolled.length >= lesson.maxStudents"
@@ -93,6 +95,8 @@
             (click)="currentUser?.userType?.toLowerCase()==='teacher' ? openStudentsEnrolledDialog(lesson) : ''"
             ><mat-chip
               [style]="currentUser?.userType?.toLowerCase()==='teacher' ? 'cursor: pointer' : ''"
+              [style.color]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson) ? pageStyles.primaryButtonTextColor : 'white'"
+              [style.background-color]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson) ? pageStyles.primaryButtonBackgroundColor : 'orange'"
               [class]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson) ? 'active-chip' : (lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) ? 'active-chip-joined' : '')"
               >Seats: {{lesson.studentsEnrolled.length}} /
               {{lesson.maxStudents}}</mat-chip

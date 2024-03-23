@@ -1,183 +1,181 @@
-<div class="dialog-title-container">
-  <h2 mat-dialog-title>{{data.title}}</h2>
-</div>
-
-<mat-dialog-content>
-  <div [formGroup]="userForm">
-    <mat-form-field
-      class="form-field"
-      appearance="outline"
-      *ngIf="data.formType !== 'level'"
-    >
-      <mat-label>Name</mat-label>
-      <input
-        matInput
-        id="name"
-        formControlName="name"
-        type="text"
-        placeholder="Enter your first and last name"
-        required
-      />
-      <mat-error>
-        <app-error-message
-          [control]="userForm.controls['name'].errors"
-        ></app-error-message>
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field
-      class="form-field"
-      appearance="outline"
-      *ngIf="data.formType !== 'level'"
-    >
-      <mat-label>Email</mat-label>
-      <input
-        matInput
-        id="email"
-        formControlName="email"
-        type="email"
-        placeholder="Email address (e.g. john@gmail.com)"
-        required
-      />
-      <mat-icon matSuffix>email</mat-icon>
-      <mat-error>
-        <app-error-message
-          [control]="userForm.controls['email'].errors"
-        ></app-error-message>
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field
-      class="form-field"
-      appearance="outline"
-      *ngIf="data.formType !== 'level'"
-    >
-      <mat-label>Phone Number (Optional)</mat-label>
-      <input
-        matInput
-        id="phone"
-        formControlName="phone"
-        type="phone"
-        placeholder="include country and area code (e.g. +61 111 222 333)"
-      />
-      <mat-icon matSuffix>phone</mat-icon>
-      <mat-error>
-        <app-error-message
-          [control]="userForm.controls['phone'].errors"
-        ></app-error-message>
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field
-      class="form-field"
-      appearance="outline"
-      *ngIf="data.formType !== 'level'"
-    >
-      <mat-label>Country of Origin</mat-label>
-      <mat-select formControlName="nationality" required>
-        <mat-option value="other">Select country...</mat-option>
-        <mat-option *ngFor="let country of countryList" [value]="country">
-          {{ country }}
-        </mat-option>
-        <mat-option value="other">OTHER</mat-option>
-      </mat-select>
-      <mat-icon matSuffix>language</mat-icon>
-    </mat-form-field>
-
-    <mat-form-field
-      class="form-field"
-      appearance="outline"
-      *ngIf="data.formType?.toLowerCase() === 'level' || data.formType === 'student'"
-    >
-      <mat-label>Level</mat-label>
-      <mat-select formControlName="level">
-        <mat-option *ngFor="let level of demoLevels" [value]="level">
-          {{ level.longName }}
-        </mat-option>
-        <mat-option *ngIf="data?.currentUser?.level" [value]="null">
-          Remove level
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field
-      class="form-field"
-      appearance="outline"
-      *ngIf="data.currentUser?.userType?.toLowerCase() === 'teacher'"
-    >
-      <mat-label>Personal Statement</mat-label>
-      <textarea
-        matInput
-        id="statement"
-        formControlName="statement"
-        type="text"
-        placeholder="Tell your students a little bit about yourself..."
-        [required]="this.data.currentUser?.userType === 'teacher'"
-      ></textarea>
-      <mat-error>
-        <app-error-message
-          [control]="userForm.controls['statement'].errors"
-        ></app-error-message>
-      </mat-error>
-    </mat-form-field>
-
-    <!-- Image Cropper: -->
-    <mat-form-field
-      *ngIf="data.formType !== 'level'"
-      class="form-field"
-      appearance="outline"
-    >
-      <mat-label>Image (Optional)</mat-label>
-      <input
-        #photoInput
-        type="file"
-        hidden="true"
-        (change)="fileChangeEvent($event)"
-        accept="image/png, image/jpeg, image/gif, image/tiff"
-      />
-      <input
-        (click)="photoInput.click()"
-        matInput
-        readonly
-        [placeholder]="photoName || 'No file chosen'"
-      />
-      <mat-icon matSuffix style="cursor: pointer" (click)="photoInput.click()"
-        >add_photo_alternate</mat-icon
-      >
-    </mat-form-field>
-  </div>
-  <!-- <div *ngIf="data.currentUser?.profilePicture && !photoLink">
-    <img
-      [src]="photoLink ? photoLink : data.currentUser?.profilePicture?.url"
-      alt="User Photo"
-    />
+<ng-container>
+  <!-- <div class="dialog-title-container">
+    <h2 mat-dialog-title>{{data.title}}</h2>
   </div> -->
-  <div
-    *ngIf="data.currentUser?.profilePicture && !photoName && data.formType !== 'level'"
-  >
-    <img [src]=" data.currentUser?.profilePicture?.url" alt="User Photo" />
-  </div>
-  <image-cropper
-    format="png"
-    [imageChangedEvent]="imageChangedEvent"
-    [maintainAspectRatio]="true"
-    [aspectRatio]="4 / 3"
-    [resizeToWidth]="128"
-    (imageCropped)="imageCropped($event)"
-    (imageLoaded)="imageLoaded()"
-    (cropperReady)="cropperReady()"
-    (loadImageFailed)="loadImageFailed()"
-  ></image-cropper>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button color="primary" [mat-dialog-close]="false">Cancel</button>
-  <button
-    class="okButton"
-    mat-raised-button
-    cdkFocusInitial
-    [mat-dialog-close]="this.userForm.value"
+  <app-dialog-header
+    [dialogTitle]="data.title"
+    (closeAction)="closeDialog(false)"
+  ></app-dialog-header>
+  <mat-dialog-content>
+    <div [formGroup]="userForm">
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        *ngIf="data.formType !== 'level'"
+      >
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          id="name"
+          formControlName="name"
+          type="text"
+          placeholder="Enter your first and last name"
+          required
+        />
+        <mat-error>
+          <app-error-message
+            [control]="userForm.controls['name'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        *ngIf="data.formType !== 'level'"
+      >
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          id="email"
+          formControlName="email"
+          type="email"
+          placeholder="Email address (e.g. john@gmail.com)"
+          required
+        />
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error>
+          <app-error-message
+            [control]="userForm.controls['email'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        *ngIf="data.formType !== 'level'"
+      >
+        <mat-label>Phone Number (Optional)</mat-label>
+        <input
+          matInput
+          id="phone"
+          formControlName="phone"
+          type="phone"
+          placeholder="include country and area code (e.g. +61 111 222 333)"
+        />
+        <mat-icon matSuffix>phone</mat-icon>
+        <mat-error>
+          <app-error-message
+            [control]="userForm.controls['phone'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        *ngIf="data.formType !== 'level'"
+      >
+        <mat-label>Country of Origin</mat-label>
+        <mat-select formControlName="nationality" required>
+          <mat-option value="other">Select country...</mat-option>
+          <mat-option *ngFor="let country of countryList" [value]="country">
+            {{ country }}
+          </mat-option>
+          <mat-option value="other">OTHER</mat-option>
+        </mat-select>
+        <mat-icon matSuffix>language</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        *ngIf="data.formType?.toLowerCase() === 'level' || data.formType === 'student'"
+      >
+        <mat-label>Level</mat-label>
+        <mat-select formControlName="level">
+          <mat-option *ngFor="let level of demoLevels" [value]="level">
+            {{ level.longName }}
+          </mat-option>
+          <mat-option *ngIf="data?.currentUser?.level" [value]="null">
+            Remove level
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        *ngIf="data.currentUser?.userType?.toLowerCase() === 'teacher'"
+      >
+        <mat-label>Personal Statement</mat-label>
+        <textarea
+          matInput
+          id="statement"
+          formControlName="statement"
+          type="text"
+          placeholder="Tell your students a little bit about yourself..."
+          [required]="this.data.currentUser?.userType === 'teacher'"
+        ></textarea>
+        <mat-error>
+          <app-error-message
+            [control]="userForm.controls['statement'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Image Cropper: -->
+      <mat-form-field
+        *ngIf="data.formType !== 'level'"
+        class="form-field"
+        appearance="outline"
+      >
+        <mat-label>Image (Optional)</mat-label>
+        <input
+          #photoInput
+          type="file"
+          hidden="true"
+          (change)="fileChangeEvent($event)"
+          accept="image/png, image/jpeg, image/gif, image/tiff"
+        />
+        <input
+          (click)="photoInput.click()"
+          matInput
+          readonly
+          [placeholder]="photoName || 'No file chosen'"
+        />
+        <mat-icon matSuffix style="cursor: pointer" (click)="photoInput.click()"
+          >add_photo_alternate</mat-icon
+        >
+      </mat-form-field>
+    </div>
+    <!-- <div *ngIf="data.currentUser?.profilePicture && !photoLink">
+      <img
+        [src]="photoLink ? photoLink : data.currentUser?.profilePicture?.url"
+        alt="User Photo"
+      />
+    </div> -->
+    <div
+      *ngIf="data.currentUser?.profilePicture && !photoName && data.formType !== 'level'"
+    >
+      <img [src]=" data.currentUser?.profilePicture?.url" alt="User Photo" />
+    </div>
+    <image-cropper
+      format="png"
+      [imageChangedEvent]="imageChangedEvent"
+      [maintainAspectRatio]="true"
+      [aspectRatio]="4 / 3"
+      [resizeToWidth]="128"
+      (imageCropped)="imageCropped($event)"
+      (imageLoaded)="imageLoaded()"
+      (cropperReady)="cropperReady()"
+      (loadImageFailed)="loadImageFailed()"
+    ></image-cropper>
+  </mat-dialog-content>
+  <app-dialog-actions
+    (saveAction)="closeDialog(this.userForm.value)"
+    (cancelAction)="closeDialog(false)"
     [disabled]="this.userForm.invalid"
-  >
-    Save
-  </button>
-</mat-dialog-actions>
+  ></app-dialog-actions>
+</ng-container>

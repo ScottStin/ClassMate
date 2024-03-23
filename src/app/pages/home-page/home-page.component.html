@@ -8,7 +8,13 @@
   mode="query"
 ></mat-progress-bar>
 <div class="page-content">
-  <mat-tab-group class="home-tab-group" mat-stretch-tabs>
+  <mat-tab-group
+    class="home-tab-group"
+    mat-stretch-tabs
+    [ngStyle]="{
+    '--primaryButtonBackgroundColor': primaryButtonBackgroundColor
+  }"
+  >
     <mat-tab label="All">
       <div *ngFor="let lesson of (lessons$ | async)">
         <app-lesson-card
@@ -17,6 +23,7 @@
           [lesson]="lesson"
           [users]="users$ | async"
           [currentUser]="currentUser$ | async"
+          [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
           (joinLesson)="joinLesson($event)"
           (cancelLesson)="cancelLesson($event)"
           (refreshLessons)="loadPageData()"
@@ -34,6 +41,7 @@
           [lesson]="lesson"
           [users]="users$ | async"
           [currentUser]="currentUser$ | async"
+          [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
           (joinLesson)="joinLesson($event)"
         ></app-lesson-card></div
     ></mat-tab>

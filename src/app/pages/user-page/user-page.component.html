@@ -14,6 +14,7 @@
       <app-user-card
         [user]="user"
         [userType]="userType"
+        [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
         (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
       ></app-user-card>
     </div>
@@ -22,6 +23,9 @@
     class="home-tab-group"
     mat-stretch-tabs
     *ngIf="pageType==='Table'"
+    [ngStyle]="{
+      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor
+    }"
   >
     <mat-tab
       *ngFor="let viewType of ['All', 'Active','Inactive']"

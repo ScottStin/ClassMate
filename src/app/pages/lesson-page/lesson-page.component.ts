@@ -18,6 +18,7 @@ import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
+import { defaultStyles } from 'src/app/shared/default-styles';
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -25,23 +26,31 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 @Component({
   selector: 'app-lesson-page',
   templateUrl: './lesson-page.component.html',
-  styleUrls: ['./lesson-page.component.css'],
+  styleUrls: ['./lesson-page.component.scss'],
 })
 export class LessonPageComponent implements OnInit, OnDestroy {
-  error: Error;
+  // --- Scren sizes:
   mediumScreen = false;
   smallScreen = false;
+
+  // --- Page data:
+  error: Error;
   users$: Observable<UserDTO[]>;
   lessons$: Observable<LessonDTO[]>;
   filteredLessons$: Observable<LessonDTO[]>;
   lessonPageLoading = true;
   pageName = '';
 
-  private readonly routerSubscription: Subscription | undefined;
+  // --- styles:
+  defaultStyles = defaultStyles;
+  primaryButtonBackgroundColor =
+    this.defaultStyles.primaryButtonBackgroundColor;
+  primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
 
+  // --- Subscriptions and auth data:
+  private readonly routerSubscription: Subscription | undefined;
   private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
-
   private currentUserSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
 
@@ -81,6 +90,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     this.currentSchool$ = this.schoolService.currentSchool$;
     this.currentUser$ = this.authStoreService.currentUser$;
     this.loadPageData();
+    this.getCurrentSchoolDetails();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
   }
@@ -91,6 +101,9 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     }
     if (this.currentSchoolSubscription) {
       this.currentSchoolSubscription.unsubscribe();
+    }
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
     }
   }
 
@@ -140,6 +153,27 @@ export class LessonPageComponent implements OnInit, OnDestroy {
       });
   }
 
+  getCurrentSchoolDetails(): void {
+    this.currentSchoolSubscription = this.currentSchool$.subscribe(
+      (currentSchool) => {
+        if (currentSchool) {
+          const primaryButtonBackgroundColor =
+            currentSchool.primaryButtonBackgroundColor as string | undefined;
+
+          const primaryButtonTextColor =
+            currentSchool.primaryButtonTextColor as string | undefined;
+
+          if (primaryButtonBackgroundColor !== undefined) {
+            this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
+          }
+          if (primaryButtonTextColor !== undefined) {
+            this.primaryButtonTextColor = primaryButtonTextColor;
+          }
+        }
+      }
+    );
+  }
+
   getLessonStatus(lessonStatus: string, lesson: LessonDTO): boolean {
     const lessonStartTime = new Date(lesson.startTime);
     const currentDateTime = new Date();
@@ -151,35 +185,39 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   } // todo - move to lesson service
 
   createLesson(): void {
-    this.currentUser$.subscribe((currentUser) => {
-      if (currentUser) {
-        const dialogRef = this.dialog.open(CreateLessonDialogComponent, {
-          data: {
-            title: 'Create New Lesson',
-            rightButton: 'Create',
-            leftButton: 'Cancel',
-            currentUser,
-          },
-        });
-        dialogRef.afterClosed().subscribe((result: LessonDTO[] | undefined) => {
-          if (result) {
-            this.lessonService.create(result).subscribe({
-              next: () => {
-                this.snackbarService.open(
-                  'info',
-                  'Lessons successfully created'
-                );
-                this.loadPageData();
-              },
-              error: (error: Error) => {
-                this.error = error;
-                this.snackbarService.openPermanent('error', error.message);
-              },
+    this.currentUserSubscription = this.currentUser$.subscribe(
+      (currentUser) => {
+        if (currentUser) {
+          const dialogRef = this.dialog.open(CreateLessonDialogComponent, {
+            data: {
+              title: 'Create New Lesson',
+              rightButton: 'Create',
+              leftButton: 'Cancel',
+              currentUser,
+            },
+          });
+          dialogRef
+            .afterClosed()
+            .subscribe((result: LessonDTO[] | undefined) => {
+              if (result) {
+                this.lessonService.create(result).subscribe({
+                  next: () => {
+                    this.snackbarService.open(
+                      'info',
+                      'Lessons successfully created'
+                    );
+                    this.loadPageData();
+                  },
+                  error: (error: Error) => {
+                    this.error = error;
+                    this.snackbarService.openPermanent('error', error.message);
+                  },
+                });
+              }
             });
-          }
-        });
+        }
       }
-    });
+    );
   }
 
   deleteLesson(lesson: LessonDTO): void {

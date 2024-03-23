@@ -16,6 +16,9 @@
     class="home-tab-group"
     mat-stretch-tabs
     [(selectedIndex)]="selectedTabIndex"
+    [ngStyle]="{
+      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor
+    }"
   >
     <mat-tab
       *ngFor="let examType of ['My Exams','All Exams']"

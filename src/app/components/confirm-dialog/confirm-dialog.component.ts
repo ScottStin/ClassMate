@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,11 +12,12 @@ export class ConfirmDialogComponent {
   dialogMessage: string;
   okLabel: string;
   cancelLabel: string;
-  routerLink: string | undefined;
+  routerLink: string | undefined | null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly dialogRef: MatDialogRef<ConfirmDialogComponent>
   ) {
     this.dialogTitle = data.title ?? null;
     this.dialogMessage = data.message;
@@ -26,9 +27,22 @@ export class ConfirmDialogComponent {
   }
 
   async confirmClick(): Promise<void> {
-    if (this.routerLink !== undefined) {
+    console.log('test1');
+    console.log(this.routerLink);
+    if (
+      this.routerLink !== undefined &&
+      this.routerLink !== '' &&
+      this.routerLink !== null
+    ) {
       await this.router.navigateByUrl(this.routerLink);
     }
+    this.dialogRef.close(true);
+  }
+
+  closeDialog(): void {
+    console.log('test2');
+    console.log(this.routerLink);
+    this.dialogRef.close(false);
   }
 }
 

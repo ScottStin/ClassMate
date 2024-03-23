@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import {
@@ -13,8 +13,8 @@ import { SchoolDTO } from 'src/app/shared/models/school.model';
   templateUrl: './welcome-page.component.html',
   styleUrls: ['./welcome-page.component.css'],
 })
-export class WelcomePageComponent implements OnInit {
-  private subscription: Subscription | null;
+export class WelcomePageComponent implements OnInit, OnDestroy {
+  private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
 
   backgroundImages = backgroundImages;
@@ -36,7 +36,7 @@ export class WelcomePageComponent implements OnInit {
   }
 
   getCurrentSchoolDetails(): void {
-    this.subscription = this.currentSchool$.subscribe((school) => {
+    this.currentSchoolSubscription = this.currentSchool$.subscribe((school) => {
       if (school) {
         // --- get backgroud image:
         const backgroundImage = school.backgroundImage as
@@ -111,5 +111,11 @@ export class WelcomePageComponent implements OnInit {
   setHoveredElement(index: number | null): void {
     this.hoveredElementIndex = index;
     this.isAnyElementHovered = index !== null;
+  }
+
+  ngOnDestroy(): void {
+    if (this.currentSchoolSubscription) {
+      this.currentSchoolSubscription.unsubscribe();
+    }
   }
 }

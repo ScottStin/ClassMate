@@ -82,9 +82,10 @@
         </button>
         <button
           mat-mini-fab
-          color="primary"
           class="button"
           matTooltip="Message"
+          [style.color]="pageStyles.primaryButtonTextColor"
+          [style.background-color]="pageStyles.primaryButtonBackgroundColor"
           *ngIf="(authStoreService.currentUser$ | async)?._id !== user._id"
         >
           <mat-icon>message</mat-icon>

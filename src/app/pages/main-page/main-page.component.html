@@ -11,7 +11,12 @@
     mode="side"
     opened="true"
   >
-    <app-side-nav [currentSchool]="currentSchool$ | async"></app-side-nav>
+    <app-side-nav
+      [currentSchool]="currentSchool$ | async"
+      [currentUser]="currentUser$ | async"
+      [users]="users$ | async"
+      [pageStyles]="styles"
+    ></app-side-nav>
   </mat-drawer>
 
   <div>

@@ -1,19 +1,14 @@
-<div class="dialog-title-container">
-  <h2 mat-dialog-title>{{dialogTitle}}</h2>
-</div>
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="dialogTitle ? dialogTitle : ''"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
 
-<mat-dialog-content [innerHTML]="dialogMessage"></mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button color="primary" [mat-dialog-close]="false">
-    {{ cancelLabel }}
-  </button>
-  <button
-    class="okButton"
-    mat-raised-button
-    cdkFocusInitial
-    [mat-dialog-close]="true"
-    (click)="data.routerLink ? confirmClick() : ''"
-  >
-    {{ okLabel }}
-  </button>
-</mat-dialog-actions>
+  <mat-dialog-content [innerHTML]="dialogMessage"></mat-dialog-content>
+  <app-dialog-actions
+    (saveAction)="confirmClick()"
+    (cancelAction)="closeDialog()"
+    [saveButtonName]="okLabel"
+    [cancelButtonName]="cancelLabel"
+  ></app-dialog-actions>
+</ng-container>

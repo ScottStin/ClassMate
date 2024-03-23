@@ -91,6 +91,7 @@ export class CreateExamDialogComponent implements OnInit {
       title: string;
       exam: ExamDTO | undefined;
       teachers: UserDTO[];
+      primaryButtonBackgroundColor: string;
     },
     private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
     private readonly examService: ExamService,
@@ -221,8 +222,6 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   saveExamClick(): void {
-    console.log(this.examForm);
-    console.log(this.questionList);
     // this.saveExam.emit(this.examForm.value as ExamDTO);
     this.examService
       .create(this.examForm.value as ExamDTO, this.questionList)

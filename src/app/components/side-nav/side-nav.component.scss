@@ -44,9 +44,9 @@
   padding-right:30px !important;
 }
 
-.mat-badge-content {
-  background-color: #6200EE
-}
+// .mat-badge-content {
+//   background-color: #6200EE
+// }
 
 // ---------------------------
 // --- Image/Header/Login: ---
@@ -84,7 +84,7 @@
 }
 
 .chip {
-  background-color: #6200EE !important;
+  // background-color: #6200EE !important;
   cursor: pointer;
   width: fit-content;
   text-align: center;
@@ -111,7 +111,7 @@
 // ---------------------------
 
 .edit-profile-button {
- background-color: #6200EE !important;
+//  background-color: #6200EE !important;
  position: absolute; 
  top: -5px; 
  right: 225px;
@@ -125,3 +125,17 @@
   Transform: translateY(1.0em) translateX(1.0em) scale(1.2);
   transition: ease all .25s;
 }
+
+  /* ---------------------- */
+  /* Dynamic Button Format: */
+  /* ---------------------- */
+
+  :host {
+    --primaryButtonBackgroundColor: #{$defaultButtonColor};
+    --primaryButtonTextColor: #{$defaultTextnColor};
+  }
+  
+  .mat-badge-content {
+    background-color: var(--primaryButtonBackgroundColor);
+    color: var(--primaryButtonTextColor);
+  }

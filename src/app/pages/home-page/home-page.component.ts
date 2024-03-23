@@ -18,6 +18,7 @@ import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
+import { defaultStyles } from 'src/app/shared/default-styles';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -25,24 +26,33 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 @Component({
   selector: 'app-home-page',
   templateUrl: './home-page.component.html',
-  styleUrls: ['./home-page.component.css'],
+  styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent implements OnInit, OnDestroy {
   error: Error;
 
+  // --- screen sizes:
   mediumScreen = false;
   smallScreen = false;
 
+  // --- data:
   users$: Observable<UserDTO[]>;
   lessons$: Observable<LessonDTO[]>;
   lessonTypes$: Observable<LessonTypeDTO[]>;
   homePageLoading = true;
 
+  // --- auth data and subscriptions:
   private currentUserSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
 
   private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
+
+  // --- styles:
+  defaultStyles = defaultStyles;
+  primaryButtonBackgroundColor =
+    this.defaultStyles.primaryButtonBackgroundColor;
+  primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -69,6 +79,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.lessons$ = this.lessonService.lessons$;
     this.lessonTypes$ = this.lessonTypeService.lessonTypes$;
     this.loadPageData();
+    this.getCurrentSchoolDetails();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
   }
@@ -122,6 +133,27 @@ export class HomePageComponent implements OnInit, OnDestroy {
       });
   }
 
+  getCurrentSchoolDetails(): void {
+    this.currentSchoolSubscription = this.currentSchool$.subscribe(
+      (currentSchool) => {
+        if (currentSchool) {
+          const primaryButtonBackgroundColor =
+            currentSchool.primaryButtonBackgroundColor as string | undefined;
+
+          const primaryButtonTextColor =
+            currentSchool.primaryButtonTextColor as string | undefined;
+
+          if (primaryButtonBackgroundColor !== undefined) {
+            this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
+          }
+          if (primaryButtonTextColor !== undefined) {
+            this.primaryButtonTextColor = primaryButtonTextColor;
+          }
+        }
+      }
+    );
+  }
+
   getLessonStatus(lessonStatus: string, lesson: LessonDTO): boolean {
     const lessonStartTime = new Date(lesson.startTime);
     const currentDateTime = new Date();
@@ -141,46 +173,86 @@ export class HomePageComponent implements OnInit, OnDestroy {
       cancelLabel: 'Cancel',
       routerLink: '',
     };
-    combineLatest([this.currentUser$, this.currentSchool$]).subscribe(
-      ([currentUser, currentSchool]) => {
-        if (currentUser && !currentUser.level) {
-          data = {
-            title:
-              'You must take your English level test before you can join this class',
-            message:
-              'In order to take this class we need to assess your level to see if it is the right class for you. <br> Click below to take your free English level test, it only takes a few minutes!',
-            okLabel: 'Take my English level test',
-            cancelLabel: 'Cancel',
-            routerLink: currentSchool
-              ? `${currentSchool.name.replace(/ /gu, '-').toLowerCase()}/exams`
-              : 'student/signup',
-          };
-          joinClass = false;
-        }
-        if (!currentUser) {
-          data = {
-            title: 'Wait! You have to sign in first',
-            message:
-              'You must be signed in to join a class. Click below to login or regiser a new account',
-            okLabel: 'Login / Sign up',
-            cancelLabel: 'Cancel',
-            routerLink: currentSchool
-              ? `${currentSchool.name
-                  .replace(/ /gu, '-')
-                  .toLowerCase()}/student/signup`
-              : 'student/signup',
-          };
-          joinClass = false;
-        }
-        const dialogRef = this.dialog.open(ConfirmDialogComponent, { data });
-        if (currentUser?.level) {
+    this.currentUserSubscription = combineLatest([
+      this.currentUser$,
+      this.currentSchool$,
+    ]).subscribe(([currentUser, currentSchool]) => {
+      if (currentUser && !currentUser.level) {
+        data = {
+          title:
+            'You must take your English level test before you can join this class',
+          message:
+            'In order to take this class we need to assess your level to see if it is the right class for you. <br> Click below to take your free English level test, it only takes a few minutes!',
+          okLabel: 'Take my English level test',
+          cancelLabel: 'Cancel',
+          routerLink: currentSchool
+            ? `${currentSchool.name.replace(/ /gu, '-').toLowerCase()}/exams`
+            : 'student/signup',
+        };
+        joinClass = false;
+      }
+      if (!currentUser) {
+        data = {
+          title: 'Wait! You have to sign in first',
+          message:
+            'You must be signed in to join a class. Click below to login or regiser a new account',
+          okLabel: 'Login / Sign up',
+          cancelLabel: 'Cancel',
+          routerLink: currentSchool
+            ? `${currentSchool.name
+                .replace(/ /gu, '-')
+                .toLowerCase()}/student/signup`
+            : 'student/signup',
+        };
+        joinClass = false;
+      }
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, { data });
+      if (currentUser?.level) {
+        dialogRef.afterClosed().subscribe((result: boolean) => {
+          if (result && joinClass) {
+            this.lessonService.joinLesson(lesson, currentUser).subscribe({
+              next: () => {
+                this.snackbarService.open(
+                  'info',
+                  "A seat for you in this lesson has been reserved. You will be able to enter the lesson 5 minutes before the start time. Go to 'My Classes' to view all your lessons. "
+                );
+                this.loadPageData();
+              },
+              error: (error: Error) => {
+                this.error = error;
+                this.snackbarService.openPermanent('error', error.message);
+              },
+            });
+          }
+        });
+      }
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
+    }
+  }
+
+  cancelLesson(lesson: LessonDTO): void {
+    const data = {
+      title: 'Cancel this class?',
+      message:
+        'Your spot in this lesson will no longer be reserved and another student may take it. If the lessons is not full, you may be able to join again.',
+      okLabel: 'Leave Lesson',
+      cancelLabel: 'Close',
+      routerLink: '',
+    };
+    this.currentUserSubscription = this.currentUser$.subscribe(
+      (currentUser) => {
+        if (currentUser) {
+          const dialogRef = this.dialog.open(ConfirmDialogComponent, { data });
           dialogRef.afterClosed().subscribe((result: boolean) => {
-            if (result && joinClass) {
-              this.lessonService.joinLesson(lesson, currentUser).subscribe({
+            if (result) {
+              this.lessonService.cancelLesson(lesson, currentUser).subscribe({
                 next: () => {
                   this.snackbarService.open(
                     'info',
-                    "A seat for you in this lesson has been reserved. You will be able to enter the lesson 5 minutes before the start time. Go to 'My Classes' to view all your lessons. "
+                    'You have successfully cancelled your place in this lesson.'
                   );
                   this.loadPageData();
                 },
@@ -194,39 +266,10 @@ export class HomePageComponent implements OnInit, OnDestroy {
         }
       }
     );
-  }
-
-  cancelLesson(lesson: LessonDTO): void {
-    const data = {
-      title: 'Cancel this class?',
-      message:
-        'Your spot in this lesson will no longer be reserved and another student may take it. If the lessons is not full, you may be able to join again.',
-      okLabel: 'Leave Lesson',
-      cancelLabel: 'Close',
-      routerLink: '',
-    };
-    this.currentUser$.subscribe((currentUser) => {
-      if (currentUser) {
-        const dialogRef = this.dialog.open(ConfirmDialogComponent, { data });
-        dialogRef.afterClosed().subscribe((result: boolean) => {
-          if (result) {
-            this.lessonService.cancelLesson(lesson, currentUser).subscribe({
-              next: () => {
-                this.snackbarService.open(
-                  'info',
-                  'You have successfully cancelled your place in this lesson.'
-                );
-                this.loadPageData();
-              },
-              error: (error: Error) => {
-                this.error = error;
-                this.snackbarService.openPermanent('error', error.message);
-              },
-            });
-          }
-        });
-      }
-    });
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
+    }
   }
 
   ngOnDestroy(): void {

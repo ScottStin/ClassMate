@@ -39,7 +39,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   private currentSchoolSubscription: Subscription | undefined;
   // currentSchool: SchoolDTO | undefined = undefined;
 
-  private readonly currentUserSubscription: Subscription | null;
+  private currentUserSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
 
   private routerSubscription: Subscription | undefined;
@@ -260,19 +260,21 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                 : '/home'
             )
             .then(() => {
-              this.currentUser$.subscribe((currentUser) => {
-                if (currentUser) {
-                  const firstName = currentUser.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
-                  if (!(signup ?? false)) {
-                    this.snackbarService.open(
-                      'info',
-                      `Welcome back, ${firstName}!`
-                    );
-                  } else {
-                    this.snackbarService.open('info', message);
+              this.currentUserSubscription = this.currentUser$.subscribe(
+                (currentUser) => {
+                  if (currentUser) {
+                    const firstName = currentUser.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
+                    if (!(signup ?? false)) {
+                      this.snackbarService.open(
+                        'info',
+                        `Welcome back, ${firstName}!`
+                      );
+                    } else {
+                      this.snackbarService.open('info', message);
+                    }
                   }
                 }
-              });
+              );
             })
             .catch((error) => {
               // eslint-disable-next-line no-console

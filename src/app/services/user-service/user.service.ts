@@ -67,6 +67,8 @@ export class UserService {
     },
     id: string
   ): Observable<UserDTO> {
+    console.log(data);
+    console.log(id);
     return this.httpClient.patch<UserDTO>(`${this.baseUrl}/${id}`, data).pipe(
       tap((updatedUser) => {
         this.authStoreService.updateCurrentUser(updatedUser);

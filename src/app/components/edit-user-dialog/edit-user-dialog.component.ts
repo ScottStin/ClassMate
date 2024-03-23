@@ -6,7 +6,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { Subject } from 'rxjs/internal/Subject';
@@ -52,7 +52,8 @@ export class EditUserDialogComponent implements OnInit {
       formType: string;
     },
     private readonly sanitizer: DomSanitizer,
-    private readonly snackbarService: SnackbarService
+    private readonly snackbarService: SnackbarService,
+    private readonly dialogRef: MatDialogRef<EditUserDialogComponent>
   ) {}
 
   formPopulated = new Subject<boolean>();
@@ -208,5 +209,9 @@ export class EditUserDialogComponent implements OnInit {
     }
 
     return true;
+  }
+
+  closeDialog(result: unknown): void {
+    this.dialogRef.close(result);
   }
 }

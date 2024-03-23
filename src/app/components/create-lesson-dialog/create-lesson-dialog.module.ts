@@ -16,6 +16,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CronEditorModule } from 'ngx-cron-editor';
 
+import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
+import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { ErrorMessageModule } from '../error-message/error-message.module';
 import { CreateLessonDialogComponent } from './create-lesson-dialog.component';
 
@@ -40,6 +42,8 @@ import { CreateLessonDialogComponent } from './create-lesson-dialog.component';
     MatTooltipModule,
     ErrorMessageModule,
     MatButtonToggleModule,
+    DialogActionsModule,
+    DialogHeaderModule,
   ],
   exports: [CreateLessonDialogComponent],
 })

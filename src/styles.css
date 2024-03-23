@@ -1,4 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+
+@import '../src/app/app.component.scss';
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
@@ -14,6 +16,16 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     transition: all 100ms ease-in-out;
   }
 
+.page-content {
+  padding:25px;
+}
+
+/**
+ * ==============================
+ *  Diialogs
+ * ==============================
+*/
+
 .dialog-title-container {
   background-color: #6200EE;
 }
@@ -23,9 +35,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   color: white;
 }
 
-.page-content {
-  padding:25px;
-}
 
 /**
  * ==============================

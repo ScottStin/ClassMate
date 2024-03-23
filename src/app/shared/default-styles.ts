@@ -7,6 +7,6 @@ export const defaultStyles: {
   primaryButtonTextColor: string;
 } = {
   selectedBackgroundImage: backgroundImages[0],
-  primaryButtonBackgroundColor: '#6200EE',
+  primaryButtonBackgroundColor: '#383838', // '#6200EE',
   primaryButtonTextColor: '#FFFFFF',
 };

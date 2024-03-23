@@ -1,0 +1,17 @@
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancelBtnClick()">
+    {{cancelButtonName ? cancelButtonName : 'Cancel'}}
+  </button>
+  <button
+    [disabled]="disabled"
+    mat-button
+    (click)="onSaveBtnClick() "
+    class="dialog-action-save-button"
+    [ngStyle]="{
+      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+      '--primaryButtonTextColor': primaryButtonTextColor
+    }"
+  >
+    {{saveButtonName ? saveButtonName : 'Save'}}
+  </button>
+</mat-dialog-actions>

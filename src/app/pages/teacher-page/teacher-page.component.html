@@ -13,6 +13,7 @@
   <div *ngFor="let user of (users$ | async)">
     <app-user-card
       [user]="user"
+      [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
       [userType]="userType"
       (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
     ></app-user-card>

@@ -267,4 +267,8 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
       });
     }
   }
+
+  saveClick(lessons: LessonDTO[] | undefined): void {
+    this.dialogRef.close(lessons);
+  }
 }

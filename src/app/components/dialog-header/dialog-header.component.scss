@@ -1,0 +1,39 @@
+@import '../../app.component.scss';
+
+.main-dialog-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0 15px 15px;
+}
+  
+.close-button {
+    order: 1;  
+    font-size: 75% !important;
+    margin-left: -15px !important;
+    margin-top: -15px !important;
+    cursor: pointer;
+}
+
+.back-button {
+    order: -1;
+    margin-right: 8px;
+}
+
+.dialog-title {
+    flex: 1;
+}
+
+  /* ---------------------- */
+  /* Dynamic Button Format: */
+  /* ---------------------- */
+
+  :host {
+    --primaryButtonBackgroundColor: #{$defaultButtonColor};
+    --primaryButtonTextColor: #{$defaultTextnColor};
+  }
+  
+  .main-dialog-toolbar {
+    background-color: var(--primaryButtonBackgroundColor);
+    color: var(--primaryButtonTextColor);
+  }

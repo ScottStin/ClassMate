@@ -56,9 +56,10 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
     name: string | undefined;
     email: string | undefined;
   }): void {
+    const title = student.name !== undefined ? student.name : 'student';
     const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: `Remove ${student.name!} from this lesson?`,
+        title: `Remove ${title} from this lesson?`,
         message: `Are you sure you want to remove this student from the lesson? Their seat will become available and they will be notified of the change.`,
         okLabel: `Remove`,
         cancelLabel: `Cancel`,

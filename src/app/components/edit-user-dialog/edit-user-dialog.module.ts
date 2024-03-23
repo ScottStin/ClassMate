@@ -10,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { ImageCropperModule } from 'ngx-image-cropper';
 
 import { ErrorMessageModule } from '../../components/error-message/error-message.module';
+import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
+import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { EditUserDialogComponent } from './edit-user-dialog.component';
 
 @NgModule({
@@ -26,6 +28,8 @@ import { EditUserDialogComponent } from './edit-user-dialog.component';
     ErrorMessageModule,
     MatIconModule,
     ImageCropperModule,
+    DialogActionsModule,
+    DialogHeaderModule,
   ],
   exports: [EditUserDialogComponent],
 })

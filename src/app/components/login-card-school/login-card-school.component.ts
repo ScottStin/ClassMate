@@ -121,7 +121,6 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   populateSignupForm(): void {
-    console.log(this.currentSchool);
     // details step:
     const detailStepForm: DetailStep = new FormGroup({
       nameInput: new FormControl(
@@ -305,7 +304,6 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   changePrimaryButtonBackgroundColor(color: string): void {
-    console.log('hit3');
     this.primaryButtonBackgroundColor = color;
     this.snackbarService.openPermanent(
       'info',
@@ -460,13 +458,10 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   existingEmailFormatChange(email: string): void {
-    console.log(email);
-    console.log('hit1');
     if (email !== '') {
       const foundSchool = this.schools?.find(
         (obj) => obj.email.toLocaleLowerCase() === email.toLocaleLowerCase()
       );
-      console.log(foundSchool);
       if (foundSchool) {
         this.selectedBackgroundImage = foundSchool.backgroundImage;
         this.primaryButtonBackgroundColor =
@@ -475,9 +470,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         this.photoSrc = foundSchool.logo?.url ?? '../../../assets/School.png';
         this.changeBackgroundImage.emit(this.selectedBackgroundImage);
       } else {
-        console.log(this.backgroundImages[0]);
         this.selectedBackgroundImage = this.backgroundImages[0];
-        console.log(this.selectedBackgroundImage);
         this.primaryButtonBackgroundColor = '#6200EE';
         this.primaryButtonTextColor = '#FFFFFF';
         this.photoSrc = '../../../assets/School.png';
@@ -509,7 +502,6 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   signupClick(): void {
-    console.log('hit2');
     const formValue = this.loginFormSchool?.controls.detailStep.getRawValue();
     if (formValue) {
       const newSchool: SchoolDTO = {

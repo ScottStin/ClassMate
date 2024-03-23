@@ -10,10 +10,7 @@ export interface UserDTO {
   statement?: string | null;
   hasedPassword?: string | null;
   unhashedPassword?: string | null;
-  profilePicture?: {
-    url: string;
-    filename: string;
-  } | null;
+  profilePicture?: ProfilePictureDTO | null;
   level?: LevelDTO | null;
   // level?: string | null;
   schoolId: number | string; // replace with number only
@@ -22,6 +19,14 @@ export interface UserDTO {
   updatedAt?: Date | null;
 }
 
-export interface LevelDTO {longName: string | null; shortName: string | null}
+export interface ProfilePictureDTO {
+  url: string;
+  filename: string;
+}
 
-export type UserLoginDTO = Pick<UserDTO, 'email' | 'unhashedPassword'>
+export interface LevelDTO {
+  longName: string | null;
+  shortName: string | null;
+}
+
+export type UserLoginDTO = Pick<UserDTO, 'email' | 'unhashedPassword'>;

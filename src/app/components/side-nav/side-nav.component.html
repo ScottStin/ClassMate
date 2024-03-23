@@ -1,6 +1,8 @@
 <button
   *ngIf="authStoreService.isLoggedIn$ | async"
   class="edit-profile-button"
+  [style.color]="pageStyles.primaryButtonTextColor"
+  [style.background-color]="pageStyles.primaryButtonBackgroundColor"
   mat-mini-fab
   #tooltip="matTooltip"
   matTooltip="Edit your profile"
@@ -18,22 +20,24 @@
     class="chip-container"
     #tooltip="matTooltip"
     matTooltip="Click here to login"
-    ><mat-chip class="button chip" selected
+    ><mat-chip
+      class="button chip"
+      selected
+      [style.color]="pageStyles.primaryButtonTextColor"
+      [style.background-color]="pageStyles.primaryButtonBackgroundColor"
       >Login / Signup</mat-chip
     ></mat-chip-list
   >
-  <h2 class="user-name-header" *ngIf="!hideNavText">
-    {{(currentUser$ | async)?.name}}
-  </h2>
+  <h2 class="user-name-header" *ngIf="!hideNavText">{{currentUser?.name}}</h2>
   <h2
     class="text-warning"
-    *ngIf="(currentUser$ | async)?.level && (currentUser$ | async)?.userType?.toLowerCase() === 'student'"
+    *ngIf="currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
   >
-    <mat-icon>star</mat-icon> {{(currentUser$ | async)?.level?.shortName}}
+    <mat-icon>star</mat-icon> {{currentUser?.level?.shortName}}
     <mat-icon>star</mat-icon>
   </h2>
   <mat-chip-list
-    *ngIf="!(currentUser$ | async)?.level && (currentUser$ | async)?.userType?.toLowerCase() === 'student'"
+    *ngIf="!currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
     class="chip-container"
     #tooltip="matTooltip"
     matTooltip="Take your free English level test before you enrol in a class"
@@ -47,7 +51,7 @@
   <div *ngFor="let menuItem of menuItems">
     <mat-list-item
       [class]="breadCrumb === menuItem.name ? 'active': ''"
-      *ngIf="menuItem.use.includes((currentUser$ | async)?.userType?.toLowerCase() || 'student')"
+      *ngIf="menuItem.use.includes(currentUser?.userType?.toLowerCase() || 'student')"
       [routerLink]="menuItem.routerLink"
     >
       <mat-icon
@@ -61,6 +65,10 @@
         *ngIf="!hideNavText"
         [matBadge]="badgeCounts[menuItem.name] !== null && badgeCounts[menuItem.name] !== 0 ? badgeCounts[menuItem.name] : ''"
         matBadgeOverlap="false"
+        [ngStyle]="{
+          '--primaryButtonBackgroundColor': pageStyles.primaryButtonBackgroundColor,
+          '--primaryButtonTextColor': pageStyles.primaryButtonTextColor
+        }"
       >
         {{ menuItem.name}}
       </div>

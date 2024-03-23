@@ -1,34 +1,38 @@
-<div class="dialog-title-container">
-  <h2 mat-dialog-title>Choose students to enrol in lesson</h2>
-</div>
+<ng-container>
+  <app-dialog-header
+    dialogTitle="Choose students to enrol in lesson"
+    (closeAction)="closeDialog(null)"
+  ></app-dialog-header>
+  <mat-dialog-content class="mat-typography">
+    <div>Showing students of level: {{getLevelList()}}</div>
 
-<div>Showing students of level: {{getLevelList()}}</div>
-
-<mat-list style="margin-top: 10px">
-  <ng-container
-    *ngFor="let student of data.filteredStudents; let index = index"
-  >
-    <mat-list-item
-      style="
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        margin-bottom: 10px;
-      "
-    >
-      <mat-checkbox
-        #checkboxRef
-        [id]="'checkbox' + index"
-        [checked]="lesson.studentsEnrolled.includes(student.email)"
-        (change)="enrolStudent($event.checked, index, student)"
-        [disabled]="enrolledStudents.length >= lesson.maxStudents && !enrolledStudents.includes(student)"
-        >{{student.name}} ({{ student.email }})</mat-checkbox
+    <mat-list style="margin-top: 10px">
+      <ng-container
+        *ngFor="let student of data.filteredStudents; let index = index"
       >
-    </mat-list-item>
-  </ng-container>
-</mat-list>
+        <mat-list-item
+          style="
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+          "
+        >
+          <mat-checkbox
+            #checkboxRef
+            [id]="'checkbox' + index"
+            [checked]="lesson.studentsEnrolled.includes(student.email)"
+            (change)="enrolStudent($event.checked, index, student)"
+            [disabled]="enrolledStudents.length >= lesson.maxStudents && !enrolledStudents.includes(student)"
+            >{{student.name}} ({{ student.email }})</mat-checkbox
+          >
+        </mat-list-item>
+      </ng-container>
+    </mat-list>
+  </mat-dialog-content>
 
-<div mat-dialog-actions align="end">
-  <button mat-button (click)="closeDialog(null)">Cancel</button>
-  <button mat-button [mat-dialog-close]="enrolledStudents">Save</button>
-</div>
+  <app-dialog-actions
+    (saveAction)="closeDialog(enrolledStudents)"
+    (cancelAction)="closeDialog(null)"
+  ></app-dialog-actions>
+</ng-container>

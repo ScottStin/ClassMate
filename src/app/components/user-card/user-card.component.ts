@@ -20,6 +20,10 @@ import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
 export class UserCardComponent implements OnInit, OnDestroy {
   @Input() user: UserDTO;
   @Input() userType: string;
+  @Input() pageStyles: {
+    primaryButtonBackgroundColor: string;
+    primaryButtonTextColor: string;
+  };
   @Output() openConfirmDeleteDialog = new EventEmitter<UserDTO>();
 
   profilePictureSrc =

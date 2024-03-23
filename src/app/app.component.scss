@@ -9,3 +9,51 @@ $small: 576px;
 $medium: 768px;
 $large: 992px;
 $extraLarge: 1200px;
+
+
+/**
+ * ==============================
+ *  Default Styles
+ * ==============================
+*/
+
+$defaultButtonColor: #383838;
+$defaultTextnColor: #ffffff;
+
+
+/**
+ * ==============================
+ *  Mat Tabs
+ * ==============================
+*/
+
+  :host {
+    --primaryButtonBackgroundColor: $defaultButtonColor;
+  }
+  
+  ::ng-deep .mat-ink-bar {
+    background-color: var(--primaryButtonBackgroundColor) !important;
+  }
+  
+  ::ng-deep .mat-tab-label-active {
+    color: var(--primaryButtonBackgroundColor) !important;
+  }
+
+/**
+ * ==============================
+ *  Mat Slide Toggle
+ * ==============================
+*/
+
+  :host {
+    --toggleSwitch: $defaultButtonColor;
+    --toggleThumb: $defaultButtonColor;
+  }
+  
+  ::ng-deep .mat-slide-toggle-bar {
+    background-color: var(--toggleSwitch) !important;
+  }
+
+  ::ng-deep .mat-slide-toggle-thumb {
+    background-color: var(--toggleThumb) !important;
+  }
