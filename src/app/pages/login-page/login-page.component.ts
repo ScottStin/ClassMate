@@ -331,6 +331,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   changeBackgroundImage(backgroundImage: BackgroundImageDTO): void {
+    console.log(backgroundImage);
     if (this.selectedBackgroundImage) {
       // this.selectedBackgroundImage.name = `../../../assets/${name}`;
       this.selectedBackgroundImage = backgroundImage;

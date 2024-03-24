@@ -20,6 +20,10 @@ export class HeaderCardComponent implements OnInit {
   @Input() currentSchool: SchoolDTO | null;
   @Input() currentUser: UserDTO | null;
   @Input() pageName: string;
+  @Input() pageStyles: {
+    primaryButtonBackgroundColor: string;
+    primaryButtonTextColor: string;
+  };
   breadCrumb: string | undefined = '';
   searchBar: string | undefined = '';
   icon: string | undefined = '';

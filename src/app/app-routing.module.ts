@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
+import { Observable, Subscription } from 'rxjs';
 
+import { SchoolService } from './services/school-service/school.service';
 import { SchoolDTO } from './shared/models/school.model';
 
 export const schools = [
@@ -18,27 +20,22 @@ export const schools = [
   'English-Solutions',
 ];
 
-const currentSchoolString = localStorage.getItem('current_school');
-const currentSchool = (
-  currentSchoolString !== null ? JSON.parse(currentSchoolString) : undefined
-) as SchoolDTO | undefined;
-
-const routes: Routes = [
-  // Wildcard route for unknown paths
-  // {
-  //   path: '**',
-  //   redirectTo: currentSchool ? `${currentSchool}/welcome` : '', // redirect to homepage
-  // },
-];
+const routes: Routes = [];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
 export class AppRoutingModule {
-  constructor(private readonly router: RouterModule) {
+  currentSchoolSubscription: Subscription | null;
+  currentSchool$: Observable<SchoolDTO | null>;
+
+  constructor(
+    private readonly router: RouterModule,
+    schoolService: SchoolService
+  ) {
+    this.currentSchool$ = schoolService.currentSchool$;
     this.addSchools();
-    console.log(currentSchool);
   }
 
   addSchools(): void {
@@ -87,7 +84,37 @@ export class AppRoutingModule {
         }
       );
     }
+    routes.push({
+      path: '**',
+      redirectTo: `school/signup`,
+    });
+
+    this.addWildCardRoutes();
   }
 
-  // this.router.resetConfig(routes);
+  addWildCardRoutes(): void {
+    this.currentSchoolSubscription = this.currentSchool$.subscribe(
+      (currentSchool) => {
+        if (currentSchool) {
+          // remove existing wildcard routes:
+          const index = routes.findIndex((route) => route.path === '**');
+          if (index !== -1) {
+            routes.splice(index, 1);
+          }
+
+          // add new wildcard route with current school name:
+          routes.push({
+            path: '**',
+            redirectTo: `${currentSchool.name
+              .replace(/ /gu, '-')
+              .toLowerCase()}/home`,
+          });
+        }
+        // this.router.resetConfig(routes);
+        if (this.currentSchoolSubscription) {
+          this.currentSchoolSubscription.unsubscribe();
+        }
+      }
+    );
+  }
 }

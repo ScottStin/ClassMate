@@ -30,6 +30,8 @@
     mat-raised-button
     class="button action-button"
     (click)="headerButtonClick()"
+    [style.color]="pageStyles.primaryButtonTextColor"
+    [style.background-color]="pageStyles.primaryButtonBackgroundColor"
   >
     <mat-icon *ngIf="headerButtonIcon">{{headerButtonIcon}}</mat-icon
     >{{headerButton}}

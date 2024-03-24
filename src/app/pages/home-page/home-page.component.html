@@ -2,6 +2,7 @@
   [currentSchool]="currentSchool$ | async"
   [currentUser]="currentUser$ | async"
   [pageName]="'home'"
+  [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
 ></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: homePageLoading ? 'visible' : 'hidden' }"

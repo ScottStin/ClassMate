@@ -4,6 +4,7 @@
   [currentSchool]="currentSchool$ | async"
   [currentUser]="currentUser$ | async"
   [pageName]="'teachers'"
+  [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
 ></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: teacherPageLoading ? 'visible' : 'hidden' }"

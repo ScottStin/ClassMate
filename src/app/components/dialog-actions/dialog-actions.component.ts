@@ -20,6 +20,7 @@ export class DialogActionsComponent implements OnInit, OnDestroy {
   @Input() disabled?: boolean;
   @Input() saveButtonName?: string | undefined;
   @Input() cancelButtonName?: string | undefined;
+  @Input() hideSaveButton: boolean | undefined;
   @Output() saveAction = new EventEmitter<boolean>();
   @Output() cancelAction = new EventEmitter<boolean>();
 

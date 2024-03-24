@@ -4,6 +4,7 @@
   [currentSchool]="currentSchool$ | async"
   [currentUser]="currentUser$ | async"
   [pageName]="'lessons'"
+  [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
 ></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: lessonPageLoading ? 'visible' : 'hidden' }"

@@ -55,6 +55,7 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
           'Error: Failed to load users.',
           'retry'
         );
+        // eslint-disable-next-line no-console
         console.log(error);
         snackbar
           .onAction()
@@ -75,7 +76,6 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
   }
 
   studentsAwaitingMarkCount(): number {
-    console.log(this.studentNames);
     const awaiaitng = this.studentNames.filter(
       (obj) => obj.marked === null || obj.marked === undefined
     ).length;
@@ -89,4 +89,8 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
   //   });
   //   return studentName;
   // }
+
+  closeDialog(): void {
+    this.dialogRef.close();
+  }
 }

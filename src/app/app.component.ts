@@ -42,7 +42,8 @@ export class AppComponent implements OnDestroy {
               this.getSchools();
             }
             // else {
-            //   this.router.navigateByUrl('/school/signup');
+            //   console.log('hit2');
+            //   this.router.navigateByUrl('school/signup');
             // }
           }
         });

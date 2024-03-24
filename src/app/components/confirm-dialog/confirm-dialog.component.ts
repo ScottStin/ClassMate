@@ -27,8 +27,6 @@ export class ConfirmDialogComponent {
   }
 
   async confirmClick(): Promise<void> {
-    console.log('test1');
-    console.log(this.routerLink);
     if (
       this.routerLink !== undefined &&
       this.routerLink !== '' &&
@@ -40,8 +38,6 @@ export class ConfirmDialogComponent {
   }
 
   closeDialog(): void {
-    console.log('test2');
-    console.log(this.routerLink);
     this.dialogRef.close(false);
   }
 }

@@ -8,6 +8,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
+import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { StudentsCompletedExamDialogComponent } from './students-completed-exam-dialog.component';
 
 @NgModule({
@@ -21,6 +23,8 @@ import { StudentsCompletedExamDialogComponent } from './students-completed-exam-
     MatGridListModule,
     MatIconModule,
     MatTooltipModule,
+    DialogActionsModule,
+    DialogHeaderModule,
   ],
   exports: [StudentsCompletedExamDialogComponent],
 })

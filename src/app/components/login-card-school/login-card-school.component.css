@@ -105,7 +105,6 @@
     align-items: center
   }
 
-    
   :host {
     --stepperDisplay: flex !important;
   }
@@ -131,3 +130,37 @@
     margin-right: 10%;
     cursor: pointer;
   }
+
+  .image-button-container {    
+    flex: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+    margin-top:25px;
+    margin-bottom:25px;
+}
+
+  /* ---------------------- */
+  /* -- -----Slider: ------ */
+  /* ---------------------- */
+
+  :host {
+    --backgroundGradient: radial-gradient(circle at 50% 50%, #c31092 9.5%, #c31092 19%) !important;
+    --primaryButtonBackgroundColor: #c31092;
+  }
+
+  ::ng-deep .mat-slider-wrapper, ::ng-deep .mat-slider-ticks, ::ng-deep .mat-slider-ticks-container, ::ng-deep .mat-slider-ticks-wrapper {
+    background: var(--backgroundGradient) !important;
+    background-color: var(--backgroundGradient) !important;
+  }
+
+  ::ng-deep .mat-slider-thumb, ::ng-deep .mat-slider-thumb-label {
+    color:var(--primaryButtonBackgroundColor) !important;
+    background-color:var(--primaryButtonBackgroundColor) !important;
+  }
+
+::ng-deep .mat-slider-wrapper{
+  height: 20px !important;
+  border-bottom-left-radius: 10px !important;
+  border-bottom-right-radius: 10px !important; 
+}

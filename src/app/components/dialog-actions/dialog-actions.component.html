@@ -3,6 +3,7 @@
     {{cancelButtonName ? cancelButtonName : 'Cancel'}}
   </button>
   <button
+    *ngIf="!hideSaveButton"
     [disabled]="disabled"
     mat-button
     (click)="onSaveBtnClick() "

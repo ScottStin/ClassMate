@@ -225,33 +225,7 @@
               [stepControl]="formatStepForm"
               formGroupName="formatStep"
             >
-              <!-- -- --- --- --- --- -- -->
-              <!-- BACKGROUND IMAGE STEP -->
-              <!-- -- --- --- --- --- -- -->
-
               <div class="step-container">
-                <mat-form-field
-                  *ngIf="title === 'signup' && userType === 'school'"
-                  class="form-field"
-                  appearance="outline"
-                >
-                  <mat-label>Background image (Optional)</mat-label>
-                  <mat-select
-                    formControlName="backgroundImageInput"
-                    [required]="title === 'signup'"
-                  >
-                    <mat-option
-                      *ngFor="let backgroundImage of backgroundImages"
-                      [value]="backgroundImage"
-                    >
-                      <img
-                        [src]="'../../../assets/' + backgroundImage.name"
-                        [alt]="backgroundImage.label"
-                      />
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-
                 <!-- -- --- --- --- --- -- -->
                 <!------- BUTTON COLOR ------>
                 <!-- -- --- --- --- --- -- -->
@@ -325,6 +299,179 @@
                 </div>
               </div>
             </mat-step>
+
+            <!-- -- --- --- --- --- -- -->
+            <!-- BACKGROUND IMAGE STEP -->
+            <!-- -- --- --- --- --- -- -->
+            <mat-step
+              *ngIf="title === 'signup' && loginFormSchool.controls['backgroundStep'] as backgroundStepForm"
+              label="Background"
+              [editable]="true"
+              [stepControl]="backgroundStepForm"
+              formGroupName="backgroundStep"
+            >
+              <div class="step-container">
+                <!-- Select background image type: -->
+                <div class="image-button-container">
+                  <mat-button-toggle-group
+                    #group="matButtonToggleGroup"
+                    [value]="backgroundImageType"
+                    (change)="onFormTypeChange(group.value)"
+                  >
+                    <mat-button-toggle value="gradient"
+                      >Color/Gradient</mat-button-toggle
+                    >
+                    <mat-button-toggle value="pattern"
+                      >Pattern</mat-button-toggle
+                    >
+                  </mat-button-toggle-group>
+                </div>
+
+                <!-- Pattern images: -->
+                <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school' && backgroundImageType ==='pattern'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>Background image (Optional)</mat-label>
+                  <mat-select
+                    formControlName="backgroundImageInput"
+                    [required]="title === 'signup'"
+                  >
+                    <mat-option
+                      *ngFor="let backgroundImage of backgroundImages"
+                      [value]="backgroundImage"
+                    >
+                      <img
+                        [src]="'../../../assets/' + backgroundImage.name"
+                        [alt]="backgroundImage.label"
+                      />
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <!-- Gradient images: -->
+                <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school' && backgroundImageType ==='gradient'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>Select your first color</mat-label>
+                  <input
+                    matInput
+                    id="gradientColor1"
+                    #gradientColor1
+                    type="color"
+                    placeholder="Background Color 1"
+                    [value]="gradientColor1"
+                    formControlName="backgroundGradientColor1"
+                    (change)="createBackgroundGradient()"
+                  />
+                </mat-form-field>
+
+                <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school' && backgroundImageType ==='gradient'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>Select your second color</mat-label>
+                  <input
+                    matInput
+                    id="gradientColor2"
+                    #gradientColor2
+                    type="color"
+                    placeholder="Background Color 2"
+                    [value]="gradientColor2"
+                    formControlName="backgroundGradientColor2"
+                    (change)="createBackgroundGradient()"
+                  />
+                </mat-form-field>
+
+                <!-- <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school' && backgroundImageType ==='gradient'"
+                  class="form-field"
+                  appearance="outline"
+                > -->
+                <mat-slider
+                  *ngIf="title === 'signup' && userType === 'school' && backgroundImageType ==='gradient'"
+                  #gradientColorSlider
+                  class="form-field"
+                  style="margin-bottom: 25px"
+                  thumbLabel
+                  [displayWith]="formatColorSliderLabel"
+                  step="1"
+                  min="0"
+                  max="100"
+                  aria-label="units"
+                  matInput
+                  (change)="createBackgroundGradient()"
+                  [ngStyle]="{
+                    '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                    '--backgroundGradient': backgroundGradient
+                  }"
+                ></mat-slider>
+                <!-- </mat-form-field> -->
+
+                <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school' && backgroundImageType ==='gradient'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>Type</mat-label>
+                  <mat-select
+                    formControlName="backgroundGradientType"
+                    (selectionChange)="createBackgroundGradient()"
+                  >
+                    <mat-option
+                      *ngFor="let type of ['linear','radial']"
+                      [value]="type"
+                    >
+                      {{type | titlecase}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school' && backgroundImageType ==='gradient' && this.loginFormSchool.controls.backgroundStep.controls.backgroundGradientType.value !== 'radial'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>Rotation</mat-label>
+                  <mat-select
+                    formControlName="backgroundGradientRotation"
+                    (selectionChange)="createBackgroundGradient()"
+                  >
+                    <mat-option
+                      *ngFor="let rotation of [0, 45, 90, 135, 180, 225, 270, 315, 360]"
+                      [value]="rotation"
+                    >
+                      {{rotation}}&deg;
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <div class="stepper-navigation">
+                  <button mat-button matStepperPrevious>Back</button>
+                  <button
+                    mat-button
+                    matStepperNext
+                    [disabled]="false"
+                    class="stepper-next-button"
+                    [ngStyle]="{
+                      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                      '--primaryButtonTextColor': primaryButtonTextColor
+                    }"
+                  >
+                    <span *ngIf="this.backgroundStepForm?.dirty">Next</span>
+                    <span
+                      *ngIf="!this.backgroundStepForm?.dirty"
+                      class="skip-button"
+                      >Skip this step <mat-icon>skip_next</mat-icon></span
+                    >
+                  </button>
+                </div>
+              </div>
+            </mat-step>
+
             <mat-step *ngIf="title === 'signup'" label="Logo" [editable]="true">
               <div class="step-container">
                 <!-- -- --- --- --- --- -- -->

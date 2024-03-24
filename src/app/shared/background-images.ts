@@ -41,4 +41,5 @@ export interface BackgroundImageDTO {
     name: string;
     label: string;
     shadow: string;
+    type?: string | undefined;
 }

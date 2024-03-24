@@ -1,43 +1,46 @@
-<div class="dialog-title-container">
-  <h2 mat-dialog-title>Students enrolled in {{lesson.name}}</h2>
-</div>
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="'Students enrolled in ' + lesson.name"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
+  <span *ngIf="studentNames.length === 0"
+    >There are no students currrently enrolled in this class.</span
+  >
 
-<span *ngIf="studentNames.length === 0"
-  >There are no students currrently enrolled in this class.</span
->
-
-<mat-list style="margin-top: 10px">
-  <ng-container *ngFor="let student of studentNames">
-    <mat-list-item
-      style="
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        margin-bottom: 10px;
-      "
-    >
-      <div>
-        <div>{{ student.name }}</div>
-        <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
-      </div>
-      <div
-        style="cursor: pointer"
-        #tooltip="matTooltip"
-        [matTooltip]="'Remove ' + student.name + ' from class'"
-        (click)="removeStudent(student)"
-        *ngIf="!data.pastLesson"
+  <mat-list style="margin-top: 10px">
+    <ng-container *ngFor="let student of studentNames">
+      <mat-list-item
+        style="
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+          margin-bottom: 10px;
+        "
       >
-        <b
-          >Remove student
-          <mat-icon style="font-size: larger">remove_circle</mat-icon></b
+        <div>
+          <div>{{ student.name }}</div>
+          <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+        </div>
+        <div
+          style="cursor: pointer"
+          #tooltip="matTooltip"
+          [matTooltip]="'Remove ' + student.name + ' from class'"
+          (click)="removeStudent(student)"
+          *ngIf="!data.pastLesson"
         >
-      </div>
-    </mat-list-item>
-  </ng-container>
-</mat-list>
+          <b
+            >Remove student
+            <mat-icon style="font-size: larger">remove_circle</mat-icon></b
+          >
+        </div>
+      </mat-list-item>
+    </ng-container>
+  </mat-list>
 
-<div mat-dialog-actions align="end" *ngIf="!data.pastLesson">
-  <button mat-button (click)="addStudentsToLessonDialog(lesson)">
-    Manage enrollments
-  </button>
-</div>
+  <app-dialog-actions
+    *ngIf="!data.pastLesson"
+    saveButtonName="Manage enrollments"
+    (saveAction)="addStudentsToLessonDialog(lesson)"
+    (cancelAction)="closeDialog()"
+  ></app-dialog-actions>
+</ng-container>

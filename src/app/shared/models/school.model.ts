@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier *//* eslint-disable linebreak-style */
+import { BackgroundImageDTO } from '../background-images';
+
 export interface SchoolDTO {
   _id?: string | null;
   name: string;
@@ -12,14 +14,10 @@ export interface SchoolDTO {
     url: string;
     filename: string;
   } | null;
-  backgroundImage: {
-    name: string;
-    label: string;
-    shadow: string;
-  };
+  backgroundImage: BackgroundImageDTO;
   primaryButtonBackgroundColor: string;
   primaryButtonTextColor: string;
-  lessonTypes: {name: string; shortName: string}[];
+  lessonTypes: { name: string; shortName: string }[];
   createdAt?: Date | null;
   updatedAt?: Date | null;
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
   Component,
   EventEmitter,
@@ -16,6 +17,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
+import { MatSlider } from '@angular/material/slider';
 import { MatStepper } from '@angular/material/stepper';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { combineLatest, Subject, Subscription } from 'rxjs';
@@ -35,6 +37,8 @@ import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 })
 export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild(MatStepper) readonly loginFormSchoolStepper!: MatStepper;
+  @ViewChild('gradientColorSlider') gradientColorSlider: MatSlider;
+
   @Input() title: string;
   @Input() users: UserDTO[] | null;
   @Input() schools: SchoolDTO[] | null;
@@ -65,8 +69,10 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   // primaryButtonBackgroundColor = '#6200EE';
   // primaryButtonTextColor = '#FFFFFF';
 
+  public backgroundImageType: string;
   stepperDisplay = 'flex';
   private subscription?: Subscription;
+  backgroundGradient: string | undefined;
 
   // --- image cropping:
   imageChangedEvent: Event | string = '';
@@ -85,9 +91,11 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   lessonTypeLongName: string;
   hidePassword = true;
   countryList = countryList;
+
   loginFormSchool: FormGroup<{
     detailStep: DetailStep;
     formatStep: FormatStep;
+    backgroundStep: BackgroundStep;
     logoStep: LogoStep;
     lessonStep: LessonStep;
   }> | null = null;
@@ -229,13 +237,13 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
 
     // format step:
     const formatStepForm: FormatStep = new FormGroup({
-      backgroundImageInput: new FormControl(
-        this.selectedBackgroundImage ?? null,
-        {
-          validators: [],
-          nonNullable: false,
-        }
-      ),
+      // backgroundImageInput: new FormControl(
+      //   this.selectedBackgroundImage ?? null,
+      //   {
+      //     validators: [],
+      //     nonNullable: false,
+      //   }
+      // ),
       primaryButtonBackgroundColor: new FormControl(
         { value: '#6200EE', disabled: this.usersLoading },
         {
@@ -250,6 +258,36 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
           nonNullable: true,
         }
       ),
+    });
+
+    const backgroundStepForm: BackgroundStep = new FormGroup({
+      backgroundImageInput: new FormControl(
+        this.selectedBackgroundImage ?? null,
+        {
+          validators: [],
+          nonNullable: false,
+        }
+      ),
+      backgroundGradientColor1: new FormControl('', {
+        validators: [],
+        nonNullable: false,
+      }),
+      backgroundGradientColor2: new FormControl('', {
+        validators: [],
+        nonNullable: false,
+      }),
+      backgroundGradientSlider: new FormControl(NaN, {
+        validators: [],
+        nonNullable: true,
+      }),
+      backgroundGradientRotation: new FormControl(NaN, {
+        validators: [],
+        nonNullable: true,
+      }),
+      backgroundGradientType: new FormControl('', {
+        validators: [],
+        nonNullable: false,
+      }),
     });
 
     // logo step:
@@ -281,20 +319,24 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
     this.loginFormSchool = new FormGroup({
       detailStep: detailStepForm,
       formatStep: formatStepForm,
+      backgroundStep: backgroundStepForm,
       logoStep: logoStepForm,
       lessonStep: lessonStepForm,
     });
 
     // Subscribe to the combined changes
     const combinedChanges = combineLatest([
-      this.loginFormSchool.controls.formatStep.controls.backgroundImageInput
+      this.loginFormSchool.controls.backgroundStep.controls.backgroundImageInput
         .valueChanges,
     ]);
 
     this.subscription = combinedChanges.subscribe(([backgroundImageValue]) => {
       if (backgroundImageValue) {
         this.selectedBackgroundImage = backgroundImageValue;
-        this.changeBackgroundImage.emit(this.selectedBackgroundImage);
+        this.changeBackgroundImage.emit({
+          ...this.selectedBackgroundImage,
+          type: this.backgroundImageType,
+        });
         this.snackbarService.openPermanent(
           'info',
           "Can't decide on a good background image? Don't worry, you can always change it later!"
@@ -595,6 +637,68 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
 
     return true;
   }
+
+  onFormTypeChange(val: string): void {
+    this.backgroundImageType = val;
+  }
+
+  formatColorSliderLabel(value: number): number | string {
+    if (value >= 1000) {
+      return `${Math.round(value / 1000)}k`;
+    }
+    return value;
+  }
+
+  createBackgroundGradient(): void {
+    if (this.loginFormSchool) {
+      const gradientColor1: string | null =
+        this.loginFormSchool.controls.backgroundStep.controls
+          .backgroundGradientColor1.value;
+
+      const gradientColor2 =
+        this.loginFormSchool.controls.backgroundStep.controls
+          .backgroundGradientColor2.value;
+
+      const backgroundGradientRotation =
+        this.loginFormSchool.controls.backgroundStep.controls
+          .backgroundGradientRotation.value;
+
+      const backgroundGradientType: string | null =
+        this.loginFormSchool.controls.backgroundStep.controls
+          .backgroundGradientType.value;
+
+      const gradientSlider = this.gradientColorSlider.value;
+
+      if (gradientColor1 !== null && gradientColor1 !== '') {
+        if (backgroundGradientType !== 'radial') {
+          this.backgroundGradient = `linear-gradient(${
+            backgroundGradientRotation ? backgroundGradientRotation : 90
+          }deg, ${gradientColor1} ${gradientSlider ? gradientSlider : 0}%, ${
+            gradientColor2 !== null && gradientColor2 !== ''
+              ? gradientColor2
+              : '#000000'
+          } 100%)`;
+        } else {
+          this.backgroundGradient = `radial-gradient(circle at 50% 50%, ${gradientColor1} ${
+            gradientSlider ? gradientSlider / 2 : 10
+          }%, ${
+            gradientColor2 !== null && gradientColor2 !== ''
+              ? gradientColor2
+              : '#000000'
+          } ${gradientSlider ? gradientSlider : 20}%)`;
+        }
+
+        this.changeBackgroundImage.emit({
+          name: this.backgroundGradient,
+          type: this.backgroundImageType,
+          label: '',
+          shadow: '',
+        });
+      }
+      // else {
+      // }
+    }
+  }
 }
 
 export type DetailStep = FormGroup<{
@@ -609,13 +713,26 @@ export type DetailStep = FormGroup<{
 }>;
 
 export type FormatStep = FormGroup<{
+  // backgroundImageInput: FormControl<{
+  //   name: string;
+  //   label: string;
+  //   shadow: string;
+  // } | null>;
+  primaryButtonBackgroundColor: FormControl<string>;
+  primaryButtonTextColor: FormControl<string>;
+}>;
+
+export type BackgroundStep = FormGroup<{
   backgroundImageInput: FormControl<{
     name: string;
     label: string;
     shadow: string;
   } | null>;
-  primaryButtonBackgroundColor: FormControl<string>;
-  primaryButtonTextColor: FormControl<string>;
+  backgroundGradientColor1: FormControl<string | null>;
+  backgroundGradientColor2: FormControl<string | null>;
+  backgroundGradientSlider: FormControl<number>;
+  backgroundGradientRotation: FormControl<number>;
+  backgroundGradientType: FormControl<string | null>;
 }>;
 
 export type LogoStep = FormGroup<{

@@ -126,4 +126,8 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
         }
       });
   }
+
+  closeDialog(): void {
+    this.dialogRef.close();
+  }
 }

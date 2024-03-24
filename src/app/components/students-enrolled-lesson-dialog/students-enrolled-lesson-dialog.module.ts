@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
+import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { StudentsEnrolledLessonDialogComponent } from './students-enrolled-lesson-dialog.component';
 
 @NgModule({
@@ -19,6 +21,8 @@ import { StudentsEnrolledLessonDialogComponent } from './students-enrolled-lesso
     MatButtonModule,
     MatDialogModule,
     MatGridListModule,
+    DialogActionsModule,
+    DialogHeaderModule,
   ],
   exports: [StudentsEnrolledLessonDialogComponent],
 })
