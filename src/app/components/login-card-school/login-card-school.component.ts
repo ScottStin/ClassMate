@@ -17,18 +17,19 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSlider } from '@angular/material/slider';
 import { MatStepper } from '@angular/material/stepper';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { combineLatest, Subject, Subscription } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
-import {
-  BackgroundImageDTO,
-  backgroundImages,
-} from 'src/app/shared/background-images';
+import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
+import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
+
+import { SchoolLoginRedirectorComponent } from '../school-login-redirector/school-login-redirector.component';
 
 @Component({
   selector: 'app-login-card-school',
@@ -73,6 +74,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   stepperDisplay = 'flex';
   private subscription?: Subscription;
   backgroundGradient: string | undefined;
+  defaultStyles = defaultStyles;
 
   // --- image cropping:
   imageChangedEvent: Event | string = '';
@@ -101,7 +103,10 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }> | null = null;
   formPopulated = new Subject<boolean>();
 
-  constructor(private readonly snackbarService: SnackbarService) {}
+  constructor(
+    private readonly snackbarService: SnackbarService,
+    private readonly dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     // this.toggleCardFlip();
@@ -122,9 +127,11 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       }
       this.populateSignupForm();
     }
-
     if ('currentSchool' in changes) {
       this.populateSignupForm();
+    }
+    if ('schools' in changes) {
+      console.log(this.schools);
     }
   }
 
@@ -512,16 +519,17 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         this.photoSrc = foundSchool.logo?.url ?? '../../../assets/School.png';
         this.changeBackgroundImage.emit(this.selectedBackgroundImage);
       } else {
-        this.selectedBackgroundImage = this.backgroundImages[0];
-        this.primaryButtonBackgroundColor = '#6200EE';
-        this.primaryButtonTextColor = '#FFFFFF';
+        this.selectedBackgroundImage =
+          this.defaultStyles.selectedBackgroundImage; // this.backgroundImages[0];
+        this.primaryButtonBackgroundColor =
+          this.defaultStyles.primaryButtonBackgroundColor;
+        this.primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
         this.photoSrc = '../../../assets/School.png';
-        this.changeBackgroundImage.emit(this.backgroundImages[0]);
+        this.changeBackgroundImage.emit(
+          this.defaultStyles.selectedBackgroundImage
+        );
       }
-    }
-    // else if (this.currentSchool) {
-
-    // }
+    } // else if (this.currentSchool) {}
   }
 
   wordCountValidator(minWords: number, maxWords: number): ValidatorFn {
@@ -698,6 +706,35 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       // else {
       // }
     }
+  }
+
+  createBackgroundColor(): void {
+    if (
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      this.loginFormSchool?.controls.backgroundStep.controls
+        .backgroundGradientColor1.value
+    ) {
+      const backgroundColor: string =
+        this.loginFormSchool.controls.backgroundStep.controls
+          .backgroundGradientColor1.value;
+
+      this.changeBackgroundImage.emit({
+        name: backgroundColor,
+        type: this.backgroundImageType,
+        label: '',
+        shadow: '',
+      });
+    }
+  }
+
+  openSchoolLoginRedirector(): void {
+    this.dialog.open(SchoolLoginRedirectorComponent, {
+      data: {
+        schools: this.schools,
+        email:
+          this.loginFormSchool?.controls.detailStep.controls.emailInput.value,
+      },
+    });
   }
 }
 

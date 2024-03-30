@@ -1,5 +1,6 @@
 <app-header-card
   (filterResults)="filterResults($event)"
+  (headerButtonAction)="addStudent()"
   [currentSchool]="currentSchool$ | async"
   [currentUser]="currentUser$ | async"
   [pageName]="pageName"
@@ -17,6 +18,7 @@
         [userType]="userType"
         [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
         (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
+        (openEditUserDialog)="openEditUserDialog($event)"
       ></app-user-card>
     </div>
   </div>

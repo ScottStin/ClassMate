@@ -34,6 +34,20 @@ export class UserService {
     );
   }
 
+  getAllBySchoolId(currentSchoolId: string): Observable<UserDTO[]> {
+    // const currentSchoolId = '6606c02560bf6509c83d8b5b'; // replace with actual value
+    return this.httpClient
+      .get<UserDTO[]>(`${this.baseUrl}?currentSchoolId=${currentSchoolId}`)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to load users');
+        }),
+        tap((users) => {
+          this.userSubject.next(users);
+        })
+      );
+  }
+
   create(data: UserDTO): Observable<UserDTO> {
     return this.httpClient.post<UserDTO>(`${this.baseUrl}`, data).pipe(
       catchError((error: Error) => {

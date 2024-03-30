@@ -32,7 +32,9 @@ export class AuthTeacherGuard implements CanActivate {
       switchMap((currentUser: UserDTO | null) => {
         if (
           currentUser &&
-          !['teacher', 'school'].includes(currentUser.userType.toLowerCase())
+          !['teacher', 'school', 'admin'].includes(
+            currentUser.userType.toLowerCase()
+          )
         ) {
           return of(false);
         } else {

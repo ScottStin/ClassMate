@@ -25,6 +25,10 @@ export class UserCardComponent implements OnInit, OnDestroy {
     primaryButtonTextColor: string;
   };
   @Output() openConfirmDeleteDialog = new EventEmitter<UserDTO>();
+  @Output() openEditUserDialog = new EventEmitter<{
+    user: UserDTO;
+    formType: string | null;
+  }>();
 
   profilePictureSrc =
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
@@ -50,5 +54,12 @@ export class UserCardComponent implements OnInit, OnDestroy {
 
   openConfirmDeleteDialogClick(user: UserDTO): void {
     this.openConfirmDeleteDialog.emit(user);
+  }
+
+  openEditUserDialogClick(user: UserDTO): void {
+    this.openEditUserDialog.emit({
+      user,
+      formType: this.userType.toLocaleLowerCase(),
+    });
   }
 }

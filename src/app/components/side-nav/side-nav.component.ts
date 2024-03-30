@@ -96,10 +96,14 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
   getCurrentUserProfilePicture(): void {
     if (this.currentUser?.profilePicture) {
-      this.profilePictureSrc = this.currentUser.profilePicture.url.replace(
-        '/upload',
-        '/upload/w_900,h_900,c_thumb,c_crop,g_face'
-      );
+      if (this.currentUser.userType.toLocaleLowerCase() !== 'school') {
+        this.profilePictureSrc = this.currentUser.profilePicture.url.replace(
+          '/upload',
+          '/upload/w_900,h_900,c_thumb,c_crop,g_face'
+        );
+      } else {
+        this.profilePictureSrc = this.currentUser.profilePicture.url;
+      }
     }
   }
 
@@ -201,7 +205,7 @@ export const menuItems: MenuItemDTO[] = [
   // todo - move into seperate component
   {
     name: 'Home Page',
-    use: ['student', 'teacher'],
+    use: ['school', 'student', 'teacher'],
     icon: 'home',
     label: '/home',
     routerLink: '/home',
@@ -209,6 +213,7 @@ export const menuItems: MenuItemDTO[] = [
   },
   {
     name: 'My Classes',
+    adminName: 'Class',
     use: ['student', 'teacher'],
     icon: 'class',
     routerLink: '/lessons',
@@ -254,6 +259,9 @@ export const menuItems: MenuItemDTO[] = [
     label: '/users/teachers',
     searchBar: 'Search for a teacher...',
     breadcrumb: 'teachers',
+    headerButton: 'Add New Teacher',
+    headerButtonIcon: 'add',
+    headerButtonFunction: 'addNewTeacher',
   },
   {
     name: 'My Classmates',
@@ -274,8 +282,9 @@ export const menuItems: MenuItemDTO[] = [
   },
   {
     name: 'My Students',
+    adminName: 'Students',
     icon: 'child_care',
-    use: ['teacher'],
+    use: ['school', 'teacher'],
     routerLink: '/users/students',
     label: '/users/students',
     searchBar: 'Search for a student...',
@@ -286,7 +295,8 @@ export const menuItems: MenuItemDTO[] = [
   },
   {
     name: 'My Colleagues',
-    use: ['teacher'],
+    adminName: 'Teachers',
+    use: ['school', 'teacher'],
     icon: 'group',
     routerLink: '/users/colleagues',
     label: '/users/colleagues',
@@ -314,7 +324,7 @@ export const menuItems: MenuItemDTO[] = [
   },
   {
     name: 'Class Material',
-    use: ['teacher'],
+    use: ['school', 'teacher'],
     icon: 'notes',
     routerLink: '',
     label: '',
@@ -322,7 +332,8 @@ export const menuItems: MenuItemDTO[] = [
   },
   {
     name: 'Exam Marking',
-    use: ['teacher'],
+    adminName: 'Exams',
+    use: ['school', 'teacher'],
     badge: 'getMarkPendingList',
     icon: 'assignment',
     routerLink: '/exams',
@@ -339,7 +350,7 @@ export const menuItems: MenuItemDTO[] = [
   },
   {
     name: 'Packages',
-    use: ['teacher'],
+    use: ['school', 'teacher'],
     icon: 'group_work',
     routerLink: '/packages',
     label: '/packages',
@@ -348,7 +359,7 @@ export const menuItems: MenuItemDTO[] = [
   {
     name: 'My School',
     icon: 'location_city',
-    use: ['student', 'teacher'],
+    use: ['school', 'student', 'teacher'],
     routerLink: '',
     label: '',
     breadcrumb: 'school',
@@ -356,15 +367,16 @@ export const menuItems: MenuItemDTO[] = [
   {
     name: 'Administration',
     icon: 'settings',
-    use: ['admin', 'teacher'],
+    use: ['school', 'teacher'],
     routerLink: '',
     label: '',
-    breadcrumb: 'admin',
+    breadcrumb: 'school',
   },
 ];
 
 export interface MenuItemDTO {
   name: string;
+  adminName?: string;
   icon: string;
   use: string[];
   routerLink: string;

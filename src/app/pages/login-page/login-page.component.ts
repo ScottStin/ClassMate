@@ -137,7 +137,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
           if (backgroundImage !== undefined) {
             this.selectedBackgroundImage = backgroundImage;
           } else {
-            this.selectedBackgroundImage = this.backgroundImages[0];
+            // this.selectedBackgroundImage = this.backgroundImages[0];
+            this.selectedBackgroundImage =
+              this.defaultStyles.selectedBackgroundImage;
           }
           if (primaryButtonBackgroundColor !== undefined) {
             this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
@@ -238,22 +240,38 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   async signupSchool(school: SchoolDTO): Promise<void> {
     try {
       await this.schoolService.create(school).toPromise();
-      this.snackbarService.openPermanent(
-        'info',
-        `Wecome to ClassMate, ${school.name}!`
+      this.login(
+        { email: school.email, unhashedPassword: school.unhashedPassword },
+        `Welcome to ClassMate, ${school.name}!`,
+        true
       );
+      this.login(
+        { email: school.email, unhashedPassword: school.unhashedPassword },
+        `Welcome to ClassMate, ${school.name}!`,
+        true,
+        `${school.name.replace(/ /gu, '-').toLowerCase()}/home`
+      );
+      // const urlPath = `${school.name.replace(/ /gu, '-').toLowerCase()}/home`;
+      // await this.router.navigateByUrl('test-new-school-6/home');
     } catch (error) {
       this.snackbarService.openPermanent('error', 'unable to sign up');
     }
   }
 
-  login(userDetails: UserLoginDTO, message: string, signup?: boolean): void {
+  login(
+    userDetails: UserLoginDTO,
+    message: string,
+    signup?: boolean,
+    route?: string
+  ): void {
     this.authStoreService.login(userDetails).subscribe(
       () => {
         this.currentSchool$.pipe(first()).subscribe((currentSchool) => {
           this.router
             .navigateByUrl(
-              currentSchool
+              route !== undefined
+                ? route
+                : currentSchool
                 ? `/${currentSchool.name
                     .replace(/ /gu, '-')
                     .toLowerCase()}/home`
@@ -298,40 +316,49 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     message: string,
     signup?: boolean
   ): void {
-    // eslint-disable-next-line no-console
-    console.log(userDetails, message, signup);
-    // this.authStoreService.login(userDetails).subscribe(
-    //   () => {
-    //     this.router
-    //       .navigateByUrl('/home')
-    //       .then(() => {
-    //         const firstName = (
-    //           JSON.parse(localStorage.getItem('auth_data_token')!) as {
-    //             user: UserDTO;
-    //           }
-    //         ).user.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
-    //         if (!(signup ?? false)) {
-    //           this.snackbarService.open('info', `Welcome back, ${firstName}!`);
-    //         } else {
-    //           this.snackbarService.open('info', message);
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         console.log(error);
-    //       });
-    //   },
-    //   (error) => {
-    //     console.log(error);
-    //     this.snackbarService.openPermanent(
-    //       'error',
-    //       'Username or Password Incorrect'
-    //     );
-    //   }
-    // );
+    this.authStoreService.login(userDetails).subscribe(
+      () => {
+        this.currentSchool$.pipe(first()).subscribe((currentSchool) => {
+          if (currentSchool) {
+            this.router
+              .navigateByUrl(
+                `/${currentSchool.name.replace(/ /gu, '-').toLowerCase()}/home`
+              )
+              .then(() => {
+                this.currentUserSubscription = this.currentUser$.subscribe(
+                  (currentUser) => {
+                    if (currentUser) {
+                      if (!(signup ?? false)) {
+                        this.snackbarService.open(
+                          'info',
+                          `Welcome back, ${currentSchool.name}!`
+                        );
+                      } else {
+                        this.snackbarService.open('info', message);
+                      }
+                    }
+                  }
+                );
+              })
+              .catch((error) => {
+                // eslint-disable-next-line no-console
+                console.log(error);
+              });
+          }
+        });
+      },
+      (error) => {
+        // eslint-disable-next-line no-console
+        console.log(error);
+        this.snackbarService.openPermanent(
+          'error',
+          'Username or Password Incorrect'
+        );
+      }
+    );
   }
 
   changeBackgroundImage(backgroundImage: BackgroundImageDTO): void {
-    console.log(backgroundImage);
     if (this.selectedBackgroundImage) {
       // this.selectedBackgroundImage.name = `../../../assets/${name}`;
       this.selectedBackgroundImage = backgroundImage;

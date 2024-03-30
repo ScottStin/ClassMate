@@ -1,8 +1,9 @@
 import { Component, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, Routes } from '@angular/router';
 import { first, Observable, Subscription } from 'rxjs';
 
 import { schools } from './app-routing.module';
+import { RouterService } from './services/router-service/router.service';
 import { SchoolService } from './services/school-service/school.service';
 import { SnackbarService } from './services/snackbar-service/snackbar.service';
 import { SchoolDTO } from './shared/models/school.model';
@@ -18,9 +19,11 @@ export class AppComponent implements OnDestroy {
   private readonly routerSubscription: Subscription | undefined;
   schools$: Observable<SchoolDTO[]>;
   currentSchool$: Observable<SchoolDTO | null>;
+  schools = schools;
 
   constructor(
     private readonly schoolService: SchoolService,
+    private readonly routerService: RouterService,
     private readonly snackbarService: SnackbarService,
     private readonly router: Router,
     private readonly route: ActivatedRoute
@@ -62,6 +65,9 @@ export class AppComponent implements OnDestroy {
         );
         if (currentSchool) {
           this.schoolService.updateCurrentSchool(currentSchool);
+          this.addSchoolRoutes(
+            currentSchool.name.replace(/ /gu, '-').toLowerCase()
+          );
         }
       },
       error: () => {
@@ -78,6 +84,60 @@ export class AppComponent implements OnDestroy {
           });
       },
     });
+  }
+
+  addSchoolRoutes(schoolName: string): void {
+    const routes: Routes = [];
+    for (const school of this.schools) {
+      routes.push(
+        {
+          path: `${school.toLocaleLowerCase()}/welcome`,
+          // data: { school },
+          loadChildren: async () =>
+            (await import('./pages/welcome-page/welcome-page.module'))
+              .WelcomePageModule,
+        },
+        {
+          path: `${school.toLocaleLowerCase()}/student`,
+          // data: { school },
+          loadChildren: async () =>
+            (await import('./pages/login-page/login-page.module'))
+              .LoginPageModule,
+        },
+        {
+          path: `${school.toLocaleLowerCase()}/teacher`,
+          // data: { school },
+          loadChildren: async () =>
+            (await import('./pages/login-page/login-page.module'))
+              .LoginPageModule,
+        },
+        {
+          path: `${school.toLocaleLowerCase()}/school`,
+          // data: { school },
+          loadChildren: async () =>
+            (await import('./pages/login-page/login-page.module'))
+              .LoginPageModule,
+        },
+        {
+          path: 'school',
+          // data: { school },
+          loadChildren: async () =>
+            (await import('./pages/login-page/login-page.module'))
+              .LoginPageModule,
+        },
+        {
+          path: `${school.toLocaleLowerCase()}`,
+          // data: { school },
+          loadChildren: async () =>
+            (await import('./pages/main-page/main-page.module')).MainPageModule,
+        }
+      );
+    }
+    routes.push({
+      path: '**',
+      redirectTo: `${schoolName}/home`,
+    });
+    this.routerService.initialize(routes);
   }
 
   ngOnDestroy(): void {

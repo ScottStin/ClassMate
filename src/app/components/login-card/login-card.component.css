@@ -15,7 +15,7 @@
   transform-style: preserve-3d;
   transform-origin: center right;
   transition: transform 1s;
-  box-shadow: 0 40px 60px #6b0b64;
+  box-shadow: 0 40px 60px;
   /* transform: scale(0.9); */
   margin-top: -200px;
 }

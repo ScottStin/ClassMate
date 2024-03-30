@@ -26,7 +26,7 @@
   </form>
 
   <button
-    *ngIf="headerButton && currentUser?.userType?.toLowerCase() ==='teacher'"
+    *ngIf="headerButton && currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school'"
     mat-raised-button
     class="button action-button"
     (click)="headerButtonClick()"

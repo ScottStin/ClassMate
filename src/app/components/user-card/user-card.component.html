@@ -72,9 +72,11 @@
           mat-mini-fab
           style="background-color: orange"
           class="button"
+          (click)="openEditUserDialogClick(user)"
           matTooltip="Edit"
           *ngIf="
-            (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher' || 
+            (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher' ||
+            (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school' ||
             (authStoreService.currentUser$ | async)?._id === user._id
           "
         >
@@ -95,7 +97,7 @@
           style="background-color: red"
           class="button"
           matTooltip="Delete"
-          *ngIf="(authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher'"
+          *ngIf="(authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher' || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school'"
           (click)="openConfirmDeleteDialogClick(user)"
         >
           <mat-icon>delete</mat-icon>

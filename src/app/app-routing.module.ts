@@ -18,6 +18,8 @@ export const schools = [
   'fdsfdsfdsfsdf',
   'YouSTUDY2',
   'English-Solutions',
+  'test-new-1',
+  'test-new-school-6',
 ];
 
 const routes: Routes = [];
@@ -75,6 +77,12 @@ export class AppRoutingModule {
           loadChildren: async () =>
             (await import('./pages/login-page/login-page.module'))
               .LoginPageModule,
+        },
+        {
+          path: `${school.toLocaleLowerCase()}`,
+          // data: { school },
+          loadChildren: async () =>
+            (await import('./pages/main-page/main-page.module')).MainPageModule,
         },
         {
           path: `${school.toLocaleLowerCase()}`,

@@ -63,7 +63,7 @@
     <!-- studentsEnrolled Column -->
     <ng-container
       matColumnDef="studentsEnrolled"
-      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Students Enrolled
@@ -80,7 +80,7 @@
     <!-- studentsCompleted Column -->
     <ng-container
       matColumnDef="studentsCompleted"
-      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Students Completed
@@ -113,7 +113,7 @@
     <!-- assignedTeacher Column -->
     <ng-container
       matColumnDef="assignedTeacher"
-      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Assigned Teacher
@@ -133,7 +133,7 @@
     <!-- Created Column -->
     <ng-container
       matColumnDef="createdAt"
-      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Created
@@ -148,7 +148,7 @@
     <!-- default Column -->
     <ng-container
       matColumnDef="default"
-      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
+      *ngIf="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Default Exam?
@@ -181,7 +181,9 @@
     <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef></mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <div *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'">
+        <div
+          *ngIf="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school'"
+        >
           <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>more_vert</mat-icon>
           </button>

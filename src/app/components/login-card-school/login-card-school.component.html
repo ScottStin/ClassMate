@@ -318,8 +318,9 @@
                     [value]="backgroundImageType"
                     (change)="onFormTypeChange(group.value)"
                   >
+                    <mat-button-toggle value="color">Color</mat-button-toggle>
                     <mat-button-toggle value="gradient"
-                      >Color/Gradient</mat-button-toggle
+                      >Gradient</mat-button-toggle
                     >
                     <mat-button-toggle value="pattern"
                       >Pattern</mat-button-toggle
@@ -352,11 +353,16 @@
 
                 <!-- Gradient images: -->
                 <mat-form-field
-                  *ngIf="title === 'signup' && userType === 'school' && backgroundImageType ==='gradient'"
+                  *ngIf="title === 'signup' && userType === 'school' && (backgroundImageType ==='gradient' || backgroundImageType ==='color')"
                   class="form-field"
                   appearance="outline"
                 >
-                  <mat-label>Select your first color</mat-label>
+                  <mat-label *ngIf="backgroundImageType ==='gradient'"
+                    >Select your first color</mat-label
+                  >
+                  <mat-label *ngIf="backgroundImageType ==='color'"
+                    >Select your background color</mat-label
+                  >
                   <input
                     matInput
                     id="gradientColor1"
@@ -365,7 +371,7 @@
                     placeholder="Background Color 1"
                     [value]="gradientColor1"
                     formControlName="backgroundGradientColor1"
-                    (change)="createBackgroundGradient()"
+                    (change)="backgroundImageType ==='gradient' ? createBackgroundGradient() : createBackgroundColor()"
                   />
                 </mat-form-field>
 
@@ -622,9 +628,12 @@
         Login
       </button>
       <div class="text-container">
-        <h6 *ngIf="title === 'signup'" class="login-text">
-          Already have an account? Navigate to
-          <b>wwww.your-school-name/school/login</b> to login
+        <h6
+          *ngIf="title === 'signup'"
+          class="login-text"
+          (click)="openSchoolLoginRedirector()"
+        >
+          Already have an account? Click <b>here</b> to login
         </h6>
         <h6
           *ngIf="title === 'login' "

@@ -1,6 +1,6 @@
 <div
   class="login-page"
-  [style]="selectedBackgroundImage?.type !== 'gradient' ? 'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')' : 'background-image: ' + selectedBackgroundImage?.name"
+  [style]="selectedBackgroundImage?.type === 'pattern' || !selectedBackgroundImage?.type ? 'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')' : (selectedBackgroundImage?.type === 'color' ? 'background: ' + selectedBackgroundImage?.name : 'background-image: ' + selectedBackgroundImage?.name)"
 >
   <app-login-card
     *ngIf="userType !== 'school'"

@@ -1,5 +1,5 @@
 <mat-drawer-container
-  [style]="'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')'"
+  [style]="selectedBackgroundImage?.type === 'pattern' || !selectedBackgroundImage?.type ? 'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')' : (selectedBackgroundImage?.type === 'color' ? 'background: ' + selectedBackgroundImage?.name : 'background-image: ' + selectedBackgroundImage?.name)"
   class="main-page-container"
   autosize
 >

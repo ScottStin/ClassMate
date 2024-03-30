@@ -1,7 +1,15 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { finalize, first, Observable, of, Subscription, tap } from 'rxjs';
+import {
+  combineLatest,
+  finalize,
+  first,
+  Observable,
+  of,
+  Subscription,
+  tap,
+} from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { UserTableComponent } from 'src/app/components/user-table/user-table.component';
@@ -102,6 +110,12 @@ export class UserPageComponent implements OnInit, OnDestroy {
               if (currentUser.userType.toLocaleLowerCase() === 'student') {
                 this.pageName = 'teachers';
               }
+              if (
+                currentUser.userType.toLocaleLowerCase() === 'admin' ||
+                currentUser.userType.toLocaleLowerCase() === 'school'
+              ) {
+                this.pageName = 'teachers';
+              }
             }
             if (this.userType === 'Student') {
               if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
@@ -109,6 +123,12 @@ export class UserPageComponent implements OnInit, OnDestroy {
               }
               if (currentUser.userType.toLocaleLowerCase() === 'student') {
                 this.pageName = 'class mates';
+              }
+              if (
+                currentUser.userType.toLocaleLowerCase() === 'admin' ||
+                currentUser.userType.toLocaleLowerCase() === 'school'
+              ) {
+                this.pageName = 'teachers';
               }
             }
           }
@@ -119,41 +139,46 @@ export class UserPageComponent implements OnInit, OnDestroy {
 
   getUsers(): void {
     this.userPageLoading = true;
-    this.userService
-      .getAll()
-      .pipe(
-        first(),
-        tap(() => {
-          this.currentSchoolSubscription = this.currentSchool$.subscribe();
-          this.currentUserSubscription = this.currentUser$.subscribe();
-        }),
-        finalize(() => {
-          this.userPageLoading = false;
-        })
-      )
-      .subscribe({
-        next: (res) => {
-          const students = res.filter(
-            (user) =>
-              user.userType.toLowerCase() === this.userType.toLowerCase()
-          );
-          this.users$ = of(students);
-          this.filteredUsers$ = of(students);
-        },
-        error: (error: Error) => {
-          const snackbar = this.snackbarService.openPermanent(
-            'error',
-            `Error: Failed to load page: ${error.message}`,
-            'retry'
-          );
-          snackbar
-            .onAction()
-            .pipe(first())
-            .subscribe(() => {
-              this.getUsers();
-            });
-        },
-      });
+    this.currentSchool$.subscribe((currentSchool) => {
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (currentSchool?._id) {
+        this.userService
+          .getAllBySchoolId(currentSchool._id)
+          .pipe(
+            first(),
+            tap(() => {
+              this.currentSchoolSubscription = this.currentSchool$.subscribe();
+              this.currentUserSubscription = this.currentUser$.subscribe();
+            }),
+            finalize(() => {
+              this.userPageLoading = false;
+            })
+          )
+          .subscribe({
+            next: (res) => {
+              const students = res.filter(
+                (user) =>
+                  user.userType.toLowerCase() === this.userType.toLowerCase()
+              );
+              this.users$ = of(students);
+              this.filteredUsers$ = of(students);
+            },
+            error: (error: Error) => {
+              const snackbar = this.snackbarService.openPermanent(
+                'error',
+                `Error: Failed to load page: ${error.message}`,
+                'retry'
+              );
+              snackbar
+                .onAction()
+                .pipe(first())
+                .subscribe(() => {
+                  this.getUsers();
+                });
+            },
+          });
+      }
+    });
   }
 
   openEditUserDialog(data: { user: UserDTO; formType: string | null }): void {
@@ -220,8 +245,52 @@ export class UserPageComponent implements OnInit, OnDestroy {
   }
 
   addStudent(): void {
-    // eslint-disable-next-line no-console
-    console.log('test');
+    combineLatest([this.users$, this.currentSchool$])
+      .pipe(first())
+      .subscribe(([users, currentSchool]) => {
+        const dialogRef = this.dialog.open(EditUserDialogComponent, {
+          data: {
+            title: `${
+              this.pageName.toLocaleLowerCase() === 'students'
+                ? 'Create new student'
+                : 'Create new teacher'
+            }`,
+            currentUser: null,
+            existingUsers: users,
+            teacherForm: this.pageName.toLocaleLowerCase() !== 'students',
+          },
+        });
+        dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
+          if (
+            result &&
+            currentSchool?._id !== null &&
+            currentSchool?._id !== undefined
+          ) {
+            this.userService
+              .create({
+                ...result,
+                userType:
+                  this.pageName.toLocaleLowerCase() === 'students'
+                    ? 'student'
+                    : 'teacher',
+                schoolId: currentSchool._id,
+              })
+              .subscribe({
+                next: () => {
+                  this.snackbarService.open(
+                    'info',
+                    'User successfully created'
+                  );
+                  this.getUsers();
+                },
+                error: (error: Error) => {
+                  this.error = error;
+                  this.snackbarService.openPermanent('error', error.message);
+                },
+              });
+          }
+        });
+      });
   }
 
   filterResults(text: string): void {

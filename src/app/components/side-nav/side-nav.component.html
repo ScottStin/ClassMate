@@ -1,5 +1,5 @@
 <button
-  *ngIf="authStoreService.isLoggedIn$ | async"
+  *ngIf="(authStoreService.isLoggedIn$ | async) && currentUser?.userType?.toLowerCase() !== 'school'"
   class="edit-profile-button"
   [style.color]="pageStyles.primaryButtonTextColor"
   [style.background-color]="pageStyles.primaryButtonBackgroundColor"
@@ -10,8 +10,12 @@
 >
   <mat-icon>edit</mat-icon>
 </button>
-<div class="image-container">
-  <div class="profile-picture-container">
+<div
+  [class]="currentUser?.userType?.toLowerCase() !== 'school' ? 'image-container' : 'admin-image-container'"
+>
+  <div
+    [class]="currentUser?.userType?.toLowerCase() !== 'school' ? 'profile-picture-container' : 'admin-profile-picture-container'"
+  >
     <img [src]="profilePictureSrc" class="profile-picture" />
   </div>
   <mat-chip-list
@@ -28,7 +32,18 @@
       >Login / Signup</mat-chip
     ></mat-chip-list
   >
-  <h2 class="user-name-header" *ngIf="!hideNavText">{{currentUser?.name}}</h2>
+  <h2
+    class="user-name-header"
+    *ngIf="!hideNavText && currentUser?.userType?.toLowerCase() !== 'school'"
+  >
+    {{currentUser?.name}}
+  </h2>
+  <h4
+    class="user-name-header"
+    *ngIf="!hideNavText && currentUser?.userType?.toLowerCase() === 'school'"
+  >
+    {{currentUser?.name}}
+  </h4>
   <h2
     class="text-warning"
     *ngIf="currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
@@ -70,7 +85,8 @@
           '--primaryButtonTextColor': pageStyles.primaryButtonTextColor
         }"
       >
-        {{ menuItem.name}}
+        {{ currentUser?.userType?.toLowerCase() !== 'school' ||
+        !menuItem.adminName ? menuItem.name : menuItem.adminName}}
       </div>
     </mat-list-item>
   </div>

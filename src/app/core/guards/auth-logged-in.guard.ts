@@ -1,14 +1,10 @@
 import { Injectable } from '@angular/core';
-import {
-  ActivatedRouteSnapshot,
-  CanActivate,
-  Router,
-  RouterStateSnapshot,
-  UrlTree,
-} from '@angular/router';
-import { catchError, first, Observable, of, switchMap } from 'rxjs';
+import { CanActivate, Router, UrlTree } from '@angular/router';
+import { catchError, first, map, Observable, of, switchMap } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Injectable({
@@ -17,19 +13,32 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 export class AuthLoggedInGuard implements CanActivate {
   isLoggedIn$: Observable<boolean>;
   user$: Observable<{ user: UserDTO } | null>;
+  currentSchool$: Observable<SchoolDTO | null>;
 
   constructor(
     private readonly snackbarService: SnackbarService,
     private readonly router: Router,
-    public readonly authStoreService: AuthStoreService
+    public readonly authStoreService: AuthStoreService,
+    private readonly schoolService: SchoolService
   ) {}
 
-  private handleAccessDenied(): UrlTree {
+  private handleAccessDenied(): Observable<UrlTree> {
+    this.currentSchool$ = this.schoolService.currentSchool$;
     this.snackbarService.openPermanent(
       'warn',
       'You must be logged in to access this page.'
     );
-    return this.router.parseUrl(`/home`);
+    return this.currentSchool$.pipe(
+      map((currentSchool) => {
+        let urlPath = '/home';
+        if (currentSchool) {
+          urlPath = `/${currentSchool.name
+            .replace(/ /gu, '-')
+            .toLowerCase()}/home`;
+        }
+        return this.router.parseUrl(urlPath);
+      })
+    );
   }
 
   accessPermissionLoggedOut(): Observable<boolean> {
@@ -51,7 +60,7 @@ export class AuthLoggedInGuard implements CanActivate {
     return this.accessPermissionLoggedOut().pipe(
       switchMap((isAdminAccessAllowed) => {
         if (!isAdminAccessAllowed) {
-          return of(this.handleAccessDenied());
+          return this.handleAccessDenied();
         } else {
           return of(true as const);
         }

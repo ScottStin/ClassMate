@@ -1,6 +1,6 @@
 <div
   class="welcome-page"
-  [style]="'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')'"
+  [style]="selectedBackgroundImage?.type === 'pattern' || !selectedBackgroundImage?.type ? 'background-image: url(../../../assets/' + selectedBackgroundImage?.name + ')' : (selectedBackgroundImage?.type === 'color' ? 'background: ' + selectedBackgroundImage?.name : 'background-image: ' + selectedBackgroundImage?.name)"
 >
   <div class="container" *ngFor="let imageCard of imageCards; let i = index">
     <div

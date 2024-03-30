@@ -87,6 +87,7 @@ export class LessonCardComponent implements OnChanges {
       this.currentUser.level === null ||
       this.currentUser.level === undefined ||
       this.currentUser.userType.toLocaleLowerCase() === 'teacher' ||
+      this.currentUser.userType.toLowerCase() === 'school' ||
       // (this.currentUser.user.level &&
       lesson.level
         .map((level) => level.longName)

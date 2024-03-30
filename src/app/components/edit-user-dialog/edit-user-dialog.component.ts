@@ -29,6 +29,8 @@ export class EditUserDialogComponent implements OnInit {
     level: FormControl<LevelDTO | null>;
     // level: FormControl<string | null>;
     statement: FormControl<string>;
+    unhashedPassword: FormControl<string>;
+    passwordMatchInput: FormControl<string>;
     profilePicture: FormControl<{
       url: string;
       filename: string;
@@ -50,6 +52,7 @@ export class EditUserDialogComponent implements OnInit {
       currentUser: UserDTO | undefined;
       existingUsers: UserDTO[] | undefined;
       formType: string;
+      teacherForm?: boolean | null;
     },
     private readonly sanitizer: DomSanitizer,
     private readonly snackbarService: SnackbarService,
@@ -63,6 +66,10 @@ export class EditUserDialogComponent implements OnInit {
   }
 
   populateForm(): void {
+    const unhashedPasswordValidators = this.data.currentUser
+      ? []
+      : [Validators.required, this.passwordValidator()];
+
     this.userForm = new FormGroup({
       name: new FormControl(this.data.currentUser?.name ?? '', {
         validators: [],
@@ -87,6 +94,14 @@ export class EditUserDialogComponent implements OnInit {
       statement: new FormControl(this.data.currentUser?.statement ?? '', {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         validators: [this.wordCountValidator(10, 200)],
+        nonNullable: true,
+      }),
+      unhashedPassword: new FormControl('', {
+        validators: unhashedPasswordValidators,
+        nonNullable: true,
+      }),
+      passwordMatchInput: new FormControl('', {
+        validators: [this.passwordMatchValidator()],
         nonNullable: true,
       }),
       profilePicture: new FormControl<{
@@ -209,6 +224,51 @@ export class EditUserDialogComponent implements OnInit {
     }
 
     return true;
+  }
+
+  passwordValidator(): ValidatorFn {
+    return (control: AbstractControl): Record<string, unknown> | null => {
+      const value = control.value as string;
+      if (this.data.currentUser) {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        if (value.length < 6 || value.length > 14) {
+          return { passwordLength: true }; // Check length
+        } else if (!/[A-Z]/u.test(value)) {
+          return { passwordCapitalLetter: true }; // Check for at least one capital letter
+        } else if (!/[a-z]/u.test(value)) {
+          return { passwordLowercaseLetter: true }; // Check for at least one lowercase letter
+        } else if (!/[!@#$%^&*(),.?":{}|<>]/u.test(value)) {
+          return { passwordSpecialCharacter: true }; // Check for at least one special character
+        } else if (!/\d/u.test(value)) {
+          return { passwordDigit: true }; // Check for at least one number
+        } else if (
+          this.userForm.getRawValue().passwordMatchInput &&
+          this.userForm.getRawValue().passwordMatchInput !== value
+        ) {
+          return { passwordMatch: true }; // check if passwords match
+        } else {
+          return null; // Password meets all conditions
+        }
+      } else {
+        return null; // no conditions for login page
+      }
+    };
+  }
+
+  passwordMatchValidator(): ValidatorFn {
+    return (control: AbstractControl): Record<string, unknown> | null => {
+      const value = control.value as string;
+      if (
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        this.userForm?.getRawValue().unhashedPassword &&
+        this.userForm.getRawValue().unhashedPassword !== value &&
+        !this.data.currentUser
+      ) {
+        return { passwordMatch: true }; // check if passwords match
+      } else {
+        return null; // Password meets all conditions
+      }
+    };
   }
 
   closeDialog(result: unknown): void {

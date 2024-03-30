@@ -1,0 +1,34 @@
+<ng-container>
+  <app-dialog-header
+    dialogTitle="Enter you school email"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
+
+  <mat-dialog-content>
+    <div [formGroup]="redirectForm">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Email Address</mat-label>
+        <input
+          matInput
+          id="email"
+          formControlName="email"
+          type="text"
+          placeholder="Enter your email address"
+          required
+        />
+        <mat-error>
+          <app-error-message
+            [control]="redirectForm.controls['email'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <app-dialog-actions
+    (saveAction)="confirmClick()"
+    (cancelAction)="closeDialog()"
+    saveButtonName="OK"
+    cancelButtonName="Cancel"
+    [disabled]="redirectForm.invalid"
+  ></app-dialog-actions>
+</ng-container>

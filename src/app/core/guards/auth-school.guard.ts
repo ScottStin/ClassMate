@@ -30,7 +30,10 @@ export class AuthSchoolGuard implements CanActivate {
     this.currentUser$ = this.authStoreService.currentUser$;
     return this.currentUser$.pipe(
       switchMap((currentUser: UserDTO | null) => {
-        if (currentUser?.userType.toLowerCase() !== 'school') {
+        if (
+          currentUser?.userType.toLowerCase() !== 'school' &&
+          currentUser?.userType.toLowerCase() !== 'admin'
+        ) {
           return of(false);
         } else {
           return of(true);

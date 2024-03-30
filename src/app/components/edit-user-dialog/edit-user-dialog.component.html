@@ -1,7 +1,4 @@
 <ng-container>
-  <!-- <div class="dialog-title-container">
-    <h2 mat-dialog-title>{{data.title}}</h2>
-  </div> -->
   <app-dialog-header
     [dialogTitle]="data.title"
     (closeAction)="closeDialog(false)"
@@ -107,7 +104,7 @@
       <mat-form-field
         class="form-field"
         appearance="outline"
-        *ngIf="data.currentUser?.userType?.toLowerCase() === 'teacher'"
+        *ngIf="data.currentUser?.userType?.toLowerCase() === 'teacher' || data.teacherForm"
       >
         <mat-label>Personal Statement</mat-label>
         <textarea
@@ -116,11 +113,64 @@
           formControlName="statement"
           type="text"
           placeholder="Tell your students a little bit about yourself..."
-          [required]="this.data.currentUser?.userType === 'teacher'"
+          [required]="data.currentUser?.userType === 'teacher' || data.teacherForm === true"
         ></textarea>
         <mat-error>
           <app-error-message
             [control]="userForm.controls['statement'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        *ngIf="!data.currentUser"
+      >
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          id="unhashedPassword"
+          formControlName="unhashedPassword"
+          [type]="hidePassword ? 'password' : 'text'"
+          placeholder="Enter your password"
+          required
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          (click)="hidePassword = !hidePassword"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="hidePassword"
+        >
+          <mat-icon *ngIf="this.userForm.getRawValue().unhashedPassword !== ''"
+            >{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon
+          >
+        </button>
+        <mat-error>
+          <app-error-message
+            [control]="userForm.controls['unhashedPassword'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        class="form-field"
+        *ngIf="!data.currentUser && this.userForm.getRawValue().unhashedPassword !== ''"
+      >
+        <mat-label>Confirm Password</mat-label>
+        <input
+          matInput
+          id="passwordMatchInput"
+          formControlName="passwordMatchInput"
+          [type]="hidePassword ? 'password' : 'text'"
+          placeholder="Re-enter your password"
+          [required]="!data.currentUser"
+        />
+        <mat-error>
+          <app-error-message
+            [control]="userForm.controls['passwordMatchInput'].errors"
           ></app-error-message>
         </mat-error>
       </mat-form-field>

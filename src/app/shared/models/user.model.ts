@@ -13,7 +13,7 @@ export interface UserDTO {
   profilePicture?: ProfilePictureDTO | null;
   level?: LevelDTO | null;
   // level?: string | null;
-  schoolId: number | string; // replace with number only
+  schoolId: number | string;
   eltComplete: boolean;
   createdAt?: Date | null;
   updatedAt?: Date | null;
