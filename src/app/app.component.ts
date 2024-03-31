@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, Routes } from '@angular/router';
 import { first, Observable, Subscription } from 'rxjs';
 
 import { schools } from './app-routing.module';
+import { AuthStoreService } from './services/auth-store-service/auth-store.service';
 import { RouterService } from './services/router-service/router.service';
 import { SchoolService } from './services/school-service/school.service';
 import { SnackbarService } from './services/snackbar-service/snackbar.service';
@@ -23,6 +24,7 @@ export class AppComponent implements OnDestroy {
 
   constructor(
     private readonly schoolService: SchoolService,
+    private readonly authStoreService: AuthStoreService,
     private readonly routerService: RouterService,
     private readonly snackbarService: SnackbarService,
     private readonly router: Router,
@@ -65,9 +67,17 @@ export class AppComponent implements OnDestroy {
         );
         if (currentSchool) {
           this.schoolService.updateCurrentSchool(currentSchool);
-          this.addSchoolRoutes(
-            currentSchool.name.replace(/ /gu, '-').toLowerCase()
-          );
+          // this.addSchoolRoutes(
+          //   currentSchool.name.replace(/ /gu, '-').toLowerCase()
+          // );
+          this.authStoreService.logout();
+          const schoolName = currentSchool.name
+            .replace(/ /gu, '-')
+            .toLowerCase();
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          this.router.navigateByUrl(
+            `${schoolName}/welcome`
+          ) as Promise<boolean>;
         }
       },
       error: () => {

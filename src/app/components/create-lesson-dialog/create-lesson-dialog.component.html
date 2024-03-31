@@ -129,6 +129,30 @@
             </mat-error>
           </mat-form-field>
 
+          <mat-form-field
+            appearance="outline"
+            *ngIf="data.currentUser.userType.toLowerCase()==='school'"
+          >
+            <mat-label>Assigned teacher</mat-label>
+            <mat-select formControlName="assignedTeacher">
+              <mat-option
+                *ngFor="let teacher of data.teachers"
+                [value]="teacher.email"
+                ><img
+                  [src]="teacher.profilePicture?.url"
+                  alt="teacher image"
+                  class="thumbnail-image"
+                />{{teacher.name}}</mat-option
+              >
+            </mat-select>
+
+            <mat-error>
+              <app-error-message
+                [control]="lessonForm.controls['assignedTeacher'].errors"
+              ></app-error-message>
+            </mat-error>
+          </mat-form-field>
+
           <div class="lesson-button-container">
             <button
               mat-raised-button

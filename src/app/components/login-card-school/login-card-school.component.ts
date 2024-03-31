@@ -20,6 +20,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlider } from '@angular/material/slider';
 import { MatStepper } from '@angular/material/stepper';
+import { Router } from '@angular/router';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { combineLatest, Subject, Subscription } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -105,7 +106,8 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private readonly snackbarService: SnackbarService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -129,9 +131,6 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
     }
     if ('currentSchool' in changes) {
       this.populateSignupForm();
-    }
-    if ('schools' in changes) {
-      console.log(this.schools);
     }
   }
 
@@ -602,10 +601,12 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
 
   imageCropped(event: ImageCroppedEvent): void {
     this.photoLink = event.base64;
-    this.loginFormSchool?.controls.logoStep.controls.schoolLogo.setValue({
-      url: this.photoLink!,
-      filename: this.photoName,
-    });
+    if (this.photoLink !== undefined && this.photoLink !== null) {
+      this.loginFormSchool?.controls.logoStep.controls.schoolLogo.setValue({
+        url: this.photoLink,
+        filename: this.photoName,
+      });
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -735,6 +736,14 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
           this.loginFormSchool?.controls.detailStep.controls.emailInput.value,
       },
     });
+  }
+
+  async returnWelcomePage(): Promise<void> {
+    if (this.currentSchool) {
+      await this.router.navigate([
+        `${this.currentSchool.name.replace(/ /gu, '-').toLowerCase()}/welcome`,
+      ]);
+    }
   }
 }
 

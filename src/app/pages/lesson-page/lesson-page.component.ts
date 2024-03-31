@@ -2,6 +2,7 @@ import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
+  combineLatest,
   finalize,
   first,
   forkJoin,
@@ -36,6 +37,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   // --- Page data:
   error: Error;
   users$: Observable<UserDTO[]>;
+  teachers$: Observable<UserDTO[]>;
   lessons$: Observable<LessonDTO[]>;
   filteredLessons$: Observable<LessonDTO[]>;
   lessonPageLoading = true;
@@ -109,48 +111,66 @@ export class LessonPageComponent implements OnInit, OnDestroy {
 
   loadPageData(): void {
     this.lessonPageLoading = true;
-    forkJoin([this.userService.getAll(), this.lessonService.getAll()])
-      .pipe(
-        first(),
-        tap(() => {
-          this.currentSchoolSubscription = this.currentSchool$.subscribe();
-          this.currentUserSubscription = this.currentUser$.subscribe();
-        }),
-        finalize(() => {
-          this.lessonPageLoading = false;
-        })
-      )
-      .subscribe({
-        next: ([, lessons]) => {
-          lessons.sort((a, b) => {
-            const dateA = new Date(a.startTime);
-            const dateB = new Date(b.startTime);
+    this.currentSchoolSubscription = this.currentSchool$.subscribe(
+      (currentSchool) => {
+        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/strict-boolean-expressions
+        if (currentSchool && currentSchool._id) {
+          forkJoin([
+            this.userService.getAllBySchoolId(currentSchool._id),
+            this.lessonService.getAllBySchoolId(currentSchool._id),
+          ])
+            .pipe(
+              first(),
+              tap(() => {
+                // this.currentSchoolSubscription = this.currentSchool$.subscribe();
+                this.currentUserSubscription = this.currentUser$.subscribe();
+              }),
+              finalize(() => {
+                this.lessonPageLoading = false;
+              })
+            )
+            .subscribe({
+              next: ([users, lessons]) => {
+                // --- sort lessons:
+                lessons.sort((a, b) => {
+                  const dateA = new Date(a.startTime);
+                  const dateB = new Date(b.startTime);
 
-            if (dateA < dateB) {
-              return -1;
-            } else if (dateA > dateB) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          this.lessons$ = of(lessons);
-          this.filteredLessons$ = of(lessons);
-        },
-        error: (error: Error) => {
-          const snackbar = this.snackbarService.openPermanent(
-            'error',
-            `Error: Failed to load page: ${error.message}`,
-            'retry'
-          );
-          snackbar
-            .onAction()
-            .pipe(first())
-            .subscribe(() => {
-              this.loadPageData();
+                  if (dateA < dateB) {
+                    return -1;
+                  } else if (dateA > dateB) {
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                });
+                this.lessons$ = of(lessons);
+                this.filteredLessons$ = of(lessons);
+
+                // filter users for teachers:
+
+                const teachers = users.filter(
+                  (user) => user.userType.toLowerCase() === 'teacher'
+                );
+                this.teachers$ = of(teachers);
+              },
+              error: (error: Error) => {
+                const snackbar = this.snackbarService.openPermanent(
+                  'error',
+                  `Error: Failed to load page: ${error.message}`,
+                  'retry'
+                );
+                snackbar
+                  .onAction()
+                  .pipe(first())
+                  .subscribe(() => {
+                    this.loadPageData();
+                  });
+              },
             });
-        },
-      });
+        }
+      }
+    );
   }
 
   getCurrentSchoolDetails(): void {
@@ -185,8 +205,13 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   } // todo - move to lesson service
 
   createLesson(): void {
-    this.currentUserSubscription = this.currentUser$.subscribe(
-      (currentUser) => {
+    this.currentUserSubscription = combineLatest([
+      this.currentUser$,
+      this.teachers$,
+      this.currentSchool$,
+    ])
+      .pipe(first())
+      .subscribe(([currentUser, teachers, currentSchool]) => {
         if (currentUser) {
           const dialogRef = this.dialog.open(CreateLessonDialogComponent, {
             data: {
@@ -194,6 +219,8 @@ export class LessonPageComponent implements OnInit, OnDestroy {
               rightButton: 'Create',
               leftButton: 'Cancel',
               currentUser,
+              teachers,
+              currentSchool,
             },
           });
           dialogRef
@@ -216,8 +243,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
               }
             });
         }
-      }
-    );
+      });
   }
 
   deleteLesson(lesson: LessonDTO): void {

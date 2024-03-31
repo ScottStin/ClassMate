@@ -20,6 +20,7 @@ export const schools = [
   'English-Solutions',
   'test-new-1',
   'test-new-school-6',
+  'international-house', // admin@ih.com Test123?
 ];
 
 const routes: Routes = [];

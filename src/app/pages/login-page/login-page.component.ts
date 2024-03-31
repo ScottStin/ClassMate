@@ -264,41 +264,44 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     signup?: boolean,
     route?: string
   ): void {
-    this.authStoreService.login(userDetails).subscribe(
-      () => {
-        this.currentSchool$.pipe(first()).subscribe((currentSchool) => {
-          this.router
-            .navigateByUrl(
-              route !== undefined
-                ? route
-                : currentSchool
-                ? `/${currentSchool.name
-                    .replace(/ /gu, '-')
-                    .toLowerCase()}/home`
-                : '/home'
-            )
-            .then(() => {
-              this.currentUserSubscription = this.currentUser$.subscribe(
-                (currentUser) => {
-                  if (currentUser) {
-                    const firstName = currentUser.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
-                    if (!(signup ?? false)) {
-                      this.snackbarService.open(
-                        'info',
-                        `Welcome back, ${firstName}!`
-                      );
-                    } else {
-                      this.snackbarService.open('info', message);
+    this.currentSchool$.pipe(first()).subscribe(
+      (currentSchool) => {
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        if (currentSchool?._id) {
+          this.authStoreService
+            .login(userDetails, currentSchool._id)
+            .subscribe(() => {
+              this.router
+                .navigateByUrl(
+                  route !== undefined
+                    ? route
+                    : `/${currentSchool.name
+                        .replace(/ /gu, '-')
+                        .toLowerCase()}/home`
+                )
+                .then(() => {
+                  this.currentUserSubscription = this.currentUser$.subscribe(
+                    (currentUser) => {
+                      if (currentUser) {
+                        const firstName = currentUser.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
+                        if (!(signup ?? false)) {
+                          this.snackbarService.open(
+                            'info',
+                            `Welcome back, ${firstName}!`
+                          );
+                        } else {
+                          this.snackbarService.open('info', message);
+                        }
+                      }
                     }
-                  }
-                }
-              );
-            })
-            .catch((error) => {
-              // eslint-disable-next-line no-console
-              console.log(error);
+                  );
+                })
+                .catch((error) => {
+                  // eslint-disable-next-line no-console
+                  console.log(error);
+                });
             });
-        });
+        }
       },
       (error) => {
         // eslint-disable-next-line no-console
@@ -316,36 +319,41 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     message: string,
     signup?: boolean
   ): void {
-    this.authStoreService.login(userDetails).subscribe(
-      () => {
-        this.currentSchool$.pipe(first()).subscribe((currentSchool) => {
-          if (currentSchool) {
-            this.router
-              .navigateByUrl(
-                `/${currentSchool.name.replace(/ /gu, '-').toLowerCase()}/home`
-              )
-              .then(() => {
-                this.currentUserSubscription = this.currentUser$.subscribe(
-                  (currentUser) => {
-                    if (currentUser) {
-                      if (!(signup ?? false)) {
-                        this.snackbarService.open(
-                          'info',
-                          `Welcome back, ${currentSchool.name}!`
-                        );
-                      } else {
-                        this.snackbarService.open('info', message);
+    this.currentSchool$.pipe(first()).subscribe(
+      (currentSchool) => {
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        if (currentSchool?._id) {
+          this.authStoreService
+            .login(userDetails, currentSchool._id)
+            .subscribe(() => {
+              this.router
+                .navigateByUrl(
+                  `/${currentSchool.name
+                    .replace(/ /gu, '-')
+                    .toLowerCase()}/home`
+                )
+                .then(() => {
+                  this.currentUserSubscription = this.currentUser$.subscribe(
+                    (currentUser) => {
+                      if (currentUser) {
+                        if (!(signup ?? false)) {
+                          this.snackbarService.open(
+                            'info',
+                            `Welcome back, ${currentSchool.name}!`
+                          );
+                        } else {
+                          this.snackbarService.open('info', message);
+                        }
                       }
                     }
-                  }
-                );
-              })
-              .catch((error) => {
-                // eslint-disable-next-line no-console
-                console.log(error);
-              });
-          }
-        });
+                  );
+                })
+                .catch((error) => {
+                  // eslint-disable-next-line no-console
+                  console.log(error);
+                });
+            });
+        }
       },
       (error) => {
         // eslint-disable-next-line no-console

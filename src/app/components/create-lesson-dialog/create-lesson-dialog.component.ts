@@ -23,9 +23,10 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { CronOptions } from 'ngx-cron-editor';
 import { Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
-import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+// import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { demoLessonTypes, demoLevels } from 'src/app/shared/demo-data';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -48,6 +49,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     sizeInput: FormControl<number>;
     lengthInput: FormControl<number>;
     levelInput: FormControl<LevelDTO[]>;
+    assignedTeacher: FormControl<string>;
   }>;
 
   public cronOptions: CronOptions = {
@@ -91,8 +93,10 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
       leftButton: string;
       body: LessonDTO | undefined;
       currentUser: UserDTO;
+      currentSchool: SchoolDTO;
+      teachers: UserDTO[];
     },
-    public readonly authStoreService: AuthStoreService,
+    // public readonly authStoreService: AuthStoreService,
     public dialogRef: MatDialogRef<CreateLessonDialogComponent>,
     public dialog: MatDialog
   ) {}
@@ -186,6 +190,10 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
+      assignedTeacher: new FormControl('', {
+        validators: [],
+        nonNullable: true,
+      }),
     });
     this.formPopulated.next(true);
   }
@@ -195,12 +203,20 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     const userEmail = this.data.currentUser.email;
     const formValue = this.lessonForm.getRawValue();
     this.lessons?.push({
-      teacher: userEmail,
+      teacher:
+        this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
+          ? userEmail
+          : this.lessonForm.controls.assignedTeacher.value,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       startTime: formValue.dateInput!,
       maxStudents: formValue.sizeInput,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       type: formValue.typeInput!,
+      schoolId:
+        this.data.currentSchool._id !== undefined &&
+        this.data.currentSchool._id !== null
+          ? this.data.currentSchool._id
+          : '',
       level: formValue.levelInput,
       name: formValue.nameInput,
       duration: formValue.lengthInput,

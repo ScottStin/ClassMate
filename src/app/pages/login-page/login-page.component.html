@@ -14,6 +14,7 @@
     [selectedBackgroundImage]="selectedBackgroundImage"
     [primaryButtonBackgroundColor]="primaryButtonBackgroundColor"
     [primaryButtonTextColor]="primaryButtonTextColor"
+    [currentSchool]="currentSchool$ | async"
     (cardFlipped)="onCardFlipped($event)"
     (signup)="signup($event)"
     (login)="login($event,'')"

@@ -8,6 +8,7 @@ import {
   shareReplay,
   tap,
 } from 'rxjs';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
@@ -32,7 +33,8 @@ export class AuthStoreService {
 
   constructor(
     private readonly httpClient: HttpClient,
-    private readonly errorService: ErrorService
+    private readonly errorService: ErrorService,
+    private readonly snackbarService: SnackbarService
   ) {
     // this.isLoggedIn$ = this.user$.pipe(map((user) => !!user));
     this.isLoggedIn$ = this.currentUser$.pipe(map((user) => !!user));
@@ -77,9 +79,15 @@ export class AuthStoreService {
     }
   }
 
-  login(user: UserLoginDTO): Observable<{ user: UserDTO }> {
+  login(
+    user: UserLoginDTO,
+    currentSchoolId: string
+  ): Observable<{ user: UserDTO }> {
     return this.httpClient
-      .post<{ user: UserDTO }>(`${this.baseUrl}/login`, user)
+      .post<{ user: UserDTO }>(`${this.baseUrl}/login`, {
+        user,
+        currentSchoolId,
+      })
       .pipe(
         tap((res) => {
           // this.subject.next(res);
@@ -88,7 +96,12 @@ export class AuthStoreService {
           this.updateCurrentUser(res.user);
         }),
         shareReplay(),
-        catchError((error: Error) => {
+        catchError((error: HttpErrorResponse) => {
+          this.snackbarService.open(
+            'error',
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
+            `${error.error.error}`
+          );
           this.handleError(error, 'Failed to login');
         })
       );

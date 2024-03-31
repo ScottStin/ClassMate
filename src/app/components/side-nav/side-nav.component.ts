@@ -214,7 +214,7 @@ export const menuItems: MenuItemDTO[] = [
   {
     name: 'My Classes',
     adminName: 'Class',
-    use: ['student', 'teacher'],
+    use: ['student', 'teacher', 'school'],
     icon: 'class',
     routerLink: '/lessons',
     searchBar: 'Search your lessons...',

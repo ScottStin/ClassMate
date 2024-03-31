@@ -4,6 +4,7 @@ import { LevelDTO, UserDTO } from './user.model';
 export interface LessonDTO {
   _id?: string;
   teacher: UserDTO | string;
+  schoolId: string;
   type: LessonTypeDTO;
   startTime: string;
   duration: number;

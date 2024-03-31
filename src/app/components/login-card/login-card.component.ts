@@ -16,10 +16,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -32,6 +34,7 @@ export class LoginCardComponent implements OnInit, OnChanges {
   @Input() title!: string;
   @Input() users!: UserDTO[] | null;
   @Input() usersLoading!: boolean;
+  @Input() currentSchool: SchoolDTO | null;
   @Input() userType: string;
   @Input() isFlipped!: boolean;
   @Input() photoSrc!: string;
@@ -64,7 +67,10 @@ export class LoginCardComponent implements OnInit, OnChanges {
 
   formPopulated = new Subject<boolean>();
 
-  constructor(private readonly snackbarService: SnackbarService) {}
+  constructor(
+    private readonly snackbarService: SnackbarService,
+    private readonly router: Router
+  ) {}
 
   ngOnInit(): void {
     this.users?.map((user: UserDTO) => user.email);
@@ -239,5 +245,13 @@ export class LoginCardComponent implements OnInit, OnChanges {
       email: formValue.emailInput,
       unhashedPassword: formValue.passwordInput,
     });
+  }
+
+  async returnWelcomePage(): Promise<void> {
+    if (this.currentSchool) {
+      await this.router.navigate([
+        `${this.currentSchool.name.replace(/ /gu, '-').toLowerCase()}/welcome`,
+      ]);
+    }
   }
 }

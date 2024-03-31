@@ -4,7 +4,12 @@
       [class]="title === 'signup' ? 'card__face card__face--front' : 'card__face card__face--back'"
     >
       <mat-card-header>
-        <mat-card-title>{{title | titlecase}}</mat-card-title>
+        <mat-card-title
+          ><span style="cursor: pointer" (click)="returnWelcomePage()"
+            >{{currentSchool?.name}}</span
+          >
+          > {{title | titlecase}}</mat-card-title
+        >
       </mat-card-header>
 
       <div class="image-container">

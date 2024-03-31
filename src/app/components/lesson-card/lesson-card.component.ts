@@ -108,7 +108,8 @@ export class LessonCardComponent implements OnChanges {
       return this.filterLessonLevel(lesson); // If we're on the home page and the lesson type matches the type filter, show the lesson
     } else if (
       this.pageName === 'lessons' &&
-      this.currentUser?.email === this.teacher?.email
+      (this.currentUser?.email === this.teacher?.email ||
+        this.currentUser?.userType === 'school')
     ) {
       return true; // if we're on the 'my classes' page and the class belongs to the current logged in teacher
     } else if (

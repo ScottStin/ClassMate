@@ -31,6 +31,19 @@ export class LessonService {
     );
   }
 
+  getAllBySchoolId(currentSchoolId: string): Observable<LessonDTO[]> {
+    return this.httpClient
+      .get<LessonDTO[]>(`${this.baseUrl}?currentSchoolId=${currentSchoolId}`)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to load lessons');
+        }),
+        tap((lessons) => {
+          this.lessonSubject.next(lessons);
+        })
+      );
+  }
+
   create(data: LessonDTO[]): Observable<LessonDTO[]> {
     return this.httpClient.post<LessonDTO[]>(`${this.baseUrl}/new`, data).pipe(
       catchError((error: Error) => {

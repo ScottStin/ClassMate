@@ -86,51 +86,59 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   loadPageData(): void {
     this.homePageLoading = true;
-    forkJoin([
-      this.userService.getAll(),
-      this.lessonService.getAll(),
-      this.lessonTypeService.getAll(),
-    ])
-      .pipe(
-        first(),
-        tap(() => {
-          this.currentSchoolSubscription = this.currentSchool$.subscribe();
-          this.currentUserSubscription = this.currentUser$.subscribe();
-        }),
-        finalize(() => {
-          this.homePageLoading = false;
-        })
-      )
-      .subscribe({
-        next: ([, lessons]) => {
-          lessons.sort((a, b) => {
-            const dateA = new Date(a.startTime);
-            const dateB = new Date(b.startTime);
+    this.currentSchoolSubscription = this.currentSchool$.subscribe(
+      (currentSchool) => {
+        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/strict-boolean-expressions
+        if (currentSchool && currentSchool._id) {
+          forkJoin([
+            this.userService.getAllBySchoolId(currentSchool._id),
+            this.lessonService.getAllBySchoolId(currentSchool._id),
+            this.lessonTypeService.getAll(),
+          ])
+            .pipe(
+              first(),
+              tap(() => {
+                // this.currentSchoolSubscription =
+                //   this.currentSchool$.subscribe();
+                this.currentUserSubscription = this.currentUser$.subscribe();
+              }),
+              finalize(() => {
+                this.homePageLoading = false;
+              })
+            )
+            .subscribe({
+              next: ([, lessons]) => {
+                lessons.sort((a, b) => {
+                  const dateA = new Date(a.startTime);
+                  const dateB = new Date(b.startTime);
 
-            if (dateA < dateB) {
-              return -1;
-            } else if (dateA > dateB) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          this.lessons$ = of(lessons);
-        },
-        error: (error: Error) => {
-          const snackbar = this.snackbarService.openPermanent(
-            'error',
-            `Error: Failed to load page: ${error.message}`,
-            'retry'
-          );
-          snackbar
-            .onAction()
-            .pipe(first())
-            .subscribe(() => {
-              this.loadPageData();
+                  if (dateA < dateB) {
+                    return -1;
+                  } else if (dateA > dateB) {
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                });
+                this.lessons$ = of(lessons);
+              },
+              error: (error: Error) => {
+                const snackbar = this.snackbarService.openPermanent(
+                  'error',
+                  `Error: Failed to load page: ${error.message}`,
+                  'retry'
+                );
+                snackbar
+                  .onAction()
+                  .pipe(first())
+                  .subscribe(() => {
+                    this.loadPageData();
+                  });
+              },
             });
-        },
-      });
+        }
+      }
+    );
   }
 
   getCurrentSchoolDetails(): void {
