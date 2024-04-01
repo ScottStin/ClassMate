@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { AuthStoreService } from '../auth-store-service/auth-store.service';
@@ -81,8 +81,6 @@ export class UserService {
     },
     id: string
   ): Observable<UserDTO> {
-    console.log(data);
-    console.log(id);
     return this.httpClient.patch<UserDTO>(`${this.baseUrl}/${id}`, data).pipe(
       tap((updatedUser) => {
         this.authStoreService.updateCurrentUser(updatedUser);

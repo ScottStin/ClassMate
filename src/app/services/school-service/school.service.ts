@@ -37,17 +37,7 @@ export class SchoolService {
 
   updateCurrentSchool(school: SchoolDTO): void {
     this.currentSchoolSubject.next(school);
-    const currentSchoolString = localStorage.getItem('current_school');
-    let currentSchool;
-    if (currentSchoolString !== null) {
-      currentSchool = JSON.parse(currentSchoolString) as
-        | { school: SchoolDTO }
-        | undefined;
-    }
-    if (currentSchool) {
-      currentSchool.school = school;
-      localStorage.setItem('current_school', JSON.stringify(currentSchool));
-    }
+    localStorage.setItem('current_school', JSON.stringify(school));
   }
 
   schoolLogout(): void {
@@ -70,6 +60,14 @@ export class SchoolService {
     return this.httpClient.post<SchoolDTO>(`${this.baseUrl}`, data).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to create new school');
+      })
+    );
+  }
+
+  update(data: Partial<SchoolDTO>, id: string): Observable<SchoolDTO> {
+    return this.httpClient.patch<SchoolDTO>(`${this.baseUrl}/${id}`, data).pipe(
+      catchError((error: Error) => {
+        this.handleError(error, 'Failed to update school');
       })
     );
   }

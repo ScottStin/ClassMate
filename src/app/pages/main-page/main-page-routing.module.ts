@@ -1,9 +1,7 @@
 /* eslint-disable prettier/prettier *//* eslint-disable linebreak-style */
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { schools } from 'src/app/app-routing.module';
 import { AuthLoggedInGuard } from 'src/app/core/guards/auth-logged-in.guard';
-import { SchoolDTO } from 'src/app/shared/models/school.model';
 
 import { MainPageComponent } from './main-page.component';
 
@@ -35,6 +33,12 @@ const routes: Routes = [
         loadChildren: async () =>
           (await import('../exam-page/exam-page.module')).ExamPageModule,
       },
+      {
+        path: 'admin',
+        canActivate: [AuthLoggedInGuard],
+        loadChildren: async () =>
+          (await import('../admin-page/admin-page.module')).AdminPageModule,
+      },
     ],
   },
 ];
@@ -45,21 +49,18 @@ const routes: Routes = [
 })
 export class MainPageRoutingModule {
   // currentSchool: SchoolDTO | undefined = undefined;
-
   // constructor() {
-    // const currentSchoolString: string | null =
-    //   localStorage.getItem('current_school');
-    // this.currentSchool = (
-    //   currentSchoolString !== null ? JSON.parse(currentSchoolString) : undefined
-    // ) as SchoolDTO | undefined;
-    // this.addSchoolRoute();
+  // const currentSchoolString: string | null =
+  //   localStorage.getItem('current_school');
+  // this.currentSchool = (
+  //   currentSchoolString !== null ? JSON.parse(currentSchoolString) : undefined
+  // ) as SchoolDTO | undefined;
+  // this.addSchoolRoute();
   // }
-
   // addSchoolRoute(): void {
   //   console.log(schools);
   //   if (this.currentSchool !== undefined) {
   //     // for (const route of children) {
-
   //     // if (route.path !== undefined) {
   //       for (const school of schools) {
   //         routes.push(
@@ -92,6 +93,6 @@ export class MainPageRoutingModule {
   //     // }
   //     // }
   //   }
-    // console.log(routes);
+  // console.log(routes);
   // }
 }

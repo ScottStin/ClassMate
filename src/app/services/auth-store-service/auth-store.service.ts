@@ -66,17 +66,7 @@ export class AuthStoreService {
 
   updateCurrentUser(user: UserDTO | null): void {
     this.currentUserSubject.next(user);
-    const currentUserString = localStorage.getItem('current_user');
-    let currentUser;
-    if (currentUserString !== null) {
-      currentUser = JSON.parse(currentUserString) as
-        | { user: UserDTO }
-        | undefined;
-    }
-    if (currentUser && user) {
-      currentUser.user = user;
-      localStorage.setItem('current_user', JSON.stringify(currentUser));
-    }
+    localStorage.setItem('current_user', JSON.stringify(user));
   }
 
   login(

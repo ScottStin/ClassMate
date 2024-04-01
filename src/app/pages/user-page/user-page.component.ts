@@ -199,6 +199,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
               {
                 ...result,
                 previousProfilePicture: data.user.profilePicture,
+                schoolId: '6609279a1adcaa324759e3f2',
               },
               data.user._id !== null && data.user._id !== undefined
                 ? data.user._id

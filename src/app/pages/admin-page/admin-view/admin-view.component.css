@@ -1,0 +1,56 @@
+.card {
+    margin:25px;
+    height:fit-content;
+    padding:50px;
+}
+
+
+.config-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 0;
+    /* height: 42px; */
+  
+    .config-item-label {
+      flex: 0 1 200px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .config-item-tooltip {
+      flex: 0 1 24px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+    }
+
+    .config-item-value {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      max-width:60%;
+      padding: 10px 50px;
+    }
+  
+    .edit-text-input {
+      text-align: left;
+    }
+  
+    .config-item-actions {
+      flex: 0 0 24px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
+
+  .inline-form-field.mat-mdc-form-field {
+    margin-top: 16px;
+  }

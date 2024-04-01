@@ -368,9 +368,9 @@ export const menuItems: MenuItemDTO[] = [
     name: 'Administration',
     icon: 'settings',
     use: ['school', 'teacher'],
-    routerLink: '',
-    label: '',
-    breadcrumb: 'school',
+    routerLink: '/admin',
+    label: '/admin',
+    breadcrumb: 'admin',
   },
 ];
 

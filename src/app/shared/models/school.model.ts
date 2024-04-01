@@ -6,6 +6,7 @@ export interface SchoolDTO {
   name: string;
   email: string;
   phone?: string | null;
+  address?: string | null;
   nationality: string;
   description: string;
   hasedPassword?: string | null;

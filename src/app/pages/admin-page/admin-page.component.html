@@ -1,0 +1,20 @@
+<app-header-card
+  [currentSchool]="currentSchool$ | async"
+  [currentUser]="currentUser$ | async"
+  [pageName]="'admin'"
+  [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
+></app-header-card>
+<mat-progress-bar
+  [style]="{ visibility: adminPageLoading ? 'visible' : 'hidden' }"
+  mode="query"
+></mat-progress-bar>
+<div class="page-content">
+  <app-admin-view
+    [primaryButtonBackgroundColor]="primaryButtonBackgroundColor"
+    [primaryButtonTextColor]="primaryButtonTextColor"
+    [selectedBackgroundImage]="selectedBackgroundImage"
+    [adminPageLoading]="adminPageLoading"
+    [currentSchool]="currentSchool$ | async"
+    (saveSchoolDetails)="saveSchoolDetails($event)"
+  ></app-admin-view>
+</div>

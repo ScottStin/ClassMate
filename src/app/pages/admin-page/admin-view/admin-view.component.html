@@ -1,0 +1,122 @@
+<mat-tab-group
+  class="home-tab-group"
+  mat-stretch-tabs
+  [ngStyle]="{
+'--primaryButtonBackgroundColor': primaryButtonBackgroundColor
+}"
+>
+  <mat-tab label="Details" *ngIf="adminForm" [formGroup]="adminForm">
+    <mat-card
+      *ngIf="adminForm.controls['detailStep'] as detailStepForm"
+      formGroupName="detailStep"
+      class="card"
+    >
+      <div class="config-item" *ngFor="let row of dataRows; let i = index">
+        <div class="config-item-label">{{row.title}}</div>
+        <mat-icon
+          class="config-item-tooltip"
+          matTooltipPosition="after"
+          [matTooltip]="row.tooltip"
+        >
+          info
+        </mat-icon>
+        <div class="config-item-value">
+          <span *ngIf="edit?.dataRef !== row.dataRef"
+            >{{ detailStepForm.controls[row.dataRef].value }}</span
+          >
+          <!-- <span *ngIf="edit?.dataRef !== row.dataRef"
+            >placeholder test 123</span
+          > -->
+          <span *ngIf="edit?.dataRef === row.dataRef">
+            <!-- <form> -->
+            <mat-form-field class="inline-form-field" subscriptSizing="dynamic">
+              <mat-label>{{row.title}}</mat-label>
+              <input
+                [attr.id]="row.dataRef"
+                [formControlName]="row.dataRef"
+                class="edit-text-input"
+                matInput
+                [placeholder]="detailStepForm.controls[row.dataRef].value"
+                type="text"
+                *ngIf="!row.formType"
+              />
+              <textarea
+                [attr.id]="row.dataRef"
+                [formControlName]="row.dataRef"
+                class="edit-text-input"
+                matInput
+                [placeholder]="detailStepForm.controls[row.dataRef].value"
+                type="text"
+                *ngIf="row.formType === 'text-area'"
+              ></textarea>
+              <mat-select
+                [formControlName]="row.dataRef"
+                *ngIf="row.formType === 'select'"
+              >
+                <mat-option value="other">Select country...</mat-option>
+                <mat-option
+                  *ngFor="let country of countryList"
+                  [value]="country"
+                >
+                  {{ country }}
+                </mat-option>
+                <mat-option value="other">OTHER</mat-option>
+              </mat-select>
+              <mat-error>
+                <app-error-message
+                  [control]="detailStepForm.controls[row.dataRef].errors"
+                ></app-error-message>
+              </mat-error>
+            </mat-form-field>
+            <!-- </form> -->
+          </span>
+        </div>
+        <div class="config-item-actions">
+          <button
+            *ngIf="edit?.dataRef !== row.dataRef"
+            mat-button
+            type="button"
+            (click)="edit?.dataRef !== row.dataRef ? openEdit(row) : closeEdit()"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            *ngIf="edit?.dataRef === row.dataRef"
+            #tooltip="matTooltip"
+            matTooltip="Submit changes"
+            mat-icon-button
+            style="cursor: pointer"
+            [disabled]="detailStepForm.controls[row.dataRef].errors"
+            (click)="onSaveClick(row, detailStepForm.controls[row.dataRef].value)"
+          >
+            <mat-icon>done</mat-icon>
+          </button>
+          <button
+            *ngIf="edit?.dataRef === row.dataRef"
+            #tooltip="matTooltip"
+            mat-icon-button
+            matTooltip="Discard changes"
+            style="cursor: pointer"
+            (click)="closeEdit()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      <mat-card-actions
+        align="end"
+        *ngIf="currentSchool?.updatedAt"
+        style="opacity: 50%; margin-top: 20px"
+        ><i>Last Updated: {{currentSchool?.updatedAt | date:'dd-MMM-yyyy'}}</i>
+      </mat-card-actions>
+    </mat-card>
+  </mat-tab>
+  <mat-tab label="Styles"> <mat-card class="card"> test </mat-card></mat-tab>
+  <mat-tab label="Background">
+    <mat-card class="card"> test </mat-card></mat-tab
+  >
+  <!-- <mat-tab label="Logo"> <mat-card class="card"> test </mat-card></mat-tab> -->
+  <mat-tab label="Lessons"> <mat-card class="card"> test </mat-card></mat-tab>
+  <mat-tab label="Payments"> <mat-card class="card"> test </mat-card></mat-tab>
+  <mat-tab label="Data"> <mat-card class="card"> test </mat-card></mat-tab>
+</mat-tab-group>
