@@ -4,6 +4,10 @@ import { Observable, Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import {
+  TempStylesDTO,
+  TempStylesService,
+} from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
@@ -24,7 +28,9 @@ export class AdminPageComponent implements OnInit, OnDestroy {
   // --- auth data and subscriptions:
   currentUser$: Observable<UserDTO | null>;
   private currentSchoolSubscription: Subscription | null;
+  private temporaryStylesSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
+  temporaryStyles$: Observable<TempStylesDTO | null>;
 
   // --- styles:
   defaultStyles = defaultStyles;
@@ -36,14 +42,35 @@ export class AdminPageComponent implements OnInit, OnDestroy {
   constructor(
     private readonly snackbarService: SnackbarService,
     public readonly authStoreService: AuthStoreService,
+    public readonly tempStylesService: TempStylesService,
     public readonly schoolService: SchoolService,
     public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.currentSchool$ = this.schoolService.currentSchool$;
+    this.temporaryStyles$ = this.tempStylesService.temporaryStyles$;
     this.currentUser$ = this.authStoreService.currentUser$;
     this.getCurrentSchoolDetails();
+    this.getTempStyles();
+  }
+
+  getTempStyles(): void {
+    this.temporaryStylesSubscription = this.temporaryStyles$.subscribe(
+      (tempStyles) => {
+        if (tempStyles) {
+          if (tempStyles.primaryButtonBackgroundColor !== undefined) {
+            this.primaryButtonBackgroundColor =
+              tempStyles.primaryButtonBackgroundColor;
+          }
+          if (tempStyles.primaryButtonTextColor !== undefined) {
+            this.primaryButtonTextColor = tempStyles.primaryButtonTextColor;
+          }
+        } else {
+          this.getCurrentSchoolDetails();
+        }
+      }
+    );
   }
 
   getCurrentSchoolDetails(): void {
@@ -95,9 +122,16 @@ export class AdminPageComponent implements OnInit, OnDestroy {
       });
   }
 
+  updateTempStyles(tempStyles: TempStylesDTO | null): void {
+    this.tempStylesService.updateTemporaryStyles(tempStyles);
+  }
+
   ngOnDestroy(): void {
     if (this.currentSchoolSubscription) {
       this.currentSchoolSubscription.unsubscribe();
+    }
+    if (this.temporaryStylesSubscription) {
+      this.temporaryStylesSubscription.unsubscribe();
     }
   }
 }

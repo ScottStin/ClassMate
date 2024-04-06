@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  NgIterable,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 import {
@@ -8,8 +15,10 @@ import {
   LessonStep,
   LogoStep,
 } from 'src/app/components/login-card-school/login-card-school.component';
+import { TempStylesDTO } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
+import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 
 @Component({
@@ -27,127 +36,146 @@ export class AdminViewComponent implements OnInit {
     key: string;
     value: string;
   }>();
+  @Output() updateTempStyles = new EventEmitter<TempStylesDTO | null>();
 
   countryList = countryList;
-  edit: AdminSettingRow | null = null;
+  defaultStyles = defaultStyles;
+  edit: AdminSettingRow | AdminStylesRow | null = null;
 
-  // readonly tabs: { details: AdminSettingRow[]; styles: AdminStylesRow[] }[] = [
-  //   {
-  //     details: [
-  //       {
-  //         dataRef: 'nameInput',
-  //         tooltip: `The name of your school.`,
-  //         title: `Name`,
-  //         key: 'name',
-  //       },
-  //       {
-  //         dataRef: 'emailInput',
-  //         tooltip: `The admin email of your school. This will be used to log in and out and for students to contact you.`,
-  //         title: `Email`,
-  //         key: 'email',
-  //       },
-  //       {
-  //         dataRef: 'countryInput',
-  //         tooltip: `In what country is your school based?`,
-  //         title: `Country`,
-  //         key: 'nationality',
-  //         formType: 'select',
-  //       },
-  //       {
-  //         dataRef: 'phoneNumberInput',
-  //         tooltip: `How can students contact you?`,
-  //         title: `Phone`,
-  //         key: 'phone',
-  //       },
-  //       {
-  //         dataRef: 'addressInput',
-  //         tooltip: `Where is your school located?`,
-  //         title: `Address`,
-  //         key: 'address',
-  //       },
-  //       {
-  //         dataRef: 'descriptionInput',
-  //         tooltip: `Tell your students a little but about your school...`,
-  //         title: `Description`,
-  //         key: 'description',
-  //         formType: 'text-area',
-  //       },
-  //       {
-  //         dataRef: 'passwordInput',
-  //         tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
-  //         title: `Password`,
-  //         key: 'password',
-  //       },
-  //       // Add other AdminSettingRow objects here
-  //     ],
-  //     styles: [
-  //       {
-  //         dataRef: 'primaryColorInput',
-  //         tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
-  //         title: `Password`,
-  //         key: 'password',
-  //       },
-  //       {
-  //         dataRef: 'secondaryColorInput',
-  //         tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
-  //         title: `Password`,
-  //         key: 'password',
-  //       },
-  //     ],
-  //   },
-  // ];
-
-  readonly dataRows: AdminSettingRow[] = [
+  readonly tabs: {
+    title: string;
+    form: 'detailStep' | 'formatStep' | 'backgroundStep';
+    // | 'logoStep'
+    // | 'lessonStep'
+    // | 'paymentStep'
+    // | 'infoStep';
+    formValues: NgIterable<AdminSettingRow | AdminStylesRow> | null | undefined;
+    // formValues: NgIterable<AdminSettingRow> | null | undefined;
+  }[] = [
     {
-      dataRef: 'nameInput',
-      tooltip: `The name of your school.`,
-      title: `Name`,
-      key: 'name',
+      title: 'details',
+      form: 'detailStep',
+      formValues: [
+        {
+          dataRef: 'nameInput',
+          tooltip: `The name of your school.`,
+          title: `Name`,
+          key: 'name',
+        },
+        {
+          dataRef: 'emailInput',
+          tooltip: `The admin email of your school. This will be used to log in and out and for students to contact you.`,
+          title: `Email`,
+          key: 'email',
+        },
+        {
+          dataRef: 'countryInput',
+          tooltip: `In what country is your school based?`,
+          title: `Country`,
+          key: 'nationality',
+          formType: 'select',
+        },
+        {
+          dataRef: 'phoneNumberInput',
+          tooltip: `How can students contact you?`,
+          title: `Phone`,
+          key: 'phone',
+        },
+        {
+          dataRef: 'addressInput',
+          tooltip: `Where is your school located?`,
+          title: `Address`,
+          key: 'address',
+        },
+        {
+          dataRef: 'descriptionInput',
+          tooltip: `Tell your students a little but about your school...`,
+          title: `Description`,
+          key: 'description',
+          formType: 'text-area',
+        },
+        {
+          dataRef: 'passwordInput',
+          tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
+          title: `Password`,
+          key: 'password',
+        },
+        // Add other AdminSettingRow objects here
+      ] as AdminSettingRow[],
     },
     {
-      dataRef: 'emailInput',
-      tooltip: `The admin email of your school. This will be used to log in and out and for students to contact you.`,
-      title: `Email`,
-      key: 'email',
+      title: 'styles',
+      form: 'formatStep',
+      formValues: [
+        {
+          dataRef: 'primaryButtonBackgroundColor',
+          tooltip: `This is the color of your main buttons and text. You should choose a dark color that can be seen against a white background.`,
+          title: `Primary Color`,
+          key: 'primaryButtonBackgroundColor',
+          formType: 'color-picker',
+        },
+        {
+          dataRef: 'primaryButtonTextColor',
+          tooltip: `This is the color of your secondary text. You should choose a light color that can be seen against a dark background.`,
+          title: `Secondary Color`,
+          key: 'primaryButtonTextColor',
+          formType: 'color-picker',
+        },
+      ] as AdminStylesRow[],
     },
-    {
-      dataRef: 'countryInput',
-      tooltip: `In what country is your school based?`,
-      title: `Country`,
-      key: 'nationality',
-      formType: 'select',
-    },
-    {
-      dataRef: 'phoneNumberInput',
-      tooltip: `How can students contact you?`,
-      title: `Phone`,
-      key: 'phone',
-    },
-    {
-      dataRef: 'addressInput',
-      tooltip: `Where is your school located?`,
-      title: `Address`,
-      key: 'address',
-    },
-    {
-      dataRef: 'descriptionInput',
-      tooltip: `Tell your students a little but about your school...`,
-      title: `Description`,
-      key: 'description',
-      formType: 'text-area',
-    },
-    {
-      dataRef: 'passwordInput',
-      tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
-      title: `Password`,
-      key: 'password',
-    },
-    // {
-    //   dataRef: 'passwordMatchInput',
-    //   tooltip: `Must match your password above.`,
-    //   title: `Confirm your password`,
-    // },
   ];
+
+  // readonly dataRows: AdminSettingRow[] = [
+  //   {
+  //     dataRef: 'nameInput',
+  //     tooltip: `The name of your school.`,
+  //     title: `Name`,
+  //     key: 'name',
+  //   },
+  //   {
+  //     dataRef: 'emailInput',
+  //     tooltip: `The admin email of your school. This will be used to log in and out and for students to contact you.`,
+  //     title: `Email`,
+  //     key: 'email',
+  //   },
+  //   {
+  //     dataRef: 'countryInput',
+  //     tooltip: `In what country is your school based?`,
+  //     title: `Country`,
+  //     key: 'nationality',
+  //     formType: 'select',
+  //   },
+  //   {
+  //     dataRef: 'phoneNumberInput',
+  //     tooltip: `How can students contact you?`,
+  //     title: `Phone`,
+  //     key: 'phone',
+  //   },
+  //   {
+  //     dataRef: 'addressInput',
+  //     tooltip: `Where is your school located?`,
+  //     title: `Address`,
+  //     key: 'address',
+  //   },
+  //   {
+  //     dataRef: 'descriptionInput',
+  //     tooltip: `Tell your students a little but about your school...`,
+  //     title: `Description`,
+  //     key: 'description',
+  //     formType: 'text-area',
+  //   },
+  //   {
+  //     dataRef: 'passwordInput',
+  //     tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
+  //     title: `Password`,
+  //     key: 'password',
+  //   },
+  //   // {
+  //   //   dataRef: 'passwordMatchInput',
+  //   //   tooltip: `Must match your password above.`,
+  //   //   title: `Confirm your password`,
+  //   // },
+  // ];
 
   // --- forms:
   adminForm: FormGroup<{
@@ -164,6 +192,10 @@ export class AdminViewComponent implements OnInit {
   ngOnInit(): void {
     // console.log(this.currentSchool);
     this.populateForm();
+  }
+
+  getFormControl(formGroup: FormGroup, dataRef: string): FormControl | null {
+    return formGroup.controls[dataRef] as FormControl;
   }
 
   populateForm(): void {
@@ -254,7 +286,12 @@ export class AdminViewComponent implements OnInit {
 
     const formatStepForm: FormatStep = new FormGroup({
       primaryButtonBackgroundColor: new FormControl(
-        { value: '#6200EE', disabled: this.adminPageLoading },
+        {
+          value:
+            this.currentSchool?.primaryButtonBackgroundColor ??
+            this.defaultStyles.primaryButtonBackgroundColor,
+          disabled: this.adminPageLoading,
+        },
         {
           validators: [],
           nonNullable: true,
@@ -331,17 +368,31 @@ export class AdminViewComponent implements OnInit {
     });
   }
 
-  openEdit(row: AdminSettingRow): void {
+  openEdit(row: AdminSettingRow | AdminStylesRow): void {
+    // this.updateTempStyles.emit(null);
     this.edit = row;
   }
 
   closeEdit(): void {
     this.edit = null;
+    this.updateTempStyles.emit(null);
     this.populateForm();
   }
 
-  onSaveClick(row: AdminSettingRow, value: string): void {
+  onSaveClick(row: AdminSettingRow | AdminStylesRow, value: string): void {
     this.saveSchoolDetails.emit({ key: row.key, value });
+  }
+
+  changeSyleColors(feature: string, color: string): void {
+    const tempStyles: TempStylesDTO = {};
+    // tempStyles[feature] = color;
+    if (feature.toLocaleLowerCase() === 'secondary color') {
+      tempStyles.primaryButtonTextColor = color;
+    }
+    if (feature.toLocaleLowerCase() === 'primary color') {
+      tempStyles.primaryButtonBackgroundColor = color;
+    }
+    this.updateTempStyles.emit(tempStyles);
   }
 }
 
@@ -362,7 +413,7 @@ export interface AdminSettingRow {
 }
 
 export interface AdminStylesRow {
-  dataRef: 'primaryColorInput' | 'secondaryColorInput';
+  dataRef: 'primaryButtonBackgroundColor' | 'primaryButtonTextColor';
   tooltip: string;
   title: string;
   key: string;

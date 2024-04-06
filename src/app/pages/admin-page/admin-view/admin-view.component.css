@@ -1,3 +1,5 @@
+@import '../../../app.component.scss';
+
 .card {
     margin:25px;
     height:fit-content;
@@ -25,7 +27,12 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      min-width: 24px;
+      cursor:default;
+      width: 22px;
+      height:22px;
+      /* color:white;
+      background-color: black; */
+      font-weight: bolder;
     }
 
     .config-item-value {
@@ -54,3 +61,14 @@
   .inline-form-field.mat-mdc-form-field {
     margin-top: 16px;
   }
+
+  :host {
+    --primaryButtonBackgroundColor: $defaultButtonColor;
+    --primaryButtonTextColor: $defaultTextnColor;
+  }
+  
+  ::ng-deep .config-item-tooltip {
+    background-color: var(--primaryButtonBackgroundColor) !important;
+    color: var(--primaryButtonTextColor) !important;
+  }
+  
