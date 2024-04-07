@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ImageCropperModule } from 'ngx-image-cropper';
 import { ErrorMessageModule } from 'src/app/components/error-message/error-message.module';
 
 import { AdminViewComponent } from './admin-view.component';
@@ -31,6 +32,7 @@ import { AdminViewComponent } from './admin-view.component';
     MatSelectModule,
     MatButtonToggleModule,
     MatSliderModule,
+    ImageCropperModule,
   ],
   exports: [AdminViewComponent],
 })

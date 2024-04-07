@@ -8,7 +8,7 @@
   <mat-tab *ngFor="let tab of tabs" [label]="tab.title | titlecase">
     <div *ngIf="adminForm" [formGroup]="adminForm">
       <mat-card
-        *ngIf="adminForm.controls[tab.form] as detailStepForm"
+        *ngIf="adminForm.controls[tab.form] as formName"
         [formGroupName]="tab.form"
         class="card"
       >
@@ -46,11 +46,10 @@
               <span
                 *ngIf="edit?.dataRef !== row.dataRef && (backgroundImageType !=='gradient' || tab.form.toLowerCase() !== 'backgroundstep')"
               >
-                <span *ngIf="getFormControl(detailStepForm, row.dataRef)?.value"
-                  >{{ getFormControl(detailStepForm, row.dataRef)?.value}}</span
+                <span *ngIf="getFormControl(formName, row.dataRef)?.value"
+                  >{{ getFormControl(formName, row.dataRef)?.value}}</span
                 >
-                <span
-                  *ngIf="!getFormControl(detailStepForm, row.dataRef)?.value"
+                <span *ngIf="!getFormControl(formName, row.dataRef)?.value"
                   >Click the 'edit' icon to change</span
                 >
               </span>
@@ -71,10 +70,10 @@
                     [formControlName]="row.dataRef"
                     class="edit-text-input"
                     matInput
-                    [placeholder]="getFormControl(detailStepForm, row.dataRef)?.value"
+                    [placeholder]="getFormControl(formName, row.dataRef)?.value"
                     [type]="row.formType === 'color-picker' ? 'color' : 'text'"
-                    *ngIf="row.formType !== 'text-area' && row.formType !== 'select' && row.formType !== 'slider'"
-                    (input)="changeTempStyles(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
+                    *ngIf="row.formType !== 'text-area' && row.formType !== 'select' && row.formType !== 'slider' && row.formType !== 'image'"
+                    (input)="changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
                   />
 
                   <!-- -- --- --- --- ----- -- -->
@@ -86,7 +85,7 @@
                     [formControlName]="row.dataRef"
                     class="edit-text-input"
                     matInput
-                    [placeholder]="getFormControl(detailStepForm, row.dataRef)?.value"
+                    [placeholder]="getFormControl(formName, row.dataRef)?.value"
                     type="text"
                     *ngIf="row.formType === 'text-area'"
                   ></textarea>
@@ -98,7 +97,7 @@
                   <mat-select
                     [formControlName]="row.dataRef"
                     *ngIf="row.formType === 'select' && row.dataRef.toLowerCase() === 'backgroundimageinput'"
-                    (selectionChange)="changeTempStyles(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
+                    (selectionChange)="changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
                   >
                     <mat-option value="other">Background image...</mat-option>
                     <mat-option
@@ -131,7 +130,7 @@
                   </mat-select>
                   <mat-error>
                     <app-error-message
-                      [control]="getFormControl(detailStepForm, row.dataRef)?.errors ?? null"
+                      [control]="getFormControl(formName, row.dataRef)?.errors ?? null"
                     ></app-error-message>
                   </mat-error>
 
@@ -171,7 +170,7 @@
                   <mat-select
                     [formControlName]="row.dataRef"
                     *ngIf="row.formType === 'select' && row.dataRef.toLowerCase() === 'backgroundgradienttype'"
-                    (selectionChange)="changeTempStyles(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
+                    (selectionChange)="changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
                   >
                     <mat-option
                       *ngFor="let type of ['linear','radial']"
@@ -182,7 +181,7 @@
                   </mat-select>
                   <mat-error>
                     <app-error-message
-                      [control]="getFormControl(detailStepForm, row.dataRef)?.errors ?? null"
+                      [control]="getFormControl(formName, row.dataRef)?.errors ?? null"
                     ></app-error-message>
                   </mat-error>
 
@@ -193,7 +192,7 @@
                   <mat-select
                     [formControlName]="row.dataRef"
                     *ngIf="row.formType === 'select' && row.dataRef.toLowerCase() === 'backgroundgradientrotation'"
-                    (selectionChange)="changeTempStyles(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
+                    (selectionChange)="changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
                   >
                     <mat-option
                       *ngFor="let rotation of [0, 45, 90, 135, 180, 225, 270, 315, 360]"
@@ -204,9 +203,49 @@
                   </mat-select>
                   <mat-error>
                     <app-error-message
-                      [control]="getFormControl(detailStepForm, row.dataRef)?.errors ?? null"
+                      [control]="getFormControl(formName, row.dataRef)?.errors ?? null"
                     ></app-error-message>
                   </mat-error>
+
+                  <!-- -- --- --- --- ----- -- -->
+                  <!------ PHOTO UPLOADER ------->
+                  <!-- -- --- --- ----- --- -- -->
+
+                  <div *ngIf="row.formType === 'image'">
+                    <input
+                      #schoolLogo
+                      type="file"
+                      hidden="true"
+                      (change)="fileChangeEvent($event)"
+                      accept="image/png, image/jpeg, image/gif, image/tiff"
+                    />
+                    <input
+                      (click)="schoolLogo.click()"
+                      matInput
+                      readonly
+                      [placeholder]="photoName || 'No file chosen'"
+                    />
+                    <mat-icon
+                      matSuffix
+                      style="cursor: pointer"
+                      (click)="schoolLogo.click()"
+                      >add_photo_alternate</mat-icon
+                    >
+                    <div *ngIf="currentSchool?.logo && !photoName">
+                      <img [src]="currentSchool?.logo?.url" alt="School logo" />
+                    </div>
+                    <image-cropper
+                      format="png"
+                      [imageChangedEvent]="imageChangedEvent"
+                      [maintainAspectRatio]="true"
+                      [aspectRatio]="4 / 3"
+                      [resizeToWidth]="215"
+                      (imageCropped)="imageCropped($event); changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
+                      (imageLoaded)="imageLoaded()"
+                      (cropperReady)="cropperReady()"
+                      (loadImageFailed)="loadImageFailed()"
+                    ></image-cropper>
+                  </div>
                 </mat-form-field>
               </span>
             </div>
@@ -240,8 +279,8 @@
                 matTooltip="Submit changes"
                 mat-icon-button
                 style="cursor: pointer"
-                [disabled]="getFormControl(detailStepForm, row.dataRef)?.errors"
-                (click)="onSaveClick(row, getFormControl(detailStepForm, row.dataRef)?.value)"
+                [disabled]="getFormControl(formName, row.dataRef)?.errors"
+                (click)="onSaveClick(row, getFormControl(formName, row.dataRef)?.value)"
               >
                 <mat-icon
                   class="done-icon"

@@ -26,4 +26,5 @@ export interface TempStylesDTO {
   primaryButtonTextColor?: string;
   // backgroundType?: string;
   backgroundColor?: BackgroundImageDTO | null;
+  logo?: { filename: string; url: string };
 }

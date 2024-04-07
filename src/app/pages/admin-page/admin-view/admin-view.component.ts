@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatSlider } from '@angular/material/slider';
+import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { Subject } from 'rxjs';
 import {
   BackgroundStep,
@@ -20,6 +21,7 @@ import {
   LessonStep,
   LogoStep,
 } from 'src/app/components/login-card-school/login-card-school.component';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { TempStylesDTO } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
@@ -47,20 +49,27 @@ export class AdminViewComponent implements OnInit, OnChanges {
 
   countryList = countryList;
   defaultStyles = defaultStyles;
-  edit: AdminSettingRow | AdminStylesRow | AdminBackgroundRow | null = null;
+  edit: AdminSettingRow | AdminStylesRow | AdminBackgroundRow | LogoRow | null =
+    null;
   editGradient = false;
   public backgroundImageType = '';
   backgroundGradient = '';
 
+  imageChangedEvent: Event | string = '';
+  imageCropper: ImageCropperComponent;
+  photoLink: string | null | undefined;
+  photoName: string;
+
   tabs: {
     title: string;
-    form: 'detailStep' | 'formatStep' | 'backgroundStep';
-    // | 'logoStep'
+    form: 'detailStep' | 'formatStep' | 'backgroundStep' | 'logoStep';
     // | 'lessonStep'
     // | 'paymentStep'
     // | 'infoStep';
     formValues:
-      | NgIterable<AdminSettingRow | AdminStylesRow | AdminBackgroundRow>
+      | NgIterable<
+          AdminSettingRow | AdminStylesRow | AdminBackgroundRow | LogoRow
+        >
       | null
       | undefined;
     // formValues: NgIterable<AdminSettingRow> | null | undefined;
@@ -80,6 +89,11 @@ export class AdminViewComponent implements OnInit, OnChanges {
       form: 'backgroundStep',
       formValues: undefined,
     },
+    {
+      title: 'logo',
+      form: 'logoStep',
+      formValues: undefined,
+    },
   ];
 
   // --- forms:
@@ -92,11 +106,10 @@ export class AdminViewComponent implements OnInit, OnChanges {
   }> | null = null;
   formPopulated = new Subject<boolean>();
 
-  // constructor() {}
+  constructor(private readonly snackbarService: SnackbarService) {}
 
   ngOnInit(): void {
     this.backgroundGradient = this.selectedBackgroundImage.name;
-    // console.log(this.currentSchool);
     this.populateForm();
     this.populateTabs();
   }
@@ -109,14 +122,14 @@ export class AdminViewComponent implements OnInit, OnChanges {
 
   getFormControl(formGroup: FormGroup, dataRef: string): FormControl | null {
     const control = formGroup.controls[dataRef] as FormControl;
-    if (
-      typeof control.value === 'string' ||
-      typeof control.value === 'number'
-    ) {
-      return control;
-    } else {
-      return null;
-    }
+    // if (
+    //   typeof control.value === 'string' ||
+    //   typeof control.value === 'number'
+    // ) {
+    return control;
+    // } else {
+    // return null;
+    // }
   }
 
   populateTabs(): void {
@@ -234,6 +247,16 @@ export class AdminViewComponent implements OnInit, OnChanges {
         hide: this.backgroundImageType !== 'gradient',
       },
     ] as AdminBackgroundRow[];
+
+    this.tabs[3].formValues = [
+      {
+        dataRef: 'schoolLogo',
+        tooltip: `Upload your school's logo.`,
+        title: `School Logo`,
+        key: 'logo',
+        formType: 'image',
+      },
+    ] as LogoRow[];
   }
 
   populateForm(): void {
@@ -446,7 +469,9 @@ export class AdminViewComponent implements OnInit, OnChanges {
     });
   }
 
-  openEdit(row: AdminSettingRow | AdminStylesRow | AdminBackgroundRow): void {
+  openEdit(
+    row: AdminSettingRow | AdminStylesRow | AdminBackgroundRow | LogoRow
+  ): void {
     // this.updateTempStyles.emit(null);
     this.edit = row;
   }
@@ -458,7 +483,7 @@ export class AdminViewComponent implements OnInit, OnChanges {
   }
 
   onSaveClick(
-    row: AdminSettingRow | AdminStylesRow | AdminBackgroundRow,
+    row: AdminSettingRow | AdminStylesRow | AdminBackgroundRow | LogoRow,
     value: string
   ): void {
     this.saveSchoolDetails.emit({ key: row.key, value });
@@ -584,6 +609,69 @@ export class AdminViewComponent implements OnInit, OnChanges {
     }
     return value;
   }
+
+  /**
+   * Photo Cropping and Upload
+   */
+
+  fileChangeEvent(event: Event): void {
+    this.imageChangedEvent = event;
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      if (this.validateImage(input.files[0])) {
+        this.photoName = input.files[0].name;
+      }
+    }
+  }
+
+  imageCropped(event: ImageCroppedEvent): void {
+    this.photoLink = event.base64;
+    if (this.photoLink !== null && this.photoLink !== undefined) {
+      const logo = {
+        url: this.photoLink,
+        filename: this.photoName,
+      };
+      this.adminForm?.controls.logoStep.controls.schoolLogo.setValue(logo);
+      this.updateTempStyles.emit({ logo });
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  imageLoaded(): void {}
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  cropperReady(): void {}
+
+  loadImageFailed(): void {
+    this.snackbarService.openPermanent(
+      'error',
+      'image failed to load',
+      'dismiss'
+    );
+  }
+
+  validateImage(image: File): boolean {
+    const types = ['image/png', 'image/gif', 'image/tiff', 'image/jpeg'];
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    const maxSize = 1000 * 1024; // 1000 KB
+    if (!types.includes(image.type)) {
+      this.snackbarService.openPermanent(
+        'error',
+        'Picture must be .png/.gif/.tif/.jpg type',
+        'dismiss'
+      );
+      return false;
+    }
+    if (image.size > maxSize) {
+      this.snackbarService.openPermanent(
+        'error',
+        'File must be 1-1000 kb in size',
+        'dismiss'
+      );
+      return false;
+    }
+    return true;
+  }
 }
 
 export interface AdminSettingRow {
@@ -620,6 +708,15 @@ export interface AdminBackgroundRow {
     | 'backgroundGradientSlider'
     | 'backgroundGradientRotation'
     | 'backgroundGradientType';
+  tooltip: string;
+  title: string;
+  key: string;
+  formType?: string | null;
+  hide?: boolean | null;
+}
+
+export interface LogoRow {
+  dataRef: 'schoolLogo';
   tooltip: string;
   title: string;
   key: string;

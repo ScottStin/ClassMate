@@ -15,6 +15,10 @@ import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store
 import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { QuestionService } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import {
+  TempStylesDTO,
+  TempStylesService,
+} from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
@@ -44,6 +48,9 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   error: Error;
   badgeCounts: Record<string, number | null | undefined> = {};
 
+  private temporaryStylesSubscription: Subscription | null;
+  temporaryStyles$: Observable<TempStylesDTO | null>;
+
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.hideNavText =
@@ -57,6 +64,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     private readonly snackbarService: SnackbarService,
     private readonly examService: ExamService,
     private readonly questionService: QuestionService,
+    public readonly tempStylesService: TempStylesService,
     public dialog: MatDialog
   ) {
     this.routerSubscription = this.router.events.subscribe(() => {
@@ -85,7 +93,23 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
         'Exam Marking'
       );
     });
+    this.temporaryStyles$ = this.tempStylesService.temporaryStyles$;
     this.addSchoolRoute();
+    this.getTempStyles();
+  }
+
+  getTempStyles(): void {
+    this.temporaryStylesSubscription = this.temporaryStyles$.subscribe(
+      (tempStyles) => {
+        if (tempStyles) {
+          if (tempStyles.logo !== undefined) {
+            this.profilePictureSrc = tempStyles.logo.url;
+          }
+        } else {
+          this.getCurrentUserProfilePicture();
+        }
+      }
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -197,6 +221,9 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
+    }
+    if (this.temporaryStylesSubscription) {
+      this.temporaryStylesSubscription.unsubscribe();
     }
   }
 }
