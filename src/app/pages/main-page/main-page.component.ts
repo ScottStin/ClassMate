@@ -3,6 +3,10 @@ import { MatDrawer } from '@angular/material/sidenav';
 import { Observable, Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
+import {
+  TempStylesDTO,
+  TempStylesService,
+} from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import {
   BackgroundImageDTO,
@@ -24,8 +28,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
   currentSchool$: Observable<SchoolDTO | null>;
   private currentSchoolSubscription: Subscription | null;
   private currentUserSubscription: Subscription | null;
+  private temporaryStylesSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
   users$: Observable<UserDTO[]>;
+  temporaryStyles$: Observable<TempStylesDTO | null>;
   private userSubscription: Subscription | null;
 
   defaultStyles = defaultStyles;
@@ -40,7 +46,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
   constructor(
     public readonly schoolService: SchoolService,
     public readonly authStoreService: AuthStoreService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    public readonly tempStylesService: TempStylesService
   ) {}
 
   ngOnInit(): void {
@@ -48,8 +55,24 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.userSubscription = this.users$.subscribe();
     this.currentSchool$ = this.schoolService.currentSchool$;
     this.currentUser$ = this.authStoreService.currentUser$;
+    this.temporaryStyles$ = this.tempStylesService.temporaryStyles$;
     this.currentUserSubscription = this.currentUser$.subscribe();
     this.getCurrentSchoolDetails();
+    this.getTempStyles();
+  }
+
+  getTempStyles(): void {
+    this.temporaryStylesSubscription = this.temporaryStyles$.subscribe(
+      (tempStyles) => {
+        if (tempStyles) {
+          if (tempStyles.backgroundColor !== undefined) {
+            this.selectedBackgroundImage = tempStyles.backgroundColor;
+          }
+        } else {
+          this.getCurrentSchoolDetails();
+        }
+      }
+    );
   }
 
   getCurrentSchoolDetails(): void {
@@ -99,6 +122,9 @@ export class MainPageComponent implements OnInit, OnDestroy {
     }
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
+    }
+    if (this.temporaryStylesSubscription) {
+      this.temporaryStylesSubscription.unsubscribe();
     }
   }
 }

@@ -1,12 +1,17 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
   Component,
   EventEmitter,
   Input,
   NgIterable,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatSlider } from '@angular/material/slider';
 import { Subject } from 'rxjs';
 import {
   BackgroundStep,
@@ -26,12 +31,14 @@ import { SchoolDTO } from 'src/app/shared/models/school.model';
   templateUrl: './admin-view.component.html',
   styleUrls: ['./admin-view.component.css'],
 })
-export class AdminViewComponent implements OnInit {
+export class AdminViewComponent implements OnInit, OnChanges {
+  @ViewChild('backgroundGradientSlider') backgroundGradientSlider: MatSlider;
   @Input() primaryButtonBackgroundColor: string;
   @Input() primaryButtonTextColor: string;
   @Input() selectedBackgroundImage: BackgroundImageDTO;
   @Input() adminPageLoading: boolean;
   @Input() currentSchool: SchoolDTO | null;
+  @Input() backgroundImages: BackgroundImageDTO[];
   @Output() saveSchoolDetails = new EventEmitter<{
     key: string;
     value: string;
@@ -40,142 +47,40 @@ export class AdminViewComponent implements OnInit {
 
   countryList = countryList;
   defaultStyles = defaultStyles;
-  edit: AdminSettingRow | AdminStylesRow | null = null;
+  edit: AdminSettingRow | AdminStylesRow | AdminBackgroundRow | null = null;
+  editGradient = false;
+  public backgroundImageType = '';
+  backgroundGradient = '';
 
-  readonly tabs: {
+  tabs: {
     title: string;
     form: 'detailStep' | 'formatStep' | 'backgroundStep';
     // | 'logoStep'
     // | 'lessonStep'
     // | 'paymentStep'
     // | 'infoStep';
-    formValues: NgIterable<AdminSettingRow | AdminStylesRow> | null | undefined;
+    formValues:
+      | NgIterable<AdminSettingRow | AdminStylesRow | AdminBackgroundRow>
+      | null
+      | undefined;
     // formValues: NgIterable<AdminSettingRow> | null | undefined;
   }[] = [
     {
       title: 'details',
       form: 'detailStep',
-      formValues: [
-        {
-          dataRef: 'nameInput',
-          tooltip: `The name of your school.`,
-          title: `Name`,
-          key: 'name',
-        },
-        {
-          dataRef: 'emailInput',
-          tooltip: `The admin email of your school. This will be used to log in and out and for students to contact you.`,
-          title: `Email`,
-          key: 'email',
-        },
-        {
-          dataRef: 'countryInput',
-          tooltip: `In what country is your school based?`,
-          title: `Country`,
-          key: 'nationality',
-          formType: 'select',
-        },
-        {
-          dataRef: 'phoneNumberInput',
-          tooltip: `How can students contact you?`,
-          title: `Phone`,
-          key: 'phone',
-        },
-        {
-          dataRef: 'addressInput',
-          tooltip: `Where is your school located?`,
-          title: `Address`,
-          key: 'address',
-        },
-        {
-          dataRef: 'descriptionInput',
-          tooltip: `Tell your students a little but about your school...`,
-          title: `Description`,
-          key: 'description',
-          formType: 'text-area',
-        },
-        {
-          dataRef: 'passwordInput',
-          tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
-          title: `Password`,
-          key: 'password',
-        },
-        // Add other AdminSettingRow objects here
-      ] as AdminSettingRow[],
+      formValues: undefined,
     },
     {
       title: 'styles',
       form: 'formatStep',
-      formValues: [
-        {
-          dataRef: 'primaryButtonBackgroundColor',
-          tooltip: `This is the color of your main buttons and text. You should choose a dark color that can be seen against a white background.`,
-          title: `Primary Color`,
-          key: 'primaryButtonBackgroundColor',
-          formType: 'color-picker',
-        },
-        {
-          dataRef: 'primaryButtonTextColor',
-          tooltip: `This is the color of your secondary text. You should choose a light color that can be seen against a dark background.`,
-          title: `Secondary Color`,
-          key: 'primaryButtonTextColor',
-          formType: 'color-picker',
-        },
-      ] as AdminStylesRow[],
+      formValues: undefined,
+    },
+    {
+      title: 'background',
+      form: 'backgroundStep',
+      formValues: undefined,
     },
   ];
-
-  // readonly dataRows: AdminSettingRow[] = [
-  //   {
-  //     dataRef: 'nameInput',
-  //     tooltip: `The name of your school.`,
-  //     title: `Name`,
-  //     key: 'name',
-  //   },
-  //   {
-  //     dataRef: 'emailInput',
-  //     tooltip: `The admin email of your school. This will be used to log in and out and for students to contact you.`,
-  //     title: `Email`,
-  //     key: 'email',
-  //   },
-  //   {
-  //     dataRef: 'countryInput',
-  //     tooltip: `In what country is your school based?`,
-  //     title: `Country`,
-  //     key: 'nationality',
-  //     formType: 'select',
-  //   },
-  //   {
-  //     dataRef: 'phoneNumberInput',
-  //     tooltip: `How can students contact you?`,
-  //     title: `Phone`,
-  //     key: 'phone',
-  //   },
-  //   {
-  //     dataRef: 'addressInput',
-  //     tooltip: `Where is your school located?`,
-  //     title: `Address`,
-  //     key: 'address',
-  //   },
-  //   {
-  //     dataRef: 'descriptionInput',
-  //     tooltip: `Tell your students a little but about your school...`,
-  //     title: `Description`,
-  //     key: 'description',
-  //     formType: 'text-area',
-  //   },
-  //   {
-  //     dataRef: 'passwordInput',
-  //     tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
-  //     title: `Password`,
-  //     key: 'password',
-  //   },
-  //   // {
-  //   //   dataRef: 'passwordMatchInput',
-  //   //   tooltip: `Must match your password above.`,
-  //   //   title: `Confirm your password`,
-  //   // },
-  // ];
 
   // --- forms:
   adminForm: FormGroup<{
@@ -190,12 +95,145 @@ export class AdminViewComponent implements OnInit {
   // constructor() {}
 
   ngOnInit(): void {
+    this.backgroundGradient = this.selectedBackgroundImage.name;
     // console.log(this.currentSchool);
     this.populateForm();
+    this.populateTabs();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('selectedBackgroundImage' in changes) {
+      this.backgroundGradient = this.selectedBackgroundImage.name;
+    }
   }
 
   getFormControl(formGroup: FormGroup, dataRef: string): FormControl | null {
-    return formGroup.controls[dataRef] as FormControl;
+    const control = formGroup.controls[dataRef] as FormControl;
+    if (
+      typeof control.value === 'string' ||
+      typeof control.value === 'number'
+    ) {
+      return control;
+    } else {
+      return null;
+    }
+  }
+
+  populateTabs(): void {
+    this.tabs[0].formValues = [
+      {
+        dataRef: 'nameInput',
+        tooltip: `The name of your school.`,
+        title: `Name`,
+        key: 'name',
+      },
+      {
+        dataRef: 'emailInput',
+        tooltip: `The admin email of your school. This will be used to log in and out and for students to contact you.`,
+        title: `Email`,
+        key: 'email',
+      },
+      {
+        dataRef: 'countryInput',
+        tooltip: `In what country is your school based?`,
+        title: `Country`,
+        key: 'nationality',
+        formType: 'select',
+      },
+      {
+        dataRef: 'phoneNumberInput',
+        tooltip: `How can students contact you?`,
+        title: `Phone`,
+        key: 'phone',
+      },
+      {
+        dataRef: 'addressInput',
+        tooltip: `Where is your school located?`,
+        title: `Address`,
+        key: 'address',
+      },
+      {
+        dataRef: 'descriptionInput',
+        tooltip: `Tell your students a little but about your school...`,
+        title: `Description`,
+        key: 'description',
+        formType: 'text-area',
+      },
+      {
+        dataRef: 'passwordInput',
+        tooltip: `Must have between 6-16 characters, at least one uppercase letter, at least one lowercase letter, one number and one special character.`,
+        title: `Password`,
+        key: 'password',
+      },
+    ] as AdminSettingRow[];
+
+    this.tabs[1].formValues = [
+      {
+        dataRef: 'primaryButtonBackgroundColor',
+        tooltip: `This is the color of your main buttons and text. You should choose a dark color that can be seen against a white background.`,
+        title: `Primary Color`,
+        key: 'primaryButtonBackgroundColor',
+        formType: 'color-picker',
+      },
+      {
+        dataRef: 'primaryButtonTextColor',
+        tooltip: `This is the color of your secondary text. You should choose a light color that can be seen against a dark background.`,
+        title: `Secondary Color`,
+        key: 'primaryButtonTextColor',
+        formType: 'color-picker',
+      },
+    ] as AdminStylesRow[];
+
+    this.tabs[2].formValues = [
+      {
+        dataRef: 'backgroundImageInput',
+        tooltip: `Select one of our cool, stylish pattern to use as your background image`,
+        title: `Background Image`,
+        key: 'backgroundImageInput',
+        formType: 'select',
+        hide: this.backgroundImageType !== 'pattern',
+      },
+      {
+        dataRef: 'backgroundGradientColor1',
+        tooltip: `Your primary background color.`,
+        title: `Background Color`,
+        key: 'backgroundGradientColor1',
+        formType: 'color-picker',
+        hide: !['gradient', 'color'].includes(this.backgroundImageType),
+      },
+      {
+        dataRef: 'backgroundGradientColor2',
+        tooltip: `Your second gradient color.`,
+        title: `Second Background Color`,
+        key: 'backgroundGradientColor2',
+        formType: 'color-picker',
+        hide: this.backgroundImageType !== 'gradient',
+      },
+      {
+        dataRef: 'backgroundGradientSlider',
+        tooltip: `Where your gradient will transition from the main color to the second color.`,
+        title: `Gradient Position`,
+        key: 'backgroundGradientSlider',
+        formType: 'slider',
+        hide: this.backgroundImageType !== 'gradient',
+      },
+      {
+        dataRef: 'backgroundGradientType',
+        tooltip: `Choose between a linear gradient and a radial gradient.`,
+        title: `Gradient Type`,
+        key: 'backgroundGradientType',
+        formType: 'select',
+        hide: this.backgroundImageType !== 'gradient',
+      },
+      {
+        dataRef: 'backgroundGradientRotation',
+        tooltip: `The angle of your gradient.`,
+        title: `Gradient Rotation`,
+        key: 'backgroundGradientRotation',
+        formType: 'select',
+        hide: this.backgroundImageType !== 'gradient',
+      },
+    ] as AdminBackgroundRow[];
   }
 
   populateForm(): void {
@@ -311,26 +349,66 @@ export class AdminViewComponent implements OnInit {
         validators: [],
         nonNullable: false,
       }),
-      backgroundGradientColor1: new FormControl('', {
-        validators: [],
-        nonNullable: false,
-      }),
-      backgroundGradientColor2: new FormControl('', {
-        validators: [],
-        nonNullable: false,
-      }),
-      backgroundGradientSlider: new FormControl(NaN, {
-        validators: [],
-        nonNullable: true,
-      }),
-      backgroundGradientRotation: new FormControl(NaN, {
-        validators: [],
-        nonNullable: true,
-      }),
-      backgroundGradientType: new FormControl('', {
-        validators: [],
-        nonNullable: false,
-      }),
+      backgroundGradientColor1: new FormControl(
+        {
+          value: '',
+          disabled:
+            !this.editGradient &&
+            this.backgroundImageType.toLowerCase() === 'gradient',
+        },
+        {
+          validators: [],
+          nonNullable: false,
+        }
+      ),
+      backgroundGradientColor2: new FormControl(
+        {
+          value: '',
+          disabled:
+            !this.editGradient &&
+            this.backgroundImageType.toLowerCase() === 'gradient',
+        },
+        {
+          validators: [],
+          nonNullable: false,
+        }
+      ),
+      backgroundGradientSlider: new FormControl(
+        {
+          value: NaN,
+          disabled:
+            !this.editGradient &&
+            this.backgroundImageType.toLowerCase() === 'gradient',
+        },
+        {
+          validators: [],
+          nonNullable: true,
+        }
+      ),
+      backgroundGradientType: new FormControl(
+        {
+          value: '',
+          disabled:
+            !this.editGradient &&
+            this.backgroundImageType.toLowerCase() === 'gradient',
+        },
+        {
+          validators: [],
+          nonNullable: false,
+        }
+      ),
+      backgroundGradientRotation: new FormControl(
+        {
+          value: NaN,
+          disabled:
+            !this.editGradient &&
+            this.backgroundImageType.toLowerCase() === 'gradient',
+        },
+        {
+          validators: [],
+          nonNullable: true,
+        }
+      ),
     });
 
     // logo step:
@@ -368,7 +446,7 @@ export class AdminViewComponent implements OnInit {
     });
   }
 
-  openEdit(row: AdminSettingRow | AdminStylesRow): void {
+  openEdit(row: AdminSettingRow | AdminStylesRow | AdminBackgroundRow): void {
     // this.updateTempStyles.emit(null);
     this.edit = row;
   }
@@ -379,20 +457,132 @@ export class AdminViewComponent implements OnInit {
     this.populateForm();
   }
 
-  onSaveClick(row: AdminSettingRow | AdminStylesRow, value: string): void {
+  onSaveClick(
+    row: AdminSettingRow | AdminStylesRow | AdminBackgroundRow,
+    value: string
+  ): void {
     this.saveSchoolDetails.emit({ key: row.key, value });
   }
 
-  changeSyleColors(feature: string, color: string): void {
+  changeTempStyles(
+    feature: string,
+    style: string | number | BackgroundImageDTO
+  ): void {
     const tempStyles: TempStylesDTO = {};
     // tempStyles[feature] = color;
+
     if (feature.toLocaleLowerCase() === 'secondary color') {
-      tempStyles.primaryButtonTextColor = color;
+      tempStyles.primaryButtonTextColor = style as string;
     }
+
     if (feature.toLocaleLowerCase() === 'primary color') {
-      tempStyles.primaryButtonBackgroundColor = color;
+      tempStyles.primaryButtonBackgroundColor = style as string;
+    }
+
+    if (feature.toLocaleLowerCase() === 'background image') {
+      tempStyles.backgroundColor = {
+        ...(style as BackgroundImageDTO),
+        type: this.backgroundImageType,
+      } as BackgroundImageDTO;
+    }
+
+    if (
+      feature.toLocaleLowerCase() === 'background color' &&
+      this.backgroundImageType.toLocaleLowerCase() === 'color'
+    ) {
+      tempStyles.backgroundColor = {
+        name: style as string,
+        type: this.backgroundImageType,
+        label: '',
+        shadow: '',
+      };
+    }
+
+    if (
+      [
+        'second background color',
+        'background color',
+        'gradient rotation',
+        'gradient type',
+        'gradient position',
+      ].includes(feature.toLocaleLowerCase()) &&
+      this.backgroundImageType.toLocaleLowerCase() === 'gradient'
+    ) {
+      const gradient = this.createBackgroundGradient(
+        this.adminForm?.controls.backgroundStep.controls
+          .backgroundGradientColor1.value,
+        this.adminForm?.controls.backgroundStep.controls
+          .backgroundGradientColor2.value,
+        this.adminForm?.controls.backgroundStep.controls
+          .backgroundGradientRotation.value,
+        this.adminForm?.controls.backgroundStep.controls.backgroundGradientType
+          .value,
+        this.backgroundGradientSlider.value
+      );
+      tempStyles.backgroundColor = {
+        name: gradient,
+        type: this.backgroundImageType,
+        label: '',
+        shadow: '',
+      };
     }
     this.updateTempStyles.emit(tempStyles);
+  }
+
+  onFormTypeChange(val: string): void {
+    this.backgroundImageType = val;
+    this.populateTabs();
+    this.populateForm();
+  }
+
+  createBackgroundGradient(
+    gradientColor1?: string | null,
+    gradientColor2?: string | null,
+    backgroundGradientRotation?: number | null,
+    backgroundGradientType?: string | null,
+    gradientSlider?: number | null
+  ): string {
+    // todo - move to service or directive
+
+    let backgroundGradient = '';
+    if (gradientColor1 !== null && gradientColor1 !== '') {
+      if (backgroundGradientType !== 'radial') {
+        backgroundGradient = `linear-gradient(${
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+          !Number.isNaN(backgroundGradientRotation)
+            ? backgroundGradientRotation
+            : 90
+        }deg, ${gradientColor1 ?? '#000000'} ${gradientSlider ?? 0}%, ${
+          gradientColor2 !== null &&
+          gradientColor2 !== undefined &&
+          gradientColor2 !== ''
+            ? gradientColor2
+            : '#000000'
+        } 100%)`;
+      } else {
+        backgroundGradient = `radial-gradient(circle at 50% 50%, ${
+          gradientColor1 ?? '#000000'
+        } ${
+          gradientSlider !== null && gradientSlider !== undefined
+            ? gradientSlider / 2
+            : 10
+        }%, ${
+          gradientColor2 !== null &&
+          gradientColor2 !== undefined &&
+          gradientColor2 !== ''
+            ? gradientColor2
+            : '#000000'
+        } ${gradientSlider ?? 20}%)`;
+      }
+    }
+    return backgroundGradient;
+  }
+
+  formatColorSliderLabel(value: number): number | string {
+    if (value >= 1000) {
+      return `${Math.round(value / 1000)}k`;
+    }
+    return value;
   }
 }
 
@@ -410,6 +600,7 @@ export interface AdminSettingRow {
   title: string;
   key: string;
   formType?: string | null;
+  hide?: boolean | null;
 }
 
 export interface AdminStylesRow {
@@ -418,4 +609,20 @@ export interface AdminStylesRow {
   title: string;
   key: string;
   formType?: string | null;
+  hide?: boolean | null;
+}
+
+export interface AdminBackgroundRow {
+  dataRef:
+    | 'backgroundImageInput'
+    | 'backgroundGradientColor1'
+    | 'backgroundGradientColor2'
+    | 'backgroundGradientSlider'
+    | 'backgroundGradientRotation'
+    | 'backgroundGradientType';
+  tooltip: string;
+  title: string;
+  key: string;
+  formType?: string | null;
+  hide?: boolean | null;
 }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { BackgroundImageDTO } from 'src/app/shared/background-images';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,6 @@ export type TempStylesSubject = TempStylesDTO | null;
 export interface TempStylesDTO {
   primaryButtonBackgroundColor?: string;
   primaryButtonTextColor?: string;
-  backgroundType?: string;
-  backgroundColor?: string;
+  // backgroundType?: string;
+  backgroundColor?: BackgroundImageDTO | null;
 }

@@ -8,7 +8,10 @@ import {
   TempStylesDTO,
   TempStylesService,
 } from 'src/app/services/temp-styles-service/temp-styles-service.service';
-import { BackgroundImageDTO } from 'src/app/shared/background-images';
+import {
+  BackgroundImageDTO,
+  backgroundImages,
+} from 'src/app/shared/background-images';
 import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -30,7 +33,6 @@ export class AdminPageComponent implements OnInit, OnDestroy {
   private currentSchoolSubscription: Subscription | null;
   private temporaryStylesSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
-  temporaryStyles$: Observable<TempStylesDTO | null>;
 
   // --- styles:
   defaultStyles = defaultStyles;
@@ -38,6 +40,8 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     this.defaultStyles.primaryButtonBackgroundColor;
   primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
   selectedBackgroundImage = this.defaultStyles.selectedBackgroundImage;
+  backgroundImages = backgroundImages;
+  temporaryStyles$: Observable<TempStylesDTO | null>;
 
   constructor(
     private readonly snackbarService: SnackbarService,
@@ -65,6 +69,12 @@ export class AdminPageComponent implements OnInit, OnDestroy {
           }
           if (tempStyles.primaryButtonTextColor !== undefined) {
             this.primaryButtonTextColor = tempStyles.primaryButtonTextColor;
+          }
+          if (
+            tempStyles.backgroundColor !== null &&
+            tempStyles.backgroundColor !== undefined
+          ) {
+            this.selectedBackgroundImage = tempStyles.backgroundColor;
           }
         } else {
           this.getCurrentSchoolDetails();
@@ -108,7 +118,10 @@ export class AdminPageComponent implements OnInit, OnDestroy {
       .update(updatedData, '6609279a1adcaa324759e3f2')
       .subscribe({
         next: (school: SchoolDTO) => {
-          this.snackbarService.open('info', 'User successfully updated');
+          this.snackbarService.open(
+            'info',
+            'School details successfully updated'
+          );
           this.schoolService.updateCurrentSchool(school);
           // this.getCurrentSchoolDetails();
           setTimeout(() => {

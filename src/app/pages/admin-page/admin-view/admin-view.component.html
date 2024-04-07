@@ -12,109 +12,317 @@
         [formGroupName]="tab.form"
         class="card"
       >
-        <div class="config-item" *ngFor="let row of tab.formValues">
-          <div class="config-item-label">{{row.title}}</div>
-          <!-- <mat-icon
-            class="config-item-tooltip"
-            matTooltipPosition="after"
-            [matTooltip]="row.tooltip"
+        <div
+          class="image-button-container"
+          *ngIf="tab.form === 'backgroundStep'"
+        >
+          <mat-button-toggle-group
+            #group="matButtonToggleGroup"
+            [value]="backgroundImageType"
+            (change)="onFormTypeChange(group.value)"
           >
-            info
-          </mat-icon> -->
-          <button
-            mat-mini-fab
-            class="config-item-tooltip"
-            matTooltipPosition="after"
-            [matTooltip]="row.tooltip"
-            [ngStyle]="{
-              '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
-              '--primaryButtonTextColor': primaryButtonTextColor
-            }"
-          >
-            i
-          </button>
-          <div class="config-item-value">
-            <span *ngIf="edit?.dataRef !== row.dataRef"
-              >{{ getFormControl(detailStepForm, row.dataRef)?.value }}</span
+            <mat-button-toggle value="color">Color</mat-button-toggle>
+            <mat-button-toggle value="gradient">Gradient</mat-button-toggle>
+            <mat-button-toggle value="pattern">Pattern</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        <div *ngFor="let row of tab.formValues">
+          <div *ngIf="row.hide !== true" class="config-item">
+            <div class="config-item-label">{{row.title}}</div>
+            <button
+              mat-mini-fab
+              class="config-item-tooltip"
+              matTooltipPosition="after"
+              [matTooltip]="row.tooltip"
+              [ngStyle]="{
+                '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                '--primaryButtonTextColor': primaryButtonTextColor
+              }"
             >
-            <span *ngIf="edit?.dataRef === row.dataRef">
-              <mat-form-field
-                class="inline-form-field"
-                subscriptSizing="dynamic"
+              &#8505;
+            </button>
+            <div class="config-item-value">
+              <span
+                *ngIf="edit?.dataRef !== row.dataRef && (backgroundImageType !=='gradient' || tab.form.toLowerCase() !== 'backgroundstep')"
               >
-                <mat-label>{{row.title}}</mat-label>
-                <input
-                  [attr.id]="row.dataRef"
-                  [formControlName]="row.dataRef"
-                  class="edit-text-input"
-                  matInput
-                  [placeholder]="getFormControl(detailStepForm, row.dataRef)?.value"
-                  [type]="row.formType === 'color-picker' ? 'color' : 'text'"
-                  *ngIf="row.formType !==  'text-area' && row.formType !== 'select'"
-                  (input)="changeSyleColors(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
-                />
-                <textarea
-                  [attr.id]="row.dataRef"
-                  [formControlName]="row.dataRef"
-                  class="edit-text-input"
-                  matInput
-                  [placeholder]="getFormControl(detailStepForm, row.dataRef)?.value"
-                  type="text"
-                  *ngIf="row.formType === 'text-area'"
-                ></textarea>
-                <mat-select
-                  [formControlName]="row.dataRef"
-                  *ngIf="row.formType === 'select'"
+                <span *ngIf="getFormControl(detailStepForm, row.dataRef)?.value"
+                  >{{ getFormControl(detailStepForm, row.dataRef)?.value}}</span
                 >
-                  <mat-option value="other">Select country...</mat-option>
-                  <mat-option
-                    *ngFor="let country of countryList"
-                    [value]="country"
+                <span
+                  *ngIf="!getFormControl(detailStepForm, row.dataRef)?.value"
+                  >Click the 'edit' icon to change</span
+                >
+              </span>
+              <span
+                *ngIf="edit?.dataRef === row.dataRef || (tab.form.toLowerCase() === 'backgroundstep' && backgroundImageType ==='gradient')"
+              >
+                <mat-form-field
+                  class="inline-form-field"
+                  subscriptSizing="dynamic"
+                >
+                  <!-- -- --- --- --- ----- -- -->
+                  <!--------- INPUTS ------------>
+                  <!-- -- --- --- ----- --- -- -->
+
+                  <mat-label>{{row.title}}</mat-label>
+                  <input
+                    [attr.id]="row.dataRef"
+                    [formControlName]="row.dataRef"
+                    class="edit-text-input"
+                    matInput
+                    [placeholder]="getFormControl(detailStepForm, row.dataRef)?.value"
+                    [type]="row.formType === 'color-picker' ? 'color' : 'text'"
+                    *ngIf="row.formType !== 'text-area' && row.formType !== 'select' && row.formType !== 'slider'"
+                    (input)="changeTempStyles(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
+                  />
+
+                  <!-- -- --- --- --- ----- -- -->
+                  <!--------- TEXT AREAS -------->
+                  <!-- -- --- --- ----- --- -- -->
+
+                  <textarea
+                    [attr.id]="row.dataRef"
+                    [formControlName]="row.dataRef"
+                    class="edit-text-input"
+                    matInput
+                    [placeholder]="getFormControl(detailStepForm, row.dataRef)?.value"
+                    type="text"
+                    *ngIf="row.formType === 'text-area'"
+                  ></textarea>
+
+                  <!-- -- --- --- --- ------------- -- -->
+                  <!-- BACKGROUND IMAGE PATTERN SELECT -->
+                  <!-- -- --- --- ------------- --- -- -->
+
+                  <mat-select
+                    [formControlName]="row.dataRef"
+                    *ngIf="row.formType === 'select' && row.dataRef.toLowerCase() === 'backgroundimageinput'"
+                    (selectionChange)="changeTempStyles(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
                   >
-                    {{ country }}
-                  </mat-option>
-                  <mat-option value="other">OTHER</mat-option>
-                </mat-select>
-                <mat-error>
-                  <app-error-message
-                    [control]="getFormControl(detailStepForm, row.dataRef)?.errors ?? null"
-                  ></app-error-message>
-                </mat-error>
-              </mat-form-field>
-            </span>
+                    <mat-option value="other">Background image...</mat-option>
+                    <mat-option
+                      *ngFor="let backgroundImage of backgroundImages"
+                      [value]="backgroundImage"
+                    >
+                      <img
+                        [src]="'../../../assets/' + backgroundImage.name"
+                        [alt]="backgroundImage.label"
+                      />
+                    </mat-option>
+                  </mat-select>
+
+                  <!-- -- --- --- --- ----- -- -->
+                  <!------- COUNTRY SELECT ------>
+                  <!-- -- --- --- ----- --- -- -->
+
+                  <mat-select
+                    [formControlName]="row.dataRef"
+                    *ngIf="row.formType === 'select' && row.dataRef.toLowerCase() === 'countryinput'"
+                  >
+                    <mat-option value="other">Select country...</mat-option>
+                    <mat-option
+                      *ngFor="let country of countryList"
+                      [value]="country"
+                    >
+                      {{ country }}
+                    </mat-option>
+                    <mat-option value="other">OTHER</mat-option>
+                  </mat-select>
+                  <mat-error>
+                    <app-error-message
+                      [control]="getFormControl(detailStepForm, row.dataRef)?.errors ?? null"
+                    ></app-error-message>
+                  </mat-error>
+
+                  <!-- -- --- --- --- ----- --- -->
+                  <!-- GRADIENT POSITION SLIDER -->
+                  <!-- -- --- --- ----- ---- -- -->
+
+                  <mat-slider
+                    *ngIf="row.formType === 'slider' && backgroundImageType ==='gradient'"
+                    class="form-field"
+                    style="margin-bottom: 25px"
+                    thumbLabel
+                    step="1"
+                    min="0"
+                    max="100"
+                    aria-label="units"
+                    [displayWith]="formatColorSliderLabel"
+                    [disabled]="!this.editGradient"
+                    #backgroundGradientSlider
+                    (input)="changeTempStyles(row.title, backgroundGradientSlider.value)"
+                    [ngStyle]="{
+                      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                      '--backgroundGradient': backgroundGradient
+                    }"
+                  >
+                    <input
+                      [formControlName]="row.dataRef"
+                      #backgroundGradientSliderInput
+                      matInput
+                    />
+                  </mat-slider>
+
+                  <!-- -- --- --- --- ----- -- -->
+                  <!--- GRADIENT TYPE SELECT ---->
+                  <!-- -- --- --- ----- --- -- -->
+
+                  <mat-select
+                    [formControlName]="row.dataRef"
+                    *ngIf="row.formType === 'select' && row.dataRef.toLowerCase() === 'backgroundgradienttype'"
+                    (selectionChange)="changeTempStyles(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
+                  >
+                    <mat-option
+                      *ngFor="let type of ['linear','radial']"
+                      [value]="type"
+                    >
+                      {{ type | titlecase }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>
+                    <app-error-message
+                      [control]="getFormControl(detailStepForm, row.dataRef)?.errors ?? null"
+                    ></app-error-message>
+                  </mat-error>
+
+                  <!-- -- --- --- --- ----- --- -->
+                  <!-- GRADIENT ROTATION SELECT -->
+                  <!-- -- --- --- ----- ---- -- -->
+
+                  <mat-select
+                    [formControlName]="row.dataRef"
+                    *ngIf="row.formType === 'select' && row.dataRef.toLowerCase() === 'backgroundgradientrotation'"
+                    (selectionChange)="changeTempStyles(row.title, getFormControl(detailStepForm, row.dataRef)?.value)"
+                  >
+                    <mat-option
+                      *ngFor="let rotation of [0, 45, 90, 135, 180, 225, 270, 315, 360]"
+                      [value]="rotation"
+                    >
+                      {{rotation}}&deg;
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>
+                    <app-error-message
+                      [control]="getFormControl(detailStepForm, row.dataRef)?.errors ?? null"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+              </span>
+            </div>
+
+            <!-- -- --- --- --- ----- -- -->
+            <!--- ACTION BUTTONS SELECT --->
+            <!-- -- --- --- ----- --- -- -->
+
+            <div
+              class="config-item-actions"
+              *ngIf="backgroundImageType !=='gradient' || tab.form.toLowerCase() !== 'backgroundstep'"
+            >
+              <button
+                *ngIf="edit?.dataRef !== row.dataRef"
+                mat-button
+                type="button"
+                (click)="edit?.dataRef !== row.dataRef ? openEdit(row) : closeEdit()"
+              >
+                <mat-icon
+                  class="edit-icon"
+                  [ngStyle]="{
+                  '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                  '--primaryButtonTextColor': primaryButtonTextColor
+                }"
+                  >edit</mat-icon
+                >
+              </button>
+              <button
+                *ngIf="edit?.dataRef === row.dataRef"
+                #tooltip="matTooltip"
+                matTooltip="Submit changes"
+                mat-icon-button
+                style="cursor: pointer"
+                [disabled]="getFormControl(detailStepForm, row.dataRef)?.errors"
+                (click)="onSaveClick(row, getFormControl(detailStepForm, row.dataRef)?.value)"
+              >
+                <mat-icon
+                  class="done-icon"
+                  [ngStyle]="{
+                    '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                    '--primaryButtonTextColor': primaryButtonTextColor
+                  }"
+                  >done</mat-icon
+                >
+              </button>
+              <button
+                *ngIf="edit?.dataRef === row.dataRef"
+                #tooltip="matTooltip"
+                mat-icon-button
+                matTooltip="Discard changes"
+                style="cursor: pointer"
+                (click)="closeEdit()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
           </div>
+        </div>
+
+        <!-- -- --- --- --- ----- -- ----------->
+        <!-- ACTION BUTTONS FOR GRADIENT STEP -->
+        <!-- -- --- --- ----- --- ------ ------->
+
+        <div
+          align="end"
+          *ngIf="backgroundImageType ==='gradient' && tab.form.toLowerCase() === 'backgroundstep'"
+        >
           <div class="config-item-actions">
             <button
-              *ngIf="edit?.dataRef !== row.dataRef"
+              *ngIf="!editGradient"
               mat-button
               type="button"
-              (click)="edit?.dataRef !== row.dataRef ? openEdit(row) : closeEdit()"
+              (click)="editGradient = !editGradient; populateForm()"
             >
-              <mat-icon>edit</mat-icon>
+              <mat-icon
+                class="edit-icon"
+                [ngStyle]="{
+                  '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                  '--primaryButtonTextColor': primaryButtonTextColor
+                }"
+                >edit</mat-icon
+              >
             </button>
             <button
-              *ngIf="edit?.dataRef === row.dataRef"
+              *ngIf="editGradient"
               #tooltip="matTooltip"
-              matTooltip="Submit changes"
+              matTooltip="Submit changes to background gradient"
               mat-icon-button
               style="cursor: pointer"
-              [disabled]="getFormControl(detailStepForm, row.dataRef)?.errors"
-              (click)="onSaveClick(row, getFormControl(detailStepForm, row.dataRef)?.value)"
             >
-              <mat-icon>done</mat-icon>
+              <mat-icon
+                class="done-icon"
+                [ngStyle]="{
+                  '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                  '--primaryButtonTextColor': primaryButtonTextColor
+                }"
+                >done</mat-icon
+              >
             </button>
             <button
-              *ngIf="edit?.dataRef === row.dataRef"
+              *ngIf="editGradient"
               #tooltip="matTooltip"
               mat-icon-button
-              matTooltip="Discard changes"
+              matTooltip="Discard chan to background gradient"
               style="cursor: pointer"
-              (click)="closeEdit()"
+              (click)="editGradient = !editGradient; closeEdit()"
             >
               <mat-icon>close</mat-icon>
             </button>
           </div>
         </div>
+
+        <!-- -- ---- --- ----- ----- -------->
+        <!----------- LAST UPDATED ---------->
+        <!-- -- --- --- ------ -------------->
+
         <mat-card-actions
           align="end"
           *ngIf="currentSchool?.updatedAt"
@@ -126,12 +334,4 @@
       </mat-card>
     </div>
   </mat-tab>
-  <!-- <mat-tab label="Styles"> <mat-card class="card"> test </mat-card></mat-tab>
-  <mat-tab label="Background">
-    <mat-card class="card"> test </mat-card></mat-tab
-  > -->
-  <!-- <mat-tab label="Logo"> <mat-card class="card"> test </mat-card></mat-tab> -->
-  <!-- <mat-tab label="Lessons"> <mat-card class="card"> test </mat-card></mat-tab>
-  <mat-tab label="Payments"> <mat-card class="card"> test </mat-card></mat-tab>
-  <mat-tab label="Data"> <mat-card class="card"> test </mat-card></mat-tab> -->
 </mat-tab-group>

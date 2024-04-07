@@ -8,9 +8,8 @@ describe('AdminViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AdminViewComponent ]
-    })
-    .compileComponents();
+      declarations: [AdminViewComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AdminViewComponent);
     component = fixture.componentInstance;

@@ -58,6 +58,15 @@
     }
   }
 
+  .image-button-container {    
+    flex: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+    margin-top:25px;
+    margin-bottom:25px;
+}
+
   .inline-form-field.mat-mdc-form-field {
     margin-top: 16px;
   }
@@ -71,4 +80,34 @@
     background-color: var(--primaryButtonBackgroundColor) !important;
     color: var(--primaryButtonTextColor) !important;
   }
+  
+  ::ng-deep .edit-icon, .done-icon {
+    color: var(--primaryButtonBackgroundColor) !important;
+  }
+
+    /* ---------------------- */
+  /* -- -----Slider: ------ */
+  /* ---------------------- */
+
+  :host {
+    --backgroundGradient: radial-gradient(circle at 50% 50%, #FFFFF 100%, #FFFFFF 100%) !important;
+    --primaryButtonBackgroundColor: #FFFFFF;
+  }
+
+  ::ng-deep .mat-slider-wrapper, ::ng-deep .mat-slider-ticks, ::ng-deep .mat-slider-ticks-container, ::ng-deep .mat-slider-ticks-wrapper {
+    background: var(--backgroundGradient) !important;
+    background-color: var(--backgroundGradient) !important;
+  }
+
+  ::ng-deep .mat-slider-thumb, ::ng-deep .mat-slider-thumb-label {
+    color:var(--primaryButtonBackgroundColor) !important;
+    background-color:var(--primaryButtonBackgroundColor) !important;
+  }
+
+::ng-deep .mat-slider-wrapper{
+  height: 20px !important;
+  width:150%;
+  border-bottom-left-radius: 10px !important;
+  border-bottom-right-radius: 10px !important; 
+}
   

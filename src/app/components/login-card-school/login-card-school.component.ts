@@ -659,6 +659,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   createBackgroundGradient(): void {
+    // todo - move to service or directive
     if (this.loginFormSchool) {
       const gradientColor1: string | null =
         this.loginFormSchool.controls.backgroundStep.controls
