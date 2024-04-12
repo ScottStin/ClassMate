@@ -349,9 +349,107 @@
               *ngIf="editGradient"
               #tooltip="matTooltip"
               mat-icon-button
-              matTooltip="Discard chan to background gradient"
+              matTooltip="Discard changes to background gradient"
               style="cursor: pointer"
               (click)="editGradient = !editGradient; closeEdit()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- -- --- --- --- ----- -- -->
+        <!-------- LESSON TYPES ------->
+        <!-- -- --- --- ----- --- -- -->
+
+        <div
+          style="display: flex; align-items: center"
+          *ngIf="tab.form === 'lessonStep'"
+        >
+          <mat-form-field
+            class="form-field"
+            appearance="outline"
+            style="padding: 5px; width: 50%"
+          >
+            <mat-label>Add a Lesson Type (full name)</mat-label>
+            <input
+              matInput
+              type="text"
+              placeholder="E.g. Buisness English"
+              #lessonTypeLongName
+            />
+          </mat-form-field>
+          <mat-form-field
+            class="form-field"
+            appearance="outline"
+            style="padding: 5px; width: 50%"
+          >
+            <mat-label>Add a Lesson Type (abbreviated name)</mat-label>
+            <input
+              matInput
+              type="text"
+              #lessonTypeShortName
+              placeholder="E.g. Buisness"
+            />
+          </mat-form-field>
+          <mat-icon
+            class="add-lesson-type"
+            (click)="addLessonType(lessonTypeLongName.value, lessonTypeShortName.value)"
+            >add_circle</mat-icon
+          >
+        </div>
+
+        <mat-list
+          role="list"
+          style="width: 100%; padding-left: 25%"
+          *ngIf="tab.form === 'lessonStep'"
+        >
+          <mat-list-item
+            style="width: 100%"
+            role="listitem"
+            *ngFor="let lesson of lessonTypesModified"
+          >
+            <div style="width: 100%">
+              {{ lesson.shortName }} ({{ lesson.name }})
+            </div>
+            <div
+              style="width: 100%"
+              class="lesson-list-delete-icon"
+              (click)="removeLessonType(lesson.name, lesson.shortName)"
+            >
+              <mat-icon>delete</mat-icon>
+            </div>
+          </mat-list-item>
+        </mat-list>
+
+        <!-- -- --- --- --- ----- -- ----------->
+        <!-- ACTION BUTTONS FOR LESSON TYPES STEP -->
+        <!-- -- --- --- ----- --- ------ ------->
+
+        <div align="end" *ngIf="tab.form === 'lessonStep' && editLessonTypes">
+          <div class="config-item-actions">
+            <button
+              #tooltip="matTooltip"
+              matTooltip="Submit changes to lesson types"
+              mat-icon-button
+              style="cursor: pointer"
+              (click)="updateLessonsClick()"
+            >
+              <mat-icon
+                class="done-icon"
+                [ngStyle]="{
+                  '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                  '--primaryButtonTextColor': primaryButtonTextColor
+                }"
+                >done</mat-icon
+              >
+            </button>
+            <button
+              #tooltip="matTooltip"
+              mat-icon-button
+              matTooltip="Discard changes to lesson types"
+              style="cursor: pointer"
+              (click)="closeEdit()"
             >
               <mat-icon>close</mat-icon>
             </button>

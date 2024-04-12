@@ -6,7 +6,6 @@
     padding:50px;
 }
 
-
 .config-item {
     display: flex;
     flex-direction: row;
@@ -110,4 +109,38 @@
   border-bottom-left-radius: 10px !important;
   border-bottom-right-radius: 10px !important; 
 }
+
+  
+  /* ---------------------- */
+  /*------ Lesson List:---- */
+  /* ---------------------- */
+
+  .lesson-list-item {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .lesson-list-content {
+    flex: 1;
+  }
+  
+  .lesson-list-delete-icon {
+    margin-right: 10%;
+    cursor: pointer;
+  }
+
+  .image-button-container {    
+    flex: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+    margin-top:25px;
+    margin-bottom:25px;
+}
+
+.add-lesson-type {
+  color: var(--primaryButtonBackgroundColor);
+  cursor: pointer;
+}
+
   

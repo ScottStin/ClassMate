@@ -16,6 +16,7 @@
     [backgroundImages]="backgroundImages"
     [adminPageLoading]="adminPageLoading"
     [currentSchool]="currentSchool$ | async"
+    [lessons]="lessons$ | async"
     (saveSchoolDetails)="saveSchoolDetails($event)"
     (updateTempStyles)="updateTempStyles($event)"
   ></app-admin-view>

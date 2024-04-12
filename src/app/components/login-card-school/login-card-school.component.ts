@@ -380,7 +380,6 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         'Sorry, you can only have a maximum of 5 class types.',
         'dismiss'
       );
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     } else if (!name || !shortName) {
       this.snackbarService.openPermanent(
         'warn',

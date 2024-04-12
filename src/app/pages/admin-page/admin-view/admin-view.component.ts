@@ -26,6 +26,7 @@ import { TempStylesDTO } from 'src/app/services/temp-styles-service/temp-styles-
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
 import { defaultStyles } from 'src/app/shared/default-styles';
+import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 
 @Component({
@@ -41,16 +42,26 @@ export class AdminViewComponent implements OnInit, OnChanges {
   @Input() adminPageLoading: boolean;
   @Input() currentSchool: SchoolDTO | null;
   @Input() backgroundImages: BackgroundImageDTO[];
+  @Input() lessons: LessonDTO[] | null;
   @Output() saveSchoolDetails = new EventEmitter<{
     key: string;
-    value: string;
+    value: string | LessonTypeDTO[];
   }>();
   @Output() updateTempStyles = new EventEmitter<TempStylesDTO | null>();
+  @Output() updateLessons = new EventEmitter<LessonTypeDTO[]>();
+
+  lessonTypesModified: LessonTypeDTO[] = [];
+  editLessonTypes = false;
 
   countryList = countryList;
   defaultStyles = defaultStyles;
-  edit: AdminSettingRow | AdminStylesRow | AdminBackgroundRow | LogoRow | null =
-    null;
+  edit:
+    | AdminSettingRow
+    | AdminStylesRow
+    | AdminBackgroundRow
+    | LogoRow
+    | LessonsRow
+    | null = null;
   editGradient = false;
   public backgroundImageType = '';
   backgroundGradient = '';
@@ -62,13 +73,21 @@ export class AdminViewComponent implements OnInit, OnChanges {
 
   tabs: {
     title: string;
-    form: 'detailStep' | 'formatStep' | 'backgroundStep' | 'logoStep';
-    // | 'lessonStep'
+    form:
+      | 'detailStep'
+      | 'formatStep'
+      | 'backgroundStep'
+      | 'logoStep'
+      | 'lessonStep';
     // | 'paymentStep'
     // | 'infoStep';
     formValues:
       | NgIterable<
-          AdminSettingRow | AdminStylesRow | AdminBackgroundRow | LogoRow
+          | AdminSettingRow
+          | AdminStylesRow
+          | AdminBackgroundRow
+          | LogoRow
+          | LessonsRow
         >
       | null
       | undefined;
@@ -94,6 +113,11 @@ export class AdminViewComponent implements OnInit, OnChanges {
       form: 'logoStep',
       formValues: undefined,
     },
+    {
+      title: 'lessons',
+      form: 'lessonStep',
+      formValues: undefined,
+    },
   ];
 
   // --- forms:
@@ -117,6 +141,9 @@ export class AdminViewComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if ('selectedBackgroundImage' in changes) {
       this.backgroundGradient = this.selectedBackgroundImage.name;
+    }
+    if ('currentSchool' in changes && this.currentSchool) {
+      this.lessonTypesModified = [...this.currentSchool.lessonTypes];
     }
   }
 
@@ -257,6 +284,14 @@ export class AdminViewComponent implements OnInit, OnChanges {
         formType: 'image',
       },
     ] as LogoRow[];
+
+    this.tabs[4].formValues = [
+      {
+        dataRef: 'lessons',
+        formType: 'other',
+        hide: true,
+      },
+    ] as LessonsRow[];
   }
 
   populateForm(): void {
@@ -470,7 +505,12 @@ export class AdminViewComponent implements OnInit, OnChanges {
   }
 
   openEdit(
-    row: AdminSettingRow | AdminStylesRow | AdminBackgroundRow | LogoRow
+    row:
+      | AdminSettingRow
+      | AdminStylesRow
+      | AdminBackgroundRow
+      | LogoRow
+      | LessonsRow
   ): void {
     // this.updateTempStyles.emit(null);
     this.edit = row;
@@ -480,10 +520,20 @@ export class AdminViewComponent implements OnInit, OnChanges {
     this.edit = null;
     this.updateTempStyles.emit(null);
     this.populateForm();
+
+    this.editLessonTypes = false;
+    if (this.currentSchool) {
+      this.lessonTypesModified = [...this.currentSchool.lessonTypes];
+    }
   }
 
   onSaveClick(
-    row: AdminSettingRow | AdminStylesRow | AdminBackgroundRow | LogoRow,
+    row:
+      | AdminSettingRow
+      | AdminStylesRow
+      | AdminBackgroundRow
+      | LogoRow
+      | LessonsRow,
     value: string
   ): void {
     this.saveSchoolDetails.emit({ key: row.key, value });
@@ -672,6 +722,90 @@ export class AdminViewComponent implements OnInit, OnChanges {
     }
     return true;
   }
+
+  /**
+   * Lesson Types
+   */
+
+  addLessonType(name: string, shortName: string): void {
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    if (this.lessonTypesModified.length >= 5) {
+      this.snackbarService.openPermanent(
+        'warn',
+        'Sorry, you can only have a maximum of 5 class types.',
+        'dismiss'
+      );
+    } else if (!name || !shortName) {
+      this.snackbarService.openPermanent(
+        'warn',
+        'Please enter a name and abbreviated name for your lesson',
+        'dismiss'
+      );
+    } else if (name.length > 35) {
+      this.snackbarService.openPermanent(
+        'warn',
+        'Your long lesson name cannot be more than 35 characters.',
+        'dismiss'
+      );
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    } else if (shortName.length > 10) {
+      this.snackbarService.openPermanent(
+        'warn',
+        'Your abbreviated lesson name cannot be more than 10 characters.',
+        'dismiss'
+      );
+    } else if (
+      this.lessonTypesModified
+        .map((lesson) => lesson.name.toLocaleLowerCase())
+        .includes(name.toLocaleLowerCase())
+    ) {
+      this.snackbarService.openPermanent(
+        'warn',
+        'Lesson name must be unique',
+        'dismiss'
+      );
+    } else if (
+      this.lessonTypesModified
+        .map((lesson) => lesson.shortName.toLocaleLowerCase())
+        .includes(shortName.toLocaleLowerCase())
+    ) {
+      this.snackbarService.openPermanent(
+        'warn',
+        'Abbreviated lesson name must be unique',
+        'dismiss'
+      );
+    } else {
+      this.lessonTypesModified.push({ name, shortName });
+      this.editLessonTypes = true;
+    }
+  }
+
+  removeLessonType(name: string, shortName: string): void {
+    if (this.lessons) {
+      const upcomingLessonTypes = this.lessons.map((lesson) =>
+        lesson.type.name.toLocaleLowerCase()
+      );
+      if (upcomingLessonTypes.includes(name.toLocaleLowerCase())) {
+        this.snackbarService.openPermanent(
+          'warn',
+          'Unable to delete lesson type: There is an upcoming scheduled lesson that uses this lesson type. In order to delete this lesson type, you must wait for the lesson to finish, or delete all upcoming lessons that use this type.',
+          'dismiss'
+        );
+      } else {
+        this.lessonTypesModified = this.lessonTypesModified.filter(
+          (item) => !(item.name === name && item.shortName === shortName)
+        );
+        this.editLessonTypes = true;
+      }
+    }
+  }
+
+  updateLessonsClick(): void {
+    this.saveSchoolDetails.emit({
+      key: 'lessonTypes',
+      value: this.lessonTypesModified,
+    });
+  }
 }
 
 export interface AdminSettingRow {
@@ -717,6 +851,15 @@ export interface AdminBackgroundRow {
 
 export interface LogoRow {
   dataRef: 'schoolLogo';
+  tooltip: string;
+  title: string;
+  key: string;
+  formType?: string | null;
+  hide?: boolean | null;
+}
+
+export interface LessonsRow {
+  dataRef: 'lessons';
   tooltip: string;
   title: string;
   key: string;

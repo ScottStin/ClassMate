@@ -32,7 +32,7 @@
       </div>
     </mat-tab>
     <mat-tab
-      *ngFor="let lessonType of (lessonTypes$ | async)"
+      *ngFor="let lessonType of lessonTypes"
       [label]="!smallScreen ? lessonType.name : lessonType.shortName"
     >
       <div *ngFor="let lesson of (lessons$ | async)">

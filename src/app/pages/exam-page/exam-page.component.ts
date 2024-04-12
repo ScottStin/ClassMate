@@ -24,7 +24,6 @@ import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { defaultStyles } from 'src/app/shared/default-styles';
-import { DemoExams } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -42,7 +41,6 @@ export class ExamPageComponent implements OnInit, OnDestroy {
   exams$: Observable<ExamDTO[]>;
   users$: Observable<UserDTO[]>;
   examPageLoading = false;
-  demoExams: ExamDTO[];
   teachers$: Observable<UserDTO[]>;
   questions$: Observable<QuestionList[]>;
   error: Error;
@@ -141,7 +139,6 @@ export class ExamPageComponent implements OnInit, OnDestroy {
             });
         },
       });
-    this.demoExams = DemoExams;
   }
 
   createExam(): void {

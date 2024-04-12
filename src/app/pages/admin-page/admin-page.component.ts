@@ -1,7 +1,9 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Observable, Subscription } from 'rxjs';
+import { finalize, first, Observable, of, Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import { LessonService } from 'src/app/services/lesson-service/lesson.service';
+import { LessonTypeService } from 'src/app/services/lesson-type-service/lesson-type.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import {
@@ -13,6 +15,7 @@ import {
   backgroundImages,
 } from 'src/app/shared/background-images';
 import { defaultStyles } from 'src/app/shared/default-styles';
+import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -27,12 +30,14 @@ export class AdminPageComponent implements OnInit, OnDestroy {
   @ViewChild(AdminViewComponent)
   adminViewComponent: AdminViewComponent;
   adminPageLoading = true;
+  lessonPageLoading = true;
 
   // --- auth data and subscriptions:
-  currentUser$: Observable<UserDTO | null>;
   private currentSchoolSubscription: Subscription | null;
   private temporaryStylesSubscription: Subscription | null;
+  currentUser$: Observable<UserDTO | null>;
   currentSchool$: Observable<SchoolDTO | null>;
+  lessons$: Observable<LessonDTO[] | null>;
 
   // --- styles:
   defaultStyles = defaultStyles;
@@ -48,6 +53,8 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     public readonly authStoreService: AuthStoreService,
     public readonly tempStylesService: TempStylesService,
     public readonly schoolService: SchoolService,
+    public readonly lessonTypeService: LessonTypeService,
+    public readonly lessonService: LessonService,
     public dialog: MatDialog
   ) {}
 
@@ -55,6 +62,7 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     this.currentSchool$ = this.schoolService.currentSchool$;
     this.temporaryStyles$ = this.tempStylesService.temporaryStyles$;
     this.currentUser$ = this.authStoreService.currentUser$;
+    this.lessons$ = this.lessonService.lessons$;
     this.getCurrentSchoolDetails();
     this.getTempStyles();
   }
@@ -88,6 +96,7 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     this.currentSchoolSubscription = this.currentSchool$.subscribe(
       (currentSchool) => {
         if (currentSchool) {
+          // --- get styles:
           const primaryButtonBackgroundColor =
             currentSchool.primaryButtonBackgroundColor as string | undefined;
 
@@ -106,13 +115,50 @@ export class AdminPageComponent implements OnInit, OnDestroy {
           if (selectedBackgroundImage !== undefined) {
             this.selectedBackgroundImage = selectedBackgroundImage;
           }
+
+          // --- get upcoming lessons:
+          if (currentSchool._id !== null && currentSchool._id !== undefined) {
+            this.lessonService
+              .getAllBySchoolId(currentSchool._id)
+              .pipe(
+                first(),
+                finalize(() => {
+                  this.lessonPageLoading = false;
+                })
+              )
+              .subscribe({
+                next: (lessons) => {
+                  const currentDateTime = new Date();
+                  const filterdLessons = lessons.filter(
+                    (lesson) => new Date(lesson.startTime) > currentDateTime
+                  );
+                  this.lessons$ = of(filterdLessons);
+                },
+                error: (error: Error) => {
+                  const snackbar = this.snackbarService.openPermanent(
+                    'error',
+                    `Error: Failed to load page: ${error.message}`,
+                    'retry'
+                  );
+                  snackbar
+                    .onAction()
+                    .pipe(first())
+                    .subscribe(() => {
+                      this.getCurrentSchoolDetails();
+                    });
+                },
+              });
+          }
         }
       }
     );
     this.adminPageLoading = false;
   }
 
-  saveSchoolDetails(data: { key: string; value: string }): void {
+  saveSchoolDetails(data: {
+    key: string;
+    value: string | LessonTypeDTO[];
+  }): void {
     const updatedData = { [data.key]: data.value };
     this.schoolService
       .update(updatedData, '6609279a1adcaa324759e3f2')
@@ -129,7 +175,6 @@ export class AdminPageComponent implements OnInit, OnDestroy {
           }, 0);
         },
         error: (error: Error) => {
-          // this.error = error;
           this.snackbarService.openPermanent('error', error.message);
         },
       });

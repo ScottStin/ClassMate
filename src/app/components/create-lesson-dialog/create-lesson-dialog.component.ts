@@ -23,8 +23,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { CronOptions } from 'ngx-cron-editor';
 import { Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
-// import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
-import { demoLessonTypes, demoLevels } from 'src/app/shared/demo-data';
+import { demoLevels } from 'src/app/shared/demo-data';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
@@ -69,7 +68,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   };
 
   formPopulated = new Subject<boolean>();
-  demoLessonTypes = demoLessonTypes;
+  lessonTypes: LessonTypeDTO[] = [];
   demoLevels = demoLevels;
   lessons: LessonDTO[] | undefined = [];
   displayedColumns = [
@@ -96,12 +95,12 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
       currentSchool: SchoolDTO;
       teachers: UserDTO[];
     },
-    // public readonly authStoreService: AuthStoreService,
     public dialogRef: MatDialogRef<CreateLessonDialogComponent>,
     public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
+    this.lessonTypes = this.data.currentSchool.lessonTypes;
     this.populateForm();
     this.dataSource = new MatTableDataSource<LessonDTO>(this.lessons ?? []);
     this.lessonDateMode = 'individual';
@@ -199,7 +198,6 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   addNewLessonRow(): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-non-null-assertion, prettier/prettier
     const userEmail = this.data.currentUser.email;
     const formValue = this.lessonForm.getRawValue();
     this.lessons?.push({
@@ -263,7 +261,6 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   closeDialog(): void {
-    // if (this.lessonForm.pristine) {
     if (this.lessons === undefined || this.lessons.length === 0) {
       this.dialogRef.close();
     } else {

@@ -13,7 +13,6 @@ import {
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
-import { LessonTypeService } from 'src/app/services/lesson-type-service/lesson-type.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
@@ -38,8 +37,8 @@ export class HomePageComponent implements OnInit, OnDestroy {
   // --- data:
   users$: Observable<UserDTO[]>;
   lessons$: Observable<LessonDTO[]>;
-  lessonTypes$: Observable<LessonTypeDTO[]>;
   homePageLoading = true;
+  lessonTypes: LessonTypeDTO[] = [];
 
   // --- auth data and subscriptions:
   private currentUserSubscription: Subscription | null;
@@ -66,7 +65,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
     private readonly snackbarService: SnackbarService,
     private readonly userService: UserService,
     private readonly lessonService: LessonService,
-    private readonly lessonTypeService: LessonTypeService,
     public readonly authStoreService: AuthStoreService,
     public readonly schoolService: SchoolService,
     public dialog: MatDialog
@@ -77,7 +75,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.currentUser$ = this.authStoreService.currentUser$;
     this.users$ = this.userService.users$;
     this.lessons$ = this.lessonService.lessons$;
-    this.lessonTypes$ = this.lessonTypeService.lessonTypes$;
     this.loadPageData();
     this.getCurrentSchoolDetails();
     this.mediumScreen =
@@ -90,10 +87,11 @@ export class HomePageComponent implements OnInit, OnDestroy {
       (currentSchool) => {
         // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/strict-boolean-expressions
         if (currentSchool && currentSchool._id) {
+          this.lessonTypes = currentSchool.lessonTypes;
+
           forkJoin([
             this.userService.getAllBySchoolId(currentSchool._id),
             this.lessonService.getAllBySchoolId(currentSchool._id),
-            this.lessonTypeService.getAll(),
           ])
             .pipe(
               first(),
