@@ -41,3 +41,19 @@
     (changeBackgroundImage)="changeBackgroundImage($event)"
   ></app-login-card-school>
 </div>
+
+<!-- <div
+  *ngFor="let school of (schools$ | async)"
+  (click)="deleteSchoolClick(school._id)"
+>
+  {{school.name}} {{school._id}} {{school.email}}
+</div> -->
+<!-- 
+<div *ngFor="let user of (users$ | async)">
+  <div
+    *ngIf="user.userType.toLowerCase() ==='school' || user.userType.toLowerCase() ==='admin'"
+    (click)="deleteAdminUserClick(user._id)"
+  >
+    {{user.name}} {{user._id}} {{user.email}} {{user.userType}}
+  </div>
+</div> -->

@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { AuthStoreService } from '../auth-store-service/auth-store.service';
@@ -64,10 +65,26 @@ export class SchoolService {
     );
   }
 
-  update(data: Partial<SchoolDTO>, id: string): Observable<SchoolDTO> {
-    return this.httpClient.patch<SchoolDTO>(`${this.baseUrl}/${id}`, data).pipe(
+  update(
+    data: Partial<SchoolDTO>,
+    id: string
+  ): Observable<{ school: SchoolDTO; user: UserDTO }> {
+    return this.httpClient
+      .patch<{ school: SchoolDTO; user: UserDTO }>(
+        `${this.baseUrl}/${id}`,
+        data
+      )
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to update school');
+        })
+      );
+  }
+
+  delete(id: string): Observable<SchoolDTO> {
+    return this.httpClient.delete<SchoolDTO>(`${this.baseUrl}/${id}`).pipe(
       catchError((error: Error) => {
-        this.handleError(error, 'Failed to update school');
+        this.handleError(error, 'Failed to delete school');
       })
     );
   }

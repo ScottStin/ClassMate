@@ -159,16 +159,18 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     key: string;
     value: string | LessonTypeDTO[];
   }): void {
+    const currentSchoolId = this.getCurrentSchoolFromLocalStore()?._id;
+
     const updatedData = { [data.key]: data.value };
-    this.schoolService
-      .update(updatedData, '6609279a1adcaa324759e3f2')
-      .subscribe({
-        next: (school: SchoolDTO) => {
+    if (currentSchoolId !== undefined && currentSchoolId !== null) {
+      this.schoolService.update(updatedData, currentSchoolId).subscribe({
+        next: (result: { school: SchoolDTO; user: UserDTO }) => {
           this.snackbarService.open(
             'info',
             'School details successfully updated'
           );
-          this.schoolService.updateCurrentSchool(school);
+          this.schoolService.updateCurrentSchool(result.school);
+          this.authStoreService.updateCurrentUser(result.user);
           // this.getCurrentSchoolDetails();
           setTimeout(() => {
             this.adminViewComponent.closeEdit();
@@ -178,6 +180,18 @@ export class AdminPageComponent implements OnInit, OnDestroy {
           this.snackbarService.openPermanent('error', error.message);
         },
       });
+    }
+  }
+
+  getCurrentSchoolFromLocalStore(): SchoolDTO | undefined {
+    // todo - replace with global service
+    const currentSchoolString: string | null =
+      localStorage.getItem('current_school');
+    const currentSchool = (
+      currentSchoolString !== null ? JSON.parse(currentSchoolString) : undefined
+    ) as SchoolDTO | undefined;
+
+    return currentSchool;
   }
 
   updateTempStyles(tempStyles: TempStylesDTO | null): void {

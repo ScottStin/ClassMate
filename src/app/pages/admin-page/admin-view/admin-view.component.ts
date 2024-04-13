@@ -533,7 +533,8 @@ export class AdminViewComponent implements OnInit, OnChanges {
       | AdminStylesRow
       | AdminBackgroundRow
       | LogoRow
-      | LessonsRow,
+      | LessonsRow
+      | { key: string },
     value: string
   ): void {
     this.saveSchoolDetails.emit({ key: row.key, value });

@@ -6,21 +6,10 @@ import { SchoolService } from './services/school-service/school.service';
 import { SchoolDTO } from './shared/models/school.model';
 
 export const schools = [
-  'test123',
   'YouSTUDY',
-  'dfgdgdgdgdgd',
-  'dfgdgdgdgdgd',
-  'dfgdgdgdgdgd',
-  'lalalalal',
-  'lalalalal2',
-  'lalalalal3',
-  'new1',
-  'fdsfdsfdsfsdf',
-  'YouSTUDY2',
-  'English-Solutions',
-  'test-new-1',
-  'test-new-school-6',
-  'international-house', // admin@ih.com Test123?
+  'english-solutions',
+  'international-house', // admin@ih.edu.au, Test123?
+  'holmes-institute',
 ];
 
 const routes: Routes = [];

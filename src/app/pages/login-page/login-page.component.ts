@@ -376,4 +376,32 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     //   "Can't decide on a good background image? Don't worry, you can always change it later!"
     // );
   }
+
+  deleteSchoolClick(id?: string | null): void {
+    if (id !== undefined && id !== null) {
+      this.schoolService.delete(id).subscribe({
+        next: () => {
+          this.snackbarService.open('info', 'School successfully deleted');
+        },
+        error: (error: Error) => {
+          this.error = error;
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
+    }
+  }
+
+  deleteAdminUserClick(id?: string | null): void {
+    if (id !== undefined && id !== null) {
+      this.userService.delete(id).subscribe({
+        next: () => {
+          this.snackbarService.open('info', 'School successfully deleted');
+        },
+        error: (error: Error) => {
+          this.error = error;
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
+    }
+  }
 }
