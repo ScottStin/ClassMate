@@ -11,7 +11,7 @@ import { SchoolDTO } from 'src/app/shared/models/school.model';
 @Component({
   selector: 'app-welcome-page',
   templateUrl: './welcome-page.component.html',
-  styleUrls: ['./welcome-page.component.css'],
+  styleUrls: ['./welcome-page.component.scss'],
 })
 export class WelcomePageComponent implements OnInit, OnDestroy {
   private currentSchoolSubscription: Subscription | null;
@@ -21,9 +21,6 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
   defaultStyles = defaultStyles;
   selectedBackgroundImage: BackgroundImageDTO | null =
     this.defaultStyles.selectedBackgroundImage;
-  primaryButtonBackgroundColor =
-    this.defaultStyles.primaryButtonBackgroundColor;
-  primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
   imageCards: { source: string; route: string; title: string }[] = [];
 
   logoSrc: string | undefined;
@@ -43,26 +40,14 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
           | BackgroundImageDTO
           | undefined;
 
-        const primaryButtonBackgroundColor =
-          school.primaryButtonBackgroundColor as string | undefined;
-
-        const primaryButtonTextColor = school.primaryButtonTextColor as
-          | string
-          | undefined;
-
-        const logo = school.logo;
-
         if (backgroundImage !== undefined) {
           this.selectedBackgroundImage = backgroundImage;
         } else {
           this.selectedBackgroundImage = this.backgroundImages[0];
         }
-        if (primaryButtonBackgroundColor !== undefined) {
-          this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
-        }
-        if (primaryButtonTextColor !== undefined) {
-          this.primaryButtonTextColor = primaryButtonTextColor;
-        }
+
+        // --- get logo:
+        const logo = school.logo;
         if (logo) {
           this.logoSrc = logo.url;
         }

@@ -1,6 +1,5 @@
 import {
   Component,
-  HostListener,
   Input,
   OnChanges,
   OnDestroy,
@@ -20,7 +19,6 @@ import {
   TempStylesService,
 } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { UserService } from 'src/app/services/user-service/user.service';
-import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -33,12 +31,8 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   @Input() currentSchool: SchoolDTO | null;
   @Input() currentUser: UserDTO | null;
   @Input() users: UserDTO[] | null;
-  @Input() pageStyles: {
-    primaryButtonBackgroundColor: string;
-    primaryButtonTextColor: string;
-  };
+  @Input() sideNavOpen: boolean;
 
-  hideNavText = false;
   menuItems = menuItems;
   profilePictureSrc =
     'https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png';
@@ -51,11 +45,12 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   private temporaryStylesSubscription: Subscription | null;
   temporaryStyles$: Observable<TempStylesDTO | null>;
 
-  @HostListener('window:resize', ['$event'])
-  onResize(): void {
-    this.hideNavText =
-      window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
-  }
+  // hideNavText = false;
+  // @HostListener('window:resize', ['$event'])
+  // onResize(): void {
+  // this.hideNavText =
+  //   window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
+  // }
 
   constructor(
     public readonly authStoreService: AuthStoreService,
@@ -81,8 +76,6 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
   async ngOnInit(): Promise<void> {
     this.getCurrentUserProfilePicture();
-    this.hideNavText =
-      window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
 
     this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
       'Exam Marking'
@@ -161,22 +154,6 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
                 'info',
                 'Your profile has successfully been updated'
               );
-              // this.getCurrentUser();
-
-              // refresh lessons:
-              // if (
-              //   this.breadCrumb !== undefined &&
-              //   [
-              //     'home page',
-              //     'my classes',
-              //     'my teachers',
-              //     'my classmates',
-              //     'my students',
-              //     'my colleague',
-              //   ].includes(this.breadCrumb.toLowerCase())
-              // ) {
-              //   location.reload();
-              // }
             },
             error: (error: Error) => {
               this.error = error;
@@ -240,7 +217,7 @@ export const menuItems: MenuItemDTO[] = [
   },
   {
     name: 'My Classes',
-    adminName: 'Class',
+    adminName: 'Classes',
     use: ['student', 'teacher', 'school'],
     icon: 'class',
     routerLink: '/lessons',
@@ -273,9 +250,26 @@ export const menuItems: MenuItemDTO[] = [
   {
     name: 'My Homework',
     use: ['student'],
-    icon: 'assignment',
-    label: '',
-    routerLink: '',
+    icon: 'library_books',
+    searchBar: 'Search homework...',
+    label: '/homework',
+    routerLink: '/homework',
+    breadcrumb: 'homework',
+    headerButton: 'Add Homework Exercise',
+    headerButtonIcon: 'add',
+    headerButtonFunction: 'createHomework',
+  },
+  {
+    name: 'Homework Marking',
+    adminName: 'Homework',
+    searchBar: 'Search homework...',
+    use: ['teacher', 'school'],
+    icon: 'library_books',
+    headerButton: 'Add Homework Exercise',
+    headerButtonIcon: 'add',
+    headerButtonFunction: 'createHomework',
+    label: '/homework',
+    routerLink: '/homework',
     breadcrumb: 'homework',
   },
   {
@@ -293,7 +287,7 @@ export const menuItems: MenuItemDTO[] = [
   {
     name: 'My Classmates',
     use: ['student'],
-    icon: 'group',
+    icon: 'groups',
     routerLink: '/users/classmates',
     label: '/users/classmates',
     searchBar: 'Search for a class mate...',
@@ -310,7 +304,7 @@ export const menuItems: MenuItemDTO[] = [
   {
     name: 'My Students',
     adminName: 'Students',
-    icon: 'child_care',
+    icon: 'groups',
     use: ['school', 'teacher'],
     routerLink: '/users/students',
     label: '/users/students',
@@ -324,7 +318,7 @@ export const menuItems: MenuItemDTO[] = [
     name: 'My Colleagues',
     adminName: 'Teachers',
     use: ['school', 'teacher'],
-    icon: 'group',
+    icon: 'co_present',
     routerLink: '/users/colleagues',
     label: '/users/colleagues',
     searchBar: 'Search for a colleague...',
@@ -349,14 +343,14 @@ export const menuItems: MenuItemDTO[] = [
     label: '',
     breadcrumb: 'announcements',
   },
-  {
-    name: 'Class Material',
-    use: ['school', 'teacher'],
-    icon: 'notes',
-    routerLink: '',
-    label: '',
-    breadcrumb: 'material',
-  },
+  // {
+  //   name: 'Class Material',
+  //   use: ['school', 'teacher'],
+  //   icon: 'notes',
+  //   routerLink: '',
+  //   label: '',
+  //   breadcrumb: 'material',
+  // },
   {
     name: 'Exam Marking',
     adminName: 'Exams',

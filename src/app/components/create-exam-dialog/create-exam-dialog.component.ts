@@ -91,7 +91,6 @@ export class CreateExamDialogComponent implements OnInit {
       title: string;
       exam: ExamDTO | undefined;
       teachers: UserDTO[];
-      primaryButtonBackgroundColor: string;
     },
     private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
     private readonly examService: ExamService,
@@ -104,37 +103,6 @@ export class CreateExamDialogComponent implements OnInit {
   ngOnInit(): void {
     this.populateExamForm();
     this.populateQuestionForm();
-
-    // this.questionList = [
-    //   {
-    //     name: 'section1',
-    //     type: 'section',
-    //     expanded: false,
-    //     id: 1,
-    //     subQuestions: [
-    //       { name: 'section1 q1', id: 543 },
-    //       { name: 'section1 q2', id: 547 },
-    //       { name: 'section1 q3', id: 549 },
-    //       { name: 'section1 q3', id: 556 },
-    //       { name: 'section1 q5', id: 579 },
-    //     ],
-    //   },
-    //   {
-    //     name: 'section2',
-    //     type: 'section',
-    //     expanded: false,
-    //     id: 2,
-    //     subQuestions: [
-    //       { name: 'section2 q1', id: 242 },
-    //       { name: 'section2 q2', id: 243 },
-    //       { name: 'section2 q3', id: 244 },
-    //       { name: 'section2 q3', id: 245 },
-    //       { name: 'section2 q5', id: 246 },
-    //     ],
-    //   },
-    //   { name: 'question3', type: 'question', subQuestions: null, id: 4 },
-    //   { name: 'question4', type: 'question', subQuestions: null, id: 5 },
-    // ];
   }
 
   populateExamForm(): void {

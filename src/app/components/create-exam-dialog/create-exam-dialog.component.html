@@ -80,12 +80,7 @@
               </mat-error>
             </mat-form-field>
 
-            <mat-form-field
-              #tooltip="matTooltip"
-              matTooltip="The assigned teacher will be responsible for marking this exam and giving feedback. Note that any teacher can mark any exam, but only the assigned teacher will be notified when an exam needs marking."
-              appearance="outline"
-              class="form-field"
-            >
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>Assigned teacher</mat-label>
               <mat-select formControlName="assignedTeacher">
                 <mat-option
@@ -98,6 +93,12 @@
                   />{{teacher.name}}</mat-option
                 >
               </mat-select>
+              <mat-icon
+                matSuffix
+                #tooltip="matTooltip"
+                matTooltip="The assigned teacher will be responsible for marking this exam and giving feedback. Note that any teacher can mark any exam, but only the assigned teacher will be notified when an exam needs marking."
+                >info_outlined</mat-icon
+              >
 
               <mat-error>
                 <app-error-message
@@ -113,14 +114,13 @@
                 #default
                 name="default"
                 (change)="default.checked ? updateDefaultExam() : ''"
-                [ngStyle]="default.checked ? {'--toggleSwitch': data.primaryButtonBackgroundColor, '--toggleThumb': data.primaryButtonBackgroundColor} : {'--toggleSwitch':''}"
               >
                 Default level test?
                 <mat-icon
                   style="font-size: 20px"
                   #tooltip="matTooltip"
                   matTooltip="This will be the free level test assigned to students when they first sign up for the platform."
-                  >info</mat-icon
+                  >info_outlined</mat-icon
                 >
               </mat-slide-toggle>
               <mat-error>
@@ -485,7 +485,7 @@
                       style="font-size: 20px"
                       #tooltip="matTooltip"
                       matTooltip="When turned on, the teacher will be prompted to give written feedback when marking this exam."
-                      >info</mat-icon
+                      >info_outlined</mat-icon
                     >
                   </mat-slide-toggle>
                   <mat-error>
@@ -509,7 +509,7 @@
                       style="font-size: 20px"
                       #tooltip="matTooltip"
                       matTooltip="When turned on, this exam will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher will have to provide the student with a score."
-                      >info</mat-icon
+                      >info_outlined</mat-icon
                     >
                   </mat-slide-toggle>
                   <mat-error>
@@ -533,7 +533,7 @@
                       style="font-size: 20px"
                       #tooltip="matTooltip"
                       matTooltip="When turned on, this question/section will have a time limit"
-                      >info</mat-icon
+                      >info_outlined</mat-icon
                     >
                   </mat-slide-toggle>
                 </div>
@@ -812,7 +812,7 @@
                       style="font-size: 20px"
                       #tooltip="matTooltip"
                       matTooltip="When turned on, the options you create will appear in a random order when the student takes the exam. When turned off, they will appear in the order you create them."
-                      >info</mat-icon
+                      >info_outlined</mat-icon
                     >
                   </mat-slide-toggle>
                 </form>
@@ -841,7 +841,7 @@
                       style="font-size: 20px"
                       #tooltip="matTooltip"
                       [matTooltip]="this.questionForm.getRawValue().type === 'fill-in-the-blanks' ? 'When turned on, the student will have to get the case correct to be awarded the marks' : 'When turned on, the student will be rewarded partial marking for getting some of the questions correct. When turned off, the student will have to get the whole question correct to be awarded the marks.'"
-                      >info</mat-icon
+                      >info_outlined</mat-icon
                     >
                   </mat-slide-toggle>
                 </form>

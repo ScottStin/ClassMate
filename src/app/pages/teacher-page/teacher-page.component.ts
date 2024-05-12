@@ -54,9 +54,6 @@ export class TeacherPageComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        // next: (res) => {
-        //   console.log(res);
-        // },
         error: (error: Error) => {
           const snackbar = this.snackbarService.openPermanent(
             'error',

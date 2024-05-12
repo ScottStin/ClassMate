@@ -4,7 +4,6 @@
   [currentSchool]="currentSchool$ | async"
   [currentUser]="currentUser$ | async"
   [pageName]="'exams'"
-  [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
 ></app-header-card>
 
 <mat-progress-bar
@@ -17,9 +16,6 @@
     class="home-tab-group"
     mat-stretch-tabs
     [(selectedIndex)]="selectedTabIndex"
-    [ngStyle]="{
-      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor
-    }"
   >
     <mat-tab
       *ngFor="let examType of ['My Exams','All Exams']"

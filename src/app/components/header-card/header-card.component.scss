@@ -1,12 +1,8 @@
-/* .header-container {
-    justify-content: center;
-    align-items: center;
-    margin:25px;
-  } */
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
 
   .mat-toolbar {
     background-color: white;
-    /* background-color: rgb(255, 255, 255, 0.4); */
     color: black;
     display: flex;
     justify-content: space-between;
@@ -32,17 +28,9 @@
 
   .action-button {
     margin:20px;
+    color: $secondaryColor;
+    background-color: $primaryColor;
   }
-
-  /* .action-button {
-    background-color: #6200EE;
-    color: white;
-  } */
-/*   
-  .form-field {
-    padding: 50px;
-    width:500px;
-  } */
 
   ::ng-deep .home-tab-group .mat-tab-header {
     background-color: white;

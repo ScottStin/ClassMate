@@ -1,0 +1,22 @@
+$width: var(--sideNavWidth);
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
+.mat-drawer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width:$width;
+  transition: all 3000ms ease-in-out;
+}
+
+.main-page-container {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 150vh;
+}
+
+.page-content {
+  padding:25px;
+}

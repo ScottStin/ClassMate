@@ -4,7 +4,6 @@
   [currentSchool]="currentSchool$ | async"
   [currentUser]="currentUser$ | async"
   [pageName]="pageName"
-  [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
 ></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: userPageLoading ? 'visible' : 'hidden' }"
@@ -16,7 +15,6 @@
       <app-user-card
         [user]="user"
         [userType]="userType"
-        [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
         (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
         (openEditUserDialog)="openEditUserDialog($event)"
       ></app-user-card>
@@ -26,9 +24,6 @@
     class="home-tab-group"
     mat-stretch-tabs
     *ngIf="pageType==='Table'"
-    [ngStyle]="{
-      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor
-    }"
   >
     <mat-tab
       *ngFor="let viewType of ['All', 'Active','Inactive']"

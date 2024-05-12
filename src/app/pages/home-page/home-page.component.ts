@@ -17,7 +17,6 @@ import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
-import { defaultStyles } from 'src/app/shared/default-styles';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -47,12 +46,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
   private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
 
-  // --- styles:
-  defaultStyles = defaultStyles;
-  primaryButtonBackgroundColor =
-    this.defaultStyles.primaryButtonBackgroundColor;
-  primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
-
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.mediumScreen =
@@ -76,7 +69,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.users$ = this.userService.users$;
     this.lessons$ = this.lessonService.lessons$;
     this.loadPageData();
-    this.getCurrentSchoolDetails();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
   }
@@ -96,8 +88,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
             .pipe(
               first(),
               tap(() => {
-                // this.currentSchoolSubscription =
-                //   this.currentSchool$.subscribe();
                 this.currentUserSubscription = this.currentUser$.subscribe();
               }),
               finalize(() => {
@@ -134,27 +124,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
                   });
               },
             });
-        }
-      }
-    );
-  }
-
-  getCurrentSchoolDetails(): void {
-    this.currentSchoolSubscription = this.currentSchool$.subscribe(
-      (currentSchool) => {
-        if (currentSchool) {
-          const primaryButtonBackgroundColor =
-            currentSchool.primaryButtonBackgroundColor as string | undefined;
-
-          const primaryButtonTextColor =
-            currentSchool.primaryButtonTextColor as string | undefined;
-
-          if (primaryButtonBackgroundColor !== undefined) {
-            this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
-          }
-          if (primaryButtonTextColor !== undefined) {
-            this.primaryButtonTextColor = primaryButtonTextColor;
-          }
         }
       }
     );

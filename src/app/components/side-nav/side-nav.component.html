@@ -1,8 +1,6 @@
 <button
   *ngIf="(authStoreService.isLoggedIn$ | async) && currentUser?.userType?.toLowerCase() !== 'school'"
   class="edit-profile-button"
-  [style.color]="pageStyles.primaryButtonTextColor"
-  [style.background-color]="pageStyles.primaryButtonBackgroundColor"
   mat-mini-fab
   #tooltip="matTooltip"
   matTooltip="Edit your profile"
@@ -12,9 +10,11 @@
 </button>
 <div
   [class]="currentUser?.userType?.toLowerCase() !== 'school' ? 'image-container' : 'admin-image-container'"
+  style="overflow-x: hidden"
 >
   <div
     [class]="currentUser?.userType?.toLowerCase() !== 'school' ? 'profile-picture-container' : 'admin-profile-picture-container'"
+    [class.profile-picture-container-closed]="!sideNavOpen"
   >
     <img [src]="profilePictureSrc" class="profile-picture" />
   </div>
@@ -24,23 +24,19 @@
     class="chip-container"
     #tooltip="matTooltip"
     matTooltip="Click here to login"
-    ><mat-chip
-      class="button chip"
-      selected
-      [style.color]="pageStyles.primaryButtonTextColor"
-      [style.background-color]="pageStyles.primaryButtonBackgroundColor"
+    ><mat-chip class="button chip" selected
       >Login / Signup</mat-chip
     ></mat-chip-list
   >
   <h2
     class="user-name-header"
-    *ngIf="!hideNavText && currentUser?.userType?.toLowerCase() !== 'school'"
+    *ngIf="sideNavOpen && currentUser?.userType?.toLowerCase() !== 'school'"
   >
     {{currentUser?.name}}
   </h2>
   <h4
     class="user-name-header"
-    *ngIf="!hideNavText && currentUser?.userType?.toLowerCase() === 'school'"
+    *ngIf="sideNavOpen && currentUser?.userType?.toLowerCase() === 'school'"
   >
     {{currentUser?.name}}
   </h4>
@@ -48,8 +44,9 @@
     class="text-warning"
     *ngIf="currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
   >
-    <mat-icon>star</mat-icon> {{currentUser?.level?.shortName}}
-    <mat-icon>star</mat-icon>
+    <mat-icon *ngIf="sideNavOpen">star</mat-icon>
+    {{currentUser?.level?.shortName}}
+    <mat-icon *ngIf="sideNavOpen">star</mat-icon>
   </h2>
   <mat-chip-list
     *ngIf="!currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
@@ -63,27 +60,31 @@
 </div>
 <mat-divider></mat-divider>
 <mat-list>
-  <div *ngFor="let menuItem of menuItems">
+  <div
+    *ngFor="let menuItem of menuItems"
+    [class]="sideNavOpen ? 'sidenav-container' : 'sidenav-container-closed'"
+  >
     <mat-list-item
-      [class]="breadCrumb === menuItem.name ? 'active': ''"
+      [class.active]="breadCrumb === menuItem.name"
       *ngIf="menuItem.use.includes(currentUser?.userType?.toLowerCase() || 'student')"
       [routerLink]="menuItem.routerLink"
     >
       <mat-icon
         matListItemIcon
-        [matTooltip]="hideNavText ? menuItem.name : ''"
+        [matTooltip]="!sideNavOpen ? menuItem.name : ''"
         matTooltipPosition="right"
+        [class]="sideNavOpen ? 'sidenav-icon' : 'sidenav-icon-closed'"
+        [class.active]="breadCrumb === menuItem.name"
+        [matBadge]="badgeCounts[menuItem.name] !== null && badgeCounts[menuItem.name] !== 0 && !sideNavOpen ? badgeCounts[menuItem.name] : ''"
+        matBadgeOverlap="true"
         >{{ menuItem.icon}}</mat-icon
       >
       <div
         matListItemTitle
-        *ngIf="!hideNavText"
+        *ngIf="sideNavOpen"
         [matBadge]="badgeCounts[menuItem.name] !== null && badgeCounts[menuItem.name] !== 0 ? badgeCounts[menuItem.name] : ''"
         matBadgeOverlap="false"
-        [ngStyle]="{
-          '--primaryButtonBackgroundColor': pageStyles.primaryButtonBackgroundColor,
-          '--primaryButtonTextColor': pageStyles.primaryButtonTextColor
-        }"
+        [class]="sideNavOpen ? 'sidenav-text' : 'sidenav-text-closed'"
       >
         {{ currentUser?.userType?.toLowerCase() !== 'school' ||
         !menuItem.adminName ? menuItem.name : menuItem.adminName}}

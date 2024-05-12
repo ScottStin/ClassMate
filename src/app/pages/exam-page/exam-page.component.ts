@@ -23,7 +23,6 @@ import { QuestionService } from 'src/app/services/question-service/question.serv
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
-import { defaultStyles } from 'src/app/shared/default-styles';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -53,12 +52,6 @@ export class ExamPageComponent implements OnInit, OnDestroy {
   private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
 
-  // --- Style:
-  defaultStyles = defaultStyles;
-  primaryButtonBackgroundColor =
-    this.defaultStyles.primaryButtonBackgroundColor;
-  primaryButtonTextColor = this.defaultStyles.primaryButtonTextColor;
-
   constructor(
     private readonly examService: ExamService,
     private readonly userService: UserService,
@@ -75,29 +68,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     this.exams$ = this.examService.exams$;
     this.users$ = this.userService.users$;
     this.questions$ = this.questionService.questions$;
-    this.getCurrentSchoolDetails();
     this.loadPageData();
-  }
-
-  getCurrentSchoolDetails(): void {
-    this.currentSchoolSubscription = this.currentSchool$.subscribe(
-      (currentSchool) => {
-        if (currentSchool) {
-          const primaryButtonBackgroundColor =
-            currentSchool.primaryButtonBackgroundColor as string | undefined;
-
-          const primaryButtonTextColor =
-            currentSchool.primaryButtonTextColor as string | undefined;
-
-          if (primaryButtonBackgroundColor !== undefined) {
-            this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
-          }
-          if (primaryButtonTextColor !== undefined) {
-            this.primaryButtonTextColor = primaryButtonTextColor;
-          }
-        }
-      }
-    );
   }
 
   loadPageData(): void {
@@ -151,7 +122,6 @@ export class ExamPageComponent implements OnInit, OnDestroy {
           okLabel: 'Delete',
           cancelLabel: 'Cancel',
           teachers,
-          primaryButtonBackgroundColor: this.primaryButtonBackgroundColor,
         },
         panelClass: 'fullscreen-dialog',
         autoFocus: false,
@@ -211,7 +181,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: `Delete exam?`,
-        message: `Are you sure you want to permanently delete this eam? All users currently enrolled in the exam will lose access. Users who are enrolled and have paid for the exam without completing it will be refunded.`,
+        message: `Are you sure you want to permanently delete this exam? All users currently enrolled in the exam will lose access. Users who are enrolled and have paid for the exam without completing it will be refunded.`,
         okLabel: 'Delete',
         cancelLabel: 'Cancel',
       },

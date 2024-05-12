@@ -1,0 +1,160 @@
+<div class="mat-elevation-z1">
+  <mat-table
+    matSort
+    aria-label="Homework"
+    matSortActive="id"
+    matSortDirection="asc"
+  >
+    <!-- Created Column -->
+    <ng-container matColumnDef="createdAt">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Created
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span *ngIf="row.createdAt"
+          >{{ row.createdAt | date:'dd MMM yyyy h:mm a z'}}</span
+        >
+      </mat-cell>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Name
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>{{ row.name }}</span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Descriptiion Column -->
+    <ng-container matColumnDef="description">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Description
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>{{ row.description }}</span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- students Column -->
+    <ng-container matColumnDef="students">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        All Assigned Students
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>{{row.students.length}}</span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- students Not Completed Column -->
+    <ng-container matColumnDef="studentsOutstanding">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Students yet to complete
+        <mat-icon
+          style="font-size: 15px"
+          #tooltip="matTooltip"
+          matTooltip="A bold number indicated that there is completed homework that needs to be reviewed."
+          >info</mat-icon
+        >
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span>{{row.students.length}}</span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- assignedTeacher Column -->
+    <ng-container matColumnDef="assignedTeacher">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Assigned Teacher
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span *ngIf="getUserName(row.assignedTeacher)"
+          >{{getUserName(row.assignedTeacher)}}</span
+        >
+      </mat-cell>
+    </ng-container>
+
+    <!-- Attachment Column -->
+    <ng-container matColumnDef="attachment">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Attachment
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <mat-icon
+          *ngIf="row.attachment?.url"
+          class="download-button"
+          (click)="downloadAttachment(row.attachment?.url)"
+          #tooltip="matTooltip"
+          matTooltip="Download attachment"
+          >save_alt</mat-icon
+        >
+      </mat-cell>
+    </ng-container>
+
+    <!-- Created Column -->
+    <ng-container matColumnDef="dueDate">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Due date
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span *ngIf="row.dueDate"
+          >{{ row.dueDate | date:'dd MMM yyyy h:mm a z'}}</span
+        >
+      </mat-cell>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <div>
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="openEditDialogClick(row)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button mat-menu-item (click)="openConfirmDeleteDialogClick(row)">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      class="table-row"
+    ></mat-row>
+
+    <!-- Zero data row -->
+    <ng-container *ngIf="homeworkData !== null">
+      <tr class="mat-row no-data-row" *matNoDataRow>
+        <td class="mat-cell">
+          <ng-container *ngIf="homeworkData?.length === 0">
+            No homework exercises to show yet
+          </ng-container>
+          <ng-container *ngIf="homeworkData.length > 0">
+            No homework exercises matched the filters
+          </ng-container>
+        </td>
+      </tr>
+    </ng-container>
+  </mat-table>
+
+  <mat-paginator
+    data-testid="paginator"
+    #paginator
+    showFirstLastButtons
+    [length]="homeworkData?.length ?? 0"
+    [pageIndex]="0"
+    [pageSizeOptions]="[10, 20, 50]"
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>

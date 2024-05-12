@@ -39,6 +39,12 @@ const routes: Routes = [
         loadChildren: async () =>
           (await import('../admin-page/admin-page.module')).AdminPageModule,
       },
+      {
+        path: 'homework',
+        canActivate: [AuthLoggedInGuard],
+        loadChildren: async () =>
+          (await import('../homework-page/homework-page.module')).HomeworkPageModule,
+      },
     ],
   },
 ];
@@ -47,52 +53,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class MainPageRoutingModule {
-  // currentSchool: SchoolDTO | undefined = undefined;
-  // constructor() {
-  // const currentSchoolString: string | null =
-  //   localStorage.getItem('current_school');
-  // this.currentSchool = (
-  //   currentSchoolString !== null ? JSON.parse(currentSchoolString) : undefined
-  // ) as SchoolDTO | undefined;
-  // this.addSchoolRoute();
-  // }
-  // addSchoolRoute(): void {
-  //   console.log(schools);
-  //   if (this.currentSchool !== undefined) {
-  //     // for (const route of children) {
-  //     // if (route.path !== undefined) {
-  //       for (const school of schools) {
-  //         routes.push(
-  //           {
-  //             path: `${school}/home`,
-  //             loadChildren: async () =>
-  //               (await import('../home-page/home-page.module')).HomePageModule,
-  //           },
-  //           {
-  //             path: `${school}/lessons`,
-  //             canActivate: [AuthLoggedInGuard],
-  //             loadChildren: async () =>
-  //               (await import('../lesson-page/lesson-page.module'))
-  //                 .LessonPageModule,
-  //           },
-  //           {
-  //             path: `${school}/users`,
-  //             canActivate: [AuthLoggedInGuard],
-  //             loadChildren: async () =>
-  //               (await import('../user-page/user-page.module')).UserPageModule,
-  //           },
-  //           {
-  //             path: `${school}/exams`,
-  //             canActivate: [AuthLoggedInGuard],
-  //             loadChildren: async () =>
-  //               (await import('../exam-page/exam-page.module')).ExamPageModule,
-  //           }
-  //         );
-  //       }
-  //     // }
-  //     // }
-  //   }
-  // console.log(routes);
-  // }
-}
+export class MainPageRoutingModule {}

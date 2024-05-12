@@ -1,15 +1,7 @@
-@import '../../app.component.scss';
-
-  /* ---------------------- */
-  /* Dynamic Button Format: */
-  /* ---------------------- */
-
-  :host {
-    --primaryButtonBackgroundColor: #{$defaultButtonColor};
-    --primaryButtonTextColor: #{$defaultTextnColor};
-  }
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
   
   .dialog-action-save-button {
-    background-color: var(--primaryButtonBackgroundColor);
-    color: var(--primaryButtonTextColor);
+    background-color: $primaryColor;
+    color: $secondaryColor;
   }

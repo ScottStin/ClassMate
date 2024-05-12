@@ -1,3 +1,6 @@
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
 .card {
     margin:25px;
     height:fit-content;
@@ -21,11 +24,17 @@
     margin-left: 30px;
 }
 
-.button {
+.user-action-button {
     margin:2px;
-    /* background-color: #6200EE;
-    color: white; */
     size:20vw;
+
+}
+
+.user-action-button-messages {
+    margin:2px;
+    size:20vw;
+    color:$secondaryColor;
+    background-color:$primaryColor;
 }
 
 .mat-card-actions {

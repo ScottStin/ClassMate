@@ -1,0 +1,123 @@
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
+.card {
+    margin:25px;
+    height:fit-content;
+    border-radius: 15px;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+  }
+  
+  .mat-card-subtitle {
+    margin-left:-15px;
+  }
+  
+  .mat-card-content {
+      margin-top:15px;
+      margin-left: 30px;
+  }
+
+  .data-column {
+    height: fit-content;
+    margin-left: -10vw;
+  }
+
+  .table-column {
+    height: fit-content;
+  }
+
+  table,
+  td {
+    padding-right: 5vw;
+    vertical-align: top;
+  }
+  
+  .feedback-expand-container .mat-expansion-panel-header-description {
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mat-expansion-panel{
+    background-color: #F8F8F8;
+  }
+  
+  .feedback-expand-container .mat-form-field + .mat-form-field {
+    margin-left: 8px;
+  }
+
+  .submit-button {
+    background-color:$primaryColor;
+    color:$secondaryColor;
+  }
+
+  .submit-row{
+    justify-content: center;
+  }
+
+  // --- TEXT BUBBLE:
+
+  .text-bubble-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+  
+  .text-bubble {
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    width: 40vw;
+  }
+  
+  .text-bubble-response {
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    align-self: flex-end;
+    width: 40vw;
+  }
+  
+  .text-bubble::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 10px;
+    border-color: transparent transparent transparent #ffffff;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .text-bubble-response::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 10px 10px 0;
+    border-color: transparent #ffffff transparent transparent;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .thumbnail-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    padding: 10px;
+  }
+  
+  .example-header-image {
+    background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
+    background-size: cover;
+  }

@@ -1,0 +1,23 @@
+.form-field {
+    width: 100%;
+  }
+
+.form-field-pass-toggle{
+    width: 25%;
+  }
+.form-field-duration {
+    width: 75%;
+  }
+
+  .thumbnail-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    padding: 10px;
+  }
+
+  .hidden {
+    display: none;
+    transform: scale(0.1);
+  }

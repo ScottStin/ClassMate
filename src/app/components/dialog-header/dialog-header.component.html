@@ -1,12 +1,5 @@
 <h4>
-  <mat-toolbar
-    role="toolbar"
-    class="main-dialog-toolbar"
-    [ngStyle]="{
-        '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
-        '--primaryButtonTextColor': primaryButtonTextColor
-      }"
-  >
+  <mat-toolbar role="toolbar" class="main-dialog-toolbar">
     <mat-icon (click)="onCloseBtnClick()" class="close-button">close</mat-icon>
     <span data-testid="dialogToolbarTitle" class="dialog-title"
       >{{ dialogTitle }}</span

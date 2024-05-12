@@ -7,8 +7,7 @@
   >
     <mat-icon>{{icon}}</mat-icon>
   </button>
-  <!-- <h1>{{currentSchool?.name}}</h1>
-  <mat-icon>navigate_next</mat-icon> -->
+
   <h1>{{breadCrumb | titlecase}}</h1>
 
   <span class="spacer"></span>
@@ -30,8 +29,6 @@
     mat-raised-button
     class="button action-button"
     (click)="headerButtonClick()"
-    [style.color]="pageStyles.primaryButtonTextColor"
-    [style.background-color]="pageStyles.primaryButtonBackgroundColor"
   >
     <mat-icon *ngIf="headerButtonIcon">{{headerButtonIcon}}</mat-icon
     >{{headerButton}}

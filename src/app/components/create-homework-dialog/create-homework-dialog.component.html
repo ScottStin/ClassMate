@@ -1,0 +1,250 @@
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="data.title"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
+  <div mat-dialog-content class="dialog-content">
+    <div [formGroup]="homeworkForm" style="padding: 10px; margin-top: 20px">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          id="name"
+          formControlName="name"
+          type="text"
+          placeholder="E.g. Vocab worksheet Section 2"
+          required
+        />
+        <mat-error>
+          <app-error-message
+            [control]="homeworkForm.controls['name'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Description</mat-label>
+        <input
+          matInput
+          id="description"
+          formControlName="description"
+          type="text"
+          placeholder="E.g. Finish ex3 & 4 from vocab section of Tuesday's lesson handout"
+          required
+        />
+        <mat-error>
+          <app-error-message
+            [control]="homeworkForm.controls['description'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Assigned teacher</mat-label>
+        <mat-select formControlName="assignedTeacher">
+          <mat-option
+            *ngFor="let teacher of data.teachers"
+            [value]="teacher._id"
+            ><img
+              [src]="teacher.profilePicture?.url"
+              alt="teacher image"
+              class="thumbnail-image"
+            />{{teacher.name}}</mat-option
+          >
+        </mat-select>
+        <mat-icon
+          matSuffix
+          matTooltip="This teacher will be responsible for marking the the homework and giving feedback."
+          >info_outlined</mat-icon
+        >
+
+        <mat-error>
+          <app-error-message
+            [control]="homeworkForm.controls['assignedTeacher'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Duration (minutes)</mat-label>
+        <input
+          matInput
+          id="duration"
+          formControlName="duration"
+          type="number"
+          placeholder=""
+          required
+        />
+        <mat-icon
+          matSuffix
+          matTooltip="Approximately how long will this exercise take to complete? This will be used to monitor the student's study time. Don't worry about getting the time exactly right, it can be adjusted for each student after they have completed the homework."
+          >info_outlined</mat-icon
+        >
+        <mat-error>
+          <app-error-message
+            [control]="homeworkForm.controls['description'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-slide-toggle
+        style="margin-bottom: 15px"
+        id="compulsory"
+        #compulsory
+        name="compulsory"
+        (change)="compulsoryHomework = !compulsoryHomework"
+      >
+        Compulsory?
+        <mat-icon
+          style="font-size: 20px"
+          #tooltip="matTooltip"
+          matTooltip="This homework is obligatory and must be completed by a certain date."
+          >info_outlined</mat-icon
+        >
+      </mat-slide-toggle>
+
+      <mat-form-field
+        class="form-field"
+        appearance="outline"
+        *ngIf="compulsoryHomework"
+      >
+        <mat-label>Due date</mat-label>
+        <input
+          matInput
+          id="description"
+          formControlName="dueDate"
+          type="date"
+          [required]="compulsoryHomework"
+        />
+        <mat-error>
+          <app-error-message
+            [control]="homeworkForm.controls['dueDate'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Attachment (Optional)</mat-label>
+        <input
+          #attachment
+          type="file"
+          hidden="true"
+          (change)="fileChangeEvent($event)"
+          accept="image/png, image/jpeg, image/gif, image/tiff, application/pdf, application/msword"
+        />
+        <input
+          (click)="attachment.click()"
+          matInput
+          readonly
+          [placeholder]="fileName || 'No file chosen'"
+        />
+        <mat-icon
+          matSuffix
+          style="cursor: pointer"
+          (click)="attachment.click()"
+          matTooltip="Note: The attached file will automatically be deleted after all students have completed and passed the homework, or after 6 months of inactivity."
+          >add_photo_alternate</mat-icon
+        >
+        <mat-error>
+          <app-error-message
+            [control]="homeworkForm.controls['attachment'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label><span>Students</span>:</mat-label>
+        <input
+          #studentsInput
+          matInput
+          formControlName="studentsInput"
+          type="text"
+          [matAutocomplete]="auto"
+          [required]="studentsList.length === 0"
+          (keyup)="filterStudents(studentsInput.value)"
+        />
+        <mat-checkbox
+          *ngIf="data.students.length > studentsList.length && !this.homeworkForm.getRawValue().studentsInput"
+          matSuffix
+          (click)="selectAllStudents(data.students)"
+          >Select All</mat-checkbox
+        >
+        <mat-checkbox
+          *ngIf="data.students.length === studentsList.length && !this.homeworkForm.getRawValue().studentsInput"
+          matSuffix
+          (click)="unselectAllStudents()"
+          >Unselect All</mat-checkbox
+        >
+        <mat-autocomplete #auto="matAutocomplete">
+          <div *ngIf="studentsInput.value">
+            <mat-option
+              *ngIf="filteredStudents.length > 1"
+              (click)="selectAllStudents(filteredStudents)"
+            >
+              <mat-checkbox>Select All</mat-checkbox>
+            </mat-option>
+            <mat-option
+              *ngFor="let filteredStudent of filteredStudents"
+              [value]="filteredStudent"
+              (click)="updateStudents(filteredStudent)"
+            >
+              <span
+                ><img
+                  [src]="filteredStudent.profilePicture?.url"
+                  alt="student image"
+                  class="thumbnail-image"
+                />{{filteredStudent.name}} ({{filteredStudent.email}})</span
+              >
+            </mat-option>
+          </div>
+        </mat-autocomplete>
+        <mat-hint
+          style="color: red"
+          *ngIf="studentsList.length === 0 && (this.homeworkForm.get('studentsInput')?.dirty || this.homeworkForm.get('studentsInput')?.touched)"
+          >Required</mat-hint
+        >
+      </mat-form-field>
+
+      <div class="row" *ngIf="studentsList.length">
+        <mat-list>
+          <div mat-subheader>
+            <span *ngIf="studentsList.length===0">There are no students</span>
+            <span *ngIf="studentsList.length===1">There is 1 student</span>
+            <span *ngIf="studentsList.length>1"
+              >There are {{studentsList.length}} students</span
+            >
+            &nbsp;added to this homework exercise.
+          </div>
+          <mat-divider></mat-divider>
+          <mat-list-item *ngFor="let student of studentsList; let i = index">
+            <div matListItemTitle>
+              <span
+                ><img
+                  [src]="student.profilePicture?.url"
+                  alt="student image"
+                  class="thumbnail-image"
+                />{{student.name}} ({{student.email}})</span
+              >
+            </div>
+            <div matListItemMeta class="remove-button">
+              <button
+                mat-icon-button
+                color="warn"
+                matTooltip="Remove student"
+                matTooltipPosition="after"
+                (click)="removeStudent(student)"
+              >
+                <mat-icon>remove_circle</mat-icon>
+              </button>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </div>
+  </div>
+  <app-dialog-actions
+    (cancelAction)="closeDialog()"
+    (saveAction)="closeDialog(true)"
+    [disabled]="this.homeworkForm.invalid || studentsList.length === 0"
+  ></app-dialog-actions>
+</ng-container>

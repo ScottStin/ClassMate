@@ -4,20 +4,13 @@
   [currentSchool]="currentSchool$ | async"
   [currentUser]="currentUser$ | async"
   [pageName]="'lessons'"
-  [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
 ></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: lessonPageLoading ? 'visible' : 'hidden' }"
   mode="query"
 ></mat-progress-bar>
 <div class="page-content">
-  <mat-tab-group
-    class="home-tab-group"
-    mat-stretch-tabs
-    [ngStyle]="{
-    '--primaryButtonBackgroundColor': primaryButtonBackgroundColor
-  }"
-  >
+  <mat-tab-group class="home-tab-group" mat-stretch-tabs>
     <mat-tab
       *ngFor="let lessonStatus of ['Past Lessons','Upcoming Lessons']"
       [label]="lessonStatus"
@@ -34,7 +27,6 @@
             [currentUser]="currentUser$ | async"
             [pageName]="pageName"
             [pastLesson]="getLessonStatus('Past Lessons', lesson)"
-            [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
             (deleteLesson)="deleteLesson($event)"
             (refreshLessons)="loadPageData()"
           ></app-lesson-card>

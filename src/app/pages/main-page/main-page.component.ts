@@ -1,6 +1,7 @@
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
-import { Observable, Subscription } from 'rxjs';
+import { map, Observable, shareReplay, Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import {
@@ -19,11 +20,12 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
-  styleUrls: ['./main-page.component.css'],
+  styleUrls: ['./main-page.component.scss'],
 })
 export class MainPageComponent implements OnInit, OnDestroy {
-  @ViewChild('drawer') drawer: MatDrawer;
-  showFiller = false;
+  /**
+   * Page data:
+   */
 
   currentSchool$: Observable<SchoolDTO | null>;
   private currentSchoolSubscription: Subscription | null;
@@ -34,6 +36,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
   temporaryStyles$: Observable<TempStylesDTO | null>;
   private userSubscription: Subscription | null;
 
+  /**
+   * Styling:
+   */
+
   defaultStyles = defaultStyles;
   styles = {
     primaryButtonBackgroundColor:
@@ -43,11 +49,32 @@ export class MainPageComponent implements OnInit, OnDestroy {
   backgroundImages = backgroundImages;
   selectedBackgroundImage: BackgroundImageDTO | null = this.backgroundImages[0];
 
+  /**
+   * Set sidenav drawer size:
+   */
+
+  sideNavOpen = true;
+  sideNavWidthOpen = 'auto';
+  sideNavWidthClosed = '80px';
+  @ViewChild('drawer') drawer: MatDrawer;
+
+  /**
+   * Check screen size:
+   */
+
+  isHandset$: Observable<boolean> = this.breakpointObserver
+    .observe([Breakpoints.Small, Breakpoints.XSmall])
+    .pipe(
+      map((result) => result.matches),
+      shareReplay()
+    );
+
   constructor(
     public readonly schoolService: SchoolService,
     public readonly authStoreService: AuthStoreService,
     private readonly userService: UserService,
-    public readonly tempStylesService: TempStylesService
+    public readonly tempStylesService: TempStylesService,
+    private readonly breakpointObserver: BreakpointObserver
   ) {}
 
   ngOnInit(): void {
@@ -59,6 +86,15 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.currentUserSubscription = this.currentUser$.subscribe();
     this.getCurrentSchoolDetails();
     this.getTempStyles();
+
+    this.setGlobalRootStyle('sideNavWidth', this.sideNavWidthOpen);
+    this.isHandset$.subscribe((isHandset) => {
+      this.sideNavOpen = !isHandset;
+      this.setGlobalRootStyle(
+        'sideNavWidth',
+        this.sideNavOpen ? this.sideNavWidthOpen : this.sideNavWidthClosed
+      );
+    });
   }
 
   getTempStyles(): void {
@@ -86,6 +122,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
           if (backgroundImage !== undefined) {
             this.selectedBackgroundImage = currentSchool.backgroundImage;
+            this.setGlobalRootStyle(
+              'backgroundImage',
+              JSON.stringify(currentSchool.backgroundImage)
+            );
           }
 
           // --- get primary color:
@@ -95,6 +135,11 @@ export class MainPageComponent implements OnInit, OnDestroy {
           if (primaryButtonBackgroundColor !== undefined) {
             this.styles.primaryButtonBackgroundColor =
               primaryButtonBackgroundColor;
+
+            this.setGlobalRootStyle(
+              'primaryColor',
+              primaryButtonBackgroundColor
+            );
           }
 
           // --- get text color:
@@ -103,6 +148,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
           if (primaryButtonTextColor !== undefined) {
             this.styles.primaryButtonTextColor = primaryButtonTextColor;
+
+            this.setGlobalRootStyle('secondaryColor', primaryButtonTextColor);
           }
         }
       }
@@ -126,5 +173,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
     if (this.temporaryStylesSubscription) {
       this.temporaryStylesSubscription.unsubscribe();
     }
+  }
+
+  private setGlobalRootStyle(propertyName: string, value: string): void {
+    const root = document.documentElement;
+    root.style.setProperty(`--${propertyName}`, value);
   }
 }

@@ -11,7 +11,7 @@ import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
 @Component({
   selector: 'app-header-card',
   templateUrl: './header-card.component.html',
-  styleUrls: ['./header-card.component.css'],
+  styleUrls: ['./header-card.component.scss'],
 })
 export class HeaderCardComponent implements OnInit {
   @Output() closeSideNav = new EventEmitter();
@@ -20,10 +20,6 @@ export class HeaderCardComponent implements OnInit {
   @Input() currentSchool: SchoolDTO | null;
   @Input() currentUser: UserDTO | null;
   @Input() pageName: string;
-  @Input() pageStyles: {
-    primaryButtonBackgroundColor: string;
-    primaryButtonTextColor: string;
-  };
   breadCrumb: string | undefined = '';
   searchBar: string | undefined = '';
   icon: string | undefined = '';

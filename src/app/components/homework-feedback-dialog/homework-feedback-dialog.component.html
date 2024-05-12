@@ -1,0 +1,137 @@
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="data.title"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
+  <div mat-dialog-content class="dialog-content">
+    <div [formGroup]="feedbackForm" style="padding: 10px; margin-top: 20px">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label *ngIf="data.commentType === 'feedback'">Feedback</mat-label>
+        <mat-label *ngIf="data.commentType !== 'feedback'"
+          >Homework / Comments</mat-label
+        >
+        <textarea
+          matInput
+          id="text"
+          formControlName="text"
+          type="text"
+          [placeholder]="data.commentType === 'feedback' ? 'Give the student some helpful feedback on their homework.' : 'Write your homework here, or attach your homework below and make a comment about your homework here.'"
+          required
+          rows="10"
+        ></textarea>
+        <mat-error>
+          <app-error-message
+            [control]="feedbackForm.controls['text'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        [class]="data.currentUser?.userType?.toLowerCase() === 'admin' || data.currentUser?.userType?.toLowerCase() === 'school'  ? 'form-field' : 'hidden'"
+      >
+        <mat-label>Assigned teacher</mat-label>
+        <mat-select formControlName="assignedTeacher">
+          <mat-option
+            *ngFor="let teacher of data.teachers"
+            [value]="teacher._id"
+            ><img
+              [src]="teacher.profilePicture?.url"
+              alt="teacher image"
+              class="thumbnail-image"
+            />{{teacher.name}}</mat-option
+          >
+        </mat-select>
+        <mat-icon matSuffix matTooltip="Who is this feedback from?"
+          >info_outlined</mat-icon
+        >
+        <mat-error>
+          <app-error-message
+            [control]="feedbackForm.controls['assignedTeacher'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <div
+        class="row"
+        style="display: flex; align-items: center"
+        *ngIf="this.data.commentType === 'feedback'"
+      >
+        <form [formGroup]="feedbackForm" class="form-field-pass-toggle">
+          <mat-slide-toggle
+            style="margin-bottom: 25px"
+            id="pass"
+            formControlName="pass"
+          >
+            Pass?
+            <mat-icon
+              style="font-size: 20px"
+              #tooltip="matTooltip"
+              matTooltip="Tick if the student passed this assignment. Leave unticked if the student needs to resubmit"
+              >info_outlined</mat-icon
+            >
+          </mat-slide-toggle>
+        </form>
+
+        <mat-form-field
+          class="form-field-duration"
+          appearance="outline"
+          *ngIf="this.feedbackForm.getRawValue().pass === true && this.data.commentType === 'feedback'"
+        >
+          <mat-label>Duration (minutes)</mat-label>
+          <input
+            matInput
+            id="duration"
+            formControlName="duration"
+            type="number"
+            placeholder=""
+          />
+          <mat-icon
+            matSuffix
+            matTooltip="Approximately how long did it take the student to complete this homework? Include the time for all submission attempts."
+            >info_outlined</mat-icon
+          >
+          <mat-error>
+            <app-error-message
+              [control]="feedbackForm.controls['duration'].errors"
+            ></app-error-message>
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Attachment (Optional)</mat-label>
+        <input
+          #attachment
+          type="file"
+          hidden="true"
+          (change)="fileChangeEvent($event)"
+          accept="image/png, image/jpeg, image/gif, image/tiff, application/pdf, application/msword"
+        />
+        <input
+          (click)="attachment.click()"
+          matInput
+          readonly
+          [placeholder]="fileName || 'No file chosen'"
+        />
+        <mat-icon
+          matSuffix
+          style="cursor: pointer"
+          (click)="attachment.click()"
+          matTooltip="Note: The attached file will automatically be deleted after all students have completed and passed the homework, or after 6 months of inactivity."
+          >add_photo_alternate</mat-icon
+        >
+        <mat-error>
+          <app-error-message
+            [control]="feedbackForm.controls['attachment'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+  <app-dialog-actions
+    (cancelAction)="closeDialog()"
+    (saveAction)="closeDialog(true)"
+    [disabled]="this.feedbackForm.invalid"
+  ></app-dialog-actions>
+</ng-container>

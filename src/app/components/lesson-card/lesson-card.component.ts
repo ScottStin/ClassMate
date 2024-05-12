@@ -28,10 +28,6 @@ export class LessonCardComponent implements OnChanges {
   @Input() currentUser: UserDTO | null;
   @Input() pastLesson?: boolean | undefined;
   @Input() pageName: string;
-  @Input() pageStyles: {
-    primaryButtonBackgroundColor: string;
-    primaryButtonTextColor: string;
-  };
   @Output() deleteLesson = new EventEmitter<LessonDTO>();
   @Output() joinLesson = new EventEmitter<LessonDTO>();
   @Output() cancelLesson = new EventEmitter<LessonDTO>();

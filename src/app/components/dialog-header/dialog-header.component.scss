@@ -1,4 +1,5 @@
-@import '../../app.component.scss';
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
 
 .main-dialog-toolbar {
     display: flex;
@@ -24,16 +25,7 @@
     flex: 1;
 }
 
-  /* ---------------------- */
-  /* Dynamic Button Format: */
-  /* ---------------------- */
-
-  :host {
-    --primaryButtonBackgroundColor: #{$defaultButtonColor};
-    --primaryButtonTextColor: #{$defaultTextnColor};
-  }
-  
-  .main-dialog-toolbar {
-    background-color: var(--primaryButtonBackgroundColor);
-    color: var(--primaryButtonTextColor);
-  }
+.main-dialog-toolbar {
+  background-color: $primaryColor;
+  color: $secondaryColor;
+}

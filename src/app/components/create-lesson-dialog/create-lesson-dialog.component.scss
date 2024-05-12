@@ -1,4 +1,6 @@
 @import '../../app.component.scss';
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
 
 @media (max-width: #{$medium}) {
     .mat-form-field {
@@ -19,8 +21,8 @@
 }
 
 .add-lesson-button {
-    background-color: #6200EE;
-    color: white;
+    background-color: $primaryColor;
+    color: $secondaryColor;
 }
 
 .lesson-button-container {    

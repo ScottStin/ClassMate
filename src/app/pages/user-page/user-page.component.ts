@@ -71,28 +71,6 @@ export class UserPageComponent implements OnInit, OnDestroy {
     this.filteredUsers$ = this.userService.users$;
     this.getUsers();
     this.getPageName();
-    this.getCurrentSchoolDetails();
-  }
-
-  getCurrentSchoolDetails(): void {
-    this.currentSchoolSubscription = this.currentSchool$.subscribe(
-      (currentSchool) => {
-        if (currentSchool) {
-          const primaryButtonBackgroundColor =
-            currentSchool.primaryButtonBackgroundColor as string | undefined;
-
-          const primaryButtonTextColor =
-            currentSchool.primaryButtonTextColor as string | undefined;
-
-          if (primaryButtonBackgroundColor !== undefined) {
-            this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
-          }
-          if (primaryButtonTextColor !== undefined) {
-            this.primaryButtonTextColor = primaryButtonTextColor;
-          }
-        }
-      }
-    );
   }
 
   getPageName(): void {

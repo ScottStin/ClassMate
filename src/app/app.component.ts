@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router, Routes } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { first, Observable, Subscription } from 'rxjs';
 
 import { schools } from './app-routing.module';
@@ -53,10 +53,6 @@ export class AppComponent implements OnDestroy {
           ) {
             this.getSchools(schoolUrlName);
           }
-          // else {
-          //   console.log('hit2');
-          //   this.router.navigateByUrl('school/signup');
-          // }
         }
       });
     });
@@ -107,54 +103,6 @@ export class AppComponent implements OnDestroy {
           });
       },
     });
-  }
-
-  addSchoolRoutes(schoolName: string): void {
-    const routes: Routes = [];
-    for (const school of this.schools) {
-      routes.push(
-        {
-          path: `${school.toLocaleLowerCase()}/welcome`,
-          loadChildren: async () =>
-            (await import('./pages/welcome-page/welcome-page.module'))
-              .WelcomePageModule,
-        },
-        {
-          path: `${school.toLocaleLowerCase()}/student`,
-          loadChildren: async () =>
-            (await import('./pages/login-page/login-page.module'))
-              .LoginPageModule,
-        },
-        {
-          path: `${school.toLocaleLowerCase()}/teacher`,
-          loadChildren: async () =>
-            (await import('./pages/login-page/login-page.module'))
-              .LoginPageModule,
-        },
-        {
-          path: `${school.toLocaleLowerCase()}/school`,
-          loadChildren: async () =>
-            (await import('./pages/login-page/login-page.module'))
-              .LoginPageModule,
-        },
-        {
-          path: 'school',
-          loadChildren: async () =>
-            (await import('./pages/login-page/login-page.module'))
-              .LoginPageModule,
-        },
-        {
-          path: `${school.toLocaleLowerCase()}`,
-          loadChildren: async () =>
-            (await import('./pages/main-page/main-page.module')).MainPageModule,
-        }
-      );
-    }
-    routes.push({
-      path: '**',
-      redirectTo: `${schoolName}/home`,
-    });
-    this.routerService.initialize(routes);
   }
 
   ngOnDestroy(): void {

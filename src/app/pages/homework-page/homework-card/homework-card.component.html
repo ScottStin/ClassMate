@@ -1,0 +1,146 @@
+<div *ngFor="let homeworkItem of homeworkList">
+  <mat-card class="card" *ngIf="homeworkItem">
+    <div class="row">
+      <mat-card-header>
+        <mat-card-title>
+          <b>{{homeworkItem.name}}</b>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <div class="row">
+          <div class="table-column">
+            <table>
+              <tbody>
+                <tr>
+                  <td class="title-row">
+                    <mat-icon>edit_calendar</mat-icon>
+                    <b> &nbsp;&nbsp;Created:</b>
+                  </td>
+                  <td>
+                    {{homeworkItem.createdAt | date:'dd MMM yyyy h:mm a z' }}
+                  </td>
+                </tr>
+                <tr *ngIf="homeworkItem.dueDate">
+                  <td class="title-row">
+                    <mat-icon>event</mat-icon>
+                    <b> &nbsp;&nbsp;Due Date:</b>
+                  </td>
+                  <td>
+                    {{homeworkItem.dueDate | date:'dd MMM yyyy h:mm a z'}}
+                  </td>
+                </tr>
+                <tr *ngIf="homeworkItem.duration">
+                  <td class="title-row">
+                    <mat-icon>av_timer</mat-icon>
+                    <b> &nbsp;&nbsp;Duration:</b>
+                  </td>
+                  <td>~{{homeworkItem.duration}} min</td>
+                </tr>
+                <tr>
+                  <td class="title-row">
+                    <mat-icon>co_present</mat-icon>
+                    <b> &nbsp;&nbsp;Teacher:</b>
+                  </td>
+                  <td>{{getUserName(homeworkItem.assignedTeacher)}}</td>
+                </tr>
+                <tr>
+                  <td class="title-row">
+                    <mat-icon>description</mat-icon>
+                    <b> &nbsp;&nbsp;Description:</b>
+                  </td>
+                  <td>{{homeworkItem.description}}</td>
+                </tr>
+                <tr *ngIf="homeworkItem.attachment?.url">
+                  <td class="title-row">
+                    <mat-icon>attachment</mat-icon>
+                    <b> &nbsp;&nbsp;Attachment:</b>
+                  </td>
+                  <td>
+                    <span
+                      (click)="downloadAttachment(homeworkItem.attachment?.url)"
+                      style="cursor: pointer"
+                      >Click <b>here</b> to download attachment</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-accordion class="feedback-expand-container" multi>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Submissions and Feedback </mat-panel-title>
+            <mat-panel-description>
+              View all submission attempts from {{selectedStudent?.name ?? 'this
+              student'}} and all teacher feedback
+              <mat-icon>feedback</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div
+            *ngFor="let comment of homeworkItem.comments; let last = last; let index = index"
+            style="margin-bottom: 20px"
+          >
+            <div
+              class="text-bubble-container"
+              *ngIf="comment && comment.student === selectedStudent?._id"
+            >
+              <mat-card
+                [class]="comment.commentType.toLowerCase() !== 'feedback' ? 'card text-bubble' : 'card text-bubble-response'"
+              >
+                <mat-card-header>
+                  <div mat-card-avatar class="example-header-image"></div>
+                  <!-- <img mat-card-avatar [src]="selectedStudent?.profilePicture?.url" alt=""> -->
+                  <mat-card-title *ngIf="comment.commentType === 'submission'"
+                    >Submission by
+                    <b>{{getUserName(comment?.student ?? '')}}</b> for
+                    <b>{{homeworkItem.name}}</b> (Attempt
+                    {{getAttemptCount(homeworkItem, comment)}})</mat-card-title
+                  >
+                  <mat-card-title *ngIf="comment.commentType === 'feedback'"
+                    >Feedback from
+                    <b>{{getUserName(comment?.teacher ?? '')}}</b> for
+                    <b>{{homeworkItem.name}}</b></mat-card-title
+                  >
+                  <mat-card-subtitle>{{comment.createdAt}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                  <p>{{comment.text}}</p>
+                </mat-card-content>
+                <mat-card-actions
+                  *ngIf="last && (currentUser?._id === comment.teacher || currentUser?._id === comment.student || currentUser?.userType?.toLowerCase() === 'admin' || currentUser?.userType?.toLowerCase() === 'school')"
+                  align="end"
+                >
+                  <button mat-button>Edit</button>
+                  <button mat-button>Delete</button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+          </div>
+
+          <mat-action-row class="submit-row">
+            <button
+              *ngIf="currentUser?.userType?.toLowerCase() !== 'student'"
+              class="submit-button"
+              mat-raised-button
+              (click)="openAddFeedbackDialog(homeworkItem)"
+            >
+              Submit New Feedback <mat-icon>post_add</mat-icon>
+            </button>
+            <button
+              *ngIf="currentUser?.userType?.toLowerCase() === 'student'"
+              class="submit-button"
+              mat-raised-button
+              (click)="openAddSubmissionDialog(homeworkItem)"
+            >
+              Submit Homework <mat-icon>post_add</mat-icon>
+            </button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </mat-card>
+</div>

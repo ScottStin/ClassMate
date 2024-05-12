@@ -88,8 +88,6 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     @Inject(MAT_DIALOG_DATA)
     public data: {
       title: string;
-      rightButton: string;
-      leftButton: string;
       body: LessonDTO | undefined;
       currentUser: UserDTO;
       currentSchool: SchoolDTO;
