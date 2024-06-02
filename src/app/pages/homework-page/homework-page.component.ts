@@ -33,6 +33,7 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
   @ViewChild(HomeworkTableComponent)
   homeworkTableComponent: HomeworkTableComponent;
   selectedStudent: UserDTO | null;
+  isStudentSelectOpen = false;
 
   // --- data:
   users$: Observable<UserDTO[]>;
@@ -85,7 +86,8 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
               })
             )
             .subscribe({
-              next: ([users]) => {
+              next: ([users, homework]) => {
+                console.log(homework);
                 const teachers = users.filter(
                   (user) => user.userType.toLowerCase() === 'teacher'
                 );
@@ -186,6 +188,7 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
   saveFeedback(feedback: { feedback: CommentDTO; homeworkId: string }): void {
     this.homeworkService.addComment(feedback).subscribe({
       next: () => {
+        console.log('hit1');
         let message =
           'Feedback successfully added to homework. The student has been notified of your feedback.';
         if (feedback.feedback.commentType === 'submission') {
@@ -193,7 +196,9 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
             'Thank you for submitting your homework. Your teacher has been notified and will provide you with feedback shortly.';
         }
         this.snackbarService.open('info', message);
+        console.log('hit2');
         this.loadPageData();
+        // this.getUnfinishedHomework();
       },
       error: (error: Error) => {
         this.snackbarService.openPermanent('error', error.message);
@@ -201,13 +206,86 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  getUnfinishedHomework(): Observable<HomeworkDTO[] | undefined> {
+  getUnfinishedHomework(
+    selectedStudent: UserDTO | null
+  ): Observable<HomeworkDTO[] | undefined> {
     return this.homework$.pipe(
       map(
         (homeworkList) =>
-          homeworkList?.filter((homework) => homework.completed !== true)
+          homeworkList?.filter((homework) =>
+            homework.students.filter(
+              (student) =>
+                student.studentId === selectedStudent?._id && !student.completed
+            )
+          )
       )
     );
+  }
+
+  unfinishedStudentHomeworkCounter(
+    studentId: string | null | undefined,
+    homeworkItems: HomeworkDTO[] | null
+  ): number {
+    let unfinishedHomework = 0;
+    if (homeworkItems && studentId !== null && studentId !== undefined) {
+      const filteredHomeworkItems = homeworkItems.filter((homeworkItem) =>
+        homeworkItem.students.some(
+          (student) => student.studentId === studentId && !student.completed
+        )
+      );
+      unfinishedHomework = filteredHomeworkItems.length;
+    }
+    return unfinishedHomework;
+  }
+
+  overdueStudentHomeworkCounter(
+    studentId: string | null | undefined,
+    homeworkItems: HomeworkDTO[] | null
+  ): number {
+    let unfinishedHomework = 0;
+    if (homeworkItems && studentId !== null && studentId !== undefined) {
+      const filteredHomeworkItems = homeworkItems.filter(
+        (homeworkItem) =>
+          homeworkItem.students.some(
+            (student) => student.studentId === studentId && !student.completed
+          ) &&
+          homeworkItem.dueDate !== null &&
+          new Date(homeworkItem.dueDate).getTime() < new Date().getTime()
+      );
+      unfinishedHomework = filteredHomeworkItems.length;
+    }
+    return unfinishedHomework;
+  }
+
+  markPendingHomeworkCounter(
+    studentId: string | null | undefined,
+    homeworkItems: HomeworkDTO[] | null
+  ): number {
+    let unfinishedHomework = 0;
+    if (homeworkItems && studentId !== null && studentId !== undefined) {
+      const filteredHomeworkItems = homeworkItems.filter((homeworkItem) =>
+        homeworkItem.students.some(
+          (student) => student.studentId === studentId && !student.completed
+        )
+      );
+      if (filteredHomeworkItems.length > 0) {
+        for (const filteredHomeworkItem of filteredHomeworkItems) {
+          const studentComments = filteredHomeworkItem.comments?.filter(
+            (comment) => comment.student === studentId
+          );
+          const commentLength = studentComments?.length;
+          if (
+            studentComments &&
+            studentComments.length > 0 &&
+            commentLength !== undefined &&
+            studentComments[commentLength - 1].commentType === 'submission'
+          ) {
+            unfinishedHomework = unfinishedHomework + 1;
+          }
+        }
+      }
+    }
+    return unfinishedHomework;
   }
 
   ngOnDestroy(): void {

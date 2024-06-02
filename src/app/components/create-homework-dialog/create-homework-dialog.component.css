@@ -14,3 +14,11 @@
     height: 75vh; 
     overflow-y: auto;
   }
+
+  .form-field-toggle {
+    width: 30%;
+  }
+
+.form-field-narrow {
+    width: 70%;
+  }

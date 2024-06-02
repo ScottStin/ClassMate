@@ -28,7 +28,7 @@
 
       <mat-form-field
         appearance="outline"
-        [class]="data.currentUser?.userType?.toLowerCase() === 'admin' || data.currentUser?.userType?.toLowerCase() === 'school'  ? 'form-field' : 'hidden'"
+        [class]="data.currentUser?.userType?.toLowerCase() === 'school'  ? 'form-field' : 'hidden'"
       >
         <mat-label>Assigned teacher</mat-label>
         <mat-select formControlName="assignedTeacher">
@@ -58,12 +58,23 @@
         *ngIf="this.data.commentType === 'feedback'"
       >
         <form [formGroup]="feedbackForm" class="form-field-pass-toggle">
+          <span
+            class="pass-toggle-text"
+            [style]="pass.checked ? 'opacity:0.4' : ''"
+            >Resubmit</span
+          >
           <mat-slide-toggle
             style="margin-bottom: 25px"
             id="pass"
+            #pass
             formControlName="pass"
+            [disabled]="data.lastSubmission ?? false"
           >
-            Pass?
+            <span
+              class="pass-toggle-text"
+              [style]="!pass.checked ? 'opacity:0.4' : ''"
+              >Completed</span
+            >
             <mat-icon
               style="font-size: 20px"
               #tooltip="matTooltip"

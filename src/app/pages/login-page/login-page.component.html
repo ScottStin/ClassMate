@@ -51,7 +51,7 @@
 <!-- 
 <div *ngFor="let user of (users$ | async)">
   <div
-    *ngIf="user.userType.toLowerCase() ==='school' || user.userType.toLowerCase() ==='admin'"
+    *ngIf="user.userType.toLowerCase() ==='school'
     (click)="deleteAdminUserClick(user._id)"
   >
     {{user.name}} {{user._id}} {{user.email}} {{user.userType}}

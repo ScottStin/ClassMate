@@ -11,7 +11,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
  * ==============================
 */
 
-.form-field:hover, .button:hover, .card:hover {
+.button:hover, .card:hover {
     transform: scale(1.01);
     transition: all 100ms ease-in-out;
   }

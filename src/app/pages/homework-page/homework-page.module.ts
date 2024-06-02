@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmDialogModule } from 'src/app/components/confirm-dialog/confirm-dialog.module';
 import { CreateHomeworkDialogModule } from 'src/app/components/create-homework-dialog/create-homework-dialog.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
@@ -25,6 +27,8 @@ import { HomeworkTableModule } from './homework-table/homework-table.module';
     HomeworkTableModule,
     HomeworkCardModule,
     MatSelectModule,
+    MatBadgeModule,
+    MatTooltipModule,
   ],
   exports: [HomeworkPageComponent],
 })

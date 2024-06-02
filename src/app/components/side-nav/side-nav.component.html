@@ -34,12 +34,12 @@
   >
     {{currentUser?.name}}
   </h2>
-  <h4
+  <!-- <h4
     class="user-name-header"
     *ngIf="sideNavOpen && currentUser?.userType?.toLowerCase() === 'school'"
   >
     {{currentUser?.name}}
-  </h4>
+  </h4> -->
   <h2
     class="text-warning"
     *ngIf="currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"

@@ -8,7 +8,7 @@
     <mat-icon>{{icon}}</mat-icon>
   </button>
 
-  <h1>{{breadCrumb | titlecase}}</h1>
+  <h1 *ngIf="!mediumScreen">{{breadCrumb | titlecase}}</h1>
 
   <span class="spacer"></span>
 
@@ -17,7 +17,7 @@
       <input
         #filter
         matInput
-        [placeholder]="searchBar"
+        [placeholder]="!smallScreen ? searchBar : 'Search'"
         (keyup)="filterResultsKeyup(filter.value)"
       />
       <mat-icon matSuffix>search</mat-icon>
@@ -31,7 +31,7 @@
     (click)="headerButtonClick()"
   >
     <mat-icon *ngIf="headerButtonIcon">{{headerButtonIcon}}</mat-icon
-    >{{headerButton}}
+    ><span *ngIf="!largeScreen">{{headerButton}}</span>
   </button>
 
   <span class="spacer"></span>

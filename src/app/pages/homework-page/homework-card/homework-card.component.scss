@@ -58,6 +58,15 @@ $secondaryColor: var(--secondaryColor);
     justify-content: center;
   }
 
+  .overdue-chip {
+    color:red;
+  }
+
+  .homework-completed-chip {
+    background-color:$primaryColor;
+    color:$secondaryColor;
+  }
+
   // --- TEXT BUBBLE:
 
   .text-bubble-container {

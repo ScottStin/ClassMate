@@ -80,6 +80,9 @@ export class ErrorMessageComponent implements OnChanges {
       case 'oldDate':
         return 'Date must not be in the past';
 
+      case 'lessThanOne':
+        return 'Number must be greater than zero';
+
       default:
         return 'Unknown error';
     }

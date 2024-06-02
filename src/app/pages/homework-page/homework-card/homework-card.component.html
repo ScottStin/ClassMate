@@ -2,8 +2,31 @@
   <mat-card class="card" *ngIf="homeworkItem">
     <div class="row">
       <mat-card-header>
-        <mat-card-title>
-          <b>{{homeworkItem.name}}</b>
+        <mat-card-title
+          [class.overdue-chip]="overdueHomework(homeworkItem) && homeworkCompleted(homeworkItem) === false"
+          style="display: flex; align-items: center"
+        >
+          <mat-chip-list
+            *ngIf="overdueHomework(homeworkItem) && homeworkCompleted(homeworkItem) === false"
+          >
+            <mat-chip selected color="warn">Overdue</mat-chip>
+          </mat-chip-list>
+          <mat-chip-list *ngIf="homeworkCompleted(homeworkItem) === true">
+            <mat-chip class="homework-completed-chip" selected
+              >Completed</mat-chip
+            >
+          </mat-chip-list>
+
+          <b
+            style="flex: 1; margin-left: 10px"
+            *ngIf="homeworkCompleted(homeworkItem) === false"
+            >{{homeworkItem.name}}</b
+          >
+          <s
+            style="flex: 1; margin-left: 10px"
+            *ngIf="homeworkCompleted(homeworkItem) !== false"
+            >{{homeworkItem.name}}</s
+          >
         </mat-card-title>
       </mat-card-header>
       <mat-divider></mat-divider>
@@ -51,17 +74,18 @@
                   </td>
                   <td>{{homeworkItem.description}}</td>
                 </tr>
-                <tr *ngIf="homeworkItem.attachment?.url">
+                <tr *ngIf="homeworkItem.attempts">
+                  <td class="title-row">
+                    <mat-icon>post_add</mat-icon>
+                    <b> &nbsp;&nbsp;Attempts:</b>
+                  </td>
                   <td class="title-row">
                     <mat-icon>attachment</mat-icon>
                     <b> &nbsp;&nbsp;Attachment:</b>
                   </td>
                   <td>
-                    <span
-                      (click)="downloadAttachment(homeworkItem.attachment?.url)"
-                      style="cursor: pointer"
-                      >Click <b>here</b> to download attachment</span
-                    >
+                    {{getAttemptCount(homeworkItem)}} /
+                    {{homeworkItem.attempts}}
                   </td>
                 </tr>
               </tbody>
@@ -76,7 +100,11 @@
             <mat-panel-description>
               View all submission attempts from {{selectedStudent?.name ?? 'this
               student'}} and all teacher feedback
-              <mat-icon>feedback</mat-icon>
+              <mat-icon
+                style="color: black"
+                *ngIf="isMarkPending(selectedStudent?._id, homeworkItem) && currentUser?.userType?.toLowerCase() === 'teacher'"
+                >feedback</mat-icon
+              >
             </mat-panel-description>
           </mat-expansion-panel-header>
 
@@ -98,7 +126,7 @@
                     >Submission by
                     <b>{{getUserName(comment?.student ?? '')}}</b> for
                     <b>{{homeworkItem.name}}</b> (Attempt
-                    {{getAttemptCount(homeworkItem, comment)}})</mat-card-title
+                    {{getAttemptIndex(homeworkItem, comment)}})</mat-card-title
                   >
                   <mat-card-title *ngIf="comment.commentType === 'feedback'"
                     >Feedback from
@@ -111,7 +139,7 @@
                   <p>{{comment.text}}</p>
                 </mat-card-content>
                 <mat-card-actions
-                  *ngIf="last && (currentUser?._id === comment.teacher || currentUser?._id === comment.student || currentUser?.userType?.toLowerCase() === 'admin' || currentUser?.userType?.toLowerCase() === 'school')"
+                  *ngIf="last && (currentUser?._id === comment.teacher || currentUser?._id === comment.student || currentUser?.userType?.toLowerCase() === 'school')"
                   align="end"
                 >
                   <button mat-button>Edit</button>
@@ -121,7 +149,10 @@
             </div>
           </div>
 
-          <mat-action-row class="submit-row">
+          <mat-action-row
+            class="submit-row"
+            *ngIf="allowSubmission(homeworkItem)"
+          >
             <button
               *ngIf="currentUser?.userType?.toLowerCase() !== 'student'"
               class="submit-button"

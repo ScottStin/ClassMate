@@ -23,24 +23,15 @@ export class CreateHomeworkDialogComponent implements OnInit {
     name: FormControl<string>;
     description: FormControl<string>;
     dueDate: FormControl<string | null>;
+    attempts: FormControl<number | null>;
     assignedTeacher: FormControl<string>;
     studentsInput: FormControl<string>;
     duration: FormControl<number>;
     attachment: FormControl<{ url: string; fileName: string } | null>;
-    // comments?: FormControl<
-    //   | {
-    //       user: string;
-    //       date: string;
-    //       commentType: string; // feedback or submission
-    //       text: string;
-    //       attachment: string | null;
-    //       pass: boolean;
-    //     }[]
-    //   | null
-    // >;
   }>;
   formPopulated = new Subject<boolean>();
   compulsoryHomework = false;
+  unlimitedAttempts = true;
 
   filteredStudents: UserDTO[];
   studentsList: UserDTO[] = [];
@@ -85,8 +76,11 @@ export class CreateHomeworkDialogComponent implements OnInit {
         attachment: attachment as { url: string; fileName: string },
         schoolId: this.data.currentSchool._id,
         students: this.studentsList
-          .map((student) => student._id ?? '')
-          .filter((element) => element !== ''),
+          .map((student) => ({
+            studentId: student._id ?? '',
+            completed: false,
+          }))
+          .filter((element) => element.studentId !== ''),
       };
 
       this.dialogRef.close(homework);
@@ -118,6 +112,10 @@ export class CreateHomeworkDialogComponent implements OnInit {
         validators: [this.dateValidator()],
         nonNullable: false,
       }),
+      attempts: new FormControl(this.data.body?.attempts ?? null, {
+        validators: [this.attemptsValidator()],
+        nonNullable: true,
+      }),
       duration: new FormControl(this.data.body?.duration ?? NaN, {
         validators: [Validators.required],
         nonNullable: true,
@@ -134,10 +132,6 @@ export class CreateHomeworkDialogComponent implements OnInit {
         validators: [],
         nonNullable: false,
       }),
-      // comments: new FormControl([], {
-      //   validators: [],
-      //   nonNullable: false,
-      // }),
     });
     this.formPopulated.next(true);
   }
@@ -187,6 +181,23 @@ export class CreateHomeworkDialogComponent implements OnInit {
         return { oldDate: control.value };
       } else if (!value) {
         if (this.compulsoryHomework) {
+          return { required: control.value };
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    };
+  }
+
+  attemptsValidator(): ValidatorFn {
+    return (control: AbstractControl): Record<string, unknown> | null => {
+      const value = control.value as number;
+      if (value < 1 && !this.unlimitedAttempts) {
+        return { lessThanOne: control.value };
+      } else if (!value) {
+        if (!this.unlimitedAttempts) {
           return { required: control.value };
         } else {
           return null;

@@ -87,41 +87,83 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-slide-toggle
-        style="margin-bottom: 15px"
-        id="compulsory"
-        #compulsory
-        name="compulsory"
-        (change)="compulsoryHomework = !compulsoryHomework"
-      >
-        Compulsory?
-        <mat-icon
-          style="font-size: 20px"
-          #tooltip="matTooltip"
-          matTooltip="This homework is obligatory and must be completed by a certain date."
-          >info_outlined</mat-icon
+      <div class="row" style="display: flex; align-items: center">
+        <mat-slide-toggle
+          style="margin-bottom: 15px"
+          id="compulsory"
+          #compulsory
+          name="compulsory"
+          (change)="compulsoryHomework = !compulsoryHomework"
+          class="form-field-toggle"
         >
-      </mat-slide-toggle>
+          Compulsory?
+          <mat-icon
+            style="font-size: 20px"
+            #tooltip="matTooltip"
+            matTooltip="This homework is obligatory and must be completed by a certain date."
+            >info_outlined</mat-icon
+          >
+        </mat-slide-toggle>
 
-      <mat-form-field
-        class="form-field"
-        appearance="outline"
-        *ngIf="compulsoryHomework"
-      >
-        <mat-label>Due date</mat-label>
-        <input
-          matInput
-          id="description"
-          formControlName="dueDate"
-          type="date"
-          [required]="compulsoryHomework"
-        />
-        <mat-error>
-          <app-error-message
-            [control]="homeworkForm.controls['dueDate'].errors"
-          ></app-error-message>
-        </mat-error>
-      </mat-form-field>
+        <mat-form-field
+          class="form-field-narrow"
+          appearance="outline"
+          *ngIf="compulsoryHomework"
+        >
+          <mat-label>Due date</mat-label>
+          <input
+            matInput
+            id="dueDate"
+            formControlName="dueDate"
+            type="date"
+            [required]="compulsoryHomework"
+          />
+          <mat-error>
+            <app-error-message
+              [control]="homeworkForm.controls['dueDate'].errors"
+            ></app-error-message>
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row" style="display: flex; align-items: center">
+        <mat-slide-toggle
+          style="margin-bottom: 15px"
+          id="unlimitedAttemptsToggle"
+          #unlimitedAttemptsToggle
+          name="unlimitedAttemptsToggle"
+          (change)="unlimitedAttempts = !unlimitedAttempts"
+          class="form-field-toggle"
+        >
+          Unlimited Attempts?
+          <mat-icon
+            style="font-size: 20px"
+            #tooltip="matTooltip"
+            matTooltip="Limit the amount of submissions the student can make for this homework exercise."
+            >info_outlined</mat-icon
+          >
+        </mat-slide-toggle>
+
+        <mat-form-field
+          class="form-field-narrow"
+          appearance="outline"
+          *ngIf="!unlimitedAttempts"
+        >
+          <mat-label>Number of attempts</mat-label>
+          <input
+            matInput
+            id="attempts"
+            formControlName="attempts"
+            type="number"
+            [required]="!unlimitedAttempts"
+          />
+          <mat-error>
+            <app-error-message
+              [control]="homeworkForm.controls['attempts'].errors"
+            ></app-error-message>
+          </mat-error>
+        </mat-form-field>
+      </div>
 
       <mat-form-field class="form-field" appearance="outline">
         <mat-label>Attachment (Optional)</mat-label>

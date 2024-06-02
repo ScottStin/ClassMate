@@ -44,9 +44,19 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
   getHomeworkList(): void {
     if (this.homework && this.selectedStudent?._id !== null) {
       this.homeworkList = this.homework.filter((obj) =>
-        obj.students.includes(this.selectedStudent?._id ?? '')
+        obj.students
+          .map((student) => student.studentId)
+          .includes(this.selectedStudent?._id ?? '')
       );
     }
+  }
+
+  homeworkCompleted(homework: HomeworkDTO): boolean {
+    return (
+      homework.students.find(
+        (student) => student.studentId === this.selectedStudent?._id
+      )?.completed ?? false
+    );
   }
 
   downloadAttachment(attachmentUrl: string | undefined): void {
@@ -71,6 +81,12 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
         commentType: 'feedback',
         selectedStudent: this.selectedStudent,
         currentUser: this.currentUser,
+        lastSubmission:
+          selectedHomework?.attempts !== null &&
+          selectedHomework?.attempts !== undefined
+            ? this.getAttemptCount(selectedHomework) >=
+              selectedHomework.attempts
+            : false,
       },
     });
     dialogRef.afterClosed().subscribe((result: CommentDTO | null) => {
@@ -111,7 +127,80 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     }
   }
 
-  getAttemptCount(
+  overdueHomework(homeworkItem: HomeworkDTO): boolean {
+    if (homeworkItem.dueDate === null) {
+      return false;
+    } else {
+      const today = new Date();
+      return new Date(homeworkItem.dueDate).getTime() < today.getTime();
+    }
+  }
+
+  allowSubmission(homeworkItem: HomeworkDTO): boolean {
+    let allow = true;
+
+    // --- hide submit button for students if the last comment was a submission:
+    if (homeworkItem.comments && homeworkItem.comments.length > 0) {
+      const commentLength = homeworkItem.comments.length;
+      if (
+        this.currentUser?.userType.toLowerCase() === 'student' &&
+        homeworkItem.comments[commentLength - 1]?.commentType === 'submission'
+      ) {
+        allow = false;
+      }
+
+      // --- hide submit button for students if they have exceeded the max number of submissions:
+      if (
+        homeworkItem.attempts !== null &&
+        homeworkItem.attempts !== undefined &&
+        this.getAttemptCount(homeworkItem) >= homeworkItem.attempts &&
+        this.currentUser?.userType.toLowerCase() === 'student'
+      ) {
+        allow = false;
+      }
+
+      // --- hide submit button for students and teacher if the homework is completed:
+      const studentResult = homeworkItem.students.find(
+        (student) => student.studentId === this.selectedStudent?._id
+      );
+      if (studentResult?.completed === true) {
+        allow = false;
+      }
+    }
+    return allow;
+  }
+
+  isMarkPending(
+    studentId: string | null | undefined,
+    homeworkItems: HomeworkDTO | null
+  ): boolean {
+    const studentComments = homeworkItems?.comments?.filter(
+      (comment) => comment.student === studentId
+    );
+    const commentLength = studentComments?.length;
+    if (
+      studentComments &&
+      studentComments.length > 0 &&
+      commentLength !== undefined &&
+      studentComments[commentLength - 1].commentType === 'submission'
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  getAttemptCount(homeworkItem: HomeworkDTO): number {
+    return (
+      homeworkItem.comments?.filter(
+        (comment) =>
+          comment.student === this.selectedStudent?._id &&
+          comment.commentType === 'submission'
+      ).length ?? 0
+    );
+  }
+
+  getAttemptIndex(
     homeworkItem: HomeworkDTO | undefined,
     comment: CommentDTO
   ): number | undefined {

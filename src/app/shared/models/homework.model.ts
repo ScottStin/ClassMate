@@ -5,13 +5,14 @@ export interface HomeworkDTO {
   description: string;
   dueDate: string | null;
   assignedTeacher: string;
-  students: string[];
+  students: {studentId: string; completed: boolean}[];
   attachment: { url: string; fileName: string } | null;
   duration: number;
   comments?: CommentDTO[] | null;
   schoolId: string;
   createdAt?: string;
-  completed?: boolean;
+  // completed?: boolean;
+  attempts?: number | null;
 }
 
 export interface CommentDTO {

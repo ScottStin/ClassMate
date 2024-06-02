@@ -1,8 +1,16 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -27,6 +35,21 @@ export class HeaderCardComponent implements OnInit {
   headerButtonIcon: string | undefined = '';
   headerButtonFunction: string | undefined = '';
   menuItems: MenuItemDTO[] = menuItems;
+
+  // --- screen sizes:
+  largeScreen = false;
+  mediumScreen = false;
+  smallScreen = false;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
+    this.largeScreen =
+      window.innerWidth < parseInt(screenSizeBreakpoints.large, 10);
+    this.mediumScreen =
+      window.innerWidth < parseInt(screenSizeBreakpoints.medium, 10);
+    this.smallScreen =
+      window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
+  }
 
   constructor(
     public readonly authStoreService: AuthStoreService,

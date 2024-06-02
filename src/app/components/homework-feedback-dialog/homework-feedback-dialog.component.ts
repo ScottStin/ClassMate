@@ -35,6 +35,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
       teachers?: UserDTO[];
       commentType: 'feedback' | 'submission';
       selectedStudent: UserDTO;
+      lastSubmission?: boolean;
       currentUser: UserDTO | null;
     },
     public dialogRef: MatDialogRef<CreateHomeworkDialogComponent>,
@@ -56,10 +57,17 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
         validators: [],
         nonNullable: true,
       }),
-      pass: new FormControl(this.data.body?.pass ?? false, {
-        validators: [],
-        nonNullable: true,
-      }),
+      pass: new FormControl(
+        this.data.lastSubmission !== undefined
+          ? this.data.lastSubmission
+          : this.data.body?.pass !== undefined
+          ? this.data.body.pass
+          : false,
+        {
+          validators: [],
+          nonNullable: true,
+        }
+      ),
       assignedTeacher: new FormControl('', {
         validators: [],
         nonNullable: true,
@@ -140,10 +148,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
       if (this.data.currentUser?.userType.toLowerCase() === 'teacher') {
         teacher = this.data.currentUser._id;
       }
-      if (
-        this.data.currentUser?.userType.toLowerCase() === 'admin' ||
-        this.data.currentUser?.userType.toLowerCase() === 'school'
-      ) {
+      if (this.data.currentUser?.userType.toLowerCase() === 'school') {
         teacher = feedbackForm.assignedTeacher;
       }
 

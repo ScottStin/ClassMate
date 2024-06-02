@@ -12,6 +12,7 @@ import { Observable, Subscription } from 'rxjs';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
+import { HomeworkService } from 'src/app/services/homework-service/homework.service';
 import { QuestionService } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import {
@@ -58,6 +59,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     private readonly userService: UserService,
     private readonly snackbarService: SnackbarService,
     private readonly examService: ExamService,
+    private readonly homeworkService: HomeworkService,
     private readonly questionService: QuestionService,
     public readonly tempStylesService: TempStylesService,
     public dialog: MatDialog
@@ -80,6 +82,12 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
       'Exam Marking'
     );
+
+    this.badgeCounts['Homework Marking'] = await this.getBadgeNumber(
+      'Homework Marking'
+    );
+
+    this.badgeCounts['My Homework'] = await this.getBadgeNumber('My Homework');
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.questionService.feedbackSubmitted$.subscribe(async () => {
       this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
@@ -179,6 +187,40 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
         }
       });
 
+      return count;
+    } else if (menuItem === 'Homework Marking') {
+      const homework = await this.homeworkService.getAll().toPromise();
+      let count = 0;
+      homework?.forEach((homeworkItem) => {
+        if (
+          homeworkItem.assignedTeacher === this.currentUser?._id &&
+          homeworkItem.comments &&
+          homeworkItem.comments.length > 0
+        ) {
+          const commentLength = homeworkItem.comments.length;
+          if (
+            homeworkItem.comments[commentLength - 1]?.commentType ===
+            'submission'
+          ) {
+            count++;
+          }
+        }
+      });
+      return count;
+    } else if (menuItem === 'My Homework') {
+      const homework = await this.homeworkService.getAll().toPromise();
+      let count = 0;
+      homework?.forEach((homeworkItem) => {
+        if (
+          this.currentUser?._id !== null &&
+          this.currentUser?._id !== undefined &&
+          homeworkItem.students
+            // .map((student) => student.studentId)
+            .includes({ studentId: this.currentUser._id, completed: false }) // && !(homeworkItem.completed ?? false)
+        ) {
+          count++;
+        }
+      });
       return count;
     } else {
       return null;

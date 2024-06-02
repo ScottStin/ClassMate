@@ -15,25 +15,15 @@
   <mat-tab-group class="home-tab-group" mat-stretch-tabs>
     <mat-tab
       *ngIf="(currentUser$ | async)?.userType?.toLowerCase() !== 'student'"
-      label="Filter by Homework"
-    >
-      <div *ngIf="!homeworkPageLoading" class="table-container">
-        <app-homework-table
-          [homeworkData]="homework$ | async"
-          [users]="users$ | async"
-          [homeworkPageLoading]="homeworkPageLoading"
-          (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
-        ></app-homework-table>
-      </div>
-    </mat-tab>
-
-    <mat-tab
-      *ngIf="(currentUser$ | async)?.userType?.toLowerCase() !== 'student'"
     >
       <ng-template mat-tab-label>
         <div>
           Filter by Student:
-          <mat-select (selectionChange)="changeStudent($event.value)">
+          <mat-select
+            class="student-select"
+            (selectionChange)="changeStudent($event.value)"
+            (openedChange)="isStudentSelectOpen = $event"
+          >
             <mat-option value="null">Select a student...</mat-option>
             <mat-option
               *ngFor="let student of (students$ | async)"
@@ -44,8 +34,44 @@
                   [src]="student.profilePicture?.url"
                   alt="student image"
                   class="thumbnail-image"
-                />{{student.name}} ({{student.email}})</span
-              >
+                />
+                <span> {{student.name}} ({{student.email}}) </span>
+                <span
+                  *ngIf="unfinishedStudentHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
+                  [matBadge]="unfinishedStudentHomeworkCounter(student._id, (homework$ | async))"
+                  matBadgeOverlap="false"
+                  matBadgePosition="after"
+                  matBadgeSize="small"
+                  [matTooltip]="student.name + ' has ' +  unfinishedStudentHomeworkCounter(student._id, (homework$ |async)) + ' items of unfinished homework'"
+                  matBadgeOverlap="true"
+                  class="unfinished-homework-badge"
+                >
+                  &nbsp;&nbsp;</span
+                >
+                <span
+                  *ngIf="markPendingHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
+                  [matBadge]="markPendingHomeworkCounter(student._id, (homework$ | async))"
+                  matBadgeOverlap="false"
+                  matBadgePosition="after"
+                  matBadgeSize="small"
+                  [matTooltip]="student.name + ' has ' +  markPendingHomeworkCounter(student._id, (homework$ |async)) + ' items of overdue that need to be marked'"
+                  matBadgeOverlap="true"
+                >
+                  &nbsp;&nbsp;&nbsp;&nbsp;</span
+                >
+                <span
+                  *ngIf="overdueStudentHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
+                  [matBadge]="overdueStudentHomeworkCounter(student._id, (homework$ | async))"
+                  matBadgeOverlap="false"
+                  matBadgePosition="after"
+                  matBadgeSize="small"
+                  matBadgeColor="warn"
+                  [matTooltip]="student.name + ' has ' +  overdueStudentHomeworkCounter(student._id, (homework$ |async)) + ' items of overdue homework'"
+                  matBadgeOverlap="true"
+                >
+                  &nbsp;&nbsp;&nbsp;&nbsp;</span
+                >
+              </span>
             </mat-option>
           </mat-select>
         </div>
@@ -66,7 +92,7 @@
       <div *ngIf="!homeworkPageLoading" class="table-container">
         <app-homework-card
           [selectedStudent]="(currentUser$ | async)"
-          [homework]="getUnfinishedHomework() | async"
+          [homework]="getUnfinishedHomework(selectedStudent) | async"
           [users]="users$ | async"
           [currentUser]="currentUser$ | async"
           (saveFeedback)="saveFeedback($event)"
@@ -86,6 +112,20 @@
           [currentUser]="currentUser$ | async"
           (saveFeedback)="saveFeedback($event)"
         ></app-homework-card>
+      </div>
+    </mat-tab>
+
+    <mat-tab
+      *ngIf="(currentUser$ | async)?.userType?.toLowerCase() !== 'student'"
+      label="View all homework"
+    >
+      <div *ngIf="!homeworkPageLoading" class="table-container">
+        <app-homework-table
+          [homeworkData]="homework$ | async"
+          [users]="users$ | async"
+          [homeworkPageLoading]="homeworkPageLoading"
+          (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
+        ></app-homework-table>
       </div>
     </mat-tab>
   </mat-tab-group>

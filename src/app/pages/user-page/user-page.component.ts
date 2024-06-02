@@ -82,30 +82,24 @@ export class UserPageComponent implements OnInit, OnDestroy {
           }
           if (this.pageType === 'Card') {
             if (this.userType === 'Teacher') {
-              if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
+              if (currentUser.userType.toLowerCase() === 'teacher') {
                 this.pageName = 'colleagues';
               }
-              if (currentUser.userType.toLocaleLowerCase() === 'student') {
+              if (currentUser.userType.toLowerCase() === 'student') {
                 this.pageName = 'teachers';
               }
-              if (
-                currentUser.userType.toLocaleLowerCase() === 'admin' ||
-                currentUser.userType.toLocaleLowerCase() === 'school'
-              ) {
+              if (currentUser.userType.toLowerCase() === 'school') {
                 this.pageName = 'teachers';
               }
             }
             if (this.userType === 'Student') {
-              if (currentUser.userType.toLocaleLowerCase() === 'teacher') {
+              if (currentUser.userType.toLowerCase() === 'teacher') {
                 this.pageName = 'teachers';
               }
-              if (currentUser.userType.toLocaleLowerCase() === 'student') {
+              if (currentUser.userType.toLowerCase() === 'student') {
                 this.pageName = 'class mates';
               }
-              if (
-                currentUser.userType.toLocaleLowerCase() === 'admin' ||
-                currentUser.userType.toLocaleLowerCase() === 'school'
-              ) {
+              if (currentUser.userType.toLowerCase() === 'school') {
                 this.pageName = 'teachers';
               }
             }
