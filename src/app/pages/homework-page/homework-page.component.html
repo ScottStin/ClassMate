@@ -92,9 +92,10 @@
       <div *ngIf="!homeworkPageLoading" class="table-container">
         <app-homework-card
           [selectedStudent]="(currentUser$ | async)"
-          [homework]="getUnfinishedHomework(selectedStudent) | async"
+          [homework]="homework$ | async"
           [users]="users$ | async"
           [currentUser]="currentUser$ | async"
+          [showUnfinishedHomeworkOnly]="true"
           (saveFeedback)="saveFeedback($event)"
         ></app-homework-card>
       </div>
@@ -106,7 +107,7 @@
     >
       <div *ngIf="!homeworkPageLoading" class="table-container">
         <app-homework-card
-          [selectedStudent]="(currentUser$ | async)"
+          [selectedStudent]="currentUser$ | async"
           [homework]="homework$ | async"
           [users]="users$ | async"
           [currentUser]="currentUser$ | async"

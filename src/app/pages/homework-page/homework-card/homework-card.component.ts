@@ -22,6 +22,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
   @Input() homework?: HomeworkDTO[] | null;
   @Input() users: UserDTO[] | null;
   @Input() currentUser: UserDTO | null;
+  @Input() showUnfinishedHomeworkOnly: boolean;
   @Output() saveFeedback = new EventEmitter<{
     feedback: CommentDTO;
     homeworkId: string;
@@ -38,6 +39,26 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if ('selectedStudent' in changes) {
       this.getHomeworkList();
+    }
+    if ('homework' in changes) {
+      this.getHomeworkList();
+    }
+  }
+
+  filterResults(text: string): void {
+    if (this.homework && this.selectedStudent?._id !== null) {
+      this.homeworkList = this.homework
+        .filter((obj) =>
+          obj.students
+            .map((student) => student.studentId)
+            .includes(this.selectedStudent?._id ?? '')
+        )
+        .filter(
+          (obj) =>
+            obj.description.toLowerCase().includes(text.toLowerCase()) ||
+            obj.name.toLowerCase().includes(text.toLowerCase()) ||
+            obj.assignedTeacher.toLowerCase().includes(text.toLowerCase())
+        );
     }
   }
 

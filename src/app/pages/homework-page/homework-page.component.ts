@@ -5,7 +5,6 @@ import {
   finalize,
   first,
   forkJoin,
-  map,
   Observable,
   of,
   Subscription,
@@ -22,6 +21,7 @@ import { CommentDTO, HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+import { HomeworkCardComponent } from './homework-card/homework-card.component';
 import { HomeworkTableComponent } from './homework-table/homework-table.component';
 
 @Component({
@@ -31,7 +31,11 @@ import { HomeworkTableComponent } from './homework-table/homework-table.componen
 })
 export class HomeworkPageComponent implements OnInit, OnDestroy {
   @ViewChild(HomeworkTableComponent)
-  homeworkTableComponent: HomeworkTableComponent;
+  homeworkTableComponent: HomeworkTableComponent | undefined;
+
+  @ViewChild(HomeworkCardComponent)
+  homeworkCardComponent: HomeworkCardComponent;
+
   selectedStudent: UserDTO | null;
   isStudentSelectOpen = false;
 
@@ -78,7 +82,6 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
             .pipe(
               first(),
               tap(() => {
-                // this.currentSchoolSubscription = this.currentSchool$.subscribe();
                 this.currentUserSubscription = this.currentUser$.subscribe();
               }),
               finalize(() => {
@@ -86,8 +89,7 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
               })
             )
             .subscribe({
-              next: ([users, homework]) => {
-                console.log(homework);
+              next: ([users]) => {
                 const teachers = users.filter(
                   (user) => user.userType.toLowerCase() === 'teacher'
                 );
@@ -182,13 +184,15 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
   }
 
   filterResults(text: string): void {
-    this.homeworkTableComponent.filterResults(text);
+    if (this.homeworkTableComponent) {
+      this.homeworkTableComponent.filterResults(text);
+    }
+    this.homeworkCardComponent.filterResults(text);
   }
 
   saveFeedback(feedback: { feedback: CommentDTO; homeworkId: string }): void {
     this.homeworkService.addComment(feedback).subscribe({
       next: () => {
-        console.log('hit1');
         let message =
           'Feedback successfully added to homework. The student has been notified of your feedback.';
         if (feedback.feedback.commentType === 'submission') {
@@ -196,30 +200,12 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
             'Thank you for submitting your homework. Your teacher has been notified and will provide you with feedback shortly.';
         }
         this.snackbarService.open('info', message);
-        console.log('hit2');
         this.loadPageData();
-        // this.getUnfinishedHomework();
       },
       error: (error: Error) => {
         this.snackbarService.openPermanent('error', error.message);
       },
     });
-  }
-
-  getUnfinishedHomework(
-    selectedStudent: UserDTO | null
-  ): Observable<HomeworkDTO[] | undefined> {
-    return this.homework$.pipe(
-      map(
-        (homeworkList) =>
-          homeworkList?.filter((homework) =>
-            homework.students.filter(
-              (student) =>
-                student.studentId === selectedStudent?._id && !student.completed
-            )
-          )
-      )
-    );
   }
 
   unfinishedStudentHomeworkCounter(

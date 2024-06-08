@@ -1,5 +1,8 @@
 <div *ngFor="let homeworkItem of homeworkList">
-  <mat-card class="card" *ngIf="homeworkItem">
+  <mat-card
+    class="card"
+    *ngIf="showUnfinishedHomeworkOnly ? !homeworkCompleted(homeworkItem) && homeworkItem : homeworkItem"
+  >
     <div class="row">
       <mat-card-header>
         <mat-card-title

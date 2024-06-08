@@ -214,9 +214,10 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
         if (
           this.currentUser?._id !== null &&
           this.currentUser?._id !== undefined &&
-          homeworkItem.students
-            // .map((student) => student.studentId)
-            .includes({ studentId: this.currentUser._id, completed: false }) // && !(homeworkItem.completed ?? false)
+          homeworkItem.students.some(
+            (student) =>
+              student.studentId === this.currentUser?._id && !student.completed
+          )
         ) {
           count++;
         }

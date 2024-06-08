@@ -88,6 +88,16 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
     }
   }
 
+  getUserEmail(userId: string): string | null {
+    // TODO = replace with service or directive
+    const foundUser = this.users?.find((obj) => obj._id === userId);
+    if (foundUser) {
+      return foundUser.email;
+    } else {
+      return null;
+    }
+  }
+
   openConfirmDeleteDialogClick(homework: HomeworkDTO): void {
     this.openConfirmDeleteDialog.emit(homework);
   }
@@ -110,5 +120,43 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
       anchor.download = attachmentUrl;
       anchor.click();
     }
+  }
+
+  studentsIncompleteCounter(homeworkItem: HomeworkDTO): number {
+    return homeworkItem.students.filter((student) => !student.completed).length;
+  }
+
+  getStudentsIncompleteList(homeworkItem: HomeworkDTO): string {
+    const studentNameArray = [];
+    const studentIdList = homeworkItem.students
+      .filter((student) => !student.completed)
+      .map((student) => student.studentId);
+    for (const studentId of studentIdList) {
+      const studentName = this.getUserName(studentId);
+      const studentEmail = this.getUserEmail(studentId);
+      if (studentName !== null && studentEmail !== null) {
+        studentNameArray.push(`${studentName} (${studentEmail})`);
+      } else {
+        studentNameArray.push(`${studentId} (user deleted)`);
+      }
+    }
+    return studentNameArray.join(', ');
+  }
+
+  getStudentsEnrolledList(homeworkItem: HomeworkDTO): string {
+    const studentNameArray = [];
+    const studentIdList = homeworkItem.students.map(
+      (student) => student.studentId
+    );
+    for (const studentId of studentIdList) {
+      const studentName = this.getUserName(studentId);
+      const studentEmail = this.getUserEmail(studentId);
+      if (studentName !== null && studentEmail !== null) {
+        studentNameArray.push(`${studentName} (${studentEmail})`);
+      } else {
+        studentNameArray.push(`${studentId} (user deleted)`);
+      }
+    }
+    return studentNameArray.join(', ');
   }
 }
