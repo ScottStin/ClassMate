@@ -145,8 +145,18 @@
                   *ngIf="last && (currentUser?._id === comment.teacher || currentUser?._id === comment.student || currentUser?.userType?.toLowerCase() === 'school')"
                   align="end"
                 >
-                  <button mat-button>Edit</button>
-                  <button mat-button>Delete</button>
+                  <button
+                    mat-button
+                    (click)="currentUser?._id === comment.teacher ? openAddFeedbackDialog(homeworkItem, comment) : currentUser?._id === comment.student ? openAddSubmissionDialog(homeworkItem, comment) : ''"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    mat-button
+                    (click)="openDeleteCommentDialogClick(homeworkItem, comment)"
+                  >
+                    Delete
+                  </button>
                 </mat-card-actions>
               </mat-card>
             </div>
@@ -160,7 +170,7 @@
               *ngIf="currentUser?.userType?.toLowerCase() !== 'student'"
               class="submit-button"
               mat-raised-button
-              (click)="openAddFeedbackDialog(homeworkItem)"
+              (click)="openAddFeedbackDialog(homeworkItem, undefined)"
             >
               Submit New Feedback <mat-icon>post_add</mat-icon>
             </button>
@@ -168,7 +178,7 @@
               *ngIf="currentUser?.userType?.toLowerCase() === 'student'"
               class="submit-button"
               mat-raised-button
-              (click)="openAddSubmissionDialog(homeworkItem)"
+              (click)="openAddSubmissionDialog(homeworkItem, undefined)"
             >
               Submit Homework <mat-icon>post_add</mat-icon>
             </button>

@@ -25,10 +25,16 @@
     mat-stretch-tabs
     *ngIf="pageType==='Table'"
   >
-    <mat-tab
-      *ngFor="let viewType of ['All', 'Active','Inactive']"
-      [label]="viewType"
-    >
+    <mat-tab *ngFor="let tab of tabs">
+      <ng-template mat-tab-label>
+        {{tab.label}}
+        <mat-icon
+          *ngIf="tab.description"
+          style="font-size: 15px"
+          [matTooltip]="tab.description"
+          >info</mat-icon
+        >
+      </ng-template>
       <div class="table-container">
         <app-user-table
           [userData]="users$ | async"

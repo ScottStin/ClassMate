@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { EditUserDialogModule } from 'src/app/components/edit-user-dialog/edit-user-dialog.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
 import { LessonCardModule } from 'src/app/components/lesson-card/lesson-card.module';
@@ -25,6 +27,8 @@ import { UserPageRoutingModule } from './user-page-routing.module';
     UserTableModule,
     EditUserDialogModule,
     MatCardModule,
+    MatIconModule,
+    MatTooltipModule,
   ],
   exports: [UserPageComponent],
 })

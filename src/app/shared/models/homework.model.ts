@@ -16,6 +16,7 @@ export interface HomeworkDTO {
 }
 
 export interface CommentDTO {
+  _id?: string;
   teacher?: string;
   student: string;
   createdAt?: string;

@@ -19,6 +19,12 @@ export class HomeworkService {
     private readonly errorService: ErrorService
   ) {}
 
+  /**
+   * ==============================
+   *  Homework
+   * ==============================
+   */
+
   getAll(): Observable<HomeworkDTO[]> {
     return this.httpClient.get<HomeworkDTO[]>(`${this.baseUrl}`).pipe(
       catchError((error: Error) => {
@@ -51,19 +57,6 @@ export class HomeworkService {
     );
   }
 
-  addComment(data: {
-    feedback: CommentDTO;
-    homeworkId: string;
-  }): Observable<CommentDTO> {
-    return this.httpClient
-      .post<CommentDTO>(`${this.baseUrl}/new-comment`, data)
-      .pipe(
-        catchError((error: Error) => {
-          this.handleError(error, 'Failed to update homework exercise with');
-        })
-      );
-  }
-
   delete(data: HomeworkDTO): Observable<HomeworkDTO> {
     return (
       this.httpClient
@@ -75,6 +68,60 @@ export class HomeworkService {
           })
         )
     );
+  }
+
+  /**
+   * ==============================
+   *  Comments (to do, move comments to their own service and create dedicated comment model/route in backend)
+   * ==============================
+   */
+
+  addComment(data: {
+    feedback: CommentDTO;
+    homeworkId: string;
+  }): Observable<CommentDTO> {
+    return this.httpClient
+      .post<CommentDTO>(`${this.baseUrl}/new-comment`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to add new comment to homework exercise'
+          );
+        })
+      );
+  }
+
+  editComment(data: {
+    feedback: CommentDTO;
+    homeworkId: string;
+  }): Observable<CommentDTO> {
+    return this.httpClient
+      .post<CommentDTO>(`${this.baseUrl}/update-comment`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to update comment for homework exercise'
+          );
+        })
+      );
+  }
+
+  deleteComment(data: {
+    feedback: CommentDTO;
+    homeworkId: string;
+  }): Observable<CommentDTO> {
+    return this.httpClient
+      .post<CommentDTO>(`${this.baseUrl}/delete-comment`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to delete comment for homework exercise'
+          );
+        })
+      );
   }
 
   private handleError(error: Error, message: string): never {

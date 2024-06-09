@@ -23,9 +23,14 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
   @Input() users: UserDTO[] | null;
   @Input() currentUser: UserDTO | null;
   @Input() showUnfinishedHomeworkOnly: boolean;
+  @Output() openDeleteCommentDialog = new EventEmitter<{
+    homework: HomeworkDTO;
+    comment: CommentDTO;
+  }>();
   @Output() saveFeedback = new EventEmitter<{
     feedback: CommentDTO;
     homeworkId: string;
+    update: boolean;
   }>();
 
   homeworkList: HomeworkDTO[] = [];
@@ -89,7 +94,10 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     }
   }
 
-  openAddFeedbackDialog(selectedHomework: HomeworkDTO | undefined): void {
+  openAddFeedbackDialog(
+    selectedHomework: HomeworkDTO | undefined,
+    comment: CommentDTO | undefined
+  ): void {
     const teachers = this.users?.filter(
       (obj) => obj.userType.toLowerCase() === 'teacher'
     );
@@ -99,6 +107,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
           this.selectedStudent?.name ?? 'this student'
         } on their ${selectedHomework?.name ?? 'homework'} submission`,
         teachers,
+        body: comment,
         commentType: 'feedback',
         selectedStudent: this.selectedStudent,
         currentUser: this.currentUser,
@@ -115,16 +124,21 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
         this.saveFeedback.emit({
           feedback: result,
           homeworkId: selectedHomework?._id ?? '',
+          update: comment !== undefined,
         });
       }
     });
   }
 
-  openAddSubmissionDialog(selectedHomework: HomeworkDTO | undefined): void {
+  openAddSubmissionDialog(
+    selectedHomework: HomeworkDTO | undefined,
+    submission: CommentDTO | undefined
+  ): void {
     const dialogRef = this.dialog.open(HomeworkFeedbackDialogComponent, {
       data: {
         title: `Submit homework for ${selectedHomework?.name ?? 'homework'}`,
         commentType: 'submission',
+        body: submission,
         selectedStudent: this.currentUser,
       },
     });
@@ -133,9 +147,20 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
         this.saveFeedback.emit({
           feedback: result,
           homeworkId: selectedHomework?._id ?? '',
+          update: submission !== undefined,
         });
       }
     });
+  }
+
+  openDeleteCommentDialogClick(
+    homework: HomeworkDTO | undefined,
+    comment: CommentDTO | undefined
+  ): void {
+    console.log('hit1');
+    if (homework && comment) {
+      this.openDeleteCommentDialog.emit({ homework, comment });
+    }
   }
 
   getUserName(userId: string): string | null {

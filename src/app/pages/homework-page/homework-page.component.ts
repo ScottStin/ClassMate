@@ -190,21 +190,76 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
     this.homeworkCardComponent.filterResults(text);
   }
 
-  saveFeedback(feedback: { feedback: CommentDTO; homeworkId: string }): void {
-    this.homeworkService.addComment(feedback).subscribe({
-      next: () => {
-        let message =
-          'Feedback successfully added to homework. The student has been notified of your feedback.';
-        if (feedback.feedback.commentType === 'submission') {
-          message =
-            'Thank you for submitting your homework. Your teacher has been notified and will provide you with feedback shortly.';
-        }
-        this.snackbarService.open('info', message);
-        this.loadPageData();
+  saveFeedback(feedback: {
+    feedback: CommentDTO;
+    homeworkId: string;
+    update: boolean | undefined;
+  }): void {
+    let message = `Feedback successfully ${
+      feedback.update !== true ? 'editted' : 'added to homework'
+    } added to homework. The student has been notified of your feedback.`;
+    if (feedback.feedback.commentType === 'submission') {
+      message = `Thank you for ${
+        feedback.update !== true ? 'editting' : 'submitting'
+      } your homework. Your teacher has been notified and will provide you with feedback shortly.`;
+    }
+
+    if (feedback.update !== true) {
+      this.homeworkService.addComment(feedback).subscribe({
+        next: () => {
+          this.snackbarService.open('info', message);
+          this.loadPageData();
+        },
+        error: (error: Error) => {
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
+    } else {
+      this.homeworkService.editComment(feedback).subscribe({
+        next: () => {
+          this.snackbarService.open('info', message);
+          this.loadPageData();
+        },
+        error: (error: Error) => {
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
+    }
+  }
+
+  openDeleteCommentDialog(data: {
+    homework: HomeworkDTO;
+    comment: CommentDTO;
+  }): void {
+    const commentType = data.comment.commentType;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: `Delete ${commentType}?`,
+        message: `Are you sure you want to permanently delete this ${commentType}? All attachments will also be deleted.`,
+        okLabel: 'Delete',
+        cancelLabel: 'Cancel',
       },
-      error: (error: Error) => {
-        this.snackbarService.openPermanent('error', error.message);
-      },
+    });
+    dialogRef.afterClosed().subscribe((result: UserDTO[] | undefined) => {
+      if (result && data.homework._id !== undefined) {
+        this.homeworkService
+          .deleteComment({
+            feedback: data.comment,
+            homeworkId: data.homework._id,
+          })
+          .subscribe({
+            next: () => {
+              this.snackbarService.open(
+                'info',
+                `Homework ${commentType} successfully deleted`
+              );
+              this.loadPageData();
+            },
+            error: (error: Error) => {
+              this.snackbarService.openPermanent('error', error.message);
+            },
+          });
+      }
     });
   }
 

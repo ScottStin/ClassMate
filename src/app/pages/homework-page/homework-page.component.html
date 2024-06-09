@@ -82,6 +82,7 @@
         [users]="users$ | async"
         [currentUser]="currentUser$ | async"
         (saveFeedback)="saveFeedback($event)"
+        (openDeleteCommentDialog)="openDeleteCommentDialog($event)"
       ></app-homework-card>
     </mat-tab>
 
@@ -97,6 +98,7 @@
           [currentUser]="currentUser$ | async"
           [showUnfinishedHomeworkOnly]="true"
           (saveFeedback)="saveFeedback($event)"
+          (openDeleteCommentDialog)="openDeleteCommentDialog($event)"
         ></app-homework-card>
       </div>
     </mat-tab>
@@ -112,6 +114,7 @@
           [users]="users$ | async"
           [currentUser]="currentUser$ | async"
           (saveFeedback)="saveFeedback($event)"
+          (openDeleteCommentDialog)="openDeleteCommentDialog($event)"
         ></app-homework-card>
       </div>
     </mat-tab>

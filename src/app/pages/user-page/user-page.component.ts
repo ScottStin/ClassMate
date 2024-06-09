@@ -37,6 +37,17 @@ export class UserPageComponent implements OnInit, OnDestroy {
   userType: string;
   pageType: string;
   pageName = '';
+  tabs = [
+    { label: 'All' },
+    {
+      label: 'Active',
+      description: 'Students who have logged on in the last 30 days.',
+    },
+    {
+      label: 'Inactive',
+      description: 'Students with over 30 days of inactivity.',
+    },
+  ];
 
   // --- auth data and subscriptions:
   private currentSchoolSubscription: Subscription | null;
