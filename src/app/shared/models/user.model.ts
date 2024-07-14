@@ -5,7 +5,7 @@ export interface UserDTO {
   email: string;
   phone?: string | null;
   nationality: string;
-  userType: string;
+  userType: string; // todo: replace with enum 'school' | 'teacher' | 'student' | 'admin';
   package: string;
   statement?: string | null;
   hasedPassword?: string | null;

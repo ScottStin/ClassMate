@@ -71,7 +71,14 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
             obj.routerLink.replace(/\//gu, '') ===
             `${this.router.url}`.replace(/\//gu, '')
         );
-        this.breadCrumb = menuItem?.name;
+        this.breadCrumb =
+          this.currentUser?.userType.toLowerCase() === 'student'
+            ? menuItem?.studentName
+            : this.currentUser?.userType.toLowerCase() === 'school'
+            ? menuItem?.adminName
+            : this.currentUser?.userType.toLowerCase() === 'teacher'
+            ? menuItem?.teacherName
+            : '';
       }, 0);
     }); // todo = move routerSubscription to service
   }
@@ -121,7 +128,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
   getCurrentUserProfilePicture(): void {
     if (this.currentUser?.profilePicture) {
-      if (this.currentUser.userType.toLocaleLowerCase() !== 'school') {
+      if (this.currentUser.userType.toLowerCase() !== 'school') {
         this.profilePictureSrc = this.currentUser.profilePicture.url.replace(
           '/upload',
           '/upload/w_900,h_900,c_thumb,c_crop,g_face'
@@ -238,6 +245,19 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  getMenuItemName(menuItem: MenuItemDTO): string {
+    switch (this.currentUser?.userType.toLowerCase()) {
+      case 'student':
+        return menuItem.studentName ?? '';
+      case 'teacher':
+        return menuItem.teacherName ?? '';
+      case 'school':
+        return menuItem.adminName ?? '';
+      default:
+        return menuItem.studentName ?? '';
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
@@ -251,17 +271,20 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 export const menuItems: MenuItemDTO[] = [
   // todo - move into seperate component
   {
-    name: 'Home Page',
-    use: ['school', 'student', 'teacher'],
+    teacherName: 'Home',
+    studentName: 'Home',
+    adminName: 'Home',
+    use: ['teacher', 'student', 'admin', 'school'],
     icon: 'home',
     label: '/home',
     routerLink: '/home',
     breadcrumb: 'home',
   },
   {
-    name: 'My Classes',
+    teacherName: 'My Classes',
+    studentName: 'My Classes',
     adminName: 'Classes',
-    use: ['student', 'teacher', 'school'],
+    use: ['teacher', 'student', 'admin', 'school', 'school'],
     icon: 'class',
     routerLink: '/lessons',
     searchBar: 'Search your lessons...',
@@ -272,8 +295,10 @@ export const menuItems: MenuItemDTO[] = [
     breadcrumb: 'lessons',
   },
   {
-    name: 'My Exams',
-    use: ['student'],
+    teacherName: 'Exam Marking',
+    studentName: 'My Exams',
+    adminName: 'Exams',
+    use: ['teacher', 'student', 'admin', 'school'],
     icon: 'assignment',
     routerLink: '/exams',
     label: '/exams',
@@ -283,52 +308,40 @@ export const menuItems: MenuItemDTO[] = [
     breadcrumb: 'exams',
   },
   {
-    name: 'My Coursework',
+    teacherName: 'Coursework Marking',
+    studentName: 'My Coursework',
+    adminName: 'Coursework',
+    use: ['teacher', 'student', 'admin', 'school'],
     icon: 'work',
-    use: ['Student'],
     routerLink: '',
     label: '',
     breadcrumb: 'course work',
   },
   {
-    name: 'My Homework',
-    use: ['student'],
-    icon: 'library_books',
-    searchBar: 'Search homework...',
-    label: '/homework',
-    routerLink: '/homework',
-    breadcrumb: 'homework',
-    headerButton: 'Add Homework Exercise',
-    headerButtonIcon: 'add',
-    headerButtonFunction: 'createHomework',
-  },
-  {
-    name: 'Homework Marking',
+    teacherName: 'Homework Marking',
+    studentName: 'My Homework',
     adminName: 'Homework',
-    searchBar: 'Search homework...',
-    use: ['teacher', 'school'],
+    use: ['teacher', 'student', 'admin', 'school'],
     icon: 'library_books',
-    headerButton: 'Add Homework Exercise',
-    headerButtonIcon: 'add',
-    headerButtonFunction: 'createHomework',
+    searchBar: 'Search homework...',
     label: '/homework',
     routerLink: '/homework',
     breadcrumb: 'homework',
+    headerButton: 'Add Homework Exercise',
+    headerButtonIcon: 'add',
+    headerButtonFunction: 'createHomework',
   },
   {
-    name: 'My Teachers',
+    studentName: 'My Teachers',
     icon: 'school',
     use: ['student'],
     routerLink: '/users/teachers',
     label: '/users/teachers',
     searchBar: 'Search for a teacher...',
     breadcrumb: 'teachers',
-    headerButton: 'Add New Teacher',
-    headerButtonIcon: 'add',
-    headerButtonFunction: 'addNewTeacher',
   },
   {
-    name: 'My Classmates',
+    studentName: 'My Classmates',
     use: ['student'],
     icon: 'groups',
     routerLink: '/users/classmates',
@@ -337,18 +350,10 @@ export const menuItems: MenuItemDTO[] = [
     breadcrumb: 'class mates',
   },
   {
-    name: 'My Certificates',
-    icon: 'grade',
-    use: ['student'],
-    routerLink: '',
-    label: '',
-    breadcrumb: 'certificates',
-  },
-  {
-    name: 'My Students',
+    teacherName: 'My Students',
     adminName: 'Students',
+    use: ['teacher', 'admin'],
     icon: 'groups',
-    use: ['school', 'teacher'],
     routerLink: '/users/students',
     label: '/users/students',
     searchBar: 'Search for a student...',
@@ -358,9 +363,9 @@ export const menuItems: MenuItemDTO[] = [
     breadcrumb: 'students',
   },
   {
-    name: 'My Colleagues',
+    teacherName: 'My Colleagues',
     adminName: 'Teachers',
-    use: ['school', 'teacher'],
+    use: ['teacher', 'admin'],
     icon: 'co_present',
     routerLink: '/users/colleagues',
     label: '/users/colleagues',
@@ -371,67 +376,49 @@ export const menuItems: MenuItemDTO[] = [
     breadcrumb: 'colleagues',
   },
   {
-    name: 'My Messages',
-    use: ['teacher', 'student'],
+    teacherName: 'My Messages',
+    studentName: 'My Messages',
+    adminName: 'Messages',
+    use: ['teacher', 'student', 'admin', 'school'],
     icon: 'question_answer',
     routerLink: '',
     label: '',
     breadcrumb: 'messages',
   },
   {
-    name: 'My Announcements',
+    teacherName: 'My Announcements',
+    studentName: 'My Announcements',
+    adminName: 'Announcements',
+    use: ['teacher', 'student', 'admin', 'school'],
     icon: 'speaker_notes',
-    use: ['teacher', 'student'],
     routerLink: '',
     label: '',
     breadcrumb: 'announcements',
   },
-  // {
-  //   name: 'Class Material',
-  //   use: ['school', 'teacher'],
-  //   icon: 'notes',
-  //   routerLink: '',
-  //   label: '',
-  //   breadcrumb: 'material',
-  // },
   {
-    name: 'Exam Marking',
-    adminName: 'Exams',
-    use: ['school', 'teacher'],
-    badge: 'getMarkPendingList',
-    icon: 'assignment',
-    routerLink: '/exams',
-    label: '/exams',
-    breadcrumb: 'exam marking',
-  },
-  {
-    name: 'My Packages',
-    use: ['student'],
+    teacherName: 'Packages',
+    studentName: 'My Packages',
+    adminName: 'Packages',
+    use: ['teacher', 'student', 'admin', 'school'],
     icon: 'group_work',
     routerLink: '/packages',
     label: '/packages',
     breadcrumb: 'my packages',
   },
   {
-    name: 'Packages',
-    use: ['school', 'teacher'],
-    icon: 'group_work',
-    routerLink: '/packages',
-    label: '/packages',
-    breadcrumb: 'packages',
-  },
-  {
-    name: 'My School',
+    teacherName: 'My School',
+    studentName: 'My School',
+    adminName: 'School',
+    use: ['teacher', 'student', 'admin', 'school'],
     icon: 'location_city',
-    use: ['school', 'student', 'teacher'],
     routerLink: '',
     label: '',
     breadcrumb: 'school',
   },
   {
-    name: 'Administration',
+    adminName: 'Administration',
+    use: ['admin', 'school'],
     icon: 'settings',
-    use: ['school', 'teacher'],
     routerLink: '/admin',
     label: '/admin',
     breadcrumb: 'admin',
@@ -439,7 +426,8 @@ export const menuItems: MenuItemDTO[] = [
 ];
 
 export interface MenuItemDTO {
-  name: string;
+  teacherName?: string;
+  studentName?: string;
   adminName?: string;
   icon: string;
   use: string[];

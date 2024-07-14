@@ -65,29 +65,28 @@
     [class]="sideNavOpen ? 'sidenav-container' : 'sidenav-container-closed'"
   >
     <mat-list-item
-      [class.active]="breadCrumb === menuItem.name"
-      *ngIf="menuItem.use.includes(currentUser?.userType?.toLowerCase() || 'student')"
+      [class.active]="breadCrumb === getMenuItemName(menuItem)"
+      *ngIf="menuItem.use.includes(currentUser?.userType?.toLowerCase() ?? 'student')"
       [routerLink]="menuItem.routerLink"
     >
       <mat-icon
         matListItemIcon
-        [matTooltip]="!sideNavOpen ? menuItem.name : ''"
+        [matTooltip]="!sideNavOpen ? getMenuItemName(menuItem) : ''"
         matTooltipPosition="right"
         [class]="sideNavOpen ? 'sidenav-icon' : 'sidenav-icon-closed'"
-        [class.active]="breadCrumb === menuItem.name"
-        [matBadge]="badgeCounts[menuItem.name] !== null && badgeCounts[menuItem.name] !== 0 && !sideNavOpen ? badgeCounts[menuItem.name] : ''"
+        [class.active]="breadCrumb === getMenuItemName(menuItem)"
+        [matBadge]="badgeCounts[getMenuItemName(menuItem)] !== null && badgeCounts[getMenuItemName(menuItem)] !== 0 && !sideNavOpen ? badgeCounts[getMenuItemName(menuItem)] : ''"
         matBadgeOverlap="true"
         >{{ menuItem.icon}}</mat-icon
       >
       <div
         matListItemTitle
         *ngIf="sideNavOpen"
-        [matBadge]="badgeCounts[menuItem.name] !== null && badgeCounts[menuItem.name] !== 0 ? badgeCounts[menuItem.name] : ''"
+        [matBadge]="badgeCounts[getMenuItemName(menuItem)] !== null && badgeCounts[getMenuItemName(menuItem)] !== 0 ? badgeCounts[getMenuItemName(menuItem)] : ''"
         matBadgeOverlap="false"
         [class]="sideNavOpen ? 'sidenav-text' : 'sidenav-text-closed'"
       >
-        {{ currentUser?.userType?.toLowerCase() !== 'school' ||
-        !menuItem.adminName ? menuItem.name : menuItem.adminName}}
+        {{ getMenuItemName(menuItem)}}
       </div>
     </mat-list-item>
   </div>
