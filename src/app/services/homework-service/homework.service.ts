@@ -14,6 +14,11 @@ export class HomeworkService {
   private readonly homeworkSubject = new BehaviorSubject<HomeworkDTO[]>([]);
   homework$ = this.homeworkSubject.asObservable();
 
+  private readonly commentSubmittedSubject = new BehaviorSubject<void>(
+    undefined
+  );
+  commentSubmitted$ = this.commentSubmittedSubject.asObservable();
+
   constructor(
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService
@@ -83,6 +88,10 @@ export class HomeworkService {
     return this.httpClient
       .post<CommentDTO>(`${this.baseUrl}/new-comment`, data)
       .pipe(
+        tap(() => {
+          // Emit an event when comment is successfully submitted
+          this.commentSubmittedSubject.next();
+        }),
         catchError((error: Error) => {
           this.handleError(
             error,
@@ -99,6 +108,10 @@ export class HomeworkService {
     return this.httpClient
       .post<CommentDTO>(`${this.baseUrl}/update-comment`, data)
       .pipe(
+        tap(() => {
+          // Emit an event when comment is successfully editted
+          this.commentSubmittedSubject.next();
+        }),
         catchError((error: Error) => {
           this.handleError(
             error,
@@ -115,6 +128,10 @@ export class HomeworkService {
     return this.httpClient
       .post<CommentDTO>(`${this.baseUrl}/delete-comment`, data)
       .pipe(
+        tap(() => {
+          // Emit an event when comment is successfully deleted
+          this.commentSubmittedSubject.next();
+        }),
         catchError((error: Error) => {
           this.handleError(
             error,

@@ -95,12 +95,30 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     );
 
     this.badgeCounts['My Homework'] = await this.getBadgeNumber('My Homework');
+
+    // --- Refresh badges: ---
+
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.questionService.feedbackSubmitted$.subscribe(async () => {
       this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
         'Exam Marking'
       );
     });
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.homeworkService.commentSubmitted$.subscribe(async () => {
+      this.badgeCounts['Homework Marking'] = await this.getBadgeNumber(
+        'Homework Marking'
+      );
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.homeworkService.commentSubmitted$.subscribe(async () => {
+      this.badgeCounts['My Homework'] = await this.getBadgeNumber(
+        'My Homework'
+      );
+    });
+
     this.temporaryStyles$ = this.tempStylesService.temporaryStyles$;
     this.addSchoolRoute();
     this.getTempStyles();
