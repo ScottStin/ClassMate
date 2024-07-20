@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -6,12 +6,18 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
+
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-create-homework-dialog',
@@ -31,7 +37,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
   }>;
   formPopulated = new Subject<boolean>();
   compulsoryHomework = false;
-  unlimitedAttempts = true;
+  limitAttempts = false;
 
   filteredStudents: UserDTO[];
   studentsList: UserDTO[] = [];
@@ -51,7 +57,9 @@ export class CreateHomeworkDialogComponent implements OnInit {
       primaryButtonBackgroundColor: string;
     },
     public dialogRef: MatDialogRef<CreateHomeworkDialogComponent>,
-    private readonly snackbarService: SnackbarService
+    private readonly snackbarService: SnackbarService,
+    private readonly cdr: ChangeDetectorRef,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -81,6 +89,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
             completed: false,
           }))
           .filter((element) => element.studentId !== ''),
+        _id: this.data.body?._id ?? undefined,
       };
 
       this.dialogRef.close(homework);
@@ -120,7 +129,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      assignedTeacher: new FormControl('', {
+      assignedTeacher: new FormControl(this.data.body?.assignedTeacher ?? '', {
         validators: [],
         nonNullable: true,
       }),
@@ -133,6 +142,26 @@ export class CreateHomeworkDialogComponent implements OnInit {
         nonNullable: false,
       }),
     });
+
+    // --- get student list:
+    if (this.data.body?.students && this.data.body.students.length > 0) {
+      const assignedStudentIds = this.data.body.students.map(
+        (obj) => obj.studentId
+      );
+
+      const filteredStudents = this.data.students.filter((student) =>
+        assignedStudentIds.includes(student._id as unknown as string)
+      );
+      this.studentsList = filteredStudents;
+    }
+
+    // --- assign toggle values:
+    if (this.data.body) {
+      this.limitAttempts = this.data.body.attempts !== null;
+      this.compulsoryHomework =
+        this.data.body.dueDate !== null && this.data.body.dueDate !== '';
+    }
+
     this.formPopulated.next(true);
   }
 
@@ -144,6 +173,16 @@ export class CreateHomeworkDialogComponent implements OnInit {
     );
   }
 
+  onToggleChange(): void {
+    this.cdr.detectChanges();
+    if (!this.limitAttempts) {
+      this.homeworkForm.get('attempts')?.setValue(null);
+    }
+    if (!this.compulsoryHomework) {
+      this.homeworkForm.get('dueDate')?.setValue('');
+    }
+  }
+
   updateStudents(student: UserDTO): void {
     this.studentsList.push(student);
     this.studentsList.sort((a: UserDTO, b: UserDTO) =>
@@ -153,11 +192,44 @@ export class CreateHomeworkDialogComponent implements OnInit {
   }
 
   removeStudent(student: UserDTO): void {
-    const index = this.studentsList.indexOf(student);
-    if (index >= 0) {
-      this.studentsList.splice(index, 1);
+    const studentSubmissionAttempts = this.data.body?.comments?.filter(
+      (comment) => comment.student === student._id
+    );
+
+    const studentSubmissionAttemptPass = studentSubmissionAttempts?.filter(
+      (studentSubmissionAttempt) => studentSubmissionAttempt.pass
+    );
+
+    if (studentSubmissionAttempts && studentSubmissionAttempts.length > 0) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: `Remove student from homework item?`,
+          message: `${
+            studentSubmissionAttemptPass &&
+            studentSubmissionAttemptPass.length > 0
+              ? 'This student has already completed this homework item.'
+              : 'This student has already made submissions for this homework item.'
+          } Are you sure you want to remove them? All their submissions will be permanently deleted. All attachments and feedback for this student will also be deleted.`,
+          okLabel: 'Remove',
+          cancelLabel: 'Cancel',
+        },
+      });
+      dialogRef.afterClosed().subscribe((result: boolean) => {
+        if (result) {
+          const index = this.studentsList.indexOf(student);
+          if (index >= 0) {
+            this.studentsList.splice(index, 1);
+          }
+          this.studentsValidator();
+        }
+      });
+    } else {
+      const index = this.studentsList.indexOf(student);
+      if (index >= 0) {
+        this.studentsList.splice(index, 1);
+      }
+      this.studentsValidator();
     }
-    this.studentsValidator();
   }
 
   selectAllStudents(students: UserDTO[]): void {
@@ -171,7 +243,23 @@ export class CreateHomeworkDialogComponent implements OnInit {
   }
 
   unselectAllStudents(): void {
-    this.studentsList = [];
+    if (this.data.body?.comments && this.data.body.comments.length > 0) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: `Remove student from homework item?`,
+          message: `This homework exercise may already have submissions and feedback from students and teachers. Are you sure you want to remove all students? This will cause all student submissions to be permanently deleted. All teacher feedback will also be deleted.`,
+          okLabel: 'Remove',
+          cancelLabel: 'Cancel',
+        },
+      });
+      dialogRef.afterClosed().subscribe((result: boolean) => {
+        if (result) {
+          this.studentsList = [];
+        }
+      });
+    } else {
+      this.studentsList = [];
+    }
   }
 
   dateValidator(): ValidatorFn {
@@ -194,10 +282,10 @@ export class CreateHomeworkDialogComponent implements OnInit {
   attemptsValidator(): ValidatorFn {
     return (control: AbstractControl): Record<string, unknown> | null => {
       const value = control.value as number;
-      if (value < 1 && !this.unlimitedAttempts) {
+      if (value < 1 && this.limitAttempts) {
         return { lessThanOne: control.value };
       } else if (!value) {
-        if (!this.unlimitedAttempts) {
+        if (this.limitAttempts) {
           return { required: control.value };
         } else {
           return null;

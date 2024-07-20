@@ -155,6 +155,44 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
       });
   }
 
+  openEditHomeworkDialog(homework: HomeworkDTO): void {
+    combineLatest([this.teachers$, this.students$, this.currentSchool$])
+      .pipe(first())
+      .subscribe(([teachers, students, currentSchool]) => {
+        const dialogRef = this.dialog.open(CreateHomeworkDialogComponent, {
+          data: {
+            title: 'Modify Homework Assignment',
+            teachers,
+            students,
+            currentSchool,
+            body: homework,
+          },
+        });
+        dialogRef.afterClosed().subscribe((result: HomeworkDTO | null) => {
+          if (
+            result &&
+            currentSchool?._id !== null &&
+            currentSchool?._id !== undefined
+          ) {
+            this.homeworkService
+              .update({ ...result, schoolId: currentSchool._id })
+              .subscribe({
+                next: () => {
+                  this.snackbarService.open(
+                    'info',
+                    'Homework exercise successfully modified. Assigned students have been notified.'
+                  );
+                  this.loadPageData();
+                },
+                error: (error: Error) => {
+                  this.snackbarService.openPermanent('error', error.message);
+                },
+              });
+          }
+        });
+      });
+  }
+
   openConfirmDeleteDialog(homework: HomeworkDTO): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {

@@ -129,6 +129,7 @@
           [users]="users$ | async"
           [homeworkPageLoading]="homeworkPageLoading"
           (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
+          (openEditHomeworkDialog)="openEditHomeworkDialog($event)"
         ></app-homework-table>
       </div>
     </mat-tab>

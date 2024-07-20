@@ -62,6 +62,16 @@ export class HomeworkService {
     );
   }
 
+  update(data: HomeworkDTO): Observable<HomeworkDTO> {
+    return this.httpClient
+      .patch<HomeworkDTO>(`${this.baseUrl}/${data._id!}`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to create new homework exercise');
+        })
+      );
+  }
+
   delete(data: HomeworkDTO): Observable<HomeworkDTO> {
     return (
       this.httpClient
