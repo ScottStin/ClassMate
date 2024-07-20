@@ -87,13 +87,25 @@
                     <mat-icon>post_add</mat-icon>
                     <b> &nbsp;&nbsp;Attempts:</b>
                   </td>
+                  <td>
+                    {{getAttemptCount(homeworkItem)}} /
+                    {{homeworkItem.attempts}}
+                  </td>
+                </tr>
+                <tr *ngIf="homeworkItem.attachment">
                   <td class="title-row">
                     <mat-icon>attachment</mat-icon>
                     <b> &nbsp;&nbsp;Attachment:</b>
                   </td>
                   <td>
-                    {{getAttemptCount(homeworkItem)}} /
-                    {{homeworkItem.attempts}}
+                    <mat-icon
+                      *ngIf="homeworkItem.attachment?.url"
+                      class="download-button"
+                      (click)="downloadAttachment(homeworkItem.attachment?.url)"
+                      #tooltip="matTooltip"
+                      matTooltip="Download attachment"
+                      >save_alt</mat-icon
+                    >
                   </td>
                 </tr>
               </tbody>
@@ -145,10 +157,21 @@
                     <b>{{getUserName(comment?.teacher ?? '')}}</b> for
                     <b>{{homeworkItem.name}}</b></mat-card-title
                   >
-                  <mat-card-subtitle>{{comment.createdAt}}</mat-card-subtitle>
+                  <mat-card-subtitle
+                    >{{comment.createdAt | date:'dd MMM yyyy h:mm a
+                    z'}}</mat-card-subtitle
+                  >
                 </mat-card-header>
                 <mat-card-content>
                   <p>{{comment.text}}</p>
+                  <mat-icon
+                    *ngIf="comment.attachment?.url"
+                    class="download-button"
+                    (click)="downloadAttachment(comment.attachment?.url)"
+                    #tooltip="matTooltip"
+                    matTooltip="Download attachment"
+                    >save_alt</mat-icon
+                  >
                 </mat-card-content>
                 <mat-card-actions
                   *ngIf="last && (currentUser?._id === comment.teacher || currentUser?._id === comment.student || currentUser?.userType?.toLowerCase() === 'school')"

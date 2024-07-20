@@ -6,6 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { HomeworkFeedbackDialogModule } from 'src/app/components/homework-feedback-dialog/homework-feedback-dialog.module';
 
 import { HomeworkCardComponent } from './homework-card.component';
@@ -21,6 +22,7 @@ import { HomeworkCardComponent } from './homework-card.component';
     MatButtonModule,
     HomeworkFeedbackDialogModule,
     MatChipsModule,
+    MatTooltipModule,
   ],
   exports: [HomeworkCardComponent],
 })

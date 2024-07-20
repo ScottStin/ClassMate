@@ -67,6 +67,10 @@ $secondaryColor: var(--secondaryColor);
     color:$secondaryColor;
   }
 
+  .download-button {
+    Cursor: pointer;
+}
+
   // --- TEXT BUBBLE:
 
   .text-bubble-container {

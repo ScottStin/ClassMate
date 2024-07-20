@@ -31,6 +31,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     feedback: CommentDTO;
     homeworkId: string;
     update: boolean;
+    schoolId: string;
   }>();
 
   homeworkList: HomeworkDTO[] = [];
@@ -89,7 +90,8 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     if (attachmentUrl !== undefined) {
       const anchor = document.createElement('a');
       anchor.href = attachmentUrl;
-      anchor.download = attachmentUrl;
+      // anchor.download = attachmentUrl;
+      anchor.target = '_blank';
       anchor.click();
     }
   }
@@ -125,6 +127,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
           feedback: result,
           homeworkId: selectedHomework?._id ?? '',
           update: comment !== undefined,
+          schoolId: this.currentUser?.schoolId as string,
         });
       }
     });
@@ -148,6 +151,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
           feedback: result,
           homeworkId: selectedHomework?._id ?? '',
           update: submission !== undefined,
+          schoolId: this.currentUser?.schoolId as string,
         });
       }
     });

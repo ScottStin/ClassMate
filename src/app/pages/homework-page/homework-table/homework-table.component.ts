@@ -117,7 +117,8 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
     if (attachmentUrl !== null) {
       const anchor = document.createElement('a');
       anchor.href = attachmentUrl;
-      anchor.download = attachmentUrl;
+      // anchor.download = attachmentUrl;
+      anchor.target = '_blank';
       anchor.click();
     }
   }

@@ -232,6 +232,7 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
     feedback: CommentDTO;
     homeworkId: string;
     update: boolean | undefined;
+    schoolId: string;
   }): void {
     let message = `Feedback successfully ${
       feedback.update !== true ? 'edited' : 'added to homework'
