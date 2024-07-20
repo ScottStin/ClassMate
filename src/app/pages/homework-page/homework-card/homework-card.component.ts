@@ -164,11 +164,21 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
 
   getUserName(userId: string): string | null {
     // TODO = replace with service or directive
-    const foundUser = this.users?.find((obj) => obj._id === userId);
+    const foundUser = this.users?.find((user) => user._id === userId);
     if (foundUser) {
       return foundUser.name;
     } else {
       return null;
+    }
+  }
+
+  getProfilePicture(userId?: string): string | undefined {
+    // TODO = replace with service or directive
+    const foundUser = this.users?.find((user) => user._id === userId);
+    if (foundUser) {
+      return foundUser.profilePicture?.url;
+    } else {
+      return undefined;
     }
   }
 

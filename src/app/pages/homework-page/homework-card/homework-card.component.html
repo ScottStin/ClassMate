@@ -128,8 +128,12 @@
                 [class]="comment.commentType.toLowerCase() !== 'feedback' ? 'card text-bubble' : 'card text-bubble-response'"
               >
                 <mat-card-header>
-                  <div mat-card-avatar class="example-header-image"></div>
-                  <!-- <img mat-card-avatar [src]="selectedStudent?.profilePicture?.url" alt=""> -->
+                  <img
+                    mat-card-avatar
+                    [src]="comment.commentType.toLowerCase() === 'feedback' ? getProfilePicture(comment.teacher) : getProfilePicture(comment.student)"
+                    alt="profile picture"
+                    class="example-header-image"
+                  />
                   <mat-card-title *ngIf="comment.commentType === 'submission'"
                     >Submission by
                     <b>{{getUserName(comment?.student ?? '')}}</b> for
