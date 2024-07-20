@@ -61,7 +61,12 @@
                     <mat-icon>av_timer</mat-icon>
                     <b> &nbsp;&nbsp;Duration:</b>
                   </td>
-                  <td>~{{homeworkItem.duration}} min</td>
+                  <td *ngIf="homeworkCompleted(homeworkItem) === false">
+                    ~{{homeworkItem.duration}} min
+                  </td>
+                  <td *ngIf="homeworkCompleted(homeworkItem) === true">
+                    {{getCompletedHomeworkDuration(homeworkItem)}} min
+                  </td>
                 </tr>
                 <tr>
                   <td class="title-row">

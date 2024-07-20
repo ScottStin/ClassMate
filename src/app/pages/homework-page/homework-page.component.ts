@@ -196,11 +196,12 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
     update: boolean | undefined;
   }): void {
     let message = `Feedback successfully ${
-      feedback.update !== true ? 'editted' : 'added to homework'
-    } added to homework. The student has been notified of your feedback.`;
+      feedback.update !== true ? 'edited' : 'added to homework'
+    }. The student has been notified of your feedback.`;
+
     if (feedback.feedback.commentType === 'submission') {
       message = `Thank you for ${
-        feedback.update !== true ? 'editting' : 'submitting'
+        feedback.update !== true ? 'editing' : 'submitting'
       } your homework. Your teacher has been notified and will provide you with feedback shortly.`;
     }
 

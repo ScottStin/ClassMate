@@ -157,7 +157,6 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     homework: HomeworkDTO | undefined,
     comment: CommentDTO | undefined
   ): void {
-    console.log('hit1');
     if (homework && comment) {
       this.openDeleteCommentDialog.emit({ homework, comment });
     }
@@ -180,6 +179,20 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
       const today = new Date();
       return new Date(homeworkItem.dueDate).getTime() < today.getTime();
     }
+  }
+
+  getCompletedHomeworkDuration(homeworkItem: HomeworkDTO): number {
+    let duration = homeworkItem.duration;
+    if (this.homeworkCompleted(homeworkItem)) {
+      const comments = homeworkItem.comments?.filter(
+        (comment) => comment.student === this.selectedStudent?._id
+      );
+      if (comments && comments.length > 0) {
+        duration =
+          comments[comments.length - 1].duration ?? homeworkItem.duration;
+      }
+    }
+    return duration;
   }
 
   allowSubmission(homeworkItem: HomeworkDTO): boolean {
