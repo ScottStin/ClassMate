@@ -1,26 +1,38 @@
-<button
-  *ngIf="(authStoreService.isLoggedIn$ | async) && currentUser?.userType?.toLowerCase() !== 'school'"
-  class="edit-profile-button"
-  mat-mini-fab
-  #tooltip="matTooltip"
-  matTooltip="Edit your profile"
-  (click)="openEditUserDialog()"
->
-  <mat-icon>edit</mat-icon>
-</button>
+<!-- School Logo Header: -->
+<img *ngIf="sideNavOpen" class="logo" [src]="currentSchool?.logo?.url" />
+
 <div
   [class]="currentUser?.userType?.toLowerCase() !== 'school' ? 'image-container' : 'admin-image-container'"
+  [class.image-container-closed]="!sideNavOpen"
   style="overflow-x: hidden"
 >
+  <!-- User profile picture: -->
   <div
-    [class]="currentUser?.userType?.toLowerCase() !== 'school' ? 'profile-picture-container' : 'admin-profile-picture-container'"
-    [class.profile-picture-container-closed]="!sideNavOpen"
+    *ngIf="currentUser?.userType?.toLowerCase() !== 'school'"
+    [class.profile-picture-wrapper]="sideNavOpen"
   >
-    <img [src]="profilePictureSrc" class="profile-picture" />
+    <div
+      [class.profile-picture-container]="sideNavOpen"
+      [class.profile-picture-container-closed]="!sideNavOpen"
+    >
+      <img [src]="profilePictureSrc" class="profile-picture" />
+    </div>
   </div>
+
+  <!-- School profile picture: -->
+  <div
+    *ngIf="currentUser?.userType?.toLowerCase() === 'school'"
+    class="admin-profile-picture-container"
+  >
+    <div>
+      <img class="profile-picture" [src]="profilePictureSrc" />
+    </div>
+  </div>
+
+  <!-- Action buttons: -->
   <mat-chip-list
     routerLink="student/signup"
-    *ngIf="authStoreService.isLoggedOut$ | async"
+    *ngIf="(authStoreService.isLoggedOut$ | async) && sideNavOpen"
     class="chip-container"
     #tooltip="matTooltip"
     matTooltip="Click here to login"
@@ -28,20 +40,44 @@
       >Login / Signup</mat-chip
     ></mat-chip-list
   >
-  <h2
+  <button
+    *ngIf="(authStoreService.isLoggedOut$ | async) && !sideNavOpen"
+    class="edit-profile-button"
+    mat-mini-fab
+    #tooltip="matTooltip"
+    matTooltip="Click here to login"
+    routerLink="student/signup"
+  >
+    <mat-icon>exit_to_app</mat-icon>
+  </button>
+
+  <button
+    *ngIf="(authStoreService.isLoggedIn$ | async) && currentUser?.userType?.toLowerCase() !== 'school'"
+    class="edit-profile-button"
+    mat-mini-fab
+    #tooltip="matTooltip"
+    matTooltip="Edit your profile"
+    (click)="openEditUserDialog()"
+  >
+    <mat-icon>edit</mat-icon>
+  </button>
+
+  <!-- User/school names: -->
+  <h3
     class="user-name-header"
     *ngIf="sideNavOpen && currentUser?.userType?.toLowerCase() !== 'school'"
   >
     {{currentUser?.name}}
-  </h2>
-  <!-- <h4
-    class="user-name-header"
-    *ngIf="sideNavOpen && currentUser?.userType?.toLowerCase() === 'school'"
+  </h3>
+  <h6
+    *ngIf="currentUser?.userType?.toLowerCase() === 'teacher' && sideNavOpen"
+    style="opacity: 0.8"
+    class="school-name-container"
   >
-    {{currentUser?.name}}
-  </h4> -->
+    {{currentSchool?.name}}
+  </h6>
   <h2
-    class="text-warning"
+    class="text-warning school-name-container"
     *ngIf="currentUser?.level && currentUser?.userType?.toLowerCase() === 'student'"
   >
     <mat-icon *ngIf="sideNavOpen">star</mat-icon>
@@ -58,14 +94,16 @@
     ></mat-chip-list
   >
 </div>
-<mat-divider></mat-divider>
+<mat-divider *ngIf="!sideNavOpen"></mat-divider>
+
+<!-- Nav items: -->
 <mat-list>
   <div
     *ngFor="let menuItem of menuItems"
     [class]="sideNavOpen ? 'sidenav-container' : 'sidenav-container-closed'"
   >
     <mat-list-item
-      [class.active]="breadCrumb === getMenuItemName(menuItem)"
+      [class.active-list-item]="breadCrumb === getMenuItemName(menuItem)"
       *ngIf="menuItem.use.includes(currentUser?.userType?.toLowerCase() ?? 'student')"
       [routerLink]="menuItem.routerLink"
     >
