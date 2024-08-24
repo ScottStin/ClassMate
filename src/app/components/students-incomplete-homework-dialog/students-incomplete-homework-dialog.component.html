@@ -8,22 +8,26 @@
     <mat-tab-group>
       <mat-tab [label]="'All students enrolled (' + studentNames.length + ')'">
         <mat-list style="margin-top: 10px">
-          <ng-container *ngFor="let student of studentNames">
-            <mat-list-item
-              style="
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-                margin-bottom: 10px;
-              "
-              *ngIf="student.name && student.email"
+          <mat-list-item
+            *ngFor="let student of studentNames"
+            style="margin-bottom: 15px"
+          >
+            <div
+              style="display: flex; justify-content: space-between; width: 100%"
             >
               <div>
                 <div>{{ student.name }}</div>
-                <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+                <div style="opacity: 0.6"><i>({{ student.email }})</i></div>
               </div>
-            </mat-list-item>
-          </ng-container>
+              <div
+                style="cursor: pointer"
+                #tooltip="matTooltip"
+                [matTooltip]="'Remove ' + student.name + ' from this homework item.'"
+              >
+                <mat-icon>delete</mat-icon>
+              </div>
+            </div>
+          </mat-list-item>
         </mat-list>
       </mat-tab>
 

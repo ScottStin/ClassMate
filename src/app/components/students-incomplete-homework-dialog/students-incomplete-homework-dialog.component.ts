@@ -36,7 +36,7 @@ export class StudentsIncompleteHomeworkDialogComponent implements OnInit {
     this.userService.getAll().subscribe({
       next: (res) => {
         for (const student of this.homeworkItem.students) {
-          // --- get list of students enrolled in this hoemwork who need feedback
+          // --- get list of students enrolled in this hoemwork:
           let feedbackPending = false;
           const studentComments = this.homeworkItem.comments?.filter(
             (comment) => comment.student === student.studentId
@@ -54,6 +54,14 @@ export class StudentsIncompleteHomeworkDialogComponent implements OnInit {
             )?.completed,
           });
         }
+
+        // --- remove deleted students:
+        this.studentNames = this.studentNames.filter(
+          (student) =>
+            ![undefined, null, ''].includes(student.name) &&
+            ![undefined, null, ''].includes(student.email)
+        );
+
         this.usersLoading = false;
       },
       error: (error: Error) => {

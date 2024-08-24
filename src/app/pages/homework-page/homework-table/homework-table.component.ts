@@ -145,36 +145,41 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
     return studentNameArray.join(', ');
   }
 
-  getStudentsEnrolledList(homeworkItem: HomeworkDTO): string {
-    const studentNameArray = [];
-    const studentIdList = homeworkItem.students.map(
-      (student) => student.studentId
-    );
-    for (const studentId of studentIdList) {
-      const studentName = this.getUserName(studentId);
-      const studentEmail = this.getUserEmail(studentId);
-      if (studentName !== null && studentEmail !== null) {
-        studentNameArray.push(`${studentName} (${studentEmail})`);
-      } else {
-        studentNameArray.push(`${studentId} (user deleted)`);
+  getMarkingPendingList(homeworkItem: HomeworkDTO): {
+    name: string | undefined;
+    email: string | undefined;
+    feedbackPending: true;
+    completed: boolean | undefined;
+  }[] {
+    const studentList = [];
+    for (const student of homeworkItem.students) {
+      let feedbackPending = false;
+      const studentComments = homeworkItem.comments?.filter(
+        (comment) => comment.student === student.studentId
+      );
+      if (studentComments && studentComments.length > 0) {
+        const lastComment = studentComments[studentComments.length - 1];
+        feedbackPending = lastComment.commentType === 'submission';
+      }
+      if (feedbackPending) {
+        studentList.push({
+          name: this.users?.find((user) => user._id === student.studentId)
+            ?.name,
+          email: this.users?.find((user) => user._id === student.studentId)
+            ?.email,
+          feedbackPending,
+          completed: homeworkItem.students.find(
+            (obj) => obj.studentId === student.studentId
+          )?.completed,
+        });
       }
     }
-    return studentNameArray.join(', ');
+    return studentList;
   }
 
   openStudentsIncompletedList(homeworkItem: HomeworkDTO): void {
-    const studentsCompletedDialogRef = this.dialog.open(
-      StudentsIncompleteHomeworkDialogComponent,
-      {
-        data: { homeworkItem },
-      }
-    );
-    studentsCompletedDialogRef
-      .afterClosed()
-      .subscribe((result: { email: string } | null) => {
-        if (result) {
-          console.log(result);
-        }
-      });
+    this.dialog.open(StudentsIncompleteHomeworkDialogComponent, {
+      data: { homeworkItem },
+    });
   }
 }
