@@ -262,25 +262,29 @@
           </div>
           <mat-divider></mat-divider>
           <mat-list-item *ngFor="let student of studentsList; let i = index">
-            <div matListItemTitle>
-              <span
-                ><img
-                  [src]="student.profilePicture?.url"
-                  alt="student image"
-                  class="thumbnail-image"
-                />{{student.name}} ({{student.email}})</span
-              >
-            </div>
-            <div matListItemMeta class="remove-button">
-              <button
-                mat-icon-button
-                color="warn"
-                matTooltip="Remove student"
-                matTooltipPosition="after"
-                (click)="removeStudent(student)"
-              >
-                <mat-icon>remove_circle</mat-icon>
-              </button>
+            <div
+              style="display: flex; justify-content: space-between; width: 95%"
+            >
+              <div matListItemTitle>
+                <span
+                  ><img
+                    [src]="student.profilePicture?.url"
+                    alt="student image"
+                    class="thumbnail-image"
+                  />{{student.name}} ({{student.email}})</span
+                >
+              </div>
+              <div matListItemMeta class="remove-button">
+                <button
+                  mat-icon-button
+                  color="warn"
+                  matTooltip="Remove student"
+                  matTooltipPosition="after"
+                  (click)="removeStudent(student)"
+                >
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+              </div>
             </div>
           </mat-list-item>
         </mat-list>

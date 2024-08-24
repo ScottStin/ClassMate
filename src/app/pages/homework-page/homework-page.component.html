@@ -30,47 +30,58 @@
               [value]="student"
             >
               <span
-                ><img
-                  [src]="student.profilePicture?.url"
-                  alt="student image"
-                  class="thumbnail-image"
-                />
-                <span> {{student.name}} ({{student.email}}) </span>
-                <span
-                  *ngIf="unfinishedStudentHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
-                  [matBadge]="unfinishedStudentHomeworkCounter(student._id, (homework$ | async))"
-                  matBadgeOverlap="false"
-                  matBadgePosition="after"
-                  matBadgeSize="small"
-                  [matTooltip]="student.name + ' has ' +  unfinishedStudentHomeworkCounter(student._id, (homework$ |async)) + ' items of unfinished homework'"
-                  matBadgeOverlap="true"
-                  class="unfinished-homework-badge"
-                >
-                  &nbsp;&nbsp;</span
-                >
-                <span
-                  *ngIf="markPendingHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
-                  [matBadge]="markPendingHomeworkCounter(student._id, (homework$ | async))"
-                  matBadgeOverlap="false"
-                  matBadgePosition="after"
-                  matBadgeSize="small"
-                  [matTooltip]="student.name + ' has ' +  markPendingHomeworkCounter(student._id, (homework$ |async)) + ' items of overdue that need to be marked'"
-                  matBadgeOverlap="true"
-                >
-                  &nbsp;&nbsp;&nbsp;&nbsp;</span
-                >
-                <span
-                  *ngIf="overdueStudentHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
-                  [matBadge]="overdueStudentHomeworkCounter(student._id, (homework$ | async))"
-                  matBadgeOverlap="false"
-                  matBadgePosition="after"
-                  matBadgeSize="small"
-                  matBadgeColor="warn"
-                  [matTooltip]="student.name + ' has ' +  overdueStudentHomeworkCounter(student._id, (homework$ |async)) + ' items of overdue homework'"
-                  matBadgeOverlap="true"
-                >
-                  &nbsp;&nbsp;&nbsp;&nbsp;</span
-                >
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  width: 95%;
+                "
+              >
+                <div>
+                  <img
+                    [src]="student.profilePicture?.url"
+                    alt="student image"
+                    class="thumbnail-image"
+                  />
+                  <span> {{student.name}} ({{student.email}}) </span>
+                </div>
+
+                <div>
+                  <span
+                    *ngIf="unfinishedStudentHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
+                    [matBadge]="unfinishedStudentHomeworkCounter(student._id, (homework$ | async))"
+                    matBadgeOverlap="false"
+                    matBadgePosition="after"
+                    matBadgeSize="small"
+                    [matTooltip]="student.name + ' has ' +  unfinishedStudentHomeworkCounter(student._id, (homework$ |async)) + ' items of unfinished homework'"
+                    matBadgeOverlap="true"
+                    class="unfinished-homework-badge"
+                  >
+                    &nbsp;&nbsp;</span
+                  >
+                  <span
+                    *ngIf="markPendingHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
+                    [matBadge]="markPendingHomeworkCounter(student._id, (homework$ | async))"
+                    matBadgeOverlap="false"
+                    matBadgePosition="after"
+                    matBadgeSize="small"
+                    [matTooltip]="student.name + ' has ' +  markPendingHomeworkCounter(student._id, (homework$ |async)) + ' items of overdue that need to be marked'"
+                    matBadgeOverlap="true"
+                  >
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+                  >
+                  <span
+                    *ngIf="overdueStudentHomeworkCounter(student._id, (homework$ | async)) && isStudentSelectOpen"
+                    [matBadge]="overdueStudentHomeworkCounter(student._id, (homework$ | async))"
+                    matBadgeOverlap="false"
+                    matBadgePosition="after"
+                    matBadgeSize="small"
+                    matBadgeColor="warn"
+                    [matTooltip]="student.name + ' has ' +  overdueStudentHomeworkCounter(student._id, (homework$ |async)) + ' items of overdue homework'"
+                    matBadgeOverlap="true"
+                  >
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+                  >
+                </div>
               </span>
             </mat-option>
           </mat-select>
