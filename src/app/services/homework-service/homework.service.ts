@@ -85,6 +85,24 @@ export class HomeworkService {
     );
   }
 
+  removeStudent(data: {
+    studentId: string;
+    homeworkItemId: string;
+  }): Observable<HomeworkDTO> {
+    return this.httpClient
+      .delete<HomeworkDTO>(
+        `${this.baseUrl}/remove-student?studentId=${data.studentId}&homeworkItemId=${data.homeworkItemId}`
+      )
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to remove student from homework exercise'
+          );
+        })
+      );
+  }
+
   /**
    * ==============================
    *  Comments (to do, move comments to their own service and create dedicated comment model/route in backend)
