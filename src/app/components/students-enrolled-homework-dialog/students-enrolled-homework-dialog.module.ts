@@ -10,10 +10,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
-import { StudentsIncompleteHomeworkDialogComponent } from './students-incomplete-homework-dialog.component';
+import { StudentsEnrolledHomeworkDialogComponent } from './students-enrolled-homework-dialog.component';
 
 @NgModule({
-  declarations: [StudentsIncompleteHomeworkDialogComponent],
+  declarations: [StudentsEnrolledHomeworkDialogComponent],
   imports: [
     CommonModule,
     MatButtonModule,
@@ -26,6 +26,6 @@ import { StudentsIncompleteHomeworkDialogComponent } from './students-incomplete
     DialogActionsModule,
     DialogHeaderModule,
   ],
-  exports: [StudentsIncompleteHomeworkDialogComponent],
+  exports: [StudentsEnrolledHomeworkDialogComponent],
 })
-export class StudentsIncompleteHomeworkDialogModule {}
+export class StudentsEnrolledHomeworkDialogModule {}

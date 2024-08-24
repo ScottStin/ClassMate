@@ -14,11 +14,11 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-students-incomplete-homework-dialog',
-  templateUrl: './students-incomplete-homework-dialog.component.html',
-  styleUrls: ['./students-incomplete-homework-dialog.component.css'],
+  selector: 'app-students-enrolled-homework-dialog',
+  templateUrl: './students-enrolled-homework-dialog.component.html',
+  styleUrls: ['./students-enrolled-homework-dialog.component.css'],
 })
-export class StudentsIncompleteHomeworkDialogComponent implements OnInit {
+export class StudentsEnrolledHomeworkDialogComponent implements OnInit {
   homeworkItem: HomeworkDTO;
   usersLoading: boolean;
   users$: Observable<UserDTO[]>;
@@ -30,7 +30,7 @@ export class StudentsIncompleteHomeworkDialogComponent implements OnInit {
     private readonly snackbarService: SnackbarService,
     private readonly homeworkService: HomeworkService,
     public dialog: MatDialog,
-    private readonly dialogRef: MatDialogRef<StudentsIncompleteHomeworkDialogComponent>
+    private readonly dialogRef: MatDialogRef<StudentsEnrolledHomeworkDialogComponent>
   ) {
     this.homeworkItem = data.homeworkItem;
   }

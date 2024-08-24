@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { StudentsIncompleteHomeworkDialogComponent } from 'src/app/components/students-incomplete-homework-dialog/students-incomplete-homework-dialog.component';
+import { StudentsEnrolledHomeworkDialogComponent } from 'src/app/components/students-enrolled-homework-dialog/students-enrolled-homework-dialog.component';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -178,7 +178,7 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
   }
 
   openStudentsIncompletedList(homeworkItem: HomeworkDTO): void {
-    this.dialog.open(StudentsIncompleteHomeworkDialogComponent, {
+    this.dialog.open(StudentsEnrolledHomeworkDialogComponent, {
       data: { homeworkItem },
     });
   }
