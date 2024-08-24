@@ -38,7 +38,7 @@
     </ng-container>
 
     <!-- students Column -->
-    <ng-container matColumnDef="students">
+    <!-- <ng-container matColumnDef="students">
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         All Assigned Students
       </mat-header-cell>
@@ -47,24 +47,25 @@
           >{{row.students.length}}</span
         >
       </mat-cell>
-    </ng-container>
+    </ng-container> -->
 
     <!-- students Not Completed Column -->
-    <ng-container matColumnDef="studentsOutstanding">
+    <ng-container matColumnDef="students">
       <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Students yet to complete
-        <!-- <mat-icon
+        Students Enrolled
+        <mat-icon
           style="font-size: 15px"
           #tooltip="matTooltip"
           matTooltip="A bold number indicated that there is completed homework that needs to be reviewed."
           >info</mat-icon
-        > -->
+        >
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
         <span
-          *ngIf="studentsIncompleteCounter(row) !== 0"
           [matTooltip]="getStudentsIncompleteList(row)"
-          >{{studentsIncompleteCounter(row)}}</span
+          style="cursor: pointer"
+          (click)="openStudentsIncompletedList(row)"
+          >{{row.students.length}}</span
         >
       </mat-cell>
     </ng-container>

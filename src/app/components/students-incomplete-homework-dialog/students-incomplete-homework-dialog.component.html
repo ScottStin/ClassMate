@@ -1,0 +1,115 @@
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="'Students Enrolled - ' + homeworkItem.name"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
+
+  <mat-dialog-content>
+    <mat-tab-group>
+      <mat-tab [label]="'All students enrolled (' + studentNames.length + ')'">
+        <mat-list style="margin-top: 10px">
+          <ng-container *ngFor="let student of studentNames">
+            <mat-list-item
+              style="
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: 10px;
+              "
+              *ngIf="student.name && student.email"
+            >
+              <div>
+                <div>{{ student.name }}</div>
+                <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+              </div>
+            </mat-list-item>
+          </ng-container>
+        </mat-list>
+      </mat-tab>
+
+      <mat-tab
+        [label]="'Students incomplete (' + studentsIncompleteList().length + ')'"
+      >
+        <div
+          *ngIf="studentsIncompleteList().length === 0"
+          style="margin-top: 5px"
+        >
+          All enrolled students have completed this homework exercise.
+        </div>
+        <mat-list style="margin-top: 10px">
+          <ng-container *ngFor="let student of studentsIncompleteList()">
+            <mat-list-item
+              style="
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: 10px;
+              "
+              *ngIf="student.name && student.email"
+            >
+              <div>
+                <div>{{ student.name }}</div>
+                <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+              </div>
+              <!-- <div
+                style="cursor: pointer"
+                (click)="markExam(student)"
+                #tooltip="matTooltip"
+                [matTooltip]="'Mark exam of ' + student.name"
+              >
+                <b
+                  >mark exam
+                  <mat-icon style="font-size: larger">rate_review</mat-icon></b
+                >
+              </div> -->
+            </mat-list-item>
+          </ng-container>
+        </mat-list>
+      </mat-tab>
+
+      <mat-tab
+        [label]="'Students awaiting feedback (' + studentsAwaitingFeedbackList().length + ')'"
+      >
+        <div
+          *ngIf="studentsAwaitingFeedbackList().length === 0"
+          style="margin-top: 5px"
+        >
+          No homework requires feedback right now. Check back later.
+        </div>
+        <mat-list style="margin-top: 10px">
+          <ng-container *ngFor="let student of studentsAwaitingFeedbackList()">
+            <mat-list-item
+              style="
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: 10px;
+              "
+              *ngIf="student.name && student.email"
+            >
+              <div>
+                <div>{{ student.name }}</div>
+                <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+              </div>
+              <!-- <div
+                  style="cursor: pointer"
+                  (click)="markExam(student)"
+                  #tooltip="matTooltip"
+                  [matTooltip]="'Mark exam of ' + student.name"
+                >
+                  <b
+                    >mark exam
+                    <mat-icon style="font-size: larger">rate_review</mat-icon></b
+                  >
+                </div> -->
+            </mat-list-item>
+          </ng-container>
+        </mat-list>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-dialog-content>
+  <app-dialog-actions
+    (cancelAction)="closeDialog()"
+    [hideSaveButton]="true"
+  ></app-dialog-actions>
+</ng-container>

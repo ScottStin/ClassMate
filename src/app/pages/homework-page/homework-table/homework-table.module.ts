@@ -7,6 +7,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { StudentsIncompleteHomeworkDialogModule } from 'src/app/components/students-incomplete-homework-dialog/students-incomplete-homework-dialog.module';
 
 import { HomeworkTableComponent } from './homework-table.component';
 
@@ -21,6 +22,7 @@ import { HomeworkTableComponent } from './homework-table.component';
     MatIconModule,
     MatPaginatorModule,
     MatTooltipModule,
+    StudentsIncompleteHomeworkDialogModule,
   ],
   exports: [HomeworkTableComponent],
 })
