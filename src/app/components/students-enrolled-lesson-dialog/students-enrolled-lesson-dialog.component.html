@@ -1,6 +1,6 @@
 <ng-container>
   <app-dialog-header
-    [dialogTitle]="'Students enrolled in ' + lesson.name"
+    [dialogTitle]="lesson ? 'Students enrolled in ' + lesson.name : 'Students enrolled'"
     (closeAction)="closeDialog()"
   ></app-dialog-header>
   <span *ngIf="studentNames.length === 0"
@@ -38,7 +38,7 @@
   </mat-list>
 
   <app-dialog-actions
-    *ngIf="!data.pastLesson"
+    *ngIf="lesson && !data.pastLesson"
     saveButtonName="Manage enrollments"
     (saveAction)="addStudentsToLessonDialog(lesson)"
     (cancelAction)="closeDialog()"

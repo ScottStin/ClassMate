@@ -1,4 +1,9 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterTestingModule } from '@angular/router/testing';
+import { LoginCardModule } from 'src/app/components/login-card/login-card.module';
+import { LoginCardSchoolModule } from 'src/app/components/login-card-school/login-card-school.module';
 
 import { LoginPageComponent } from './login-page.component';
 
@@ -9,6 +14,13 @@ describe('LoginPageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [LoginPageComponent],
+      imports: [
+        HttpClientTestingModule,
+        MatSnackBarModule,
+        RouterTestingModule,
+        LoginCardModule,
+        LoginCardSchoolModule,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginPageComponent);

@@ -52,7 +52,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
       title: string;
       body: HomeworkDTO | undefined;
       teachers: UserDTO[];
-      students: UserDTO[];
+      students?: UserDTO[];
       currentSchool: SchoolDTO;
       primaryButtonBackgroundColor: string;
     },
@@ -64,7 +64,9 @@ export class CreateHomeworkDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.populateForm();
-    this.filteredStudents = [...this.data.students];
+    if (this.data.students) {
+      this.filteredStudents = [...this.data.students];
+    }
   }
 
   closeDialog(save?: boolean): void {
@@ -149,10 +151,10 @@ export class CreateHomeworkDialogComponent implements OnInit {
         (obj) => obj.studentId
       );
 
-      const filteredStudents = this.data.students.filter((student) =>
+      const filteredStudents = this.data.students?.filter((student) =>
         assignedStudentIds.includes(student._id as unknown as string)
       );
-      this.studentsList = filteredStudents;
+      this.studentsList = filteredStudents ?? [];
     }
 
     // --- assign toggle values:
@@ -166,11 +168,12 @@ export class CreateHomeworkDialogComponent implements OnInit {
   }
 
   filterStudents(search: string): void {
-    this.filteredStudents = this.data.students.filter(
-      (obj: UserDTO) =>
-        obj.name.toLowerCase().includes(search.toLowerCase()) &&
-        !this.studentsList.includes(obj)
-    );
+    this.filteredStudents =
+      this.data.students?.filter(
+        (obj: UserDTO) =>
+          obj.name.toLowerCase().includes(search.toLowerCase()) &&
+          !this.studentsList.includes(obj)
+      ) ?? [];
   }
 
   onToggleChange(): void {

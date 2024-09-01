@@ -4,7 +4,6 @@
   [currentSchool]="currentSchool$ | async"
   [currentUser]="currentUser$ | async"
   [pageName]="'teachers'"
-  [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
 ></app-header-card>
 <mat-progress-bar
   [style]="{ visibility: teacherPageLoading ? 'visible' : 'hidden' }"
@@ -14,7 +13,6 @@
   <div *ngFor="let user of (users$ | async)">
     <app-user-card
       [user]="user"
-      [pageStyles]="{primaryButtonBackgroundColor, 'primaryButtonTextColor':primaryButtonTextColor }"
       [userType]="userType"
       (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
     ></app-user-card>

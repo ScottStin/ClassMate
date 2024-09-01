@@ -1,4 +1,4 @@
-<ng-container>
+<ng-container *ngIf="data.students && studentsList">
   <app-dialog-header
     [dialogTitle]="data.title"
     (closeAction)="closeDialog()"
@@ -215,7 +215,7 @@
           >Select All</mat-checkbox
         >
         <mat-checkbox
-          *ngIf="data.students.length === studentsList.length && !this.homeworkForm.getRawValue().studentsInput"
+          *ngIf="data.students?.length === studentsList?.length && !this.homeworkForm.getRawValue().studentsInput"
           matSuffix
           (click)="unselectAllStudents()"
           >Unselect All</mat-checkbox

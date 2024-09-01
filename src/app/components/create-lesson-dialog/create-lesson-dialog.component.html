@@ -131,7 +131,7 @@
 
           <mat-form-field
             appearance="outline"
-            *ngIf="data.currentUser.userType.toLowerCase()==='school'"
+            *ngIf="data.currentUser?.userType?.toLowerCase()==='school'"
           >
             <mat-label>Assigned teacher</mat-label>
             <mat-select formControlName="assignedTeacher">

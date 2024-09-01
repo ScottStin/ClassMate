@@ -101,7 +101,7 @@
                     <mat-icon
                       *ngIf="homeworkItem.attachment?.url"
                       class="download-button"
-                      (click)="downloadAttachment(homeworkItem.attachment?.url)"
+                      (click)="downloadAttachment(homeworkItem.attachment.url)"
                       #tooltip="matTooltip"
                       matTooltip="Download attachment"
                       >save_alt</mat-icon

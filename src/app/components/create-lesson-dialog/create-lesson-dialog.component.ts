@@ -89,8 +89,8 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     public data: {
       title: string;
       body: LessonDTO | undefined;
-      currentUser: UserDTO;
-      currentSchool: SchoolDTO;
+      currentUser?: UserDTO;
+      currentSchool?: SchoolDTO;
       teachers: UserDTO[];
     },
     public dialogRef: MatDialogRef<CreateLessonDialogComponent>,
@@ -98,7 +98,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.lessonTypes = this.data.currentSchool.lessonTypes;
+    this.lessonTypes = this.data.currentSchool?.lessonTypes ?? [];
     this.populateForm();
     this.dataSource = new MatTableDataSource<LessonDTO>(this.lessons ?? []);
     this.lessonDateMode = 'individual';
@@ -196,33 +196,35 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   addNewLessonRow(): void {
-    const userEmail = this.data.currentUser.email;
-    const formValue = this.lessonForm.getRawValue();
-    this.lessons?.push({
-      teacher:
-        this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
-          ? userEmail
-          : this.lessonForm.controls.assignedTeacher.value,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      startTime: formValue.dateInput!,
-      maxStudents: formValue.sizeInput,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      type: formValue.typeInput!,
-      schoolId:
-        this.data.currentSchool._id !== undefined &&
-        this.data.currentSchool._id !== null
-          ? this.data.currentSchool._id
-          : '',
-      level: formValue.levelInput,
-      name: formValue.nameInput,
-      duration: formValue.lengthInput,
-      description: formValue.descriptionInput,
-      disableFirtsLesson: false,
-      studentsEnrolled: [],
-      casualPrice: 0,
-    });
-    if (this.dataSource && this.lessons && this.lessons.length > 0) {
-      this.updateTable();
+    if (this.data.currentSchool && this.data.currentUser) {
+      const userEmail = this.data.currentUser.email;
+      const formValue = this.lessonForm.getRawValue();
+      this.lessons?.push({
+        teacher:
+          this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
+            ? userEmail
+            : this.lessonForm.controls.assignedTeacher.value,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        startTime: formValue.dateInput!,
+        maxStudents: formValue.sizeInput,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        type: formValue.typeInput!,
+        schoolId:
+          this.data.currentSchool._id !== undefined &&
+          this.data.currentSchool._id !== null
+            ? this.data.currentSchool._id
+            : '',
+        level: formValue.levelInput,
+        name: formValue.nameInput,
+        duration: formValue.lengthInput,
+        description: formValue.descriptionInput,
+        disableFirtsLesson: false,
+        studentsEnrolled: [],
+        casualPrice: 0,
+      });
+      if (this.dataSource && this.lessons && this.lessons.length > 0) {
+        this.updateTable();
+      }
     }
   }
 

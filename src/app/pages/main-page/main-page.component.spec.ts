@@ -1,5 +1,15 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
+import { FilterCardModule } from 'src/app/components/filter-card/filter-card.module';
+import { SideNavModule } from 'src/app/components/side-nav/side-nav.module';
 
+import { ExamPageModule } from '../exam-page/exam-page.module';
+import { LessonPageModule } from '../lesson-page/lesson-page.module';
+import { UserPageModule } from '../user-page/user-page.module';
 import { MainPageComponent } from './main-page.component';
 
 describe('MainPageComponent', () => {
@@ -9,6 +19,18 @@ describe('MainPageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [MainPageComponent],
+      imports: [
+        MatSidenavModule,
+        FilterCardModule,
+        SideNavModule,
+        ExamPageModule,
+        LessonPageModule,
+        UserPageModule,
+        HttpClientTestingModule,
+        MatSnackBarModule,
+        BrowserAnimationsModule,
+        RouterTestingModule,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MainPageComponent);

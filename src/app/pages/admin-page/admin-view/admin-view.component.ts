@@ -38,7 +38,7 @@ export class AdminViewComponent implements OnInit, OnChanges {
   @ViewChild('backgroundGradientSlider') backgroundGradientSlider: MatSlider;
   @Input() primaryButtonBackgroundColor: string;
   @Input() primaryButtonTextColor: string;
-  @Input() selectedBackgroundImage: BackgroundImageDTO;
+  @Input() selectedBackgroundImage: BackgroundImageDTO | undefined;
   @Input() adminPageLoading: boolean;
   @Input() currentSchool: SchoolDTO | null;
   @Input() backgroundImages: BackgroundImageDTO[];
@@ -133,13 +133,15 @@ export class AdminViewComponent implements OnInit, OnChanges {
   constructor(private readonly snackbarService: SnackbarService) {}
 
   ngOnInit(): void {
-    this.backgroundGradient = this.selectedBackgroundImage.name;
+    if (this.selectedBackgroundImage) {
+      this.backgroundGradient = this.selectedBackgroundImage.name;
+    }
     this.populateForm();
     this.populateTabs();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ('selectedBackgroundImage' in changes) {
+    if ('selectedBackgroundImage' in changes && this.selectedBackgroundImage) {
       this.backgroundGradient = this.selectedBackgroundImage.name;
     }
     if ('currentSchool' in changes && this.currentSchool) {
@@ -403,10 +405,13 @@ export class AdminViewComponent implements OnInit, OnChanges {
     });
 
     const backgroundStepForm: BackgroundStep = new FormGroup({
-      backgroundImageInput: new FormControl(this.selectedBackgroundImage, {
-        validators: [],
-        nonNullable: false,
-      }),
+      backgroundImageInput: new FormControl(
+        this.selectedBackgroundImage ?? null,
+        {
+          validators: [],
+          nonNullable: false,
+        }
+      ),
       backgroundGradientColor1: new FormControl(
         {
           value: '',

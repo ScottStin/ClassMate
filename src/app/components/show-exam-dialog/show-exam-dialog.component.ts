@@ -42,7 +42,7 @@ export class ShowExamDialogComponent implements OnInit {
     public data: {
       title: string;
       exam: ExamDTO | undefined;
-      questions: QuestionList[];
+      questions?: QuestionList[];
       displayMode: boolean;
       markMode: boolean;
       student: string;
@@ -56,7 +56,7 @@ export class ShowExamDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.questionList = this.data.questions;
+    this.questionList = this.data.questions ?? [];
     if (this.data.displayMode || this.data.markMode) {
       this.startExam();
     }

@@ -32,7 +32,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatTable) table: MatTable<ExamDTO>;
   @Input() examData: ExamDTO[] | null;
   @Input() questionData: QuestionList[] | null;
-  @Input() examType: string;
+  @Input() examType?: string;
   @Input() users: UserDTO[] | null;
   @Input() currentUser: UserDTO | null;
   @Output() openEditExamDialog = new EventEmitter<ExamDTO>();
@@ -73,7 +73,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
         'autoMarking',
         'actions',
       ];
-      if (this.examType.toLocaleLowerCase() === 'my exams') {
+      if (this.examType?.toLocaleLowerCase() === 'my exams') {
         this.displayedColumns = this.displayedColumns.filter(
           (item) => item !== 'casualPrice'
         );

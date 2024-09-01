@@ -25,27 +25,35 @@ export class SchoolLoginRedirectorComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { email: string | null; schools: SchoolDTO[] },
+    public data: { email: string | null; schools?: SchoolDTO[] },
     private readonly router: Router,
     private readonly dialogRef: MatDialogRef<SchoolLoginRedirectorComponent>,
     private readonly snackbarService: SnackbarService
   ) {}
 
   async confirmClick(): Promise<void> {
-    const foundSchool = this.data.schools.find(
-      (school) => school.email === this.redirectForm.controls.email.value
-    );
-    if (foundSchool) {
-      const schoolName = foundSchool.name.replace(/ /gu, '-').toLowerCase();
-      await this.router.navigateByUrl(`${schoolName}/school/login`);
+    if (this.data.schools) {
+      const foundSchool = this.data.schools.find(
+        (school) => school.email === this.redirectForm.controls.email.value
+      );
+      if (foundSchool) {
+        const schoolName = foundSchool.name.replace(/ /gu, '-').toLowerCase();
+        await this.router.navigateByUrl(`${schoolName}/school/login`);
+      } else {
+        this.snackbarService.openPermanent(
+          'error',
+          'Image failed to load',
+          'dismiss'
+        );
+      }
+      this.dialogRef.close(true);
     } else {
       this.snackbarService.openPermanent(
         'error',
-        'image failed to load',
+        'Error loading schools',
         'dismiss'
       );
     }
-    this.dialogRef.close(true);
   }
 
   closeDialog(): void {
@@ -69,6 +77,7 @@ export class SchoolLoginRedirectorComponent implements OnInit {
     return (control: AbstractControl): Record<string, unknown> | null => {
       const value = control.value as string;
       if (
+        this.data.schools &&
         !this.data.schools
           .map((school) => school.email.toLocaleLowerCase())
           .includes(value.toLocaleLowerCase())

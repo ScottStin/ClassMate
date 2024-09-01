@@ -18,8 +18,8 @@ import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
   styleUrls: ['./user-card.component.scss'],
 })
 export class UserCardComponent implements OnInit, OnDestroy {
-  @Input() user: UserDTO;
-  @Input() userType: string;
+  @Input() user?: UserDTO;
+  @Input() userType?: string;
   @Output() openConfirmDeleteDialog = new EventEmitter<UserDTO>();
   @Output() openEditUserDialog = new EventEmitter<{
     user: UserDTO;
@@ -34,7 +34,7 @@ export class UserCardComponent implements OnInit, OnDestroy {
   constructor(public readonly authStoreService: AuthStoreService) {}
 
   ngOnInit(): void {
-    if (this.user.profilePicture) {
+    if (this.user?.profilePicture) {
       this.profilePictureSrc = this.user.profilePicture.url.replace(
         '/upload',
         '/upload/w_900,h_900,c_thumb,'
@@ -48,14 +48,14 @@ export class UserCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  openConfirmDeleteDialogClick(user: UserDTO): void {
+  openConfirmDeleteDialogClick(user: UserDTO | undefined): void {
     this.openConfirmDeleteDialog.emit(user);
   }
 
   openEditUserDialogClick(user: UserDTO): void {
     this.openEditUserDialog.emit({
       user,
-      formType: this.userType.toLocaleLowerCase(),
+      formType: this.userType?.toLocaleLowerCase() ?? '',
     });
   }
 }

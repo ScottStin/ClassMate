@@ -20,7 +20,7 @@ import { AddStudentToLessonDialogComponent } from '../add-student-to-lesson-dial
 })
 export class StudentsEnrolledLessonDialogComponent implements OnInit {
   error: Error;
-  lesson: LessonDTO;
+  lesson?: LessonDTO;
   usersLoading: boolean;
   studentNames: {
     name: string | undefined;
@@ -44,7 +44,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
   }
 
   getUsers(): void {
-    for (const student of this.lesson.studentsEnrolled) {
+    for (const student of this.lesson?.studentsEnrolled ?? []) {
       this.studentNames.push({
         name: this.data.users.find((obj) => obj.email === student)?.name,
         email: this.data.users.find((obj) => obj.email === student)?.email,
@@ -69,7 +69,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
     confirmDialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         const user = this.data.users.find((obj) => obj.email === student.email);
-        if (user) {
+        if (user && this.lesson) {
           this.lessonService.cancelLesson(this.lesson, user).subscribe({
             next: () => {
               this.snackbarService.open(
@@ -107,7 +107,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
     addStudentToLessonDialogRef
       .afterClosed()
       .subscribe((result: UserDTO[] | null) => {
-        if (result) {
+        if (result && this.lesson) {
           this.lessonService
             .joinLessonMultipleStudents(this.lesson, result)
             .subscribe({

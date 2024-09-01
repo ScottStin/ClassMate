@@ -1,4 +1,7 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { LessonCardComponent } from './lesson-card.component';
 
@@ -9,6 +12,7 @@ describe('LessonCardComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [LessonCardComponent],
+      imports: [HttpClientTestingModule, MatSnackBarModule, MatDialogModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LessonCardComponent);

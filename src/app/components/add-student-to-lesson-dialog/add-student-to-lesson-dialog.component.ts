@@ -26,7 +26,7 @@ import { StudentsEnrolledLessonDialogComponent } from '../students-enrolled-less
 export class AddStudentToLessonDialogComponent implements OnInit {
   @ViewChildren('checkboxRef') checkboxRefs: QueryList<MatCheckbox>;
   error: Error;
-  lesson: LessonDTO;
+  lesson?: LessonDTO;
   enrolledStudents: UserDTO[] = [];
 
   constructor(
@@ -44,7 +44,7 @@ export class AddStudentToLessonDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    for (const studentEmail of this.lesson.studentsEnrolled) {
+    for (const studentEmail of this.lesson?.studentsEnrolled ?? []) {
       const foundUser = this.data.users.find(
         (obj) => obj.email === studentEmail
       );
@@ -55,12 +55,20 @@ export class AddStudentToLessonDialogComponent implements OnInit {
   }
 
   getLevelList(): string {
-    return this.lesson.level.map((obj) => obj.shortName).join(', ');
+    if (this.lesson) {
+      return this.lesson.level.map((obj) => obj.shortName).join(', ');
+    } else {
+      return '';
+    }
   }
 
   enrolStudent(checked: boolean, index: number, student: UserDTO): void {
     const checkbox = this.checkboxRefs.toArray()[index];
-    if (!checked && this.lesson.studentsEnrolled.includes(student.email)) {
+    if (
+      !checked &&
+      this.lesson &&
+      this.lesson.studentsEnrolled.includes(student.email)
+    ) {
       const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: `Remove ${student.name} from this lesson?`,
@@ -83,7 +91,10 @@ export class AddStudentToLessonDialogComponent implements OnInit {
       const i = this.enrolledStudents.indexOf(student);
       this.enrolledStudents.splice(i, 1);
     }
-    if (this.enrolledStudents.length >= this.lesson.maxStudents) {
+    if (
+      this.lesson &&
+      this.enrolledStudents.length >= this.lesson.maxStudents
+    ) {
       this.snackbarService.open(
         'warn',
         'Lesson is now full. Remove a student by unchecking them before you can add more students'

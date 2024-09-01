@@ -1,6 +1,6 @@
 <ng-container>
   <app-dialog-header
-    [dialogTitle]="'Students complete - ' + exam.name"
+    [dialogTitle]="exam && exam.name ? ('Students completed - ' + exam.name) : 'Students completed'"
     (closeAction)="closeDialog()"
   ></app-dialog-header>
 
