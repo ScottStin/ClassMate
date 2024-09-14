@@ -73,3 +73,9 @@ mat-cell.mat-column-actions {
       flex: 0 0 30px;
     }
   }
+
+  ::ng-deep .lesson-button-container {
+    .mat-tab-header {
+        display: none !important;
+      }
+  }

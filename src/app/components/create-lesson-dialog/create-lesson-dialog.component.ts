@@ -56,7 +56,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     defaultTime: '00:00:00',
     hideMinutesTab: true,
     hideHourlyTab: true,
-    hideDailyTab: false,
+    hideDailyTab: true,
     hideWeeklyTab: false,
     hideMonthlyTab: true,
     hideYearlyTab: true,
@@ -197,76 +197,54 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   addNewLessonRow(): void {
+    if (this.lessonDateMode === 'individual') {
+      this.pushLessonToList(undefined);
+    }
+
+    if (this.lessonDateMode === 'scheduled') {
+      const lessonDateList = this.generateCronDates(
+        this.lessonForm.getRawValue().cronForm,
+        this.lessonForm.getRawValue().cyclesInput
+      );
+
+      for (const lessonDate of lessonDateList) {
+        this.pushLessonToList(lessonDate.toString());
+      }
+    }
+    if (this.dataSource && this.lessons && this.lessons.length > 0) {
+      this.updateTable();
+    }
+  }
+
+  pushLessonToList(startTime: string | undefined): void {
     if (this.data.currentSchool && this.data.currentUser) {
       const userEmail = this.data.currentUser.email;
       const formValue = this.lessonForm.getRawValue();
 
-      if (this.lessonDateMode === 'individual') {
-        this.lessons?.push({
-          teacher:
-            this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
-              ? userEmail
-              : this.lessonForm.controls.assignedTeacher.value,
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          startTime: formValue.dateInput!,
-          maxStudents: formValue.sizeInput,
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          type: formValue.typeInput!,
-          schoolId:
-            this.data.currentSchool._id !== undefined &&
-            this.data.currentSchool._id !== null
-              ? this.data.currentSchool._id
-              : '',
-          level: formValue.levelInput,
-          name: formValue.nameInput,
-          duration: formValue.lengthInput,
-          description: formValue.descriptionInput,
-          disableFirtsLesson: false,
-          studentsEnrolled: [],
-          casualPrice: 0,
-        });
-      }
-
-      if (this.lessonDateMode === 'scheduled') {
-        const lessonDateList = this.generateCronDates(
-          this.lessonForm.getRawValue().cronForm,
-          3
-        );
-
-        for (const lessonDate of lessonDateList) {
-          this.lessons?.push({
-            teacher:
-              this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
-                ? userEmail
-                : this.lessonForm.controls.assignedTeacher.value,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            startTime: lessonDate.toString(),
-            maxStudents: formValue.sizeInput,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            type: formValue.typeInput!,
-            schoolId:
-              this.data.currentSchool._id !== undefined &&
-              this.data.currentSchool._id !== null
-                ? this.data.currentSchool._id
-                : '',
-            level: formValue.levelInput,
-            name: formValue.nameInput,
-            duration: formValue.lengthInput,
-            description: formValue.descriptionInput,
-            disableFirtsLesson: false,
-            studentsEnrolled: [],
-            casualPrice: 0,
-          });
-        }
-      }
-      if (this.dataSource && this.lessons && this.lessons.length > 0) {
-        this.updateTable();
-      }
+      this.lessons?.push({
+        teacher:
+          this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
+            ? userEmail
+            : this.lessonForm.controls.assignedTeacher.value,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        startTime: startTime ?? formValue.dateInput!,
+        maxStudents: formValue.sizeInput,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        type: formValue.typeInput!,
+        schoolId:
+          this.data.currentSchool._id !== undefined &&
+          this.data.currentSchool._id !== null
+            ? this.data.currentSchool._id
+            : '',
+        level: formValue.levelInput,
+        name: formValue.nameInput,
+        duration: formValue.lengthInput,
+        description: formValue.descriptionInput,
+        disableFirtsLesson: false,
+        studentsEnrolled: [],
+        casualPrice: 0,
+      });
     }
-
-    console.log(
-      this.generateCronDates(this.lessonForm.getRawValue().cronForm, 3)
-    );
   }
 
   removeLesson(lesson: LessonDTO): void {
@@ -328,7 +306,6 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
 
   // TODO: move to shared service or directive:
   parseCronExpression(cronValue: string): CronObject {
-    console.log(cronValue);
     const [second, minute, hour, dayOfMonth, month, dayOfWeek] = cronValue
       .split(' ')
       .map((val) => val.trim());
@@ -374,8 +351,6 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + periodWeeks * 7);
-
-    console.log(cron);
 
     const resultDates: Date[] = [];
     const currentDate = new Date(startDate);
