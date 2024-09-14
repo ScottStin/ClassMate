@@ -34,9 +34,9 @@ $secondaryColor: var(--secondaryColor);
     margin-bottom:25px;
 }
 
-.action-button {
-    transform: scale(0.8);
-}
+// .action-button {
+//     transform: scale(0.8);
+// }
 
 .lesson-table {
     margin:10px;
@@ -53,4 +53,23 @@ mat-cell.mat-column-actions {
     object-fit: cover;
     border-radius: 50%;
     padding: 10px;
+  }
+
+//  ----------------------------------
+//  --- TODO - Move to global styling component ---
+//  ----------------------------------
+
+.mat-table {
+    width: 100%;
+  
+    // material table columns named "actions"
+    th.mat-column-actions,
+    td.mat-column-actions {
+      width: 30px;
+    }
+    // material table columns named "actions" with display:flex
+    mat-header-cell.mat-column-actions,
+    mat-cell.mat-column-actions {
+      flex: 0 0 30px;
+    }
   }

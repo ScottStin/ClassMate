@@ -256,6 +256,26 @@
         <ng-container matColumnDef="actions">
           <mat-header-cell *matHeaderCellDef></mat-header-cell>
           <mat-cell *matCellDef="let row">
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item>
+                <mat-icon>edit</mat-icon>
+                <span>Edit</span>
+              </button>
+              <button mat-menu-item (click)="removeLesson(row)">
+                <mat-icon>delete</mat-icon>
+                <span>Delete</span>
+              </button>
+            </mat-menu>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <!-- <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef></mat-header-cell>
+          <mat-cell *matCellDef="let row">
             <button
               #tooltip="matTooltip"
               matTooltip="Edit lesson"
@@ -276,7 +296,7 @@
               <mat-icon>delete</mat-icon>
             </button>
           </mat-cell>
-        </ng-container>
+        </ng-container> -->
 
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row

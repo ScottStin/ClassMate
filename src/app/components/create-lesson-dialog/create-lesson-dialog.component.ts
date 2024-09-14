@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
   AfterViewInit,
   Component,
@@ -199,33 +200,73 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     if (this.data.currentSchool && this.data.currentUser) {
       const userEmail = this.data.currentUser.email;
       const formValue = this.lessonForm.getRawValue();
-      this.lessons?.push({
-        teacher:
-          this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
-            ? userEmail
-            : this.lessonForm.controls.assignedTeacher.value,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        startTime: formValue.dateInput!,
-        maxStudents: formValue.sizeInput,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        type: formValue.typeInput!,
-        schoolId:
-          this.data.currentSchool._id !== undefined &&
-          this.data.currentSchool._id !== null
-            ? this.data.currentSchool._id
-            : '',
-        level: formValue.levelInput,
-        name: formValue.nameInput,
-        duration: formValue.lengthInput,
-        description: formValue.descriptionInput,
-        disableFirtsLesson: false,
-        studentsEnrolled: [],
-        casualPrice: 0,
-      });
+
+      if (this.lessonDateMode === 'individual') {
+        this.lessons?.push({
+          teacher:
+            this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
+              ? userEmail
+              : this.lessonForm.controls.assignedTeacher.value,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          startTime: formValue.dateInput!,
+          maxStudents: formValue.sizeInput,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          type: formValue.typeInput!,
+          schoolId:
+            this.data.currentSchool._id !== undefined &&
+            this.data.currentSchool._id !== null
+              ? this.data.currentSchool._id
+              : '',
+          level: formValue.levelInput,
+          name: formValue.nameInput,
+          duration: formValue.lengthInput,
+          description: formValue.descriptionInput,
+          disableFirtsLesson: false,
+          studentsEnrolled: [],
+          casualPrice: 0,
+        });
+      }
+
+      if (this.lessonDateMode === 'scheduled') {
+        const lessonDateList = this.generateCronDates(
+          this.lessonForm.getRawValue().cronForm,
+          3
+        );
+
+        for (const lessonDate of lessonDateList) {
+          this.lessons?.push({
+            teacher:
+              this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
+                ? userEmail
+                : this.lessonForm.controls.assignedTeacher.value,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            startTime: lessonDate.toString(),
+            maxStudents: formValue.sizeInput,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            type: formValue.typeInput!,
+            schoolId:
+              this.data.currentSchool._id !== undefined &&
+              this.data.currentSchool._id !== null
+                ? this.data.currentSchool._id
+                : '',
+            level: formValue.levelInput,
+            name: formValue.nameInput,
+            duration: formValue.lengthInput,
+            description: formValue.descriptionInput,
+            disableFirtsLesson: false,
+            studentsEnrolled: [],
+            casualPrice: 0,
+          });
+        }
+      }
       if (this.dataSource && this.lessons && this.lessons.length > 0) {
         this.updateTable();
       }
     }
+
+    console.log(
+      this.generateCronDates(this.lessonForm.getRawValue().cronForm, 3)
+    );
   }
 
   removeLesson(lesson: LessonDTO): void {
@@ -284,4 +325,79 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   saveClick(lessons: LessonDTO[] | undefined): void {
     this.dialogRef.close(lessons);
   }
+
+  // TODO: move to shared service or directive:
+  parseCronExpression(cronValue: string): CronObject {
+    console.log(cronValue);
+    const [second, minute, hour, dayOfMonth, month, dayOfWeek] = cronValue
+      .split(' ')
+      .map((val) => val.trim());
+
+    return {
+      second: parseInt(second, 10),
+      minute: parseInt(minute, 10),
+      hour: parseInt(hour, 10),
+      dayOfMonth: dayOfMonth === '?' ? null : parseInt(dayOfMonth, 10),
+      month: month === '*' ? null : parseInt(month, 10),
+      dayOfWeek:
+        dayOfWeek === '*'
+          ? []
+          : dayOfWeek
+              .split(',')
+              .map((day) => {
+                switch (day.toUpperCase()) {
+                  case 'SUN':
+                    return 0;
+                  case 'MON':
+                    return 1;
+                  case 'TUE':
+                    return 2;
+                  case 'WED':
+                    return 3;
+                  case 'THU':
+                    return 4;
+                  case 'FRI':
+                    return 5;
+                  case 'SAT':
+                    return 6;
+                  default:
+                    return -1;
+                }
+              })
+              .filter((day) => day >= 0), // Filter out invalid day values
+    };
+  }
+
+  // TODO: move to shared service or directive:
+  generateCronDates(cronValue: string, periodWeeks: number): Date[] {
+    const cron = this.parseCronExpression(cronValue);
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + periodWeeks * 7);
+
+    console.log(cron);
+
+    const resultDates: Date[] = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      if (cron.dayOfWeek.includes(currentDate.getDay())) {
+        resultDates.push(
+          new Date(new Date(currentDate).setHours(cron.hour, cron.minute, 0, 0))
+        );
+      }
+      currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+    }
+
+    return resultDates;
+  }
+}
+
+interface CronObject {
+  second: number;
+  minute: number;
+  hour: number;
+  dayOfMonth: number | null;
+  month: number | null;
+  dayOfWeek: number[];
 }
