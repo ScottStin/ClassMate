@@ -12,7 +12,7 @@
 <div class="page-content">
   <mat-tab-group class="home-tab-group" mat-stretch-tabs>
     <mat-tab
-      *ngFor="let lessonStatus of ['Past Lessons','Upcoming Lessons']"
+      *ngFor="let lessonStatus of ['Upcoming Lessons','Past Lessons']"
       [label]="lessonStatus"
     >
       <div *ngFor="let lesson of (filteredLessons$ | async)">

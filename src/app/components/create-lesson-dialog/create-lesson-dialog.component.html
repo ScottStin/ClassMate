@@ -72,6 +72,20 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea
+              matInput
+              formControlName="descriptionInput"
+              style="height: 19px"
+            ></textarea>
+            <mat-error>
+              <app-error-message
+                [control]="lessonForm.controls['descriptionInput'].errors"
+              ></app-error-message>
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
             <mat-label>Length (min)</mat-label>
             <input matInput formControlName="lengthInput" type="number" />
             <mat-error>
@@ -119,16 +133,6 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Description</mat-label>
-            <textarea matInput formControlName="descriptionInput"></textarea>
-            <mat-error>
-              <app-error-message
-                [control]="lessonForm.controls['descriptionInput'].errors"
-              ></app-error-message>
-            </mat-error>
-          </mat-form-field>
-
           <mat-form-field
             appearance="outline"
             *ngIf="data.currentUser?.userType?.toLowerCase()==='school'"
@@ -168,7 +172,7 @@
     </div>
     <div
       class="lesson-table mat-elevation-z1"
-      *ngIf="lessons && lessons.length > 0"
+      [style]="!lessons || lessons.length < 1 ? 'display: none;' : ''"
     >
       <mat-table
         matSort
