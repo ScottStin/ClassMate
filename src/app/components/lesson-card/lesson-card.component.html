@@ -1,60 +1,34 @@
 <mat-card class="card" *ngIf="lesson && filterLessonUsers(lesson)">
   <div class="row">
-    <div class="column">
-      <div class="photo-column">
+    <div class="col-md-2" *ngIf="showPhoto">
+      <div class="profile-picture-container text-center">
         <img
-          *ngIf="showPhoto"
-          [src]="teacher?.profilePicture?.url ? teacher?.profilePicture?.url : profilePictureSrc"
           alt="teacher photo"
+          [src]="teacher?.profilePicture?.url ? teacher?.profilePicture?.url : profilePictureSrc"
+          class="profile-picture d-flex img-fluid"
         />
-        <h2 *ngIf="showPhoto" class="primary-header">{{teacher?.name}}</h2>
+        <h2 class="primary-header">{{teacher?.name}}</h2>
       </div>
     </div>
-
-    <div class="column">
-      <div class="data-column">
-        <mat-card-header>
-          <mat-card-title>
-            <b>{{lesson.name}}</b>
-          </mat-card-title>
-          <mat-divider></mat-divider>
-          <mat-card-subtitle>
-            {{lesson.type.name}} Class<br />
-            <b>({{getLevels()}})</b>
-          </mat-card-subtitle>
-        </mat-card-header>
+    <div [class]="showPhoto ? 'col-md-9 offset-1' : 'col-12'">
+      <mat-card-header>
+        <mat-card-title>
+          <b>{{lesson.name}}</b>
+        </mat-card-title>
         <mat-divider></mat-divider>
-        <mat-card-content style="height: 20%">
-          <p>{{lesson.description}}</p>
-        </mat-card-content>
-        <mat-card-actions align="end">
-          <h5>{{lesson.startTime | date:'dd MMMM yyyy h:mm a'}}&nbsp;</h5>
-          <h6><i>({{lesson.startTime | date:'z' }})</i></h6>
-          <!-- <button
-            mat-mini-fab
-            style="background-color: orange"
-            class="button"
-            matTooltip="Click here to edit this lesson..."
-            *ngIf="
-              pageName==='lessons' &&
-              ((authStoreService.currentUser$ | async)?.email === teacher?.email || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school')
-            "
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button
-            mat-mini-fab
-            style="background-color: red"
-            class="button"
-            matTooltip="Click here to delete this lesson..."
-            *ngIf="
-              pageName==='lessons' &&
-              ((authStoreService.currentUser$ | async)?.email === teacher?.email || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school')
-            "
-            (click)="deleteLessonClick()"
-          >
-            <mat-icon>delete</mat-icon>
-          </button> -->
+        <mat-card-subtitle>
+          {{lesson.type.name}} Class<br />
+          <b>({{getLevels()}})</b>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content style="height: 20%; overflow-y: auto; width: 80%">
+        <p>{{lesson.description}}</p>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <div class="mat-card-actions">
+          <h6>{{lesson.startTime | date:'EEEE, dd MMMM yyyy h:mm a'}}&nbsp;</h6>
+          <h6 style="margin-right: 10px">({{lesson.startTime | date:'z' }})</h6>
           <button
             *ngIf="showJoinButton(lesson)"
             mat-mini-fab
@@ -69,50 +43,50 @@
           <button
             *ngIf="showLeaveButton(lesson) && !this.pastLesson"
             mat-mini-fab
-            style="background-color: orange"
-            class="button"
+            style="background-color: orange; margin-right: 10px"
+            class="cancel-button"
             matTooltip="Click here to cancel this lesson"
             (click)="cancelLessonClick()"
           >
             <mat-icon>cancel</mat-icon>
           </button>
+        </div>
 
-          <button
-            mat-icon-button
-            [matMenuTriggerFor]="menu"
-            style="position: absolute; top: 5px; right: 5px"
-            *ngIf="
-            pageName==='lessons' &&
-            ((authStoreService.currentUser$ | async)?.email === teacher?.email || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school')
-          "
-            matTooltip="Open lesson options"
-          >
-            <mat-icon>more_vert</mat-icon>
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="menu"
+          style="position: absolute; top: 5px; right: 5px"
+          *ngIf="
+          pageName==='lessons' &&
+          ((authStoreService.currentUser$ | async)?.email === teacher?.email || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school')
+        "
+          matTooltip="Open lesson options"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item>
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
           </button>
-          <mat-menu #menu="matMenu">
-            <button mat-menu-item>
-              <mat-icon>edit</mat-icon>
-              <span>Edit</span>
-            </button>
-            <button mat-menu-item (click)="deleteLessonClick()">
-              <mat-icon>delete</mat-icon>
-              <span>Delete</span>
-            </button>
-          </mat-menu>
+          <button mat-menu-item (click)="deleteLessonClick()">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
 
-          <mat-chip-list
-            style="position: absolute; bottom: -15px; right: -20px"
-            aria-label="Fish selection"
-            (click)="currentUser?.userType?.toLowerCase()==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? openStudentsEnrolledDialog(lesson) : ''"
-            ><mat-chip
-              [style]="currentUser?.userType?.toLowerCase()==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? 'cursor: pointer' : ''"
-              [class]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson) ? 'active-chip' : (lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) ? 'active-chip-joined' : '')"
-              >Seats: {{lesson.studentsEnrolled.length}} /
-              {{lesson.maxStudents}}</mat-chip
-            ></mat-chip-list
-          >
-        </mat-card-actions>
-      </div>
+        <mat-chip-list
+          style="position: absolute; bottom: -15px; right: -20px"
+          aria-label="Fish selection"
+          (click)="currentUser?.userType?.toLowerCase()==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? openStudentsEnrolledDialog(lesson) : ''"
+          ><mat-chip
+            [style]="currentUser?.userType?.toLowerCase()==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? 'cursor: pointer' : ''"
+            [class]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson) ? 'active-chip' : (lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) ? 'active-chip-joined' : '')"
+            >Seats: {{lesson.studentsEnrolled.length}} /
+            {{lesson.maxStudents}}</mat-chip
+          ></mat-chip-list
+        >
+      </mat-card-actions>
     </div>
   </div>
 </mat-card>

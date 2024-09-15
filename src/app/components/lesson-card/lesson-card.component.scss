@@ -1,103 +1,87 @@
-@import '../../app.component.scss';
+// @import '../../app.component.scss';
 $primaryColor: var(--primaryColor);
 $secondaryColor: var(--secondaryColor);
-
-.card {
-    margin:25px;
-    height:290px;
-}
 
 mat-card-content {
     margin-top:15px;
     margin-left: 30px;
 }
 
-.button {
-    margin:15px;
-    size:20vw;
-}
-
 .join-button {
-    margin:15px;
-    size:20vw;
+    margin-right: 10px;
     background-color: var(--primaryColor);
     color: var(--secondaryColor);
+}
+
+
+.card {
+  margin:25px;
+  height:fit-content;
+  border-radius: 5px;
+}
+
+.title-row {
+display: flex;
+align-items: center;
+}
+
+.mat-card-header {
+margin-left:-15px;
+}
+
+.mat-card-content {
+  margin-top:15px;
+  margin-left: 30px;
+}
+
+.user-action-button {
+  margin:2px;
+  size:20vw;
+
+}
+
+.user-action-button-messages {
+  margin:2px;
+  size:20vw;
 }
 
 .mat-card-actions {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding-bottom:-10px;
-    margin-bottom:-10px;
-    margin-top:clamp(10px, 3.5vw, 20px);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom:10px;
+  // margin-top: 1px;
 }
 
-.row {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-    // padding: 10px;
-    width:100%;
-  }
-  
-  .column {
-    display: flex;
-    flex-direction: column;
-    flex-basis: 100%;
-    flex: 1;
-    width: fit-content;
-  }
-  
-  .photo-column {
-    height: fit-content;
-    width: fit-content;
-    // width:70%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
+.image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top:50px;
+  margin-bottom:25px;
+}
 
-  .photo-column img {
-    width: 22vw;
-    height: auto;
-    max-height: 250px;
-    max-width: 300px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
+.profile-picture-container {
+  width: 15vw;
+  height: auto;
+  border-radius: 5%;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
 
-  .photo-column h2 {
-    // margin-top: 5px;
-    // padding-bottom:-15px;
-    // margin-bottom:-15px;
-    font-size:clamp(20px,3vw,30px);
-  }
+.profile-picture {
+  width:100%
+}
 
-  .data-column {
-    height: fit-content;
-    margin-left: -30%;
-  }
+.active-chip {
+  background-color: var(--primaryColor);
+  color: var(--secondaryColor);
+  font-weight: bolder;
+}
 
-  @media (
-    max-width: $large) {
-    .data-column {
-      margin-left:-60px;
-    }
-  }
-
-  .active-chip {
-    // background-color: #6200EE;
-    // color: white;
-    background-color: var(--primaryColor);
-    color: var(--secondaryColor);
-    font-weight: bolder;
-  }
-
-  .active-chip-joined {
-    background-color: orange;
-    color: white;
-    font-weight: bolder;
-  }
+.active-chip-joined {
+  background-color: orange;
+  color: white;
+  font-weight: bolder;
+}
