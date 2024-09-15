@@ -38,7 +38,7 @@ mat-card-content {
     flex-direction: row;
     flex-wrap: wrap;
     width: 100%;
-    padding: 10px;
+    // padding: 10px;
     width:100%;
   }
   
@@ -63,6 +63,8 @@ mat-card-content {
   .photo-column img {
     width: 22vw;
     height: auto;
+    max-height: 250px;
+    max-width: 300px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
@@ -76,7 +78,7 @@ mat-card-content {
 
   .data-column {
     height: fit-content;
-    margin-left: -10vw;
+    margin-left: -30%;
   }
 
   @media (
