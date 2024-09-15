@@ -146,7 +146,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   populateForm(): void {
-    const maxDescriptionLength = 1000;
+    const maxDescriptionLength = 200;
     const maxNameLength = 50;
     this.lessonForm = new FormGroup({
       nameInput: new FormControl(this.data.body?.name ?? '', {
