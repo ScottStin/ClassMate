@@ -1,14 +1,16 @@
 <mat-card class="card" *ngIf="lesson && filterLessonUsers(lesson)">
   <div class="row">
-    <div class="col-md-2" *ngIf="showPhoto">
-      <div class="profile-picture-container text-center">
+    <div class="col-md-2 text-center" *ngIf="showPhoto">
+      <div class="profile-picture-container">
         <img
           alt="teacher photo"
           [src]="teacher?.profilePicture?.url ? teacher?.profilePicture?.url : profilePictureSrc"
-          class="profile-picture d-flex img-fluid"
+          class="profile-picture img-fluid"
         />
-        <h2 class="primary-header">{{teacher?.name}}</h2>
       </div>
+      <h2 class="primary-header mt-3" style="white-space: nowrap; width: 15vw">
+        {{teacher?.name}}
+      </h2>
     </div>
     <div [class]="showPhoto ? 'col-md-9 offset-1' : 'col-12'">
       <mat-card-header>
