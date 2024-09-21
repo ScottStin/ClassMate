@@ -42,43 +42,43 @@ export class AppRoutingModule {
         },
         {
           path: `${school.toLocaleLowerCase()}/student`,
-          // data: { school },
           loadChildren: async () =>
             (await import('./pages/login-page/login-page.module'))
               .LoginPageModule,
         },
         {
           path: `${school.toLocaleLowerCase()}/teacher`,
-          // data: { school },
           loadChildren: async () =>
             (await import('./pages/login-page/login-page.module'))
               .LoginPageModule,
         },
         {
           path: `${school.toLocaleLowerCase()}/school`,
-          // data: { school },
           loadChildren: async () =>
             (await import('./pages/login-page/login-page.module'))
               .LoginPageModule,
         },
         {
           path: 'school',
-          // data: { school },
           loadChildren: async () =>
             (await import('./pages/login-page/login-page.module'))
               .LoginPageModule,
         },
         {
           path: `${school.toLocaleLowerCase()}`,
-          // data: { school },
           loadChildren: async () =>
             (await import('./pages/main-page/main-page.module')).MainPageModule,
         },
         {
           path: `${school.toLocaleLowerCase()}`,
-          // data: { school },
           loadChildren: async () =>
             (await import('./pages/main-page/main-page.module')).MainPageModule,
+        },
+        {
+          path: `${school.toLocaleLowerCase()}/video-chat/:id`,
+          loadChildren: async () =>
+            (await import('./pages/video-lesson-page/video-lesson-page.module'))
+              .VideoLessonPageModule,
         }
       );
     }

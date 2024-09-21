@@ -78,6 +78,16 @@ export class LessonService {
       );
   }
 
+  startLesson(lesson: LessonDTO): Observable<LessonDTO> {
+    return this.httpClient
+      .patch<LessonDTO>(`${this.baseUrl}/start-lesson/${lesson._id!}`, lesson)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to join lesson');
+        })
+      );
+  }
+
   cancelLesson(lesson: LessonDTO, student: UserDTO): Observable<LessonDTO> {
     return this.httpClient
       .patch<LessonDTO>(`${this.baseUrl}/cancel/${lesson._id!}`, student)

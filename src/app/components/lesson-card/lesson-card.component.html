@@ -52,6 +52,27 @@
           >
             <mat-icon>cancel</mat-icon>
           </button>
+          <button
+            *ngIf="(authStoreService.currentUser$ | async)?.email === lesson?.teacher && lesson.status !== 'started'"
+            [disabled]="!showStartButton(lesson)"
+            mat-mini-fab
+            style="margin-right: 10px"
+            class="join-button"
+            [matTooltip]="showStartButton(lesson) ? 'Click here to start this lesson. Once you have started the lesson, students will be able to join 5 minutes before the start time.' : 'You can initiate this lesson 10 minutes before the start time/date. Students can join 5 minutes prior.'"
+            (click)="startLessonClick(lesson)"
+          >
+            <mat-icon><i class="material-icons">start</i></mat-icon>
+          </button>
+          <button
+            *ngIf="((authStoreService.currentUser$ | async)?.email === lesson?.teacher || lesson.studentsEnrolled?.includes(this.currentUser?.email ?? '')) && lesson.status === 'started'"
+            mat-mini-fab
+            style="margin-right: 10px"
+            class="join-button"
+            matTooltip="Enter classroom."
+            (click)="enterLessonClick(lesson._id)"
+          >
+            <mat-icon><i class="material-icons">meeting_room</i></mat-icon>
+          </button>
         </div>
 
         <button

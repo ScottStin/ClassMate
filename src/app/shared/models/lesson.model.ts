@@ -15,6 +15,7 @@ export interface LessonDTO {
   maxStudents: number;
   studentsEnrolled: string[];
   disableFirtsLesson: boolean;
+  status?: string; // todo: replace with enum 'started', 'finished' etc.
 }
 
 export interface LessonTypeDTO {

@@ -5,6 +5,8 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000',
+  dailyApiKey:
+    '122fa2723fc0ca4355d9f10795f52462d285fcb15c5ef20160f3b04ff8b9a726', // todo: replace with .env to keep hidden
 };
 
 /*

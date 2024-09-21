@@ -241,6 +241,42 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  startLesson(lesson: LessonDTO): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Start lesson?',
+        message:
+          'Once the lesson has started, all enrolled students will be able to join 5 minutes prior to the start time. If the class is not yet full, new students will still be able to enrol in the lesson and join.',
+        okLabel: 'Start',
+        cancelLabel: 'Cancel',
+      },
+    });
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.lessonService.startLesson(lesson).subscribe({
+          next: () => {
+            this.snackbarService.open(
+              'info',
+              'Lesson started. You will now be redirected to the video call page.'
+            );
+            this.loadPageData();
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
+      }
+    });
+  }
+
+  enterLesson(lessonId: string): void {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree([`/international-house/video-chat/${lessonId}`])
+    );
+    window.open(url, '_blank');
+  }
+
   filterResults(text: string): void {
     this.lessons$.subscribe({
       next: (res) => {

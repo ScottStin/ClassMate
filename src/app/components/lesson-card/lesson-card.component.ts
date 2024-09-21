@@ -32,6 +32,8 @@ export class LessonCardComponent implements OnChanges {
   @Output() joinLesson = new EventEmitter<LessonDTO>();
   @Output() cancelLesson = new EventEmitter<LessonDTO>();
   @Output() refreshLessons = new EventEmitter();
+  @Output() startLesson = new EventEmitter<LessonDTO>();
+  @Output() enterLesson = new EventEmitter<string>();
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -140,6 +142,24 @@ export class LessonCardComponent implements OnChanges {
       return true;
     } else {
       return false;
+    }
+  }
+
+  showStartButton(lesson: LessonDTO): boolean {
+    const startTime = new Date(lesson.startTime);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    const fiveMinutesBefore = new Date(startTime.getTime() - 10 * 60 * 1000);
+    const currentTime = new Date();
+    return currentTime >= fiveMinutesBefore; // && currentTime < startTime;
+  }
+
+  startLessonClick(lesson: LessonDTO): void {
+    this.startLesson.emit(lesson);
+  }
+
+  enterLessonClick(lessonId: string | undefined): void {
+    if (lessonId !== undefined) {
+      this.enterLesson.emit(lessonId);
     }
   }
 
