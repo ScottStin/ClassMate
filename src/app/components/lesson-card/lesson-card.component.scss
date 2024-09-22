@@ -2,17 +2,12 @@
 $primaryColor: var(--primaryColor);
 $secondaryColor: var(--secondaryColor);
 
+// --- Card:
+
 mat-card-content {
     margin-top:15px;
     margin-left: 30px;
 }
-
-.join-button {
-    margin-right: 10px;
-    background-color: var(--primaryColor);
-    color: var(--secondaryColor);
-}
-
 
 .card {
   margin:25px;
@@ -20,38 +15,23 @@ mat-card-content {
   border-radius: 5px;
 }
 
-.title-row {
-display: flex;
-align-items: center;
-}
-
-.mat-card-header {
-margin-left:-15px;
-}
-
 .mat-card-content {
   margin-top:15px;
   margin-left: 30px;
 }
 
-.user-action-button {
-  margin:2px;
-  size:20vw;
+// --- Header:
 
-}
-
-.user-action-button-messages {
-  margin:2px;
-  size:20vw;
-}
-
-.mat-card-actions {
+.title-row {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  margin-bottom:10px;
-  // margin-top: 1px;
-}
+  }
+  
+  .mat-card-header {
+  margin-left:-15px;
+  }
+  
+// --- Image:
 
 .image-container {
   display: flex;
@@ -74,6 +54,8 @@ margin-left:-15px;
   width:100%
 }
 
+// --- Action Chips:
+
 .active-chip {
   background-color: var(--primaryColor);
   color: var(--secondaryColor);
@@ -84,4 +66,63 @@ margin-left:-15px;
   background-color: orange;
   color: white;
   font-weight: bolder;
+}
+
+.active-chip-started {
+  background-color: greenyellow;
+  color: black;
+  font-weight: bolder;
+}
+
+// --- Actions:
+
+.user-action-button {
+  margin:2px;
+  size:20vw;
+
+}
+
+.user-action-button-messages {
+  margin:2px;
+  size:20vw;
+}
+
+.mat-card-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom:10px;
+  // margin-top: 1px;
+}
+
+// --- Action buttons:
+
+.join-button, .enter-button, .start-button  {
+  margin-right: 10px;
+  background-color: var(--primaryColor);
+  color: var(--secondaryColor);
+}
+
+.enter-button, .start-button-active {
+  animation: pulseButtonSize 1.5s ease-in-out infinite;
+}
+
+.enter-button-student {
+  background-color: greenyellow;
+  color:black;
+  animation: pulseButtonSize 1.5s ease-in-out infinite;
+}
+
+// --- Animation:
+
+@keyframes pulseButtonSize {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

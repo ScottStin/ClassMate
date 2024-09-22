@@ -57,7 +57,8 @@
             [disabled]="!showStartButton(lesson)"
             mat-mini-fab
             style="margin-right: 10px"
-            class="join-button"
+            class="start-button"
+            [class.start-button-active]="showStartButton(lesson)"
             [matTooltip]="showStartButton(lesson) ? 'Click here to start this lesson. Once you have started the lesson, students will be able to join 5 minutes before the start time.' : 'You can initiate this lesson 10 minutes before the start time/date. Students can join 5 minutes prior.'"
             (click)="startLessonClick(lesson)"
           >
@@ -67,8 +68,9 @@
             *ngIf="((authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher' || lesson.studentsEnrolled?.includes(this.currentUser?.email ?? '')) && lesson.status === 'started' && !this.pastLesson"
             mat-mini-fab
             style="margin-right: 10px"
-            class="join-button"
-            matTooltip="Enter classroom."
+            class="enter-button"
+            [class.enter-button-student]="(authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'student'"
+            matTooltip="Enter classroom"
             (click)="enterLessonClick(lesson._id)"
           >
             <mat-icon><i class="material-icons">meeting_room</i></mat-icon>
@@ -121,7 +123,9 @@
           (click)="currentUser?.userType?.toLowerCase()==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? openStudentsEnrolledDialog(lesson) : ''"
           ><mat-chip
             [style]="currentUser?.userType?.toLowerCase()==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? 'cursor: pointer' : ''"
-            [class]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson) ? 'active-chip' : (lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) ? 'active-chip-joined' : '')"
+            [class.active-chip]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson)"
+            [class.active-chip-joined]="lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) && lesson.status !== 'started'"
+            [class.active-chip-started]="lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) && lesson.status === 'started'"
             >Seats: {{lesson.studentsEnrolled.length}} /
             {{lesson.maxStudents}}</mat-chip
           ></mat-chip-list

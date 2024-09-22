@@ -9,8 +9,6 @@ export class VideoClassService {
   private readonly apiUrl = 'https://api.daily.co/v1/rooms';
   private readonly apiKey = environment.dailyApiKey;
 
-  constructor() {}
-
   async createRoom(
     roomName: string,
     properties: VideoRoomProperties
@@ -28,8 +26,6 @@ export class VideoClassService {
         },
       }),
     });
-
-    console.log(response);
 
     return await response.json();
   }
