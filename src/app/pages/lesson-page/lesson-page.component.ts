@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -167,11 +168,18 @@ export class LessonPageComponent implements OnInit, OnDestroy {
 
   getLessonStatus(lessonStatus: string, lesson: LessonDTO): boolean {
     const lessonStartTime = new Date(lesson.startTime);
+    const durationInMilliseconds = lesson.duration * 60 * 1000; // Convert duration from minutes to milliseconds
+    const additionalTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+    const lessonEndTime = new Date(
+      lessonStartTime.getTime() + durationInMilliseconds + additionalTime
+    );
+
     const currentDateTime = new Date();
+
     if (lessonStatus === 'Past Lessons') {
-      return lessonStartTime < currentDateTime;
+      return lessonEndTime < currentDateTime; // Check if the lesson has ended
     } else {
-      return lessonStartTime > currentDateTime;
+      return lessonEndTime > currentDateTime; // Check if the lesson is ongoing or future
     }
   } // todo - move to lesson service
 
@@ -257,9 +265,12 @@ export class LessonPageComponent implements OnInit, OnDestroy {
           next: () => {
             this.snackbarService.open(
               'info',
-              'Lesson started. You will now be redirected to the video call page.'
+              "Lesson started. You will now be redirected to the video call page in a new tab. If the redirect doesn't immediately happen, you can click the 'Enter Lesson' button on the lesson card."
             );
             this.loadPageData();
+            if (lesson._id !== undefined) {
+              this.enterLesson(lesson._id);
+            }
           },
           error: (error: Error) => {
             this.error = error;
@@ -272,7 +283,9 @@ export class LessonPageComponent implements OnInit, OnDestroy {
 
   enterLesson(lessonId: string): void {
     const url = this.router.serializeUrl(
-      this.router.createUrlTree([`/international-house/video-chat/${lessonId}`])
+      this.router.createUrlTree([
+        `/international-house/video-lesson/${lessonId}`,
+      ])
     );
     window.open(url, '_blank');
   }

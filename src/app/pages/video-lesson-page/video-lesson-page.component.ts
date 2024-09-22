@@ -11,7 +11,6 @@ import {
 } from 'src/app/shared/background-images';
 import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
-import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-video-lesson-page',
@@ -49,26 +48,10 @@ export class VideoLessonPageComponent implements OnInit, OnDestroy {
   }
 
   // todo: replace with service;
-  // getTempStyles(): void {
-  //   this.temporaryStylesSubscription = this.temporaryStyles$.subscribe(
-  //     (tempStyles) => {
-  //       if (tempStyles) {
-  //         if (tempStyles.backgroundColor !== undefined) {
-  //           this.selectedBackgroundImage = tempStyles.backgroundColor;
-  //         }
-  //       } else {
-  //         this.getCurrentSchoolDetails();
-  //       }
-  //     }
-  //   );
-  // }
-
-  // todo: replace with service;
   getCurrentSchoolDetails(): void {
     this.currentSchool$ = this.schoolService.currentSchool$;
     this.currentSchoolSubscription = this.currentSchool$.subscribe(
       (currentSchool) => {
-        console.log(currentSchool?.primaryButtonBackgroundColor);
         if (currentSchool) {
           // --- get backgroud image:
           const backgroundImage = currentSchool.backgroundImage as
@@ -94,16 +77,6 @@ export class VideoLessonPageComponent implements OnInit, OnDestroy {
 
           if (primaryButtonTextColor !== undefined) {
             this.styles.primaryButtonTextColor = primaryButtonTextColor;
-          }
-
-          // --- get text color:
-          const logo = currentSchool.logo as
-            | { filename: string; url: string }
-            | undefined;
-
-          if (logo !== undefined) {
-            // this.styles.logo = logo;
-            console.log(logo);
           }
         }
       }

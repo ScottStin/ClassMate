@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -131,11 +132,18 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   getLessonStatus(lessonStatus: string, lesson: LessonDTO): boolean {
     const lessonStartTime = new Date(lesson.startTime);
+    const durationInMilliseconds = lesson.duration * 60 * 1000; // Convert duration from minutes to milliseconds
+    const additionalTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+    const lessonEndTime = new Date(
+      lessonStartTime.getTime() + durationInMilliseconds + additionalTime
+    );
+
     const currentDateTime = new Date();
+
     if (lessonStatus === 'Past Lessons') {
-      return lessonStartTime < currentDateTime;
+      return lessonEndTime < currentDateTime; // Check if the lesson has ended
     } else {
-      return lessonStartTime > currentDateTime;
+      return lessonEndTime > currentDateTime; // Check if the lesson is ongoing or future
     }
   } // todo - move to lesson service
 

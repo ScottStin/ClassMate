@@ -75,7 +75,7 @@ export class AppRoutingModule {
             (await import('./pages/main-page/main-page.module')).MainPageModule,
         },
         {
-          path: `${school.toLocaleLowerCase()}/video-chat/:id`,
+          path: `${school.toLocaleLowerCase()}/video-lesson/:id`,
           loadChildren: async () =>
             (await import('./pages/video-lesson-page/video-lesson-page.module'))
               .VideoLessonPageModule,
