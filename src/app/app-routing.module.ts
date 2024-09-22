@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 
+import { AuthLoggedInGuard } from './core/guards/auth-logged-in.guard';
 import { SchoolService } from './services/school-service/school.service';
 import { SchoolDTO } from './shared/models/school.model';
 
@@ -76,6 +77,7 @@ export class AppRoutingModule {
         },
         {
           path: `${school.toLocaleLowerCase()}/video-lesson/:id`,
+          canActivate: [AuthLoggedInGuard],
           loadChildren: async () =>
             (await import('./pages/video-lesson-page/video-lesson-page.module'))
               .VideoLessonPageModule,

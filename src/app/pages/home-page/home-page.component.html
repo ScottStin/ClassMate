@@ -20,6 +20,8 @@
           (joinLesson)="joinLesson($event)"
           (cancelLesson)="cancelLesson($event)"
           (refreshLessons)="loadPageData()"
+          (startLesson)="startLesson($event)"
+          (enterLesson)="enterLesson($event)"
         ></app-lesson-card>
       </div>
     </mat-tab>
@@ -35,6 +37,10 @@
           [users]="users$ | async"
           [currentUser]="currentUser$ | async"
           (joinLesson)="joinLesson($event)"
+          (cancelLesson)="cancelLesson($event)"
+          (refreshLessons)="loadPageData()"
+          (startLesson)="startLesson($event)"
+          (enterLesson)="enterLesson($event)"
         ></app-lesson-card></div
     ></mat-tab>
   </mat-tab-group>

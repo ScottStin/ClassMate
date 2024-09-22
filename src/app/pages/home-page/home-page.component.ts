@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import {
   combineLatest,
   finalize,
@@ -61,6 +62,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     private readonly lessonService: LessonService,
     public readonly authStoreService: AuthStoreService,
     public readonly schoolService: SchoolService,
+    private readonly router: Router,
     public dialog: MatDialog
   ) {}
 
@@ -253,6 +255,47 @@ export class HomePageComponent implements OnInit, OnDestroy {
     if (this.currentUserSubscription) {
       this.currentUserSubscription.unsubscribe();
     }
+  }
+
+  startLesson(lesson: LessonDTO): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Start lesson?',
+        message:
+          'Once the lesson has started, all enrolled students will be able to join 5 minutes prior to the start time. If the class is not yet full, new students will still be able to enrol in the lesson and join.',
+        okLabel: 'Start',
+        cancelLabel: 'Cancel',
+      },
+    });
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.lessonService.startLesson(lesson).subscribe({
+          next: () => {
+            this.snackbarService.open(
+              'info',
+              "Lesson started. You will now be redirected to the video call page in a new tab. If the redirect doesn't immediately happen, you can click the 'Enter Lesson' button on the lesson card."
+            );
+            this.loadPageData();
+            if (lesson._id !== undefined) {
+              this.enterLesson(lesson._id);
+            }
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
+      }
+    });
+  }
+
+  enterLesson(lessonId: string): void {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree([
+        `/international-house/video-lesson/${lessonId}`,
+      ])
+    );
+    window.open(url, '_blank');
   }
 
   ngOnDestroy(): void {

@@ -18,7 +18,6 @@ export class VideoLessonViewComponent implements OnInit {
   constructor(private readonly route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    console.log(this.styles);
     // Get the room name (id) from the route params
     this.route.params.subscribe((params) => {
       this.roomName = params['id'];
@@ -29,7 +28,7 @@ export class VideoLessonViewComponent implements OnInit {
 
   initializeCall(): void {
     const videoContainer = document.querySelector('.video-container') as HTMLElement;
-    
+
     this.callFrame = DailyIframe.createFrame(videoContainer, {
       showLeaveButton: true,
       iframeStyle: {
@@ -45,15 +44,9 @@ export class VideoLessonViewComponent implements OnInit {
         },
       },
     });
-  
+
     this.callFrame.join({
-      url: `https://class-mate.daily.co/${this.roomName}`, // Ensure this domain is correct,
-      // theme: {
-      //   colors: {
-      //     accent: '#eb4034',
-      //     // background: '#eb4034',
-      //   },
-      // },
+      url: `https://class-mate.daily.co/${this.roomName}`,
     });
   }
 }
