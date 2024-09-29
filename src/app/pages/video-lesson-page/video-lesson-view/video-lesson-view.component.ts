@@ -117,6 +117,7 @@ export class VideoLessonViewComponent implements OnInit, OnChanges {
       await this.callFrame.join({
         url: `https://class-mate.daily.co/${this.roomName}`,
         token,
+        userName: this.currentUser?.name ?? '',
       });
     }
   }
