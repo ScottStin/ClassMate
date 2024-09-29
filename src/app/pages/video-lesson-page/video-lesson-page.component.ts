@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
+import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import {
   TempStylesDTO,
@@ -10,7 +12,9 @@ import {
   backgroundImages,
 } from 'src/app/shared/background-images';
 import { defaultStyles } from 'src/app/shared/default-styles';
+import { LessonDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-video-lesson-page',
@@ -24,6 +28,10 @@ export class VideoLessonPageComponent implements OnInit, OnDestroy {
 
   currentSchool$: Observable<SchoolDTO | null>;
   private currentSchoolSubscription: Subscription | null;
+  currentUser$: Observable<UserDTO | null>;
+  private currentUserSubscription: Subscription | null;
+  lessons$: Observable<LessonDTO[]>;
+  private lessonsSubscription: Subscription | null;
 
   /**
    * Styling:
@@ -40,11 +48,16 @@ export class VideoLessonPageComponent implements OnInit, OnDestroy {
 
   constructor(
     public readonly schoolService: SchoolService,
-    public readonly tempStylesService: TempStylesService
+    public readonly tempStylesService: TempStylesService,
+    public readonly authStoreService: AuthStoreService,
+    public readonly lessonService: LessonService
   ) {}
 
   ngOnInit(): void {
     this.getCurrentSchoolDetails();
+    this.currentUser$ = this.authStoreService.currentUser$;
+    this.currentUserSubscription = this.currentUser$.subscribe();
+    this.lessons$ = this.lessonService.lessons$;
   }
 
   // todo: replace with service;
@@ -78,6 +91,11 @@ export class VideoLessonPageComponent implements OnInit, OnDestroy {
           if (primaryButtonTextColor !== undefined) {
             this.styles.primaryButtonTextColor = primaryButtonTextColor;
           }
+
+          // --- get lessons:
+          this.lessonsSubscription = this.lessonService
+            .getAllBySchoolId(currentSchool._id ?? '')
+            .subscribe();
         }
       }
     );
@@ -86,6 +104,12 @@ export class VideoLessonPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.currentSchoolSubscription) {
       this.currentSchoolSubscription.unsubscribe();
+    }
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
+    }
+    if (this.lessonsSubscription) {
+      this.lessonsSubscription.unsubscribe();
     }
   }
 }

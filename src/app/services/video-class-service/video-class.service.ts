@@ -12,7 +12,7 @@ export class VideoClassService {
   async createRoom(
     roomName: string,
     properties: VideoRoomProperties
-  ): Promise<any> {
+  ): Promise<unknown> {
     const response = await fetch(this.apiUrl, {
       method: 'POST',
       headers: {
@@ -27,7 +27,30 @@ export class VideoClassService {
       }),
     });
 
-    return await response.json();
+    return (await response.json()) as unknown;
+  }
+
+  async createOwnerToken(
+    roomName: string,
+    isOwner: boolean,
+    canAdmin: boolean
+  ): Promise<any> {
+    const response = await fetch('https://api.daily.co/v1/meeting-tokens', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        properties: {
+          room_name: roomName,
+          is_owner: isOwner,
+          // canAdmin,
+        },
+      }),
+    });
+
+    return ((await response.json()) as unknown as { token: string }).token;
   }
 }
 
