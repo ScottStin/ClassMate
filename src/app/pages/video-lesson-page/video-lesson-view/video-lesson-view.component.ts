@@ -5,8 +5,9 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { TempStylesDTO } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { VideoClassService } from 'src/app/services/video-class-service/video-class.service';
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
@@ -30,6 +31,8 @@ export class VideoLessonViewComponent implements OnInit, OnChanges {
 
   constructor(
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly snackbarService: SnackbarService,
     public readonly videoClassService: VideoClassService
   ) {}
 
@@ -62,10 +65,34 @@ export class VideoLessonViewComponent implements OnInit, OnChanges {
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if ('lessons' in changes && this.lessons && this.lessons.length > 0) {
+      //
+      // --- Get current lesson details:
       this.currentLesson = this.lessons.find(
         (lesson) => lesson._id === this.roomName
       );
-      await this.initializeCall();
+
+      // --- Check if user is enrolled in current lesson before initializing lesson (todo - move to auth guard)
+      if (
+        this.currentUser &&
+        this.currentLesson &&
+        (['school', 'admin', 'teacher'].includes(
+          this.currentUser.userType.toLowerCase()
+        ) ||
+          this.currentLesson.studentsEnrolled.includes(this.currentUser.email))
+      ) {
+        await this.initializeCall();
+      } else {
+        this.snackbarService.openPermanent(
+          'error',
+          `Error: Your must be enrolled in this lesson to join. Please click the 'join' button on the lesson card and try again`
+        );
+        if (this.currentSchool) {
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          this.router.navigateByUrl(
+            `${this.currentSchool.name.replace(/ /gu, '-').toLowerCase()}/home`
+          ) as Promise<boolean>;
+        }
+      }
     }
   }
 
