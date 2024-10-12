@@ -1,7 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Socket } from 'ngx-socket-io';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
@@ -17,8 +19,35 @@ export class LessonService {
 
   constructor(
     private readonly httpClient: HttpClient,
-    private readonly errorService: ErrorService
-  ) {}
+    private readonly errorService: ErrorService,
+    private readonly socket: Socket
+  ) {
+    const currentSchoolString = localStorage.getItem('current_school');
+
+    if (currentSchoolString !== null) {
+      const currentSchool = JSON.parse(currentSchoolString) as SchoolDTO;
+      this.socket.on(
+        `lessonCreated-${currentSchool._id ?? ''}`,
+        (newLessons: LessonDTO[]) => {
+          this.refreshLessons(newLessons);
+        }
+      );
+
+      this.socket.on(
+        `lessonDeleted-${currentSchool._id ?? ''}`,
+        (deletedLesson: LessonDTO) => {
+          this.removeLesson(deletedLesson);
+        }
+      );
+
+      this.socket.on(
+        `lessonUpdated-${currentSchool._id ?? ''}`,
+        (updatedLesson: LessonDTO) => {
+          this.updateLessons(updatedLesson);
+        }
+      );
+    }
+  }
 
   getAll(): Observable<LessonDTO[]> {
     return this.httpClient.get<LessonDTO[]>(`${this.baseUrl}`).pipe(
@@ -26,6 +55,7 @@ export class LessonService {
         this.handleError(error, 'Failed to load lessons');
       }),
       tap((lessons) => {
+        this.sortLessons(lessons);
         this.lessonSubject.next(lessons);
       })
     );
@@ -39,9 +69,18 @@ export class LessonService {
           this.handleError(error, 'Failed to load lessons');
         }),
         tap((lessons) => {
+          this.sortLessons(lessons);
           this.lessonSubject.next(lessons);
         })
       );
+  }
+
+  sortLessons(lessons: LessonDTO[]): void {
+    lessons.sort((a, b) => {
+      const dateA = new Date(a.startTime);
+      const dateB = new Date(b.startTime);
+      return dateA < dateB ? -1 : dateA > dateB ? 1 : 0;
+    });
   }
 
   create(data: LessonDTO[]): Observable<LessonDTO[]> {
@@ -109,6 +148,30 @@ export class LessonService {
           })
         )
     );
+  }
+
+  // --- Socket functions:
+
+  private refreshLessons(newLessons: LessonDTO[]): void {
+    const currentLessons = this.lessonSubject.value;
+    this.lessonSubject.next([...currentLessons, ...newLessons]);
+  }
+
+  private updateLessons(updatedLesson: LessonDTO): void {
+    const currentLessons = this.lessonSubject.value;
+    // eslint-disable-next-line no-confusing-arrow
+    const updatedLessons = currentLessons.map((lesson) =>
+      lesson._id === updatedLesson._id ? updatedLesson : lesson
+    );
+    this.lessonSubject.next(updatedLessons);
+  }
+
+  private removeLesson(deletedLesson: LessonDTO): void {
+    const currentLessons = this.lessonSubject.value;
+    const updatedLessons = currentLessons.filter(
+      (lesson) => lesson._id !== deletedLesson._id
+    );
+    this.lessonSubject.next(updatedLessons);
   }
 
   private handleError(error: Error, message: string): never {

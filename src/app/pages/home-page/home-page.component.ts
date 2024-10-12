@@ -8,7 +8,6 @@ import {
   first,
   forkJoin,
   Observable,
-  of,
   Subscription,
   tap,
 } from 'rxjs';
@@ -37,7 +36,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   // --- data:
   users$: Observable<UserDTO[]>;
-  lessons$: Observable<LessonDTO[]>;
   homePageLoading = true;
   lessonTypes: LessonTypeDTO[] = [];
 
@@ -47,6 +45,9 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
+
+  private lessonSubscription: Subscription | null;
+  lessons$: Observable<LessonDTO[]>;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -71,6 +72,9 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.currentUser$ = this.authStoreService.currentUser$;
     this.users$ = this.userService.users$;
     this.lessons$ = this.lessonService.lessons$;
+    this.lessonSubscription = this.lessons$.pipe(first()).subscribe(() => {
+      this.loadPageData();
+    });
     this.loadPageData();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
@@ -98,21 +102,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
               })
             )
             .subscribe({
-              next: ([, lessons]) => {
-                lessons.sort((a, b) => {
-                  const dateA = new Date(a.startTime);
-                  const dateB = new Date(b.startTime);
-
-                  if (dateA < dateB) {
-                    return -1;
-                  } else if (dateA > dateB) {
-                    return 1;
-                  } else {
-                    return 0;
-                  }
-                });
-                this.lessons$ = of(lessons);
-              },
               error: (error: Error) => {
                 const snackbar = this.snackbarService.openPermanent(
                   'error',
@@ -132,6 +121,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     );
   }
 
+  // todo: move to lesson service:
   getLessonStatus(lessonStatus: string, lesson: LessonDTO): boolean {
     const lessonStartTime = new Date(lesson.startTime);
     const durationInMilliseconds = lesson.duration * 60 * 1000; // Convert duration from minutes to milliseconds
@@ -304,6 +294,9 @@ export class HomePageComponent implements OnInit, OnDestroy {
     }
     if (this.currentUserSubscription) {
       this.currentUserSubscription.unsubscribe();
+    }
+    if (this.lessonSubscription) {
+      this.lessonSubscription.unsubscribe();
     }
   }
 }

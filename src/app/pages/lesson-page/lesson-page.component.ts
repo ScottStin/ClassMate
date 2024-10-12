@@ -38,7 +38,6 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   error: Error;
   users$: Observable<UserDTO[]>;
   teachers$: Observable<UserDTO[]>;
-  lessons$: Observable<LessonDTO[]>;
   filteredLessons$: Observable<LessonDTO[]>;
   lessonPageLoading = true;
   pageName = '';
@@ -49,6 +48,8 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   currentSchool$: Observable<SchoolDTO | null>;
   private currentUserSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
+  private lessonSubscription: Subscription | null;
+  lessons$: Observable<LessonDTO[]>;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -82,24 +83,16 @@ export class LessonPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.users$ = this.userService.users$;
-    this.lessons$ = this.lessonService.lessons$;
     this.currentSchool$ = this.schoolService.currentSchool$;
     this.currentUser$ = this.authStoreService.currentUser$;
+    this.lessons$ = this.lessonService.lessons$;
+    this.filteredLessons$ = this.lessons$;
+    this.lessonSubscription = this.lessons$.pipe(first()).subscribe(() => {
+      this.loadPageData();
+    });
     this.loadPageData();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
-  }
-
-  ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
-    if (this.currentSchoolSubscription) {
-      this.currentSchoolSubscription.unsubscribe();
-    }
-    if (this.currentUserSubscription) {
-      this.currentUserSubscription.unsubscribe();
-    }
   }
 
   loadPageData(): void {
@@ -123,25 +116,8 @@ export class LessonPageComponent implements OnInit, OnDestroy {
               })
             )
             .subscribe({
-              next: ([users, lessons]) => {
-                // --- sort lessons:
-                lessons.sort((a, b) => {
-                  const dateA = new Date(a.startTime);
-                  const dateB = new Date(b.startTime);
-
-                  if (dateA < dateB) {
-                    return -1;
-                  } else if (dateA > dateB) {
-                    return 1;
-                  } else {
-                    return 0;
-                  }
-                });
-                this.lessons$ = of(lessons);
-                this.filteredLessons$ = of(lessons);
-
+              next: ([users]) => {
                 // filter users for teachers:
-
                 const teachers = users.filter(
                   (user) => user.userType.toLowerCase() === 'teacher'
                 );
@@ -166,6 +142,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     );
   }
 
+  // todo: move to lesson service:
   getLessonStatus(lessonStatus: string, lesson: LessonDTO): boolean {
     const lessonStartTime = new Date(lesson.startTime);
     const durationInMilliseconds = lesson.duration * 60 * 1000; // Convert duration from minutes to milliseconds
@@ -302,5 +279,20 @@ export class LessonPageComponent implements OnInit, OnDestroy {
         this.filteredLessons$ = of(lessons);
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+    if (this.currentSchoolSubscription) {
+      this.currentSchoolSubscription.unsubscribe();
+    }
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
+    }
+    if (this.lessonSubscription) {
+      this.lessonSubscription.unsubscribe();
+    }
   }
 }

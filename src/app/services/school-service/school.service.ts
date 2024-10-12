@@ -5,7 +5,6 @@ import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
-import { AuthStoreService } from '../auth-store-service/auth-store.service';
 import { ErrorService } from '../error-message.service/error-message.service';
 
 @Injectable({
@@ -25,8 +24,7 @@ export class SchoolService {
 
   constructor(
     private readonly httpClient: HttpClient,
-    private readonly errorService: ErrorService,
-    private readonly authStoreService: AuthStoreService
+    private readonly errorService: ErrorService
   ) {
     const currentSchool: string | null = localStorage.getItem('current_school');
     if (currentSchool !== null) {
