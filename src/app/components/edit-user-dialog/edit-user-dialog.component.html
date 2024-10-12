@@ -137,13 +137,14 @@
           required
         />
         <button
+          *ngIf="this.userForm.getRawValue().unhashedPassword !== ''"
           mat-icon-button
           matSuffix
           (click)="hidePassword = !hidePassword"
           [attr.aria-label]="'Hide password'"
           [attr.aria-pressed]="hidePassword"
         >
-          <mat-icon *ngIf="this.userForm.getRawValue().unhashedPassword !== ''"
+          <mat-icon
             >{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon
           >
         </button>

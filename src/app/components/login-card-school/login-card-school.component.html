@@ -170,6 +170,7 @@
                     required
                   />
                   <button
+                    *ngIf="this.loginFormSchool.controls['detailStep'].getRawValue().passwordInput !== ''"
                     mat-icon-button
                     matSuffix
                     (click)="hidePassword = !hidePassword"
@@ -177,7 +178,6 @@
                     [attr.aria-pressed]="hidePassword"
                   >
                     <mat-icon
-                      *ngIf="this.loginFormSchool.controls['detailStep'].getRawValue().passwordInput !== ''"
                       >{{hidePassword ? 'visibility_off' :
                       'visibility'}}</mat-icon
                     >
