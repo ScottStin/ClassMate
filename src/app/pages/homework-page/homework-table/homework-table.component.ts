@@ -37,7 +37,7 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
     'createdAt',
     'name',
     'description',
-    'assignedTeacher',
+    'assignedTeacherId',
     'students',
     // 'studentsOutstanding',
     'attachment',
@@ -155,7 +155,7 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
     for (const student of homeworkItem.students) {
       let feedbackPending = false;
       const studentComments = homeworkItem.comments?.filter(
-        (comment) => comment.student === student.studentId
+        (comment) => comment.studentId === student.studentId
       );
       if (studentComments && studentComments.length > 0) {
         const lastComment = studentComments[studentComments.length - 1];

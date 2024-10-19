@@ -215,7 +215,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
       let count = 0;
       homework?.forEach((homeworkItem) => {
         if (
-          homeworkItem.assignedTeacher === this.currentUser?._id &&
+          homeworkItem.assignedTeacherId === this.currentUser?._id &&
           homeworkItem.comments &&
           homeworkItem.comments.length > 0
         ) {

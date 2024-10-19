@@ -13,7 +13,7 @@ import {
 } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
-import { HomeworkDTO } from 'src/app/shared/models/homework.model';
+import { CreateHomeworkDTO } from 'src/app/shared/models/homework.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -30,7 +30,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
     description: FormControl<string>;
     dueDate: FormControl<string | null>;
     attempts: FormControl<number | null>;
-    assignedTeacher: FormControl<string>;
+    assignedTeacherId: FormControl<string>;
     studentsInput: FormControl<string>;
     duration: FormControl<number>;
     attachment: FormControl<{ url: string; fileName: string } | null>;
@@ -50,7 +50,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     public data: {
       title: string;
-      body: HomeworkDTO | undefined;
+      body: CreateHomeworkDTO | undefined;
       teachers: UserDTO[];
       students?: UserDTO[];
       currentSchool: SchoolDTO;
@@ -81,7 +81,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
       if (this.fileName && this.fileLink !== null && this.fileLink !== '') {
         attachment = { url: this.fileLink, fileName: this.fileName };
       }
-      const homework: HomeworkDTO = {
+      const homework: CreateHomeworkDTO = {
         ...homeworkForm,
         attachment: attachment as { url: string; fileName: string },
         schoolId: this.data.currentSchool._id,
@@ -91,7 +91,6 @@ export class CreateHomeworkDialogComponent implements OnInit {
             completed: false,
           }))
           .filter((element) => element.studentId !== ''),
-        _id: this.data.body?._id ?? undefined,
       };
 
       this.dialogRef.close(homework);
@@ -131,10 +130,13 @@ export class CreateHomeworkDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      assignedTeacher: new FormControl(this.data.body?.assignedTeacher ?? '', {
-        validators: [],
-        nonNullable: true,
-      }),
+      assignedTeacherId: new FormControl(
+        this.data.body?.assignedTeacherId ?? '',
+        {
+          validators: [],
+          nonNullable: true,
+        }
+      ),
       studentsInput: new FormControl('', {
         validators: [],
         nonNullable: true,
@@ -196,7 +198,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
 
   removeStudent(student: UserDTO): void {
     const studentSubmissionAttempts = this.data.body?.comments?.filter(
-      (comment) => comment.student === student._id
+      (comment) => comment.studentId === student._id
     );
 
     const studentSubmissionAttemptPass = studentSubmissionAttempts?.filter(

@@ -31,7 +31,7 @@
         [class]="data.currentUser?.userType?.toLowerCase() === 'school'  ? 'form-field' : 'hidden'"
       >
         <mat-label>Assigned teacher</mat-label>
-        <mat-select formControlName="assignedTeacher">
+        <mat-select formControlName="assignedTeacherId">
           <mat-option
             *ngFor="let teacher of data.teachers"
             [value]="teacher._id"
@@ -47,7 +47,7 @@
         >
         <mat-error>
           <app-error-message
-            [control]="feedbackForm.controls['assignedTeacher'].errors"
+            [control]="feedbackForm.controls['assignedTeacherId'].errors"
           ></app-error-message>
         </mat-error>
       </mat-form-field>

@@ -73,7 +73,7 @@
                     <mat-icon>co_present</mat-icon>
                     <b> &nbsp;&nbsp;Teacher:</b>
                   </td>
-                  <td>{{getUserName(homeworkItem.assignedTeacher)}}</td>
+                  <td>{{getUserName(homeworkItem.assignedTeacherId)}}</td>
                 </tr>
                 <tr>
                   <td class="title-row">
@@ -134,7 +134,7 @@
           >
             <div
               class="text-bubble-container"
-              *ngIf="comment && comment.student === selectedStudent?._id"
+              *ngIf="comment && comment.studentId === selectedStudent?._id"
             >
               <mat-card
                 [class]="comment.commentType.toLowerCase() !== 'feedback' ? 'card text-bubble' : 'card text-bubble-response'"
@@ -142,19 +142,19 @@
                 <mat-card-header>
                   <img
                     mat-card-avatar
-                    [src]="comment.commentType.toLowerCase() === 'feedback' ? getProfilePicture(comment.teacher) : getProfilePicture(comment.student)"
+                    [src]="comment.commentType.toLowerCase() === 'feedback' ? getProfilePicture(comment.teacherId) : getProfilePicture(comment.studentId)"
                     alt="profile picture"
                     class="example-header-image"
                   />
                   <mat-card-title *ngIf="comment.commentType === 'submission'"
                     >Submission by
-                    <b>{{getUserName(comment?.student ?? '')}}</b> for
+                    <b>{{getUserName(comment?.studentId ?? '')}}</b> for
                     <b>{{homeworkItem.name}}</b> (Attempt
                     {{getAttemptIndex(homeworkItem, comment)}})</mat-card-title
                   >
                   <mat-card-title *ngIf="comment.commentType === 'feedback'"
                     >Feedback from
-                    <b>{{getUserName(comment?.teacher ?? '')}}</b> for
+                    <b>{{getUserName(comment?.teacherId ?? '')}}</b> for
                     <b>{{homeworkItem.name}}</b></mat-card-title
                   >
                   <mat-card-subtitle
@@ -174,12 +174,12 @@
                   >
                 </mat-card-content>
                 <mat-card-actions
-                  *ngIf="last && (currentUser?._id === comment.teacher || currentUser?._id === comment.student || currentUser?.userType?.toLowerCase() === 'school')"
+                  *ngIf="last && (currentUser?._id === comment.teacherId || (currentUser?._id === comment.studentId && comment.commentType === 'submission') || currentUser?.userType?.toLowerCase() === 'school')"
                   align="end"
                 >
                   <button
                     mat-button
-                    (click)="currentUser?._id === comment.teacher ? openAddFeedbackDialog(homeworkItem, comment) : currentUser?._id === comment.student ? openAddSubmissionDialog(homeworkItem, comment) : ''"
+                    (click)="currentUser?._id === comment.teacherId ? openAddFeedbackDialog(homeworkItem, comment) : currentUser?._id === comment.studentId ? openAddSubmissionDialog(homeworkItem, comment) : ''"
                   >
                     Edit
                   </button>

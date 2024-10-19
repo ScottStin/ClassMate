@@ -1,7 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { CommentDTO, HomeworkDTO } from 'src/app/shared/models/homework.model';
+import {
+  CommentDTO,
+  CreateHomeworkDTO,
+  HomeworkDTO,
+} from 'src/app/shared/models/homework.model';
 import { environment } from 'src/environments/environment';
 
 import { ErrorService } from '../error-message.service/error-message.service';
@@ -49,12 +53,13 @@ export class HomeworkService {
           this.handleError(error, 'Failed to load homework');
         }),
         tap((homework) => {
+          console.log(homework);
           this.homeworkSubject.next(homework);
         })
       );
   }
 
-  create(data: HomeworkDTO): Observable<HomeworkDTO> {
+  create(data: CreateHomeworkDTO): Observable<HomeworkDTO> {
     return this.httpClient.post<HomeworkDTO>(`${this.baseUrl}`, data).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to create new homework exercise');
@@ -64,7 +69,7 @@ export class HomeworkService {
 
   update(data: HomeworkDTO): Observable<HomeworkDTO> {
     return this.httpClient
-      .patch<HomeworkDTO>(`${this.baseUrl}/${data._id!}`, data)
+      .patch<HomeworkDTO>(`${this.baseUrl}/${data._id}`, data)
       .pipe(
         catchError((error: Error) => {
           this.handleError(error, 'Failed to create new homework exercise');
@@ -76,7 +81,7 @@ export class HomeworkService {
     return (
       this.httpClient
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        .delete<HomeworkDTO>(`${this.baseUrl}/${data._id!}`)
+        .delete<HomeworkDTO>(`${this.baseUrl}/${data._id}`)
         .pipe(
           catchError((error: Error) => {
             this.handleError(error, 'Failed to delete homework');

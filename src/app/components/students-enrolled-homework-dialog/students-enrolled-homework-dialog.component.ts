@@ -48,7 +48,7 @@ export class StudentsEnrolledHomeworkDialogComponent implements OnInit {
           // --- get list of students enrolled in this hoemwork:
           let feedbackPending = false;
           const studentComments = this.homeworkItem.comments?.filter(
-            (comment) => comment.student === student.studentId
+            (comment) => comment.studentId === student.studentId
           );
           if (studentComments && studentComments.length > 0) {
             const lastComment = studentComments[studentComments.length - 1];
@@ -117,11 +117,7 @@ export class StudentsEnrolledHomeworkDialogComponent implements OnInit {
       },
     });
     confirmDialogRef.afterClosed().subscribe((result: boolean) => {
-      if (
-        result &&
-        student.id !== undefined &&
-        this.homeworkItem._id !== undefined
-      ) {
+      if (result && student.id !== undefined) {
         this.homeworkService
           .removeStudent({
             studentId: student.id,

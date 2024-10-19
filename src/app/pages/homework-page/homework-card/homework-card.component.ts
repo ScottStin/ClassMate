@@ -63,7 +63,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
           (obj) =>
             obj.description.toLowerCase().includes(text.toLowerCase()) ||
             obj.name.toLowerCase().includes(text.toLowerCase()) ||
-            obj.assignedTeacher.toLowerCase().includes(text.toLowerCase())
+            obj.assignedTeacherId.toLowerCase().includes(text.toLowerCase())
         );
     }
   }
@@ -199,7 +199,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     let duration = homeworkItem.duration;
     if (this.homeworkCompleted(homeworkItem)) {
       const comments = homeworkItem.comments?.filter(
-        (comment) => comment.student === this.selectedStudent?._id
+        (comment) => comment.studentId === this.selectedStudent?._id
       );
       if (comments && comments.length > 0) {
         duration =
@@ -248,7 +248,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     homeworkItems: HomeworkDTO | null
   ): boolean {
     const studentComments = homeworkItems?.comments?.filter(
-      (comment) => comment.student === studentId
+      (comment) => comment.studentId === studentId
     );
     const commentLength = studentComments?.length;
     if (
@@ -267,7 +267,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     return (
       homeworkItem.comments?.filter(
         (comment) =>
-          comment.student === this.selectedStudent?._id &&
+          comment.studentId === this.selectedStudent?._id &&
           comment.commentType === 'submission'
       ).length ?? 0
     );

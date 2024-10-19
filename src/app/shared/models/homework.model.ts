@@ -1,11 +1,9 @@
-/* eslint-disable prettier/prettier *//* eslint-disable linebreak-style */
-export interface HomeworkDTO {
-  _id?: string;
+export interface CreateHomeworkDTO {
   name: string;
   description: string;
   dueDate: string | null;
-  assignedTeacher: string;
-  students: {studentId: string; completed: boolean}[];
+  assignedTeacherId: string;
+  students: { studentId: string; completed: boolean }[];
   attachment: { url: string; fileName: string } | null;
   duration: number;
   comments?: CommentDTO[] | null;
@@ -15,10 +13,14 @@ export interface HomeworkDTO {
   attempts?: number | null;
 }
 
+export interface HomeworkDTO extends CreateHomeworkDTO {
+  _id: string;
+}
+
 export interface CommentDTO {
   _id?: string;
-  teacher?: string;
-  student: string;
+  teacherId?: string;
+  studentId: string;
   createdAt?: string;
   duration?: number;
   commentType: 'feedback' | 'submission';

@@ -281,7 +281,7 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
       },
     });
     dialogRef.afterClosed().subscribe((result: UserDTO[] | undefined) => {
-      if (result && data.homework._id !== undefined) {
+      if (result && data.homework._id) {
         this.homeworkService
           .deleteComment({
             feedback: data.comment,
@@ -352,7 +352,7 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
       if (filteredHomeworkItems.length > 0) {
         for (const filteredHomeworkItem of filteredHomeworkItems) {
           const studentComments = filteredHomeworkItem.comments?.filter(
-            (comment) => comment.student === studentId
+            (comment) => comment.studentId === studentId
           );
           const commentLength = studentComments?.length;
           if (

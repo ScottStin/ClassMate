@@ -59,14 +59,14 @@
       </mat-cell>
     </ng-container>
 
-    <!-- assignedTeacher Column -->
-    <ng-container matColumnDef="assignedTeacher">
+    <!-- assignedTeacherId Column -->
+    <ng-container matColumnDef="assignedTeacherId">
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Assigned Teacher
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <span *ngIf="getUserName(row.assignedTeacher)"
-          >{{getUserName(row.assignedTeacher)}}</span
+        <span *ngIf="getUserName(row.assignedTeacherId)"
+          >{{getUserName(row.assignedTeacherId)}}</span
         >
       </mat-cell>
     </ng-container>

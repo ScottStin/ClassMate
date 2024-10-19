@@ -17,7 +17,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
   feedbackForm: FormGroup<{
     text: FormControl<string>;
     pass: FormControl<boolean>;
-    assignedTeacher: FormControl<string>;
+    assignedTeacherId: FormControl<string>;
     duration: FormControl<number | null>;
     attachment: FormControl<{ url: string; fileName: string } | null>;
   }>;
@@ -68,7 +68,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
           nonNullable: true,
         }
       ),
-      assignedTeacher: new FormControl('', {
+      assignedTeacherId: new FormControl('', {
         validators: [],
         nonNullable: true,
       }),
@@ -149,7 +149,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
         teacher = this.data.currentUser._id;
       }
       if (this.data.currentUser?.userType.toLowerCase() === 'school') {
-        teacher = feedbackForm.assignedTeacher;
+        teacher = feedbackForm.assignedTeacherId;
       }
 
       // --- save feedback:
@@ -158,9 +158,9 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
         duration: feedbackForm.duration ?? undefined,
         commentType: this.data.commentType,
         pass: feedbackForm.pass,
-        teacher: teacher ?? undefined,
+        teacherId: teacher ?? undefined,
         attachment: attachment as { url: string; fileName: string },
-        student: this.data.selectedStudent._id,
+        studentId: this.data.selectedStudent._id,
       };
 
       this.dialogRef.close(feedback);
