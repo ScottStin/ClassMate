@@ -139,7 +139,7 @@
             *ngIf="data.currentUser?.userType?.toLowerCase()==='school'"
           >
             <mat-label>Assigned teacher</mat-label>
-            <mat-select formControlName="assignedTeacher">
+            <mat-select formControlName="assignedTeacherId">
               <mat-option
                 *ngFor="let teacher of data.teachers"
                 [value]="teacher._id"
@@ -153,7 +153,7 @@
 
             <mat-error>
               <app-error-message
-                [control]="lessonForm.controls['assignedTeacher'].errors"
+                [control]="lessonForm.controls['assignedTeacherId'].errors"
               ></app-error-message>
             </mat-error>
           </mat-form-field>

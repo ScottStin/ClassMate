@@ -53,7 +53,6 @@ export class HomeworkService {
           this.handleError(error, 'Failed to load homework');
         }),
         tap((homework) => {
-          console.log(homework);
           this.homeworkSubject.next(homework);
         })
       );

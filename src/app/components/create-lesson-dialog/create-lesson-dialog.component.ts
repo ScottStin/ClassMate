@@ -52,7 +52,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     sizeInput: FormControl<number>;
     lengthInput: FormControl<number>;
     levelInput: FormControl<LevelDTO[]>;
-    assignedTeacher: FormControl<string>;
+    assignedTeacherId: FormControl<string>;
   }>;
 
   public cronOptions: CronOptions = {
@@ -193,7 +193,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      assignedTeacher: new FormControl('', {
+      assignedTeacherId: new FormControl('', {
         validators: [],
         nonNullable: true,
       }),
@@ -230,7 +230,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         teacherId:
           this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
             ? userId
-            : this.lessonForm.controls.assignedTeacher.value,
+            : this.lessonForm.controls.assignedTeacherId.value,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         startTime: startTime ?? formValue.dateInput!,
         maxStudents: formValue.sizeInput,
