@@ -150,6 +150,13 @@ export class LessonService {
     );
   }
 
+  private handleError(error: Error, message: string): never {
+    if (error instanceof HttpErrorResponse) {
+      throw this.errorService.handleHttpError(error);
+    }
+    throw this.errorService.handleGenericError(error, message);
+  }
+
   // --- Socket functions:
 
   private refreshLessons(newLessons: LessonDTO[]): void {
@@ -172,12 +179,5 @@ export class LessonService {
       (lesson) => lesson._id !== deletedLesson._id
     );
     this.lessonSubject.next(updatedLessons);
-  }
-
-  private handleError(error: Error, message: string): never {
-    if (error instanceof HttpErrorResponse) {
-      throw this.errorService.handleHttpError(error);
-    }
-    throw this.errorService.handleGenericError(error, message);
   }
 }

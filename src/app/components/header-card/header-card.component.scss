@@ -43,3 +43,21 @@ $secondaryColor: var(--secondaryColor);
     transform: scale(1.1);
     transition: all 100ms ease-in-out;
   }
+
+  .header-bar-button {
+    color: $primaryColor !important;
+    font-size: smaller !important;
+    font-weight:400;
+  }
+
+  .menu-content {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  
+::ng-deep.action-dialog {
+  max-width: none !important;
+}

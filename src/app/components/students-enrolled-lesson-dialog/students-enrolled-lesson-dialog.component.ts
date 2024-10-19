@@ -6,6 +6,7 @@ import {
 } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
+import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
@@ -32,6 +33,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
     public data: { lesson: LessonDTO; pastLesson?: boolean; users: UserDTO[] },
     private readonly userService: UserService,
     private readonly lessonService: LessonService,
+    private readonly notificationService: NotificationService,
     private readonly snackbarService: SnackbarService,
     private readonly dialogRef: MatDialogRef<StudentsEnrolledLessonDialogComponent>,
     public dialog: MatDialog
@@ -77,6 +79,20 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                 'Student has been removed from lesson and notified.'
               );
               this.dialogRef.close(true);
+
+              console.log(this.lesson);
+              console.log(student);
+              // --- create notificaiton:
+              // this.notificationService
+              //   .create({
+              //     recipients: [student.email ?? ''], // todo - this is the email. We need to replace with the user id
+              //     message: `You have been removed from ${this.lesson.teacher} lesson '${this.lesson.name}'`,
+              //     createdBy: this.lesson.teacher as string ?? '',
+              //     dateSent: new Date().getTime(),
+              //     seenBy: [],
+              //     schoolId: this.lesson?.schoolId ?? '',
+              //   })
+              //   .subscribe();
             },
             error: (error: Error) => {
               this.error = error;

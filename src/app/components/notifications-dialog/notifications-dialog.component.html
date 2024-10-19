@@ -1,0 +1,29 @@
+<h4>
+  <mat-toolbar role="toolbar" class="dialog-toolbar">
+    <mat-icon (click)="onCloseBtnClick()" class="close-button">close</mat-icon>
+  </mat-toolbar>
+</h4>
+
+<span class="primary-header">Notifications</span>
+<div class="dialog-modal">
+  <mat-dialog-content class="notifications-dialog-content">
+    <mat-list>
+      <mat-list-item
+        class="notifications-list-item"
+        *ngFor="let notification of notifications"
+      >
+        <mat-icon mat-list-icon>folder</mat-icon>
+        <div
+          mat-line
+          [style]="!isNotificationSeen(notification) ? 'font-weight: bold' : ''"
+        >
+          {{notification.message}}
+        </div>
+        <div mat-line>{{notification.dateSent | date:'yyyy-MMM-dd hh:mm'}}</div>
+        <div matListItemMeta class="unseen-icon">
+          <b *ngIf="!isNotificationSeen(notification)">&#8226;</b>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </mat-dialog-content>
+</div>

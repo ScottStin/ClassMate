@@ -51,7 +51,7 @@
     <mat-icon>exit_to_app</mat-icon>
   </button>
 
-  <button
+  <!-- <button
     *ngIf="(authStoreService.isLoggedIn$ | async) && currentUser?.userType?.toLowerCase() !== 'school'"
     class="edit-profile-button"
     mat-mini-fab
@@ -60,7 +60,31 @@
     (click)="openEditUserDialog()"
   >
     <mat-icon>edit</mat-icon>
+  </button> -->
+
+  <button
+    *ngIf="(authStoreService.isLoggedIn$ | async) && currentUser?.userType?.toLowerCase() !== 'school'"
+    class="edit-profile-button"
+    mat-mini-fab
+    matTooltip="Open options"
+    [matMenuTriggerFor]="menu"
+  >
+    <mat-icon>more_horiz</mat-icon>
   </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="openEditUserDialog()">
+      <mat-icon>edit</mat-icon>
+      <span>Edit your profile</span>
+    </button>
+    <button mat-menu-item>
+      <mat-icon>location_city</mat-icon>
+      <span>View your school info</span>
+    </button>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
 
   <!-- User/school names: -->
   <h3

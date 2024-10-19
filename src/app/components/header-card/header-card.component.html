@@ -37,6 +37,21 @@
   <span class="spacer"></span>
 
   <button
+    mat-icon-button
+    [matMenuTriggerFor]="notificationsMenu"
+    #notificationsMenuTrigger="matMenuTrigger"
+    class="button header-bar-button"
+    *ngIf="currentUser"
+  >
+    <mat-icon
+      [matBadge]="unseenNotificationsCount > 0 ? unseenNotificationsCount : ''"
+      matBadgeOverlap="true"
+      matBadgeColor="warn"
+      >notifications</mat-icon
+    >
+  </button>
+
+  <!-- <button
     *ngIf="authStoreService.isLoggedIn$ | async"
     mat-icon-button
     class="button"
@@ -45,5 +60,17 @@
     (click)="logout()"
   >
     <mat-icon>exit_to_app</mat-icon>
-  </button>
+  </button> -->
 </mat-toolbar>
+
+<!-- Notifications Menu: -->
+
+<mat-menu #notificationsMenu="matMenu" yPosition="above" class="action-dialog">
+  <div (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+    <app-notifications-dialog
+      (closeDialog)="closeNotificationDialog()"
+      [notifications]="notifications$ | async"
+      [currentUserId]="currentUser?._id"
+    ></app-notifications-dialog>
+  </div>
+</mat-menu>

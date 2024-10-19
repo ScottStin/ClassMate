@@ -14,6 +14,7 @@ import {
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
+import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
@@ -64,6 +65,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     public readonly authStoreService: AuthStoreService,
     public readonly schoolService: SchoolService,
     private readonly router: Router,
+    private readonly notificationService: NotificationService,
     public dialog: MatDialog
   ) {}
 
@@ -191,6 +193,19 @@ export class HomePageComponent implements OnInit, OnDestroy {
                   'info',
                   "A seat for you in this lesson has been reserved. You will be able to enter the lesson 5 minutes before the start time. Go to 'My Classes' to view all your lessons. "
                 );
+
+                // --- create notificaiton:
+                this.notificationService
+                  .create({
+                    recipients: [lesson.teacher as string], // todo - this is the email. We need to replace with the user id
+                    message: `${currentUser.name} has joined your lesson ${lesson.name}`,
+                    createdBy: currentUser._id ?? '',
+                    dateSent: new Date().getTime(),
+                    seenBy: [],
+                    schoolId: currentUser.schoolId as string,
+                  })
+                  .subscribe();
+
                 this.loadPageData();
               },
               error: (error: Error) => {
@@ -229,6 +244,19 @@ export class HomePageComponent implements OnInit, OnDestroy {
                     'info',
                     'You have successfully cancelled your place in this lesson.'
                   );
+
+                  // --- create notificaiton:
+                  this.notificationService
+                    .create({
+                      recipients: [lesson.teacher as string], // todo - this is the email. We need to replace with the user id
+                      message: `${currentUser.name} has left your lesson ${lesson.name}`,
+                      createdBy: currentUser._id ?? '',
+                      dateSent: new Date().getTime(),
+                      seenBy: [],
+                      schoolId: currentUser.schoolId as string,
+                    })
+                    .subscribe();
+
                   this.loadPageData();
                 },
                 error: (error: Error) => {

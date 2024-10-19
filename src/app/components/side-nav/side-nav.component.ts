@@ -23,6 +23,8 @@ import { UserService } from 'src/app/services/user-service/user.service';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+
 @Component({
   selector: 'app-side-nav',
   templateUrl: './side-nav.component.html',
@@ -276,6 +278,33 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  logout(): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Logout',
+        message: 'Are you sure you want to logout?',
+        okLabel: 'Logout',
+        cancelLabel: 'Cancel',
+        routerLink:
+          this.currentSchool !== null
+            ? `${this.currentSchool.name
+                .replace(/ /gu, '-')
+                .toLowerCase()}/welcome`
+            : 'welcome',
+      },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        let firstName = 'mate';
+        if (this.currentUser) {
+          firstName = this.currentUser.name.split(' ')[0];
+        }
+        this.snackbarService.open('info', `Goodbye, ${firstName}!`);
+        this.authStoreService.logout();
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
@@ -393,26 +422,26 @@ export const menuItems: MenuItemDTO[] = [
     headerButtonFunction: 'addNewTeacher',
     breadcrumb: 'colleagues',
   },
-  {
-    teacherName: 'My Messages',
-    studentName: 'My Messages',
-    adminName: 'Messages',
-    use: ['teacher', 'student', 'admin', 'school'],
-    icon: 'question_answer',
-    routerLink: '',
-    label: '',
-    breadcrumb: 'messages',
-  },
-  {
-    teacherName: 'My Announcements',
-    studentName: 'My Announcements',
-    adminName: 'Announcements',
-    use: ['teacher', 'student', 'admin', 'school'],
-    icon: 'speaker_notes',
-    routerLink: '',
-    label: '',
-    breadcrumb: 'announcements',
-  },
+  // {
+  //   teacherName: 'My Messages',
+  //   studentName: 'My Messages',
+  //   adminName: 'Messages',
+  //   use: ['teacher', 'student', 'admin', 'school'],
+  //   icon: 'question_answer',
+  //   routerLink: '',
+  //   label: '',
+  //   breadcrumb: 'messages',
+  // },
+  // {
+  //   teacherName: 'My Announcements',
+  //   studentName: 'My Announcements',
+  //   adminName: 'Announcements',
+  //   use: ['teacher', 'student', 'admin', 'school'],
+  //   icon: 'speaker_notes',
+  //   routerLink: '',
+  //   label: '',
+  //   breadcrumb: 'announcements',
+  // },
   {
     teacherName: 'Packages',
     studentName: 'My Packages',
@@ -423,16 +452,16 @@ export const menuItems: MenuItemDTO[] = [
     label: '/packages',
     breadcrumb: 'my packages',
   },
-  {
-    teacherName: 'My School',
-    studentName: 'My School',
-    adminName: 'School',
-    use: ['teacher', 'student', 'admin', 'school'],
-    icon: 'location_city',
-    routerLink: '',
-    label: '',
-    breadcrumb: 'school',
-  },
+  // {
+  //   teacherName: 'My School',
+  //   studentName: 'My School',
+  //   adminName: 'School',
+  //   use: ['teacher', 'student', 'admin', 'school'],
+  //   icon: 'location_city',
+  //   routerLink: '',
+  //   label: '',
+  //   breadcrumb: 'school',
+  // },
   {
     adminName: 'Administration',
     use: ['admin', 'school'],
