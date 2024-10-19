@@ -12,10 +12,15 @@
         class="notifications-list-item"
         *ngFor="let notification of notifications"
       >
-        <mat-icon mat-list-icon>folder</mat-icon>
+        <img
+          mat-list-icon
+          class="notification-img"
+          [src]="getProfilePicture(notification.createdBy)"
+          alt="user image"
+        />
         <div
           mat-line
-          [style]="!isNotificationSeen(notification) ? 'font-weight: bold' : ''"
+          [style]="!isNotificationSeen(notification) ? 'font-weight: bolder;' : ''"
         >
           {{notification.message}}
         </div>

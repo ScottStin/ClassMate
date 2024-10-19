@@ -41,7 +41,10 @@
     [matMenuTriggerFor]="notificationsMenu"
     #notificationsMenuTrigger="matMenuTrigger"
     class="button header-bar-button"
-    *ngIf="currentUser"
+    [ngClass]="notificationAnimation"
+    *ngIf="currentUser && !notifiationsLoading"
+    [disabled]="notifiationsLoading"
+    (menuOpened)="markNotificationsAsSeen()"
   >
     <mat-icon
       [matBadge]="unseenNotificationsCount > 0 ? unseenNotificationsCount : ''"
@@ -50,17 +53,6 @@
       >notifications</mat-icon
     >
   </button>
-
-  <!-- <button
-    *ngIf="authStoreService.isLoggedIn$ | async"
-    mat-icon-button
-    class="button"
-    aria-label="Logout"
-    matTooltip="Logout"
-    (click)="logout()"
-  >
-    <mat-icon>exit_to_app</mat-icon>
-  </button> -->
 </mat-toolbar>
 
 <!-- Notifications Menu: -->
@@ -71,6 +63,7 @@
       (closeDialog)="closeNotificationDialog()"
       [notifications]="notifications$ | async"
       [currentUserId]="currentUser?._id"
+      [users]="users"
     ></app-notifications-dialog>
   </div>
 </mat-menu>

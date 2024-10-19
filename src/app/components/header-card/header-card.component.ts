@@ -3,14 +3,14 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { Observable, Subscription } from 'rxjs';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { finalize, Observable } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -21,12 +21,13 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-header-card',
   templateUrl: './header-card.component.html',
   styleUrls: ['./header-card.component.scss'],
 })
-export class HeaderCardComponent implements OnInit, OnDestroy {
+export class HeaderCardComponent implements OnInit {
   @ViewChild('notificationsMenuTrigger', { static: false })
   notificationsMenuTrigger: MatMenuTrigger;
 
@@ -35,6 +36,7 @@ export class HeaderCardComponent implements OnInit, OnDestroy {
   @Output() filterResults = new EventEmitter<string>();
   @Input() currentSchool: SchoolDTO | null;
   @Input() currentUser: UserDTO | null;
+  @Input() users: UserDTO[] | null;
   @Input() pageName: string;
 
   breadCrumb: string | undefined = '';
@@ -45,8 +47,9 @@ export class HeaderCardComponent implements OnInit, OnDestroy {
   headerButtonFunction: string | undefined = '';
   menuItems: MenuItemDTO[] = menuItems;
   notifications$: Observable<NotificationDTO[]>;
-  notificationsSubscription: Subscription | null;
   unseenNotificationsCount = 0;
+  notifiationsLoading = false;
+  notificationAnimation = '';
 
   // --- screen sizes:
   largeScreen = false;
@@ -71,14 +74,26 @@ export class HeaderCardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.notifiationsLoading = true;
     this.notifications$ = this.notificationService.notifications$;
-    this.notificationsSubscription = this.notificationService
-      .getAllByUserId(this.currentUser?._id ?? '')
+    this.getNotifications();
+
+    this.notificationService.notifications$
+      .pipe(untilDestroyed(this))
       .subscribe((notifications) => {
         this.unseenNotificationsCount = notifications.filter(
           (notification) =>
             !notification.seenBy.includes(this.currentUser?._id ?? '')
         ).length;
+
+        this.notifiationsLoading = false;
+
+        // -- Trigger notificaiton 'ding' animation:
+        this.notificationAnimation = 'ding-animation';
+        setTimeout(() => {
+          this.notificationAnimation = '';
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        }, 700);
       });
 
     this.breadCrumb = this.pageName;
@@ -94,6 +109,23 @@ export class HeaderCardComponent implements OnInit, OnDestroy {
     }
   }
 
+  getNotifications(): void {
+    this.notificationService
+      .getAllByUserId(this.currentUser?._id ?? '')
+      .pipe(
+        finalize(() => {
+          this.notifiationsLoading = false;
+        }),
+        untilDestroyed(this)
+      )
+      .subscribe((notifications) => {
+        this.unseenNotificationsCount = notifications.filter(
+          (notification) =>
+            !notification.seenBy.includes(this.currentUser?._id ?? '')
+        ).length;
+      });
+  }
+
   closeSideNavClick(): void {
     this.closeSideNav.emit();
   }
@@ -102,50 +134,30 @@ export class HeaderCardComponent implements OnInit, OnDestroy {
     this.headerButtonAction.emit();
   }
 
-  // logout(): void {
-  //   const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-  //     data: {
-  //       title: 'Logout',
-  //       message: 'Are you sure you want to logout?',
-  //       okLabel: 'Logout',
-  //       cancelLabel: 'Cancel',
-  //       routerLink:
-  //         this.currentSchool !== null
-  //           ? `${this.currentSchool.name
-  //               .replace(/ /gu, '-')
-  //               .toLowerCase()}/welcome`
-  //           : 'welcome',
-  //     },
-  //   });
-  //   dialogRef.afterClosed().subscribe((result) => {
-  //     if (result === true) {
-  //       let firstName = 'mate';
-  //       if (this.currentUser) {
-  //         firstName = this.currentUser.name.split(' ')[0];
-  //       }
-  //       this.snackbarService.open('info', `Goodbye, ${firstName}!`);
-  //       this.authStoreService.logout();
-  //     }
-  //   });
-  // }
-
   filterResultsKeyup(text: string): void {
     this.filterResults.emit(text);
   }
 
   // Notifications:
 
-  // getUnseenNotificationCount(): number {
-  //   let count = 0;
-  //   // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-  //   if (this.currentUser?._id) {
-  //     const currentUserId = this.currentUser._id;
-  //     count = this.filteredNotifications.filter(
-  //       (notification) => !notification.seenBy.includes(currentUserId)
-  //     ).length;
-  //   }
-  //   return count;
-  // }
+  markNotificationsAsSeen(): void {
+    this.notificationService
+      .getAllByUserId(this.currentUser?._id ?? '')
+      .pipe(untilDestroyed(this))
+      .subscribe((notifications) => {
+        this.unseenNotificationsCount = notifications.filter(
+          (notification) =>
+            !notification.seenBy.includes(this.currentUser?._id ?? '')
+        ).length;
+
+        this.notificationService
+          .markAllAsSeen({
+            notifications,
+            currentUserId: this.currentUser?._id ?? '',
+          })
+          .subscribe();
+      });
+  }
 
   closeNotificationDialog(): void {
     if (this.notificationsMenuTrigger.menuOpen) {
@@ -153,9 +165,9 @@ export class HeaderCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    if (this.notificationsSubscription) {
-      this.notificationsSubscription.unsubscribe();
-    }
-  }
+  // ngOnDestroy(): void {
+  //   if (this.notificationsSubscription) {
+  //     this.notificationsSubscription.unsubscribe();
+  //   }
+  // }
 }

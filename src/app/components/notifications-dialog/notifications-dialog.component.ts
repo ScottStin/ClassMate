@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NotificationDTO } from 'src/app/shared/models/notification.mode';
+import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-notifications-dialog',
@@ -10,6 +11,7 @@ export class NotificationsDialogComponent {
   @Output() closeDialog = new EventEmitter();
   @Input() notifications: NotificationDTO[] | null;
   @Input() currentUserId?: string | null;
+  @Input() users: UserDTO[] | null;
 
   onCloseBtnClick(): void {
     this.closeDialog.emit();
@@ -21,5 +23,11 @@ export class NotificationsDialogComponent {
     } else {
       return false;
     }
+  }
+
+  // todo - replace with helper or directive or service
+  getProfilePicture(userId: string): string | null {
+    const foundUser = this.users?.find((user) => user._id === userId);
+    return foundUser?.profilePicture?.url ?? null;
   }
 }

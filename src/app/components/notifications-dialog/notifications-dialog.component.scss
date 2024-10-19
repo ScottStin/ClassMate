@@ -39,3 +39,9 @@ $primaryColor: var(--primaryColor);
     color: $primaryColor;
     margin-left: 10px;
   }
+
+  .notification-img {
+    transform: scale(1.5);
+    object-fit: cover;
+    border-radius: 50%;
+  }
