@@ -1,9 +1,7 @@
-/* eslint-disable prettier/prettier *//* eslint-disable linebreak-style */
-import { LevelDTO, UserDTO } from './user.model';
+import { LevelDTO } from './user.model';
 
-export interface LessonDTO {
-  _id?: string;
-  teacher: UserDTO | string;
+export interface CreateLessonDTO {
+  teacherId: string;
   schoolId: string;
   type: LessonTypeDTO;
   startTime: string;
@@ -13,9 +11,13 @@ export interface LessonDTO {
   description: string;
   casualPrice: number;
   maxStudents: number;
-  studentsEnrolled: string[];
+  studentsEnrolledIds: string[];
   disableFirtsLesson: boolean;
   status?: string; // todo: replace with enum 'started', 'finished' etc.
+}
+
+export interface LessonDTO extends CreateLessonDTO {
+  _id: string;
 }
 
 export interface LessonTypeDTO {

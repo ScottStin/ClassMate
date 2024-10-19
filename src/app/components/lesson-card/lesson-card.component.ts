@@ -74,7 +74,7 @@ export class LessonCardComponent implements OnChanges {
   getTeacherDetails(): void {
     if (this.users && this.lesson) {
       this.teacher = this.users.filter(
-        (obj) => obj.email === this.lesson?.teacher
+        (obj) => obj._id === this.lesson?.teacherId
       )[0];
     }
   }
@@ -106,14 +106,14 @@ export class LessonCardComponent implements OnChanges {
       return this.filterLessonLevel(lesson); // If we're on the home page and the lesson type matches the type filter, show the lesson
     } else if (
       this.pageName === 'lessons' &&
-      (this.currentUser?.email === this.teacher?.email ||
+      (this.currentUser?._id === this.teacher?._id ||
         this.currentUser?.userType === 'school')
     ) {
       return true; // if we're on the 'my classes' page and the class belongs to the current logged in teacher
     } else if (
       this.pageName === 'lessons' &&
       this.currentUser &&
-      lesson.studentsEnrolled.includes(this.currentUser.email)
+      lesson.studentsEnrolledIds.includes(this.currentUser._id)
     ) {
       return true; // if we're on the 'my classes' page and the current enrolled student is a enrolled in that class
     } else {
@@ -126,7 +126,7 @@ export class LessonCardComponent implements OnChanges {
       return true; // if there's not current user.
     } else if (
       this.currentUser.userType.toLowerCase() === 'student' &&
-      !lesson.studentsEnrolled.includes(this.currentUser.email)
+      !lesson.studentsEnrolledIds.includes(this.currentUser._id)
     ) {
       return true; // if the current user is a student and they're not enrolled in the lesson.
     } else {
@@ -137,7 +137,7 @@ export class LessonCardComponent implements OnChanges {
   showLeaveButton(lesson: LessonDTO): boolean {
     if (
       this.currentUser?.userType.toLowerCase() === 'student' &&
-      lesson.studentsEnrolled.includes(this.currentUser.email)
+      lesson.studentsEnrolledIds.includes(this.currentUser._id)
     ) {
       return true;
     } else {

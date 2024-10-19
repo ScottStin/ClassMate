@@ -44,10 +44,8 @@ export class AddStudentToLessonDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    for (const studentEmail of this.lesson?.studentsEnrolled ?? []) {
-      const foundUser = this.data.users.find(
-        (obj) => obj.email === studentEmail
-      );
+    for (const studentId of this.lesson?.studentsEnrolledIds ?? []) {
+      const foundUser = this.data.users.find((user) => user._id === studentId);
       if (foundUser) {
         this.enrolledStudents.push(foundUser);
       }
@@ -56,7 +54,7 @@ export class AddStudentToLessonDialogComponent implements OnInit {
 
   getLevelList(): string {
     if (this.lesson) {
-      return this.lesson.level.map((obj) => obj.shortName).join(', ');
+      return this.lesson.level.map((level) => level.shortName).join(', ');
     } else {
       return '';
     }
@@ -67,7 +65,7 @@ export class AddStudentToLessonDialogComponent implements OnInit {
     if (
       !checked &&
       this.lesson &&
-      this.lesson.studentsEnrolled.includes(student.email)
+      this.lesson.studentsEnrolledIds.includes(student._id)
     ) {
       const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
         data: {

@@ -197,9 +197,9 @@ export class HomePageComponent implements OnInit, OnDestroy {
                 // --- create notificaiton:
                 this.notificationService
                   .create({
-                    recipients: [lesson.teacher as string], // todo - this is the email. We need to replace with the user id
+                    recipients: [lesson.teacherId],
                     message: `${currentUser.name} has joined your lesson ${lesson.name}`,
-                    createdBy: currentUser._id ?? '',
+                    createdBy: currentUser._id,
                     dateSent: new Date().getTime(),
                     seenBy: [],
                     schoolId: currentUser.schoolId as string,
@@ -248,9 +248,9 @@ export class HomePageComponent implements OnInit, OnDestroy {
                   // --- create notificaiton:
                   this.notificationService
                     .create({
-                      recipients: [lesson.teacher as string], // todo - this is the email. We need to replace with the user id
+                      recipients: [lesson.teacherId],
                       message: `${currentUser.name} has left your lesson ${lesson.name}`,
-                      createdBy: currentUser._id ?? '',
+                      createdBy: currentUser._id,
                       dateSent: new Date().getTime(),
                       seenBy: [],
                       schoolId: currentUser.schoolId as string,
@@ -294,7 +294,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
               "Lesson started. You will now be redirected to the video call page in a new tab. If the redirect doesn't immediately happen, you can click the 'Enter Lesson' button on the lesson card."
             );
             this.loadPageData();
-            if (lesson._id !== undefined) {
+            if (lesson._id) {
               this.enterLesson(lesson._id);
             }
           },

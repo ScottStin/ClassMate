@@ -52,7 +52,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
   }
 
   filterResults(text: string): void {
-    if (this.homework && this.selectedStudent?._id !== null) {
+    if (this.homework && this.selectedStudent) {
       this.homeworkList = this.homework
         .filter((obj) =>
           obj.students
@@ -69,7 +69,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
   }
 
   getHomeworkList(): void {
-    if (this.homework && this.selectedStudent?._id !== null) {
+    if (this.homework && this.selectedStudent) {
       this.homeworkList = this.homework.filter((obj) =>
         obj.students
           .map((student) => student.studentId)

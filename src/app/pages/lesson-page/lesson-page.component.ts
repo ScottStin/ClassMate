@@ -245,7 +245,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
               "Lesson started. You will now be redirected to the video call page in a new tab. If the redirect doesn't immediately happen, you can click the 'Enter Lesson' button on the lesson card."
             );
             this.loadPageData();
-            if (lesson._id !== undefined) {
+            if (lesson._id) {
               this.enterLesson(lesson._id);
             }
           },

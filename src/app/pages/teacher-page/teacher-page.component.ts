@@ -85,7 +85,7 @@ export class TeacherPageComponent implements OnInit, OnDestroy {
     });
     dialogRef.afterClosed().subscribe((result: UserDTO[] | undefined) => {
       if (result) {
-        this.userService.delete(user._id!).subscribe({
+        this.userService.delete(user._id).subscribe({
           next: () => {
             this.snackbarService.open('info', 'User successfully deleted');
             this.getUsers();

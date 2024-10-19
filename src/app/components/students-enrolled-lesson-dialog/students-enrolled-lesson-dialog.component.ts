@@ -8,7 +8,6 @@ import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confir
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
-import { UserService } from 'src/app/services/user-service/user.service';
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -26,12 +25,12 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
   studentNames: {
     name: string | undefined;
     email: string | undefined;
+    _id: string | undefined;
   }[] = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: { lesson: LessonDTO; pastLesson?: boolean; users: UserDTO[] },
-    private readonly userService: UserService,
     private readonly lessonService: LessonService,
     private readonly notificationService: NotificationService,
     private readonly snackbarService: SnackbarService,
@@ -46,10 +45,11 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
   }
 
   getUsers(): void {
-    for (const student of this.lesson?.studentsEnrolled ?? []) {
+    for (const student of this.lesson?.studentsEnrolledIds ?? []) {
       this.studentNames.push({
-        name: this.data.users.find((obj) => obj.email === student)?.name,
-        email: this.data.users.find((obj) => obj.email === student)?.email,
+        name: this.data.users.find((obj) => obj._id === student)?.name,
+        email: this.data.users.find((obj) => obj._id === student)?.email,
+        _id: this.data.users.find((obj) => obj._id === student)?._id,
       });
     }
   }
@@ -57,6 +57,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
   removeStudent(student: {
     name: string | undefined;
     email: string | undefined;
+    _id: string | undefined;
   }): void {
     const title = student.name !== undefined ? student.name : 'student';
     const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -70,7 +71,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
     });
     confirmDialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        const user = this.data.users.find((obj) => obj.email === student.email);
+        const user = this.data.users.find((obj) => obj._id === student._id);
         if (user && this.lesson) {
           this.lessonService.cancelLesson(this.lesson, user).subscribe({
             next: () => {
@@ -80,19 +81,23 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
               );
               this.dialogRef.close(true);
 
-              console.log(this.lesson);
-              console.log(student);
+              const lessonTeacher = this.data.users.find(
+                (teacher) => teacher._id === this.lesson?.teacherId
+              );
+
               // --- create notificaiton:
-              // this.notificationService
-              //   .create({
-              //     recipients: [student.email ?? ''], // todo - this is the email. We need to replace with the user id
-              //     message: `You have been removed from ${this.lesson.teacher} lesson '${this.lesson.name}'`,
-              //     createdBy: this.lesson.teacher as string ?? '',
-              //     dateSent: new Date().getTime(),
-              //     seenBy: [],
-              //     schoolId: this.lesson?.schoolId ?? '',
-              //   })
-              //   .subscribe();
+              this.notificationService
+                .create({
+                  recipients: [student._id ?? ''],
+                  message: `You have been removed from ${
+                    lessonTeacher?.name ?? 'your school'
+                  }'s lesson '${this.lesson?.name ?? ''}'`,
+                  createdBy: this.lesson?.teacherId ?? '',
+                  dateSent: new Date().getTime(),
+                  seenBy: [],
+                  schoolId: this.lesson?.schoolId ?? '',
+                })
+                .subscribe();
             },
             error: (error: Error) => {
               this.error = error;

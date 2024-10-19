@@ -36,9 +36,9 @@
             mat-mini-fab
             color="primary"
             class="join-button"
-            [matTooltip]="lesson.studentsEnrolled.length >= lesson.maxStudents ? 'Sorry, this lesson is full' : 'Click here to reserve your seat in this class'"
+            [matTooltip]="lesson.studentsEnrolledIds.length >= lesson.maxStudents ? 'Sorry, this lesson is full' : 'Click here to reserve your seat in this class'"
             (click)="joinLessonClick()"
-            [disabled]="lesson.studentsEnrolled.length >= lesson.maxStudents"
+            [disabled]="lesson.studentsEnrolledIds.length >= lesson.maxStudents"
           >
             <mat-icon>person_add</mat-icon>
           </button>
@@ -53,7 +53,7 @@
             <mat-icon>cancel</mat-icon>
           </button>
           <button
-            *ngIf="(authStoreService.currentUser$ | async)?.email === lesson?.teacher && lesson.status !== 'started' && !this.pastLesson"
+            *ngIf="(authStoreService.currentUser$ | async)?._id === lesson?.teacherId && lesson.status !== 'started' && !this.pastLesson"
             [disabled]="!showStartButton(lesson)"
             mat-mini-fab
             style="margin-right: 10px"
@@ -65,7 +65,7 @@
             <mat-icon><i class="material-icons">start</i></mat-icon>
           </button>
           <button
-            *ngIf="((authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher' || lesson.studentsEnrolled?.includes(this.currentUser?.email ?? '')) && lesson.status === 'started' && !this.pastLesson"
+            *ngIf="((authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'teacher' || lesson.studentsEnrolledIds?.includes(this.currentUser?._id ?? '')) && lesson.status === 'started' && !this.pastLesson"
             mat-mini-fab
             style="margin-right: 10px"
             class="enter-button"
@@ -92,7 +92,7 @@
           style="position: absolute; top: 5px; right: 5px"
           *ngIf="
           pageName==='lessons' &&
-          ((authStoreService.currentUser$ | async)?.email === teacher?.email || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school')
+          ((authStoreService.currentUser$ | async)?._id === teacher?._id || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school')
         "
           matTooltip="Open lesson options"
         >
@@ -123,10 +123,10 @@
           (click)="currentUser?.userType?.toLowerCase()==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? openStudentsEnrolledDialog(lesson) : ''"
           ><mat-chip
             [style]="currentUser?.userType?.toLowerCase()==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? 'cursor: pointer' : ''"
-            [class.active-chip]="lesson.studentsEnrolled.length < lesson.maxStudents && !showLeaveButton(lesson)"
-            [class.active-chip-joined]="lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) && lesson.status !== 'started'"
-            [class.active-chip-started]="lesson.studentsEnrolled.length < lesson.maxStudents && showLeaveButton(lesson) && lesson.status === 'started'"
-            >Seats: {{lesson.studentsEnrolled.length}} /
+            [class.active-chip]="lesson.studentsEnrolledIds.length < lesson.maxStudents && !showLeaveButton(lesson)"
+            [class.active-chip-joined]="lesson.studentsEnrolledIds.length < lesson.maxStudents && showLeaveButton(lesson) && lesson.status !== 'started'"
+            [class.active-chip-started]="lesson.studentsEnrolledIds.length < lesson.maxStudents && showLeaveButton(lesson) && lesson.status === 'started'"
+            >Seats: {{lesson.studentsEnrolledIds.length}} /
             {{lesson.maxStudents}}</mat-chip
           ></mat-chip-list
         >

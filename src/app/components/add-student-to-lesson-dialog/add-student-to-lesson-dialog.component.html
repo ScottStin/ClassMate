@@ -21,7 +21,7 @@
           <mat-checkbox
             #checkboxRef
             [id]="'checkbox' + index"
-            [checked]="lesson.studentsEnrolled.includes(student.email)"
+            [checked]="lesson.studentsEnrolledIds.includes(student._id)"
             (change)="enrolStudent($event.checked, index, student)"
             [disabled]="enrolledStudents.length >= lesson.maxStudents && !enrolledStudents.includes(student)"
             >{{student.name}} ({{ student.email }})</mat-checkbox

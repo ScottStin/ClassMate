@@ -1,6 +1,4 @@
-/* eslint-disable prettier/prettier *//* eslint-disable linebreak-style */
-export interface UserDTO {
-  _id?: string | null;
+export interface CreateUserDTO {
   name: string;
   email: string;
   phone?: string | null;
@@ -17,6 +15,10 @@ export interface UserDTO {
   eltComplete: boolean;
   createdAt?: Date | null;
   updatedAt?: Date | null;
+}
+
+export interface UserDTO extends CreateUserDTO {
+  _id: string;
 }
 
 export interface ProfilePictureDTO {

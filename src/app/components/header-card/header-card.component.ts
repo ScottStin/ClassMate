@@ -11,8 +11,6 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Observable, Subscription } from 'rxjs';
-// import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
-import { notificationDemoData } from 'src/app/demo-data/demo-data';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';

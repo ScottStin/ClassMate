@@ -142,7 +142,7 @@
             <mat-select formControlName="assignedTeacher">
               <mat-option
                 *ngFor="let teacher of data.teachers"
-                [value]="teacher.email"
+                [value]="teacher._id"
                 ><img
                   [src]="teacher.profilePicture?.url"
                   alt="teacher image"

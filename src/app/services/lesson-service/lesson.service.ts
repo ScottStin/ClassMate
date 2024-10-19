@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { LessonDTO } from 'src/app/shared/models/lesson.model';
+import { CreateLessonDTO, LessonDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
@@ -83,7 +83,7 @@ export class LessonService {
     });
   }
 
-  create(data: LessonDTO[]): Observable<LessonDTO[]> {
+  create(data: CreateLessonDTO[]): Observable<LessonDTO[]> {
     return this.httpClient.post<LessonDTO[]>(`${this.baseUrl}/new`, data).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to create new lesson');
@@ -93,7 +93,7 @@ export class LessonService {
 
   joinLesson(lesson: LessonDTO, student: UserDTO): Observable<LessonDTO> {
     return this.httpClient
-      .patch<LessonDTO>(`${this.baseUrl}/register/${lesson._id!}`, student)
+      .patch<LessonDTO>(`${this.baseUrl}/register/${lesson._id}`, student)
       .pipe(
         catchError((error: Error) => {
           this.handleError(error, 'Failed to join lesson');
@@ -107,7 +107,7 @@ export class LessonService {
   ): Observable<LessonDTO> {
     return this.httpClient
       .patch<LessonDTO>(
-        `${this.baseUrl}/register-multi/${lesson._id!}`,
+        `${this.baseUrl}/register-multi/${lesson._id}`,
         students
       )
       .pipe(
@@ -119,7 +119,7 @@ export class LessonService {
 
   startLesson(lesson: LessonDTO): Observable<LessonDTO> {
     return this.httpClient
-      .patch<LessonDTO>(`${this.baseUrl}/start-lesson/${lesson._id!}`, lesson)
+      .patch<LessonDTO>(`${this.baseUrl}/start-lesson/${lesson._id}`, lesson)
       .pipe(
         catchError((error: Error) => {
           this.handleError(error, 'Failed to join lesson');
@@ -129,7 +129,7 @@ export class LessonService {
 
   cancelLesson(lesson: LessonDTO, student: UserDTO): Observable<LessonDTO> {
     return this.httpClient
-      .patch<LessonDTO>(`${this.baseUrl}/cancel/${lesson._id!}`, student)
+      .patch<LessonDTO>(`${this.baseUrl}/cancel/${lesson._id}`, student)
       .pipe(
         catchError((error: Error) => {
           this.handleError(error, 'Failed to cancel lesson');
@@ -141,7 +141,7 @@ export class LessonService {
     return (
       this.httpClient
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        .delete<LessonDTO>(`${this.baseUrl}/${data._id!}`)
+        .delete<LessonDTO>(`${this.baseUrl}/${data._id}`)
         .pipe(
           catchError((error: Error) => {
             this.handleError(error, 'Failed to delete lesson');

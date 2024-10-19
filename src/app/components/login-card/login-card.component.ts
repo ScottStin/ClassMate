@@ -22,7 +22,11 @@ import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.serv
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
-import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
+import {
+  CreateUserDTO,
+  UserDTO,
+  UserLoginDTO,
+} from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-login-card',
@@ -46,7 +50,7 @@ export class LoginCardComponent implements OnInit, OnChanges {
     isFlipped: boolean;
     removeCurrentSchool: boolean | undefined;
   }>();
-  @Output() signup = new EventEmitter<UserDTO>();
+  @Output() signup = new EventEmitter<CreateUserDTO>();
   @Output() login = new EventEmitter<UserLoginDTO>();
   @Output() changeBackgroundImage = new EventEmitter<{
     name: string;
@@ -225,7 +229,7 @@ export class LoginCardComponent implements OnInit, OnChanges {
 
   signupClick(): void {
     const formValue = this.loginForm.getRawValue();
-    const newUser: UserDTO = {
+    const newUser: CreateUserDTO = {
       name: formValue.nameInput,
       email: formValue.emailInput,
       nationality: formValue.countryInput,

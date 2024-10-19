@@ -18,7 +18,11 @@ import {
 } from 'src/app/shared/background-images';
 import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
-import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
+import {
+  CreateUserDTO,
+  UserDTO,
+  UserLoginDTO,
+} from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-login-page',
@@ -218,7 +222,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  async signup(user: UserDTO): Promise<void> {
+  async signup(user: CreateUserDTO): Promise<void> {
     try {
       user.userType = this.userType;
       const res = await this.userService.create(user).toPromise();

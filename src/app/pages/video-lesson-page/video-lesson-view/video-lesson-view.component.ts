@@ -78,7 +78,7 @@ export class VideoLessonViewComponent implements OnInit, OnChanges {
         (['school', 'admin', 'teacher'].includes(
           this.currentUser.userType.toLowerCase()
         ) ||
-          this.currentLesson.studentsEnrolled.includes(this.currentUser.email))
+          this.currentLesson.studentsEnrolledIds.includes(this.currentUser._id))
       ) {
         await this.initializeCall();
       } else {
@@ -131,7 +131,7 @@ export class VideoLessonViewComponent implements OnInit, OnChanges {
         canAdmin = true; // all teachers will have admin privvlages
       }
 
-      if (this.currentLesson?.teacher === this.currentUser?.email) {
+      if (this.currentLesson?.teacherId === this.currentUser?._id) {
         isOwner = true; // The teacher who created the lesson will have owner privllages
       }
 

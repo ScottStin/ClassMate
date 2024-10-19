@@ -169,12 +169,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
       },
     });
     dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
-      if (
-        result &&
-        this.currentUser &&
-        this.currentUser._id !== null &&
-        this.currentUser._id !== undefined
-      ) {
+      if (result && this.currentUser) {
         this.userService
           .updateCurrentUser(
             {
@@ -239,8 +234,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
       let count = 0;
       homework?.forEach((homeworkItem) => {
         if (
-          this.currentUser?._id !== null &&
-          this.currentUser?._id !== undefined &&
+          this.currentUser &&
           homeworkItem.students.some(
             (student) =>
               student.studentId === this.currentUser?._id && !student.completed

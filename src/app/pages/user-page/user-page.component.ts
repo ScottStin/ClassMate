@@ -184,9 +184,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
                 previousProfilePicture: data.user.profilePicture,
                 // schoolId: '661a7220882c5afa9a6a324b',
               },
-              data.user._id !== null && data.user._id !== undefined
-                ? data.user._id
-                : ''
+              data.user._id
             )
             .subscribe({
               next: () => {
@@ -213,7 +211,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
       },
     });
     dialogRef.afterClosed().subscribe((result: UserDTO[] | undefined) => {
-      if (result && user._id !== null && user._id !== undefined) {
+      if (result) {
         this.userService.delete(user._id).subscribe({
           next: () => {
             this.snackbarService.open('info', 'User successfully deleted');

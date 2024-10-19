@@ -25,7 +25,10 @@ import { CronOptions } from 'ngx-cron-editor';
 import { Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { demoLevels } from 'src/app/shared/demo-data';
-import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
+import {
+  CreateLessonDTO,
+  LessonTypeDTO,
+} from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
 
@@ -37,7 +40,7 @@ import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
 export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatTable) table!: MatTable<LessonDTO>;
+  @ViewChild(MatTable) table!: MatTable<CreateLessonDTO>;
 
   lessonForm: FormGroup<{
     nameInput: FormControl<string>;
@@ -71,7 +74,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   formPopulated = new Subject<boolean>();
   lessonTypes: LessonTypeDTO[] = [];
   demoLevels = demoLevels;
-  lessons: LessonDTO[] | undefined = [];
+  lessons: CreateLessonDTO[] | undefined = [];
   displayedColumns = [
     'startTime',
     'name',
@@ -82,14 +85,14 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     'level',
     'actions',
   ];
-  dataSource?: MatTableDataSource<LessonDTO> | undefined;
+  dataSource?: MatTableDataSource<CreateLessonDTO> | undefined;
   public lessonDateMode: string;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
       title: string;
-      body: LessonDTO | undefined;
+      body: CreateLessonDTO | undefined;
       currentUser?: UserDTO;
       currentSchool?: SchoolDTO;
       teachers: UserDTO[];
@@ -101,7 +104,9 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.lessonTypes = this.data.currentSchool?.lessonTypes ?? [];
     this.populateForm();
-    this.dataSource = new MatTableDataSource<LessonDTO>(this.lessons ?? []);
+    this.dataSource = new MatTableDataSource<CreateLessonDTO>(
+      this.lessons ?? []
+    );
     this.lessonDateMode = 'individual';
   }
 
@@ -121,7 +126,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   private lessonSortingDataAccessor(
-    tableData: LessonDTO,
+    tableData: CreateLessonDTO,
     property: string
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
@@ -218,13 +223,13 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
 
   pushLessonToList(startTime: string | undefined): void {
     if (this.data.currentSchool && this.data.currentUser) {
-      const userEmail = this.data.currentUser.email;
+      const userId = this.data.currentUser._id;
       const formValue = this.lessonForm.getRawValue();
 
       this.lessons?.push({
-        teacher:
+        teacherId:
           this.data.currentUser.userType.toLocaleLowerCase() !== 'school'
-            ? userEmail
+            ? userId
             : this.lessonForm.controls.assignedTeacher.value,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         startTime: startTime ?? formValue.dateInput!,
@@ -241,13 +246,13 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         duration: formValue.lengthInput,
         description: formValue.descriptionInput,
         disableFirtsLesson: false,
-        studentsEnrolled: [],
+        studentsEnrolledIds: [],
         casualPrice: 0,
       });
     }
   }
 
-  removeLesson(lesson: LessonDTO): void {
+  removeLesson(lesson: CreateLessonDTO): void {
     if (this.lessons) {
       const index = this.lessons.indexOf(lesson);
       if (index !== -1) {
@@ -300,7 +305,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
     }
   }
 
-  saveClick(lessons: LessonDTO[] | undefined): void {
+  saveClick(lessons: CreateLessonDTO[] | undefined): void {
     this.dialogRef.close(lessons);
   }
 

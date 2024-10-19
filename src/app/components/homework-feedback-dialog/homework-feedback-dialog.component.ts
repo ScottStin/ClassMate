@@ -160,7 +160,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
         pass: feedbackForm.pass,
         teacher: teacher ?? undefined,
         attachment: attachment as { url: string; fileName: string },
-        student: this.data.selectedStudent._id ?? '',
+        student: this.data.selectedStudent._id,
       };
 
       this.dialogRef.close(feedback);

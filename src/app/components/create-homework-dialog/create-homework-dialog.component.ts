@@ -87,7 +87,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
         schoolId: this.data.currentSchool._id,
         students: this.studentsList
           .map((student) => ({
-            studentId: student._id ?? '',
+            studentId: student._id,
             completed: false,
           }))
           .filter((element) => element.studentId !== ''),

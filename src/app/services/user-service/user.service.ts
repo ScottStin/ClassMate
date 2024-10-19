@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { UserDTO } from 'src/app/shared/models/user.model';
+import { CreateUserDTO, UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { AuthStoreService } from '../auth-store-service/auth-store.service';
@@ -48,7 +48,7 @@ export class UserService {
       );
   }
 
-  create(data: UserDTO): Observable<UserDTO> {
+  create(data: CreateUserDTO): Observable<UserDTO> {
     return this.httpClient.post<UserDTO>(`${this.baseUrl}`, data).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to create new user');
