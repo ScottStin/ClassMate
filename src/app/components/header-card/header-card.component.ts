@@ -164,10 +164,4 @@ export class HeaderCardComponent implements OnInit {
       this.notificationsMenuTrigger.closeMenu();
     }
   }
-
-  // ngOnDestroy(): void {
-  //   if (this.notificationsSubscription) {
-  //     this.notificationsSubscription.unsubscribe();
-  //   }
-  // }
 }

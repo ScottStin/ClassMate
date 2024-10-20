@@ -12,6 +12,10 @@ export class NotificationsDialogComponent {
   @Input() notifications: NotificationDTO[] | null;
   @Input() currentUserId?: string | null;
   @Input() users: UserDTO[] | null;
+  @Input() notifiationsLoading: boolean;
+
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  notificationDisplayLimit = 20;
 
   onCloseBtnClick(): void {
     this.closeDialog.emit();
@@ -29,5 +33,10 @@ export class NotificationsDialogComponent {
   getProfilePicture(userId: string): string | null {
     const foundUser = this.users?.find((user) => user._id === userId);
     return foundUser?.profilePicture?.url ?? null;
+  }
+
+  showMoreNotifications(): void {
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    this.notificationDisplayLimit = this.notificationDisplayLimit + 20;
   }
 }

@@ -8,27 +8,50 @@
 <div class="dialog-modal">
   <mat-dialog-content class="notifications-dialog-content">
     <mat-list>
-      <mat-list-item
-        class="notifications-list-item"
-        *ngFor="let notification of notifications"
-      >
-        <img
-          mat-list-icon
-          class="notification-img"
-          [src]="getProfilePicture(notification.createdBy)"
-          alt="user image"
-        />
-        <div
-          mat-line
-          [style]="!isNotificationSeen(notification) ? 'font-weight: bolder;' : ''"
+      <div *ngFor="let notification of notifications; let i = index">
+        <mat-list-item
+          *ngIf="i < notificationDisplayLimit"
+          class="notifications-list-item"
         >
-          {{notification.message}}
-        </div>
-        <div mat-line>{{notification.dateSent | date:'yyyy-MMM-dd hh:mm'}}</div>
-        <div matListItemMeta class="unseen-icon">
-          <b *ngIf="!isNotificationSeen(notification)">&#8226;</b>
-        </div>
-      </mat-list-item>
+          <img
+            mat-list-icon
+            class="notification-img"
+            [src]="getProfilePicture(notification.createdBy)"
+            alt="user image"
+          />
+          <div
+            mat-line
+            [style]="!isNotificationSeen(notification) ? 'font-weight: bolder;' : ''"
+            class="notification-message"
+          >
+            {{notification.message}}
+          </div>
+          <div mat-line>
+            {{notification.dateSent | date:'yyyy-MMM-dd hh:mm'}}
+          </div>
+          <div matListItemMeta class="unseen-icon">
+            <b *ngIf="!isNotificationSeen(notification)">&#8226;</b>
+          </div>
+        </mat-list-item>
+      </div>
+
+      <div
+        *ngIf="notificationDisplayLimit < (notifications?.length ?? 0)"
+        class="more-notifications"
+        matTooltip="Show more notifications..."
+        matTooltipPosition="after"
+        (click)="showMoreNotifications()"
+      >
+        <h2>
+          <mat-icon>more_horiz</mat-icon>
+        </h2>
+      </div>
+      <div
+        class="page-content"
+        *ngIf="notifications?.length === 0 && !notifiationsLoading"
+      >
+        No notifications to show.
+      </div>
     </mat-list>
   </mat-dialog-content>
 </div>

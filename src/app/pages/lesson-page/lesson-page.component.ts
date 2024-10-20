@@ -16,10 +16,12 @@ import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confir
 import { CreateLessonDialogComponent } from 'src/app/components/create-lesson-dialog/create-lesson-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
+import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
+import { getUserFromObservable } from 'src/app/shared/helpers/user.helper';
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -66,6 +68,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     private readonly lessonService: LessonService,
     public readonly schoolService: SchoolService,
     public readonly authStoreService: AuthStoreService,
+    public readonly notificationService: NotificationService,
     public dialog: MatDialog
   ) {
     this.routerSubscription = this.router.events.subscribe(() => {
@@ -216,6 +219,27 @@ export class LessonPageComponent implements OnInit, OnDestroy {
           next: () => {
             this.snackbarService.open('info', 'Lesson successfully deleted');
             this.loadPageData();
+
+            getUserFromObservable(this.users$, lesson.teacherId)
+              .then((teacher) => {
+                if (teacher) {
+                  // --- create notificaiton:
+                  this.notificationService
+                    .create({
+                      recipients: lesson.studentsEnrolledIds,
+                      message: `${teacher.name}'s upcoming lesson has been cancelled: ${lesson.name}`,
+                      createdBy: lesson.teacherId,
+                      dateSent: new Date().getTime(),
+                      seenBy: [],
+                      schoolId: lesson.schoolId,
+                    })
+                    .subscribe();
+                }
+              })
+              .catch((error) => {
+                // eslint-disable-next-line no-console
+                console.error('Error getting teacher for notification:', error);
+              });
           },
           error: (error: Error) => {
             this.error = error;

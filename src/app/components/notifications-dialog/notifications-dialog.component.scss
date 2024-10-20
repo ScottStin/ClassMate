@@ -45,3 +45,15 @@ $primaryColor: var(--primaryColor);
     object-fit: cover;
     border-radius: 50%;
   }
+
+  .more-notifications {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .notification-message:hover {
+    white-space: wrap;
+  }

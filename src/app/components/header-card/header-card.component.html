@@ -36,6 +36,10 @@
 
   <span class="spacer"></span>
 
+  <button mat-icon-button class="button header-bar-button" *ngIf="currentUser">
+    <mat-icon>messages</mat-icon>
+  </button>
+
   <button
     mat-icon-button
     [matMenuTriggerFor]="notificationsMenu"
@@ -64,6 +68,7 @@
       [notifications]="notifications$ | async"
       [currentUserId]="currentUser?._id"
       [users]="users"
+      [notifiationsLoading]="notifiationsLoading"
     ></app-notifications-dialog>
   </div>
 </mat-menu>
