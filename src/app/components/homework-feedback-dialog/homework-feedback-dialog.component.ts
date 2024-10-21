@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
-import { CommentDTO } from 'src/app/shared/models/homework.model';
+import { CommentDTO, HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { CreateHomeworkDialogComponent } from '../create-homework-dialog/create-homework-dialog.component';
@@ -32,6 +32,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
     public data: {
       title: string;
       body: CommentDTO | undefined;
+      homeworkItem: HomeworkDTO;
       teachers?: UserDTO[];
       commentType: 'feedback' | 'submission';
       selectedStudent: UserDTO;
@@ -158,7 +159,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
         duration: feedbackForm.duration ?? undefined,
         commentType: this.data.commentType,
         pass: feedbackForm.pass,
-        teacherId: teacher ?? undefined,
+        teacherId: teacher ?? this.data.homeworkItem.assignedTeacherId,
         attachment: attachment as { url: string; fileName: string },
         studentId: this.data.selectedStudent._id,
       };

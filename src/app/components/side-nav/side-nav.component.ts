@@ -8,7 +8,8 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { firstValueFrom, Observable, Subscription } from 'rxjs';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
@@ -20,11 +21,13 @@ import {
   TempStylesService,
 } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-side-nav',
   templateUrl: './side-nav.component.html',
@@ -44,9 +47,8 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   feedbackSubmitted$: Observable<undefined>;
   error: Error;
   badgeCounts: Record<string, number | null | undefined> = {};
-
-  private temporaryStylesSubscription: Subscription | null;
   temporaryStyles$: Observable<TempStylesDTO | null>;
+  homework$: Observable<HomeworkDTO[] | null>;
 
   // hideNavText = false;
   // @HostListener('window:resize', ['$event'])
@@ -86,8 +88,13 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async ngOnInit(): Promise<void> {
+    //
+    // --- Load data:
+    this.homework$ = this.homeworkService.homework$;
+    this.homeworkService.getAll();
     this.getCurrentUserProfilePicture();
 
+    // --- Init badge counts:
     this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
       'Exam Marking'
     );
@@ -121,23 +128,36 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
       );
     });
 
+    // --- IO socket Live Data updates: ---
+    this.homeworkService.homework$.pipe(untilDestroyed(this)).subscribe(() => {
+      // eslint-disable-next-line no-void
+      void this.getBadgeNumber('My Homework').then((badgeCount) => {
+        this.badgeCounts['My Homework'] = badgeCount;
+      });
+    });
+
+    this.homeworkService.homework$.pipe(untilDestroyed(this)).subscribe(() => {
+      // eslint-disable-next-line no-void
+      void this.getBadgeNumber('Homework Marking').then((badgeCount) => {
+        this.badgeCounts['Homework Marking'] = badgeCount;
+      });
+    });
+
     this.temporaryStyles$ = this.tempStylesService.temporaryStyles$;
     this.addSchoolRoute();
     this.getTempStyles();
   }
 
   getTempStyles(): void {
-    this.temporaryStylesSubscription = this.temporaryStyles$.subscribe(
-      (tempStyles) => {
-        if (tempStyles) {
-          if (tempStyles.logo !== undefined) {
-            this.profilePictureSrc = tempStyles.logo.url;
-          }
-        } else {
-          this.getCurrentUserProfilePicture();
+    this.temporaryStyles$.pipe(untilDestroyed(this)).subscribe((tempStyles) => {
+      if (tempStyles) {
+        if (tempStyles.logo !== undefined) {
+          this.profilePictureSrc = tempStyles.logo.url;
         }
+      } else {
+        this.getCurrentUserProfilePicture();
       }
-    );
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -199,6 +219,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
       const exams = await this.examService.getAll().toPromise();
       let count = 0;
 
+      // todo - fix infinte loop when adding live data using methods below for homework
       exams?.forEach((exam) => {
         if (exam.assignedTeacher === this.currentUser?.email) {
           exam.studentsCompleted.forEach((student) => {
@@ -211,9 +232,9 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
       return count;
     } else if (menuItem === 'Homework Marking') {
-      const homework = await this.homeworkService.getAll().toPromise();
+      const homework = await firstValueFrom(this.homeworkService.homework$);
       let count = 0;
-      homework?.forEach((homeworkItem) => {
+      homework.forEach((homeworkItem) => {
         if (
           homeworkItem.assignedTeacherId === this.currentUser?._id &&
           homeworkItem.comments &&
@@ -230,9 +251,10 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
       });
       return count;
     } else if (menuItem === 'My Homework') {
-      const homework = await this.homeworkService.getAll().toPromise();
+      const homework = await firstValueFrom(this.homeworkService.homework$);
       let count = 0;
-      homework?.forEach((homeworkItem) => {
+
+      homework.forEach((homeworkItem) => {
         if (
           this.currentUser &&
           homeworkItem.students.some(
@@ -243,6 +265,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
           count++;
         }
       });
+
       return count;
     } else {
       return null;
@@ -302,9 +325,6 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
-    }
-    if (this.temporaryStylesSubscription) {
-      this.temporaryStylesSubscription.unsubscribe();
     }
   }
 }

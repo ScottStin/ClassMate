@@ -2,6 +2,7 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
   combineLatest,
   finalize,
@@ -26,6 +27,7 @@ import { LessonDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+@UntilDestroy()
 @Component({
   selector: 'app-lesson-page',
   templateUrl: './lesson-page.component.html',
@@ -43,14 +45,9 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   filteredLessons$: Observable<LessonDTO[]>;
   lessonPageLoading = true;
   pageName = '';
-
-  // --- Subscriptions and auth data:
   private readonly routerSubscription: Subscription | undefined;
-  private currentSchoolSubscription: Subscription | null;
   currentSchool$: Observable<SchoolDTO | null>;
-  private currentUserSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
-  private lessonSubscription: Subscription | null;
   lessons$: Observable<LessonDTO[]>;
 
   @HostListener('window:resize', ['$event'])
@@ -90,9 +87,12 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     this.currentUser$ = this.authStoreService.currentUser$;
     this.lessons$ = this.lessonService.lessons$;
     this.filteredLessons$ = this.lessons$;
-    this.lessonSubscription = this.lessons$.pipe(first()).subscribe(() => {
-      this.loadPageData();
-    });
+    this.lessons$
+      .pipe(untilDestroyed(this))
+      .pipe(first())
+      .subscribe(() => {
+        this.loadPageData();
+      });
     this.loadPageData();
     this.mediumScreen =
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
@@ -100,19 +100,20 @@ export class LessonPageComponent implements OnInit, OnDestroy {
 
   loadPageData(): void {
     this.lessonPageLoading = true;
-    this.currentSchoolSubscription = this.currentSchool$.subscribe(
-      (currentSchool) => {
+    this.currentSchool$
+      .pipe(untilDestroyed(this))
+      .subscribe((currentSchool) => {
         // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/strict-boolean-expressions
         if (currentSchool && currentSchool._id) {
           forkJoin([
             this.userService.getAllBySchoolId(currentSchool._id),
             this.lessonService.getAllBySchoolId(currentSchool._id),
           ])
+            .pipe(untilDestroyed(this))
             .pipe(
               first(),
               tap(() => {
-                // this.currentSchoolSubscription = this.currentSchool$.subscribe();
-                this.currentUserSubscription = this.currentUser$.subscribe();
+                this.currentUser$.pipe(untilDestroyed(this)).subscribe();
               }),
               finalize(() => {
                 this.lessonPageLoading = false;
@@ -141,8 +142,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
               },
             });
         }
-      }
-    );
+      });
   }
 
   // todo: move to lesson service:
@@ -164,11 +164,8 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   } // todo - move to lesson service
 
   createLesson(): void {
-    this.currentUserSubscription = combineLatest([
-      this.currentUser$,
-      this.teachers$,
-      this.currentSchool$,
-    ])
+    combineLatest([this.currentUser$, this.teachers$, this.currentSchool$])
+      .pipe(untilDestroyed(this))
       .pipe(first())
       .subscribe(([currentUser, teachers, currentSchool]) => {
         if (currentUser) {
@@ -220,10 +217,10 @@ export class LessonPageComponent implements OnInit, OnDestroy {
             this.snackbarService.open('info', 'Lesson successfully deleted');
             this.loadPageData();
 
+            // --- create notificaiton:
             getUserFromObservable(this.users$, lesson.teacherId)
               .then((teacher) => {
                 if (teacher) {
-                  // --- create notificaiton:
                   this.notificationService
                     .create({
                       recipients: lesson.studentsEnrolledIds,
@@ -233,6 +230,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
                       seenBy: [],
                       schoolId: lesson.schoolId,
                     })
+                    .pipe(untilDestroyed(this))
                     .subscribe();
                 }
               })
@@ -269,6 +267,21 @@ export class LessonPageComponent implements OnInit, OnDestroy {
               "Lesson started. You will now be redirected to the video call page in a new tab. If the redirect doesn't immediately happen, you can click the 'Enter Lesson' button on the lesson card."
             );
             this.loadPageData();
+
+            // --- create notificaiton:
+            this.notificationService
+              .create({
+                recipients: lesson.studentsEnrolledIds,
+                message: `Your lesson has started! Go to your 'My Classes' page to join now: ${lesson.name}`,
+                createdBy: lesson.teacherId,
+                dateSent: new Date().getTime(),
+                seenBy: [],
+                schoolId: lesson.schoolId,
+              })
+              .pipe(untilDestroyed(this))
+              .subscribe();
+
+            // --- enter lessson:
             if (lesson._id) {
               this.enterLesson(lesson._id);
             }
@@ -308,15 +321,6 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
-    }
-    if (this.currentSchoolSubscription) {
-      this.currentSchoolSubscription.unsubscribe();
-    }
-    if (this.currentUserSubscription) {
-      this.currentUserSubscription.unsubscribe();
-    }
-    if (this.lessonSubscription) {
-      this.lessonSubscription.unsubscribe();
     }
   }
 }

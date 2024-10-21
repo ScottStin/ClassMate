@@ -1,11 +1,13 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Socket } from 'ngx-socket-io';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import {
   CommentDTO,
   CreateHomeworkDTO,
   HomeworkDTO,
 } from 'src/app/shared/models/homework.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { ErrorService } from '../error-message.service/error-message.service';
@@ -25,8 +27,28 @@ export class HomeworkService {
 
   constructor(
     private readonly httpClient: HttpClient,
-    private readonly errorService: ErrorService
-  ) {}
+    private readonly errorService: ErrorService,
+    private readonly socket: Socket
+  ) {
+    const currentUserString = localStorage.getItem('current_user');
+
+    if (currentUserString !== null) {
+      const currentUser = JSON.parse(currentUserString) as UserDTO;
+      this.socket.on(
+        `homeworkCreated-${currentUser._id}`,
+        (newHomework: HomeworkDTO) => {
+          this.refreshHomework(newHomework);
+        }
+      );
+
+      this.socket.on(
+        `homeworkCommentCreated-${currentUser._id}`,
+        (newHomework: HomeworkDTO) => {
+          this.refreshHomework(newHomework);
+        }
+      );
+    }
+  }
 
   /**
    * ==============================
@@ -178,5 +200,11 @@ export class HomeworkService {
       throw this.errorService.handleHttpError(error);
     }
     throw this.errorService.handleGenericError(error, message);
+  }
+
+  // --- Socket functions:
+  private refreshHomework(newHomework: HomeworkDTO): void {
+    const currentHomework = this.homeworkSubject.value;
+    this.homeworkSubject.next([...currentHomework, newHomework]);
   }
 }

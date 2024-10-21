@@ -4,6 +4,7 @@ import {
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
 import { NotificationService } from 'src/app/services/notification-service/notification.service';
@@ -13,6 +14,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { AddStudentToLessonDialogComponent } from '../add-student-to-lesson-dialog/add-student-to-lesson-dialog.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-students-enrolled-lesson-dialog',
   templateUrl: './students-enrolled-lesson-dialog.component.html',
@@ -97,6 +99,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                   seenBy: [],
                   schoolId: this.lesson?.schoolId ?? '',
                 })
+                .pipe(untilDestroyed(this))
                 .subscribe();
             },
             error: (error: Error) => {

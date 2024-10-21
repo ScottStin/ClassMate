@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
   combineLatest,
   finalize,
@@ -7,16 +8,17 @@ import {
   forkJoin,
   Observable,
   of,
-  Subscription,
   tap,
 } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { CreateHomeworkDialogComponent } from 'src/app/components/create-homework-dialog/create-homework-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { HomeworkService } from 'src/app/services/homework-service/homework.service';
+import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { getUserFromObservable } from 'src/app/shared/helpers/user.helper';
 import { CommentDTO, HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -24,12 +26,13 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 import { HomeworkCardComponent } from './homework-card/homework-card.component';
 import { HomeworkTableComponent } from './homework-table/homework-table.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-homework-page',
   templateUrl: './homework-page.component.html',
   styleUrls: ['./homework-page.component.css'],
 })
-export class HomeworkPageComponent implements OnInit, OnDestroy {
+export class HomeworkPageComponent implements OnInit {
   @ViewChild(HomeworkTableComponent)
   homeworkTableComponent: HomeworkTableComponent | undefined;
 
@@ -48,16 +51,13 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
   currentUser$: Observable<UserDTO | null>;
   homeworkPageLoading = true;
 
-  // --- auth data and subscriptions:
-  private currentUserSubscription: Subscription | null;
-  private currentSchoolSubscription: Subscription | null;
-
   constructor(
     private readonly snackbarService: SnackbarService,
     private readonly userService: UserService,
     public readonly authStoreService: AuthStoreService,
     public readonly schoolService: SchoolService,
     public readonly homeworkService: HomeworkService,
+    public readonly notificationService: NotificationService,
     public dialog: MatDialog
   ) {}
 
@@ -71,18 +71,20 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
 
   loadPageData(): void {
     this.homeworkPageLoading = true;
-    this.currentSchoolSubscription = this.currentSchool$.subscribe(
-      (currentSchool) => {
+    this.currentSchool$
+      .pipe(untilDestroyed(this))
+      .subscribe((currentSchool) => {
         // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/strict-boolean-expressions
         if (currentSchool && currentSchool._id) {
           forkJoin([
             this.userService.getAllBySchoolId(currentSchool._id),
             this.homeworkService.getAllBySchoolId(currentSchool._id),
           ])
+            .pipe(untilDestroyed(this))
             .pipe(
               first(),
               tap(() => {
-                this.currentUserSubscription = this.currentUser$.subscribe();
+                this.currentUser$.pipe(untilDestroyed(this)).subscribe();
               }),
               finalize(() => {
                 this.homeworkPageLoading = false;
@@ -114,8 +116,7 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
               },
             });
         }
-      }
-    );
+      });
   }
 
   createHomework(): void {
@@ -145,6 +146,33 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
                     'Homework exercise successfully created. Assigned students have been notified.'
                   );
                   this.loadPageData();
+
+                  // --- create notificaiton:
+                  getUserFromObservable(this.users$, result.assignedTeacherId)
+                    .then((teacher) => {
+                      if (teacher) {
+                        this.notificationService
+                          .create({
+                            recipients: result.students.map(
+                              (student) => student.studentId
+                            ),
+                            message: `You have been given new homework by ${teacher.name}`,
+                            createdBy: result.assignedTeacherId,
+                            dateSent: new Date().getTime(),
+                            seenBy: [],
+                            schoolId: result.schoolId,
+                          })
+                          .pipe(untilDestroyed(this))
+                          .subscribe();
+                      }
+                    })
+                    .catch((error) => {
+                      // eslint-disable-next-line no-console
+                      console.error(
+                        'Error getting teacher for notification:',
+                        error
+                      );
+                    });
                 },
                 error: (error: Error) => {
                   this.snackbarService.openPermanent('error', error.message);
@@ -235,12 +263,12 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
     schoolId: string;
   }): void {
     let message = `Feedback successfully ${
-      feedback.update !== true ? 'edited' : 'added to homework'
+      feedback.update === true ? 'edited' : 'added to homework'
     }. The student has been notified of your feedback.`;
 
     if (feedback.feedback.commentType === 'submission') {
       message = `Thank you for ${
-        feedback.update !== true ? 'editing' : 'submitting'
+        feedback.update === true ? 'editing' : 'submitting'
       } your homework. Your teacher has been notified and will provide you with feedback shortly.`;
     }
 
@@ -249,6 +277,42 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
         next: () => {
           this.snackbarService.open('info', message);
           this.loadPageData();
+
+          // --- create notificaiton:
+          getUserFromObservable(
+            this.users$,
+            (feedback.feedback.commentType === 'feedback'
+              ? feedback.feedback.studentId
+              : feedback.feedback.teacherId) ?? ''
+          )
+            .then((user) => {
+              if (user) {
+                this.notificationService
+                  .create({
+                    recipients:
+                      feedback.feedback.commentType === 'feedback'
+                        ? [feedback.feedback.studentId]
+                        : [feedback.feedback.teacherId ?? ''],
+                    message:
+                      feedback.feedback.commentType === 'feedback'
+                        ? `You have received new feedback on your homework from ${user.name}`
+                        : `${user.name} has submitted a new homework attempt and requires feedback.`,
+                    createdBy:
+                      (feedback.feedback.commentType === 'feedback'
+                        ? feedback.feedback.teacherId
+                        : feedback.feedback.studentId) ?? '',
+                    dateSent: new Date().getTime(),
+                    seenBy: [],
+                    schoolId: feedback.schoolId,
+                  })
+                  .pipe(untilDestroyed(this))
+                  .subscribe();
+              }
+            })
+            .catch((error) => {
+              // eslint-disable-next-line no-console
+              console.error('Error creating notification:', error);
+            });
         },
         error: (error: Error) => {
           this.snackbarService.openPermanent('error', error.message);
@@ -367,14 +431,5 @@ export class HomeworkPageComponent implements OnInit, OnDestroy {
       }
     }
     return unfinishedHomework;
-  }
-
-  ngOnDestroy(): void {
-    if (this.currentSchoolSubscription) {
-      this.currentSchoolSubscription.unsubscribe();
-    }
-    if (this.currentUserSubscription) {
-      this.currentUserSubscription.unsubscribe();
-    }
   }
 }

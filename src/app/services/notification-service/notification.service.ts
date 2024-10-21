@@ -109,6 +109,7 @@ export class NotificationService {
 // Teacher has marked your exam
 // You have been enrolled in a course
 // You have been removed from a course
+// Your homework is due today!
 
 // done:
 

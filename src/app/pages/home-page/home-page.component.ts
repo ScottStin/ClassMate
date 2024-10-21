@@ -2,6 +2,7 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
   combineLatest,
   finalize,
@@ -23,6 +24,7 @@ import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+@UntilDestroy()
 @Component({
   selector: 'app-home-page',
   templateUrl: './home-page.component.html',
@@ -204,6 +206,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
                     seenBy: [],
                     schoolId: currentUser.schoolId as string,
                   })
+                  .pipe(untilDestroyed(this))
                   .subscribe();
 
                 this.loadPageData();
@@ -255,6 +258,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
                       seenBy: [],
                       schoolId: currentUser.schoolId as string,
                     })
+                    .pipe(untilDestroyed(this))
                     .subscribe();
 
                   this.loadPageData();

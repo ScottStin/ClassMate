@@ -155,6 +155,7 @@ export class HeaderCardComponent implements OnInit {
             notifications,
             currentUserId: this.currentUser?._id ?? '',
           })
+          .pipe(untilDestroyed(this))
           .subscribe();
       });
   }

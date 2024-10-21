@@ -110,6 +110,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
         } on their ${selectedHomework?.name ?? 'homework'} submission`,
         teachers,
         body: comment,
+        homeworkItem: selectedHomework,
         commentType: 'feedback',
         selectedStudent: this.selectedStudent,
         currentUser: this.currentUser,
@@ -142,6 +143,7 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
         title: `Submit homework for ${selectedHomework?.name ?? 'homework'}`,
         commentType: 'submission',
         body: submission,
+        homeworkItem: selectedHomework,
         selectedStudent: this.currentUser,
       },
     });

@@ -19,7 +19,7 @@ export interface HomeworkDTO extends CreateHomeworkDTO {
 
 export interface CommentDTO {
   _id?: string;
-  teacherId?: string;
+  teacherId?: string; // todo - remove undefined option;
   studentId: string;
   createdAt?: string;
   duration?: number;
