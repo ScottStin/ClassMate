@@ -36,23 +36,9 @@ export class HomeworkService implements OnDestroy {
     if (currentUserString !== null) {
       this.currentUser = JSON.parse(currentUserString) as UserDTO;
       this.socket.on(
-        `homeworkCreated-${this.currentUser._id}`,
-        (newHomework: HomeworkDTO) => {
-          this.refreshHomework(newHomework);
-        }
-      );
-
-      this.socket.on(
-        `homeworkCommentCreated-${this.currentUser._id}`,
-        (newHomework: HomeworkDTO) => {
-          this.refreshHomework(newHomework);
-        }
-      );
-
-      this.socket.on(
-        `homeworkCommentDeleted-${this.currentUser._id}`,
-        (homeworkItem: HomeworkDTO) => {
-          this.refreshHomework(homeworkItem);
+        `homeworkEvent-${this.currentUser._id}`,
+        (event: { data: HomeworkDTO; action: string }) => {
+          this.refreshHomework(event.data);
         }
       );
     }
@@ -220,10 +206,7 @@ export class HomeworkService implements OnDestroy {
 
   ngOnDestroy(): void {
     if (this.currentUser) {
-      // Remove socket io listeners
-      this.socket.off(`homeworkCreated-${this.currentUser._id}`);
-      this.socket.off(`homeworkCommentCreated-${this.currentUser._id}`);
-      this.socket.off(`homeworkCommentDeleted-${this.currentUser._id}`);
+      this.socket.off(`homeworkEvent-${this.currentUser._id}`);
     }
   }
 }

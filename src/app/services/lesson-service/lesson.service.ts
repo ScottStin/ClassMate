@@ -27,23 +27,17 @@ export class LessonService {
     if (currentSchoolString !== null) {
       const currentSchool = JSON.parse(currentSchoolString) as SchoolDTO;
       this.socket.on(
-        `lessonCreated-${currentSchool._id ?? ''}`,
-        (newLessons: LessonDTO[]) => {
-          this.refreshLessons(newLessons);
-        }
-      );
-
-      this.socket.on(
-        `lessonDeleted-${currentSchool._id ?? ''}`,
-        (deletedLesson: LessonDTO) => {
-          this.removeLesson(deletedLesson);
-        }
-      );
-
-      this.socket.on(
-        `lessonUpdated-${currentSchool._id ?? ''}`,
-        (updatedLesson: LessonDTO) => {
-          this.updateLessons(updatedLesson);
+        `lessonEvent-${currentSchool._id ?? ''}`,
+        (event: { data: LessonDTO | LessonDTO[]; action: string }) => {
+          if (event.action === 'lessonCreated') {
+            this.refreshLessons(event.data as LessonDTO[]);
+          }
+          if (event.action === 'lessonUpdated') {
+            this.updateLessons(event.data as LessonDTO);
+          }
+          if (event.action === 'lessonDeleted') {
+            this.removeLesson(event.data as LessonDTO);
+          }
         }
       );
     }
