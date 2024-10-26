@@ -103,8 +103,6 @@ export class NotificationService {
 // Lesson has started (for student)
 // Lesson is ready to start (for teacher)
 // Teacher has added you to a lesson
-// Student has completed homework item, please provide feedvack
-// Teacher has provided feedback on your homework
 // A student has completed an exam, please mark
 // Teacher has marked your exam
 // You have been enrolled in a course
@@ -117,3 +115,5 @@ export class NotificationService {
 // Student has dropped out of your lesson
 // Teacher has removed you from a lesson
 // A lesson you're enrolled in has be cancelled
+// Student has completed homework item, please provide feedvack
+// Teacher has provided feedback on your homework

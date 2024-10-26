@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import {
@@ -15,10 +15,11 @@ import { ErrorService } from '../error-message.service/error-message.service';
 @Injectable({
   providedIn: 'root',
 })
-export class HomeworkService {
+export class HomeworkService implements OnDestroy {
   private readonly baseUrl = `${environment.apiUrl}/homework`;
   private readonly homeworkSubject = new BehaviorSubject<HomeworkDTO[]>([]);
   homework$ = this.homeworkSubject.asObservable();
+  currentUser: UserDTO | undefined;
 
   private readonly commentSubmittedSubject = new BehaviorSubject<void>(
     undefined
@@ -33,18 +34,25 @@ export class HomeworkService {
     const currentUserString = localStorage.getItem('current_user');
 
     if (currentUserString !== null) {
-      const currentUser = JSON.parse(currentUserString) as UserDTO;
+      this.currentUser = JSON.parse(currentUserString) as UserDTO;
       this.socket.on(
-        `homeworkCreated-${currentUser._id}`,
+        `homeworkCreated-${this.currentUser._id}`,
         (newHomework: HomeworkDTO) => {
           this.refreshHomework(newHomework);
         }
       );
 
       this.socket.on(
-        `homeworkCommentCreated-${currentUser._id}`,
+        `homeworkCommentCreated-${this.currentUser._id}`,
         (newHomework: HomeworkDTO) => {
           this.refreshHomework(newHomework);
+        }
+      );
+
+      this.socket.on(
+        `homeworkCommentDeleted-${this.currentUser._id}`,
+        (homeworkItem: HomeworkDTO) => {
+          this.refreshHomework(homeworkItem);
         }
       );
     }
@@ -204,7 +212,18 @@ export class HomeworkService {
 
   // --- Socket functions:
   private refreshHomework(newHomework: HomeworkDTO): void {
-    const currentHomework = this.homeworkSubject.value;
+    const currentHomework = this.homeworkSubject.value.filter(
+      (homeworkItem) => homeworkItem._id !== newHomework._id
+    );
     this.homeworkSubject.next([...currentHomework, newHomework]);
+  }
+
+  ngOnDestroy(): void {
+    if (this.currentUser) {
+      // Remove socket io listeners
+      this.socket.off(`homeworkCreated-${this.currentUser._id}`);
+      this.socket.off(`homeworkCommentCreated-${this.currentUser._id}`);
+      this.socket.off(`homeworkCommentDeleted-${this.currentUser._id}`);
+    }
   }
 }
