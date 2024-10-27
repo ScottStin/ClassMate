@@ -91,10 +91,10 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     //
     // --- Load data:
     this.homework$ = this.homeworkService.homework$;
-    this.homeworkService.getAll();
+    this.homeworkService.getAll().pipe(untilDestroyed(this)).subscribe();
     this.getCurrentUserProfilePicture();
 
-    // --- Init badge counts:
+    // --- Init badge counts: ---
     this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
       'Exam Marking'
     );
@@ -148,6 +148,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     this.getTempStyles();
   }
 
+  // todo - repalce with service, derective or helper:
   getTempStyles(): void {
     this.temporaryStyles$.pipe(untilDestroyed(this)).subscribe((tempStyles) => {
       if (tempStyles) {

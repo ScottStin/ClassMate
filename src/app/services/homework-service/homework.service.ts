@@ -125,7 +125,7 @@ export class HomeworkService implements OnDestroy {
 
   /**
    * ==============================
-   *  Comments (to do, move comments to their own service and create dedicated comment model/route in backend)
+   *  Comments (TODO: move comments to their own service and create dedicated comment model/route in backend)
    * ==============================
    */
 

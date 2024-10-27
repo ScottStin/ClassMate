@@ -174,7 +174,7 @@
                   >
                 </mat-card-content>
                 <mat-card-actions
-                  *ngIf="last && (currentUser?._id === comment.teacherId || (currentUser?._id === comment.studentId && comment.commentType === 'submission') || currentUser?.userType?.toLowerCase() === 'school')"
+                  *ngIf="last && ((currentUser?._id === comment.teacherId && comment.commentType === 'feedback') || (currentUser?._id === comment.studentId && comment.commentType === 'submission') || currentUser?.userType?.toLowerCase() === 'school')"
                   align="end"
                 >
                   <button
