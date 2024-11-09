@@ -141,6 +141,71 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                   'Students have been added to this lesson and notified.' // todo: this should include 'removed' if some students were removed from the lesson as well.
                 );
                 this.dialogRef.close(true);
+
+                // Get list of student IDs that were removed from this lesson
+                const removedStudentIds =
+                  this.lesson?.studentsEnrolledIds.filter(
+                    (id) => !result.some((student) => student._id === id)
+                  );
+
+                // Notify students that they were removed from the class:
+                if (
+                  removedStudentIds?.length !== undefined &&
+                  removedStudentIds.length > 0
+                ) {
+                  const lessonTeacher = this.data.users.find(
+                    (teacher) => teacher._id === this.lesson?.teacherId
+                  );
+
+                  // --- create notificaiton:
+                  this.notificationService
+                    .create({
+                      recipients: removedStudentIds,
+                      message: `You have been removed from ${
+                        lessonTeacher?.name ?? 'your school'
+                      }'s lesson '${this.lesson?.name ?? ''}'`,
+                      createdBy: this.lesson?.teacherId ?? '',
+                      dateSent: new Date().getTime(),
+                      seenBy: [],
+                      schoolId: this.lesson?.schoolId ?? '',
+                    })
+                    .pipe(untilDestroyed(this))
+                    .subscribe();
+                }
+
+                // Get list of student IDs that were added to this lesson
+                const addedStudentIds = result
+                  .filter(
+                    (student) =>
+                      !(
+                        this.lesson?.studentsEnrolledIds.includes(
+                          student._id
+                        ) ?? false
+                      )
+                  )
+                  .map((student) => student._id);
+
+                // Notify students that they were removed from the class:
+                if (addedStudentIds.length > 0) {
+                  const lessonTeacher = this.data.users.find(
+                    (teacher) => teacher._id === this.lesson?.teacherId
+                  );
+
+                  // --- create notificaiton:
+                  this.notificationService
+                    .create({
+                      recipients: addedStudentIds,
+                      message: `You have been added to ${
+                        lessonTeacher?.name ?? 'your school'
+                      }'s lesson '${this.lesson?.name ?? ''}'`,
+                      createdBy: this.lesson?.teacherId ?? '',
+                      dateSent: new Date().getTime(),
+                      seenBy: [],
+                      schoolId: this.lesson?.schoolId ?? '',
+                    })
+                    .pipe(untilDestroyed(this))
+                    .subscribe();
+                }
               },
               error: (error: Error) => {
                 this.error = error;
