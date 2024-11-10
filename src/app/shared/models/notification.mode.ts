@@ -5,6 +5,7 @@ export interface CreateNotificationDTO {
   dateSent: number;
   seenBy: string[];
   schoolId: string;
+  link?: string;
 }
 
 export interface NotificationDTO extends CreateNotificationDTO {

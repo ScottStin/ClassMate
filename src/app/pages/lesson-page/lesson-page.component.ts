@@ -224,7 +224,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
                   this.notificationService
                     .create({
                       recipients: lesson.studentsEnrolledIds,
-                      message: `${teacher.name}'s upcoming lesson has been cancelled: ${lesson.name}`,
+                      message: `${teacher.name}'s upcoming lesson has been cancelled.`, // : ${lesson.name}`,
                       createdBy: lesson.teacherId,
                       dateSent: new Date().getTime(),
                       seenBy: [],
@@ -272,11 +272,12 @@ export class LessonPageComponent implements OnInit, OnDestroy {
             this.notificationService
               .create({
                 recipients: lesson.studentsEnrolledIds,
-                message: `Your lesson has started! Go to your 'My Classes' page to join now: ${lesson.name}`,
+                message: 'Your lesson has started! join now.', // ${lesson.name}`,
                 createdBy: lesson.teacherId,
                 dateSent: new Date().getTime(),
                 seenBy: [],
                 schoolId: lesson.schoolId,
+                link: 'lessons',
               })
               .pipe(untilDestroyed(this))
               .subscribe();

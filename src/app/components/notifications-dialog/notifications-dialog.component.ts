@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { NotificationDTO } from 'src/app/shared/models/notification.mode';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -12,7 +14,10 @@ export class NotificationsDialogComponent {
   @Input() notifications: NotificationDTO[] | null;
   @Input() currentUserId?: string | null;
   @Input() users: UserDTO[] | null;
+  @Input() currentSchool: SchoolDTO | null;
   @Input() notifiationsLoading: boolean;
+
+  constructor(private readonly router: Router) {}
 
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   notificationDisplayLimit = 20;
@@ -38,5 +43,13 @@ export class NotificationsDialogComponent {
   showMoreNotifications(): void {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     this.notificationDisplayLimit = this.notificationDisplayLimit + 20;
+  }
+
+  async goToPage(link: string): Promise<void> {
+    if (this.currentSchool) {
+      await this.router.navigate([
+        `${this.currentSchool.name.replace(/ /gu, '-').toLowerCase()}/${link}`,
+      ]);
+    }
   }
 }

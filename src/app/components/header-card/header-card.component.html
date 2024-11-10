@@ -66,6 +66,7 @@
     <app-notifications-dialog
       (closeDialog)="closeNotificationDialog()"
       [notifications]="notifications$ | async"
+      [currentSchool]="currentSchool"
       [currentUserId]="currentUser?._id"
       [users]="users"
       [notifiationsLoading]="notifiationsLoading"

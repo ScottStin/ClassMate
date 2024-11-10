@@ -93,7 +93,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                   recipients: [student._id ?? ''],
                   message: `You have been removed from ${
                     lessonTeacher?.name ?? 'your school'
-                  }'s lesson '${this.lesson?.name ?? ''}'`,
+                  }'s lesson.`, // '${this.lesson?.name ?? ''}'`,
                   createdBy: this.lesson?.teacherId ?? '',
                   dateSent: new Date().getTime(),
                   seenBy: [],
@@ -163,7 +163,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                       recipients: removedStudentIds,
                       message: `You have been removed from ${
                         lessonTeacher?.name ?? 'your school'
-                      }'s lesson '${this.lesson?.name ?? ''}'`,
+                      }'s lesson.`, // '${this.lesson?.name ?? ''}'`,
                       createdBy: this.lesson?.teacherId ?? '',
                       dateSent: new Date().getTime(),
                       seenBy: [],
@@ -197,7 +197,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                       recipients: addedStudentIds,
                       message: `You have been added to ${
                         lessonTeacher?.name ?? 'your school'
-                      }'s lesson '${this.lesson?.name ?? ''}'`,
+                      }'s lesson.`, // '${this.lesson?.name ?? ''}'`,
                       createdBy: this.lesson?.teacherId ?? '',
                       dateSent: new Date().getTime(),
                       seenBy: [],

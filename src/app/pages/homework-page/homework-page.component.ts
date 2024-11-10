@@ -156,11 +156,12 @@ export class HomeworkPageComponent implements OnInit {
                             recipients: result.students.map(
                               (student) => student.studentId
                             ),
-                            message: `You have been given new homework by ${teacher.name}`,
+                            message: `You have been given new homework by ${teacher.name}.`,
                             createdBy: result.assignedTeacherId,
                             dateSent: new Date().getTime(),
                             seenBy: [],
                             schoolId: result.schoolId,
+                            link: 'homework',
                           })
                           .pipe(untilDestroyed(this))
                           .subscribe();
@@ -304,6 +305,7 @@ export class HomeworkPageComponent implements OnInit {
                     dateSent: new Date().getTime(),
                     seenBy: [],
                     schoolId: feedback.schoolId,
+                    link: 'homework',
                   })
                   .pipe(untilDestroyed(this))
                   .subscribe();

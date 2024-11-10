@@ -200,11 +200,12 @@ export class HomePageComponent implements OnInit, OnDestroy {
                 this.notificationService
                   .create({
                     recipients: [lesson.teacherId],
-                    message: `${currentUser.name} has joined your lesson ${lesson.name}`,
+                    message: `${currentUser.name} has joined your lesson.`, // ${lesson.name}`,
                     createdBy: currentUser._id,
                     dateSent: new Date().getTime(),
                     seenBy: [],
                     schoolId: currentUser.schoolId as string,
+                    link: 'lessons',
                   })
                   .pipe(untilDestroyed(this))
                   .subscribe();
@@ -252,11 +253,12 @@ export class HomePageComponent implements OnInit, OnDestroy {
                   this.notificationService
                     .create({
                       recipients: [lesson.teacherId],
-                      message: `${currentUser.name} has left your lesson ${lesson.name}`,
+                      message: `${currentUser.name} has left your lesson`, // ${lesson.name}`,
                       createdBy: currentUser._id,
                       dateSent: new Date().getTime(),
                       seenBy: [],
                       schoolId: currentUser.schoolId as string,
+                      link: 'lessons',
                     })
                     .pipe(untilDestroyed(this))
                     .subscribe();

@@ -2,6 +2,7 @@ $primaryColor: var(--primaryColor);
 
 .dialog-modal {
   padding: 0px;
+  margin-top:15px;
   width: clamp(300px, 25vw, 500px);
   overflow: hidden;
 }
@@ -27,11 +28,16 @@ $primaryColor: var(--primaryColor);
 
 .primary-header {
     margin-left: 15px;
+    margin-bottom: 50px !important;
     font-weight: bold;
 }
 
-  .notifications-list-item:hover {
+  .notifications-list-item-container:hover {
     background: whitesmoke !important;
+  }
+
+  .notifications-list-item {
+    margin-bottom:30px;
   }
   
   .unseen-icon {
@@ -52,8 +58,4 @@ $primaryColor: var(--primaryColor);
     align-items: center;
     height: 100%;
     cursor: pointer;
-  }
-
-  .notification-message:hover {
-    white-space: wrap;
   }

@@ -8,7 +8,12 @@
 <div class="dialog-modal">
   <mat-dialog-content class="notifications-dialog-content">
     <mat-list>
-      <div *ngFor="let notification of notifications; let i = index">
+      <div
+        *ngFor="let notification of notifications; let i = index"
+        class="notifications-list-item-container"
+        (click)="notification.link ? goToPage(notification.link) : ''"
+        [style]="notification.link ? 'cursor:pointer' : ''"
+      >
         <mat-list-item
           *ngIf="i < notificationDisplayLimit"
           class="notifications-list-item"
@@ -22,6 +27,7 @@
           <div
             mat-line
             [style]="!isNotificationSeen(notification) ? 'font-weight: bolder;' : ''"
+            style="white-space: wrap"
             class="notification-message"
           >
             {{notification.message}}
