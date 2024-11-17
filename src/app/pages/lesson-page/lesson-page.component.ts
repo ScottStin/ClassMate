@@ -48,6 +48,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   private readonly routerSubscription: Subscription | undefined;
   currentSchool$: Observable<SchoolDTO | null>;
   currentUser$: Observable<UserDTO | null>;
+  private currentUserSubscription: Subscription | null;
   lessons$: Observable<LessonDTO[]>;
 
   @HostListener('window:resize', ['$event'])
@@ -248,6 +249,60 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  cancelLesson(lesson: LessonDTO): void {
+    const data = {
+      title: 'Cancel this class?',
+      message:
+        'Your spot in this lesson will no longer be reserved and another student may take it. If the lessons is not full, you may be able to join again.',
+      okLabel: 'Leave Lesson',
+      cancelLabel: 'Close',
+      routerLink: '',
+    };
+    this.currentUserSubscription = this.currentUser$.subscribe(
+      (currentUser) => {
+        if (currentUser) {
+          const dialogRef = this.dialog.open(ConfirmDialogComponent, { data });
+          dialogRef.afterClosed().subscribe((result: boolean) => {
+            if (result) {
+              this.lessonService.cancelLesson(lesson, currentUser).subscribe({
+                next: () => {
+                  this.snackbarService.open(
+                    'info',
+                    'You have successfully cancelled your place in this lesson.'
+                  );
+
+                  // --- create notificaiton:
+                  this.notificationService
+                    .create({
+                      recipients: [lesson.teacherId],
+                      message: `${currentUser.name} has left your lesson`, // ${lesson.name}`,
+                      createdBy: currentUser._id,
+                      dateSent: new Date().getTime(),
+                      seenBy: [],
+                      schoolId: currentUser.schoolId as string,
+                      link: 'lessons',
+                    })
+                    .pipe(untilDestroyed(this))
+                    .subscribe();
+
+                  this.loadPageData();
+                },
+                error: (error: Error) => {
+                  this.error = error;
+                  this.snackbarService.openPermanent('error', error.message);
+                },
+              });
+            }
+          });
+        }
+      }
+    );
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
+    }
+  }
+
   startLesson(lesson: LessonDTO): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -322,6 +377,9 @@ export class LessonPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
+    }
+    if (this.currentUserSubscription) {
+      this.currentUserSubscription.unsubscribe();
     }
   }
 }
