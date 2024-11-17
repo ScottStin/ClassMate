@@ -422,7 +422,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       const value = control.value as string;
       if (this.title === 'signup') {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        if (value.length < 6 || value.length > 14) {
+        if (value.length < 6 || value.length > 60) {
           return { passwordLength: true }; // Check length
         } else if (!/[A-Z]/u.test(value)) {
           return { passwordCapitalLetter: true }; // Check for at least one capital letter
