@@ -202,6 +202,7 @@ export class LoginPageComponent implements OnInit {
   }
 
   async signup(user: CreateUserDTO): Promise<void> {
+    this.pageLoading = true;
     try {
       user.userType = this.userType;
       const res = await this.userService.create(user).toPromise();
@@ -214,13 +215,16 @@ export class LoginPageComponent implements OnInit {
         this.login(user, message, true);
       } else {
         this.snackbarService.openPermanent('error', 'unable to sign up');
+        this.pageLoading = false;
       }
     } catch (error) {
+      this.pageLoading = false;
       this.snackbarService.openPermanent('error', 'unable to sign up');
     }
   }
 
   async signupSchool(school: SchoolDTO): Promise<void> {
+    this.pageLoading = true;
     try {
       await this.schoolService.create(school).toPromise();
       this.login(
@@ -238,6 +242,7 @@ export class LoginPageComponent implements OnInit {
       // await this.router.navigateByUrl('test-new-school-6/home');
     } catch (error) {
       this.snackbarService.openPermanent('error', 'unable to sign up');
+      this.pageLoading = false;
     }
   }
 
