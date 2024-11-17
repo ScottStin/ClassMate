@@ -34,13 +34,16 @@ export class HomeworkService implements OnDestroy {
     const currentUserString = localStorage.getItem('current_user');
 
     if (currentUserString !== null) {
-      this.currentUser = JSON.parse(currentUserString) as UserDTO;
-      this.socket.on(
-        `homeworkEvent-${this.currentUser._id}`,
-        (event: { data: HomeworkDTO; action: string }) => {
-          this.refreshHomework(event.data);
-        }
-      );
+      this.currentUser = JSON.parse(currentUserString) as UserDTO | undefined;
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (this.currentUser?._id) {
+        this.socket.on(
+          `homeworkEvent-${this.currentUser._id}`,
+          (event: { data: HomeworkDTO; action: string }) => {
+            this.refreshHomework(event.data);
+          }
+        );
+      }
     }
   }
 

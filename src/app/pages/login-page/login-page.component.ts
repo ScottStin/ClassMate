@@ -1,13 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import {
-  filter,
-  finalize,
-  first,
-  forkJoin,
-  Observable,
-  Subscription,
-} from 'rxjs';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { filter, finalize, first, forkJoin, Observable } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -24,29 +18,22 @@ import {
   UserLoginDTO,
 } from 'src/app/shared/models/user.model';
 
+@UntilDestroy()
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
 })
-export class LoginPageComponent implements OnInit, OnDestroy {
+export class LoginPageComponent implements OnInit {
   error: Error;
   isFlipped = false;
   photoSrc = '';
-
   schools$: Observable<SchoolDTO[]>;
   users$: Observable<UserDTO[]>;
-  usersLoading = true;
   userType: 'student' | 'teacher' | 'school' | '' = '';
-
   currentSchool$: Observable<SchoolDTO | null>;
-  private currentSchoolSubscription: Subscription | undefined;
-  // currentSchool: SchoolDTO | undefined = undefined;
-
-  private currentUserSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
-
-  private routerSubscription: Subscription | undefined;
+  pageLoading = true;
 
   backgroundImages = backgroundImages;
   defaultStyles = defaultStyles;
@@ -68,8 +55,11 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   getRouterDetails(): void {
-    this.routerSubscription = this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        untilDestroyed(this)
+      )
       .subscribe(() => {
         const urlAddress: string[] = this.router.url.split('/');
 
@@ -123,8 +113,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   getCurrentSchoolDetails(): void {
-    this.currentSchoolSubscription = this.currentSchool$.subscribe(
-      (currentSchool) => {
+    this.currentSchool$
+      .pipe(untilDestroyed(this))
+      .subscribe((currentSchool) => {
         if (currentSchool) {
           const backgroundImage = currentSchool.backgroundImage as
             | BackgroundImageDTO
@@ -155,20 +146,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
             this.photoSrc = logo.url;
           }
         }
-      }
-    );
-  }
-
-  ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
-    if (this.currentSchoolSubscription) {
-      this.currentSchoolSubscription.unsubscribe();
-    }
-    if (this.currentUserSubscription) {
-      this.currentUserSubscription.unsubscribe();
-    }
+      });
   }
 
   async onCardFlipped(data: {
@@ -197,16 +175,17 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   loadPageData(): void {
-    this.usersLoading = true;
+    this.pageLoading = true;
     forkJoin([this.schoolService.getAll(), this.userService.getAll()])
       .pipe(
         first(),
         finalize(() => {
-          this.usersLoading = false;
+          this.pageLoading = false;
         })
       )
       .subscribe({
         error: (error: Error) => {
+          this.pageLoading = false;
           const snackbar = this.snackbarService.openPermanent(
             'error',
             `Error: Failed to load page: ${error.message}`,
@@ -268,12 +247,18 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     signup?: boolean,
     route?: string
   ): void {
+    this.pageLoading = true;
     this.currentSchool$.pipe(first()).subscribe(
       (currentSchool) => {
         // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         if (currentSchool?._id) {
           this.authStoreService
             .login(userDetails, currentSchool._id)
+            .pipe(
+              finalize(() => {
+                this.pageLoading = false;
+              })
+            )
             .subscribe(() => {
               this.router
                 .navigateByUrl(
@@ -284,8 +269,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                         .toLowerCase()}/home`
                 )
                 .then(() => {
-                  this.currentUserSubscription = this.currentUser$.subscribe(
-                    (currentUser) => {
+                  this.currentUser$
+                    .pipe(untilDestroyed(this))
+                    .subscribe((currentUser) => {
                       if (currentUser) {
                         const firstName = currentUser.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
                         if (!(signup ?? false)) {
@@ -297,8 +283,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                           this.snackbarService.open('info', message);
                         }
                       }
-                    }
-                  );
+                    });
                 })
                 .catch((error) => {
                   // eslint-disable-next-line no-console
@@ -323,12 +308,18 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     message: string,
     signup?: boolean
   ): void {
+    this.pageLoading = true;
     this.currentSchool$.pipe(first()).subscribe(
       (currentSchool) => {
         // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         if (currentSchool?._id) {
           this.authStoreService
             .login(userDetails, currentSchool._id)
+            .pipe(
+              finalize(() => {
+                this.pageLoading = false;
+              })
+            )
             .subscribe(() => {
               this.router
                 .navigateByUrl(
@@ -337,8 +328,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                     .toLowerCase()}/home`
                 )
                 .then(() => {
-                  this.currentUserSubscription = this.currentUser$.subscribe(
-                    (currentUser) => {
+                  this.currentUser$
+                    .pipe(untilDestroyed(this))
+                    .subscribe((currentUser) => {
                       if (currentUser) {
                         if (!(signup ?? false)) {
                           this.snackbarService.open(
@@ -349,8 +341,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                           this.snackbarService.open('info', message);
                         }
                       }
-                    }
-                  );
+                    });
                 })
                 .catch((error) => {
                   // eslint-disable-next-line no-console

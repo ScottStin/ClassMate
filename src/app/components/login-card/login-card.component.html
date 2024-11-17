@@ -177,7 +177,7 @@
           '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
           '--primaryButtonTextColor': primaryButtonTextColor
         }"
-        [disabled]="(this.loginForm && this.loginForm.invalid) || this.usersLoading"
+        [disabled]="(this.loginForm && this.loginForm.invalid) || this.pageLoading"
         (click)="signupClick()"
       >
         Sign up
@@ -205,7 +205,7 @@
       </div>
     </mat-card>
     <mat-progress-bar
-      [style]="{ visibility: usersLoading ? 'visible' : 'hidden' }"
+      [style]="{ visibility: pageLoading ? 'visible' : 'hidden' }"
       mode="query"
     ></mat-progress-bar>
   </div>

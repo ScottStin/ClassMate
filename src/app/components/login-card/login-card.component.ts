@@ -35,9 +35,9 @@ import {
 })
 export class LoginCardComponent implements OnInit, OnChanges {
   @ViewChild(MatStepper) readonly loginFormSchoolStepper!: MatStepper;
-  @Input() title!: string;
-  @Input() users!: UserDTO[] | null;
-  @Input() usersLoading!: boolean;
+  @Input() title: string;
+  @Input() users: UserDTO[] | null;
+  @Input() pageLoading: boolean;
   @Input() currentSchool: SchoolDTO | null;
   @Input() userType: string;
   @Input() isFlipped!: boolean;
@@ -81,7 +81,7 @@ export class LoginCardComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ('userType' in changes || 'usersLoading' in changes) {
+    if ('userType' in changes || 'pageLoading' in changes) {
       if (this.userType && this.userType !== 'school') {
         this.populateForm();
       }
@@ -91,28 +91,28 @@ export class LoginCardComponent implements OnInit, OnChanges {
   populateForm(): void {
     this.loginForm = new FormGroup({
       nameInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [Validators.required],
           nonNullable: true,
         }
       ),
       emailInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [Validators.required, this.emailValidator()],
           nonNullable: true,
         }
       ),
       countryInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,
         }
       ),
       personalStatement: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           validators: [this.wordCountValidator(10, 200)],
@@ -120,14 +120,14 @@ export class LoginCardComponent implements OnInit, OnChanges {
         }
       ),
       passwordInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [Validators.required, this.passwordValidator()],
           nonNullable: true,
         }
       ),
       passwordMatchInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [this.passwordMatchValidator()],
           nonNullable: true,

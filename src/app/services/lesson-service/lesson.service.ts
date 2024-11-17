@@ -26,44 +26,49 @@ export class LessonService {
     const currentUserString = localStorage.getItem('current_user');
 
     if (currentSchoolString !== null && currentUserString !== null) {
-      const currentUser = JSON.parse(currentUserString) as UserDTO;
-      const currentSchool = JSON.parse(currentSchoolString) as SchoolDTO;
-      const currentUserLevel = currentUser.level ?? undefined;
+      const currentUser = JSON.parse(currentUserString) as UserDTO | undefined;
+      const currentSchool = JSON.parse(currentSchoolString) as
+        | SchoolDTO
+        | undefined;
+      const currentUserLevel = currentUser?.level ?? undefined;
 
-      this.socket.on(
-        `lessonEvent-${currentSchool._id ?? ''}`,
-        (event: { data: LessonDTO | LessonDTO[]; action: string }) => {
-          //
-          // Only update the lesson data if the student's level matches the new lesson, or the student's level is not set:
-          if (
-            event.action === 'lessonCreated' &&
-            (!currentUserLevel ||
-              (event.data as LessonDTO[])[0].level
-                .map((level) => level.shortName)
-                .includes(currentUserLevel.shortName))
-          ) {
-            this.refreshLessons(event.data as LessonDTO[]);
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (currentUser?._id && currentSchool?._id) {
+        this.socket.on(
+          `lessonEvent-${currentSchool._id}`,
+          (event: { data: LessonDTO | LessonDTO[]; action: string }) => {
+            //
+            // Only update the lesson data if the student's level matches the new lesson, or the student's level is not set:
+            if (
+              event.action === 'lessonCreated' &&
+              (!currentUserLevel ||
+                (event.data as LessonDTO[])[0].level
+                  .map((level) => level.shortName)
+                  .includes(currentUserLevel.shortName))
+            ) {
+              this.refreshLessons(event.data as LessonDTO[]);
+            }
+            if (
+              event.action === 'lessonUpdated' &&
+              (!currentUserLevel ||
+                (event.data as LessonDTO).level
+                  .map((level) => level.shortName)
+                  .includes(currentUserLevel.shortName))
+            ) {
+              this.updateLessons(event.data as LessonDTO);
+            }
+            if (
+              event.action === 'lessonDeleted' &&
+              (!currentUserLevel ||
+                (event.data as LessonDTO).level
+                  .map((level) => level.shortName)
+                  .includes(currentUserLevel.shortName))
+            ) {
+              this.removeLesson(event.data as LessonDTO);
+            }
           }
-          if (
-            event.action === 'lessonUpdated' &&
-            (!currentUserLevel ||
-              (event.data as LessonDTO).level
-                .map((level) => level.shortName)
-                .includes(currentUserLevel.shortName))
-          ) {
-            this.updateLessons(event.data as LessonDTO);
-          }
-          if (
-            event.action === 'lessonDeleted' &&
-            (!currentUserLevel ||
-              (event.data as LessonDTO).level
-                .map((level) => level.shortName)
-                .includes(currentUserLevel.shortName))
-          ) {
-            this.removeLesson(event.data as LessonDTO);
-          }
-        }
-      );
+        );
+      }
     }
   }
 

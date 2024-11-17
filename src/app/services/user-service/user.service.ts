@@ -26,15 +26,18 @@ export class UserService implements OnDestroy {
     const currentUserString = localStorage.getItem('current_user');
 
     if (currentUserString !== null) {
-      this.currentUser = JSON.parse(currentUserString) as UserDTO;
-      this.socket.on(
-        `userEvent-${this.currentUser._id}`,
-        (event: { data: UserDTO; action: string }) => {
-          if (event.action === 'userLevelUpdated') {
-            this.authStoreService.updateCurrentUser(event.data);
+      this.currentUser = JSON.parse(currentUserString) as UserDTO | undefined;
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (this.currentUser?._id) {
+        this.socket.on(
+          `userEvent-${this.currentUser._id}`,
+          (event: { data: UserDTO; action: string }) => {
+            if (event.action === 'userLevelUpdated') {
+              this.authStoreService.updateCurrentUser(event.data);
+            }
           }
-        }
-      );
+        );
+      }
     }
   }
 

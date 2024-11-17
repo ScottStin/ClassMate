@@ -45,7 +45,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   @Input() users: UserDTO[] | null;
   @Input() schools: SchoolDTO[] | null;
   @Input() currentSchool: SchoolDTO | null;
-  @Input() usersLoading!: boolean;
+  @Input() pageLoading: boolean;
   @Input() userType: string;
   @Input() isFlipped!: boolean;
   @Input() photoSrc!: string;
@@ -116,7 +116,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ('userType' in changes || 'usersLoading' in changes) {
+    if ('userType' in changes || 'pageLoading' in changes) {
       if (this.userType && this.userType === 'school') {
         this.populateSignupForm();
       }
@@ -138,7 +138,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
     // details step:
     const detailStepForm: DetailStep = new FormGroup({
       nameInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,
@@ -147,7 +147,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       emailInput: new FormControl(
         {
           value: this.currentSchool ? this.currentSchool.email : '',
-          disabled: this.usersLoading || this.currentSchool !== null,
+          disabled: this.pageLoading || this.currentSchool !== null,
         },
         {
           validators: [],
@@ -155,28 +155,28 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         }
       ),
       countryInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,
         }
       ),
       phoneNumberInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,
         }
       ),
       addressInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,
         }
       ),
       descriptionInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           validators: [],
@@ -184,14 +184,14 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
         }
       ),
       passwordInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,
         }
       ),
       passwordMatchInput: new FormControl(
-        { value: '', disabled: this.usersLoading },
+        { value: '', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,
@@ -251,14 +251,14 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
       //   }
       // ),
       primaryButtonBackgroundColor: new FormControl(
-        { value: '#6200EE', disabled: this.usersLoading },
+        { value: '#6200EE', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,
         }
       ),
       primaryButtonTextColor: new FormControl(
-        { value: '#FFFFFF', disabled: this.usersLoading },
+        { value: '#FFFFFF', disabled: this.pageLoading },
         {
           validators: [],
           nonNullable: true,

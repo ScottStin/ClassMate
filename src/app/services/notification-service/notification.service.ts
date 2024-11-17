@@ -29,13 +29,16 @@ export class NotificationService {
     const currentUserString = localStorage.getItem('current_user');
 
     if (currentUserString !== null) {
-      const currentUser = JSON.parse(currentUserString) as UserDTO;
-      this.socket.on(
-        `notificationCreated-${currentUser._id}`,
-        (newNotification: NotificationDTO) => {
-          this.refreshNotifications(newNotification);
-        }
-      );
+      const currentUser = JSON.parse(currentUserString) as UserDTO | undefined;
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (currentUser?._id) {
+        this.socket.on(
+          `notificationCreated-${currentUser._id}`,
+          (newNotification: NotificationDTO) => {
+            this.refreshNotifications(newNotification);
+          }
+        );
+      }
     }
   }
 

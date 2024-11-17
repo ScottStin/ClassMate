@@ -617,7 +617,7 @@
         *ngIf="title === 'signup'"
         mat-raised-button
         class="login-signup-button"
-        [disabled]="(this.loginFormSchool?.invalid || this.usersLoading) || this.loginFormSchoolStepper.selectedIndex !== (this.loginFormSchoolStepper.steps.length - 1)"
+        [disabled]="(this.loginFormSchool?.invalid || this.pageLoading) || this.loginFormSchoolStepper.selectedIndex !== (this.loginFormSchoolStepper.steps.length - 1)"
         (click)="signupClick()"
         [ngStyle]="{
             '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
@@ -630,7 +630,7 @@
         mat-raised-button
         *ngIf="title === 'login'"
         class="login-signup-button"
-        [disabled]="(this.loginFormSchool && this.loginFormSchool.controls['detailStep'] && (loginFormSchool.controls['detailStep'].controls['emailInput'].invalid || loginFormSchool.controls['detailStep'].controls['passwordInput'].invalid)) || this.usersLoading"
+        [disabled]="(this.loginFormSchool && this.loginFormSchool.controls['detailStep'] && (loginFormSchool.controls['detailStep'].controls['emailInput'].invalid || loginFormSchool.controls['detailStep'].controls['passwordInput'].invalid)) || this.pageLoading"
         (click)="loginClick()"
         [ngStyle]="{
           '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
