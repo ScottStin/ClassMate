@@ -31,6 +31,9 @@ export class AuthStoreService {
   isLoggedIn$: Observable<boolean>;
   isLoggedOut$: Observable<boolean>;
 
+  private readonly loggingOutSubject = new BehaviorSubject<boolean>(false);
+  loggingOut$ = this.loggingOutSubject.asObservable();
+
   constructor(
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService,
@@ -100,8 +103,10 @@ export class AuthStoreService {
   logout(): void {
     // this.subject.next(null);
     // localStorage.removeItem('auth_data_token');
+    this.loggingOutSubject.next(true);
     localStorage.removeItem('current_user');
     this.updateCurrentUser(null);
+    this.loggingOutSubject.next(false);
   }
 
   private handleError(error: Error, message: string): never {

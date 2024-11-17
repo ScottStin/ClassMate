@@ -1,5 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -19,6 +20,7 @@ const config: SocketIoConfig = { url: environment.apiUrl, options: {} }; // todo
     BrowserModule,
     HttpClientModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     SocketIoModule.forRoot(config),
   ],
   providers: [],

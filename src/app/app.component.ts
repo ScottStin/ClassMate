@@ -1,5 +1,6 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { first, Observable, Subscription } from 'rxjs';
 
 import { schools } from './app-routing.module';
@@ -9,18 +10,20 @@ import { SchoolService } from './services/school-service/school.service';
 import { SnackbarService } from './services/snackbar-service/snackbar.service';
 import { SchoolDTO } from './shared/models/school.model';
 
+@UntilDestroy()
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'ClassMate';
 
   private readonly routerSubscription: Subscription | undefined;
   schools$: Observable<SchoolDTO[]>;
   currentSchool$: Observable<SchoolDTO | null>;
   schools = schools;
+  loggingOut$: Observable<boolean>;
 
   constructor(
     private readonly schoolService: SchoolService,
@@ -56,6 +59,10 @@ export class AppComponent implements OnDestroy {
         }
       });
     });
+  }
+
+  ngOnInit(): void {
+    this.authStoreService.loggingOut$.pipe(untilDestroyed(this)).subscribe();
   }
 
   getSchools(schoolUrlName: string): void {
