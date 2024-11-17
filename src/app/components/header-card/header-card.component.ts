@@ -58,12 +58,7 @@ export class HeaderCardComponent implements OnInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
-    this.largeScreen =
-      window.innerWidth < parseInt(screenSizeBreakpoints.large, 10);
-    this.mediumScreen =
-      window.innerWidth < parseInt(screenSizeBreakpoints.medium, 10);
-    this.smallScreen =
-      window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
+    this.getScreenSizes();
   }
 
   constructor(
@@ -74,6 +69,7 @@ export class HeaderCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.getScreenSizes();
     this.notifiationsLoading = true;
     this.notifications$ = this.notificationService.notifications$;
     this.getNotifications();
@@ -107,6 +103,15 @@ export class HeaderCardComponent implements OnInit {
       this.headerButtonFunction = menuItem.headerButtonFunction;
       this.icon = menuItem.icon;
     }
+  }
+
+  getScreenSizes(): void {
+    this.largeScreen =
+      window.innerWidth < parseInt(screenSizeBreakpoints.large, 10);
+    this.mediumScreen =
+      window.innerWidth < parseInt(screenSizeBreakpoints.medium, 10);
+    this.smallScreen =
+      window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
   }
 
   getNotifications(): void {

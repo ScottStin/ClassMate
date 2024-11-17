@@ -32,6 +32,7 @@ import { HeaderCardComponent } from './header-card.component';
     NotificationsDialogModule,
     MatMenuModule,
     MatBadgeModule,
+    MatMenuModule,
   ],
   exports: [HeaderCardComponent],
 })

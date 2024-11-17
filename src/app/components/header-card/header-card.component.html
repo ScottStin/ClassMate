@@ -12,7 +12,9 @@
 
   <span class="spacer"></span>
 
-  <form *ngIf="searchBar" class="search-bar-form">
+  <!-- Search bar (large screen): -->
+
+  <form *ngIf="searchBar && !smallScreen" class="search-bar-form">
     <mat-form-field class="form-field" appearance="outline" id="filter-field">
       <input
         #filter
@@ -24,17 +26,23 @@
     </mat-form-field>
   </form>
 
+  <!-- Main action button: -->
+
   <button
     *ngIf="headerButton && currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school'"
     mat-raised-button
     class="button action-button"
     (click)="headerButtonClick()"
+    #tooltip="matTooltip"
+    [matTooltip]="!largeScreen ? '' : (headerButton ?? '')"
   >
     <mat-icon *ngIf="headerButtonIcon">{{headerButtonIcon}}</mat-icon
     ><span *ngIf="!largeScreen">{{headerButton}}</span>
   </button>
 
   <span class="spacer"></span>
+
+  <!-- Additional action buttons: -->
 
   <button mat-icon-button class="button header-bar-button" *ngIf="currentUser">
     <mat-icon>messages</mat-icon>
@@ -57,6 +65,16 @@
       >notifications</mat-icon
     >
   </button>
+
+  <button
+    *ngIf="searchBar && smallScreen"
+    mat-icon-button
+    [matMenuTriggerFor]="searchMenu"
+    aria-label="Search"
+    class="button header-bar-button"
+  >
+    <mat-icon>search</mat-icon>
+  </button>
 </mat-toolbar>
 
 <!-- Notifications Menu: -->
@@ -72,4 +90,25 @@
       [notifiationsLoading]="notifiationsLoading"
     ></app-notifications-dialog>
   </div>
+</mat-menu>
+
+<!-- Search bar menu (small screen): -->
+
+<mat-menu #searchMenu="matMenu" class="search-menu">
+  <form class="search-menu-form">
+    <mat-form-field
+      class="form-field search-menu-field"
+      appearance="outline"
+      id="filter-field"
+      (click)="$event.stopPropagation()"
+    >
+      <input
+        #filter
+        matInput
+        placeholder="Search"
+        (keyup)="filterResultsKeyup(filter.value)"
+      />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </form>
 </mat-menu>

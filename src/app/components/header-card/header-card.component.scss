@@ -10,13 +10,6 @@ $secondaryColor: var(--secondaryColor);
     padding: 10px;
   }
   
-  .search-bar-form {
-    display: flex;
-    align-items: center;
-    margin-top: 30px;
-    margin-bottom: 10px;
-    max-width:50vw;
-  }
   
   .form-field {
     width: 500px;
@@ -50,6 +43,9 @@ $secondaryColor: var(--secondaryColor);
     font-weight:400;
   }
 
+  
+// --- Notifications
+
   .menu-content {
     padding: 10px;
     display: flex;
@@ -57,7 +53,7 @@ $secondaryColor: var(--secondaryColor);
     align-items: center;
   }
 
-  
+
 ::ng-deep.action-dialog {
   max-width: none !important;
 }
@@ -76,4 +72,34 @@ $secondaryColor: var(--secondaryColor);
 
 .ding-animation {
   animation: notification-ding 0.7s ease forwards;
+}
+
+// --- Search bar large screens:
+
+.search-bar-form {
+  display: flex;
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  max-width:50vw;
+}
+
+// --- Search Menu Small Screens:
+
+.search-menu {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0;
+}
+
+.search-menu-form {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.search-menu-field {
+  width: 100%;
+  height: 100%;
 }
