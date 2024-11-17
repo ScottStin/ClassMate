@@ -283,8 +283,8 @@ export class HomeworkPageComponent implements OnInit {
           getUserFromObservable(
             this.users$,
             (feedback.feedback.commentType === 'feedback'
-              ? feedback.feedback.studentId
-              : feedback.feedback.teacherId) ?? ''
+              ? feedback.feedback.teacherId
+              : feedback.feedback.studentId) ?? ''
           )
             .then((user) => {
               if (user) {
