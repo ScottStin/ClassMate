@@ -169,7 +169,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         validators: [this.dateValidator()],
         nonNullable: false,
       }),
-      cronForm: new FormControl('0 0 1/1 * *', {
+      cronForm: new FormControl('0 0 0 ? * MON *', {
         validators: [Validators.required],
         nonNullable: true,
       }),
@@ -310,7 +310,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
   }
 
   // TODO: move to shared service or directive:
-  parseCronExpression(cronValue: string): CronObject {
+  parseCronExpression(cronValue = '0 0 0 ? * MON *'): CronObject {
     const [second, minute, hour, dayOfMonth, month, dayOfWeek] = cronValue
       .split(' ')
       .map((val) => val.trim());

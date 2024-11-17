@@ -45,7 +45,7 @@
 
           <mat-form-field
             appearance="outline"
-            *ngIf="lessonDateMode ==='individual'"
+            [style]="lessonDateMode ==='individual' ? '' : 'display: none'"
           >
             <input
               formControlName="dateInput"
