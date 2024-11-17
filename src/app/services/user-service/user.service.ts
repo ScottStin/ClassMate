@@ -1,27 +1,42 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Socket } from 'ngx-socket-io';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { CreateUserDTO, UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { AuthStoreService } from '../auth-store-service/auth-store.service';
 import { ErrorService } from '../error-message.service/error-message.service';
-import { ExamService } from '../exam-service/exam.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class UserService {
+export class UserService implements OnDestroy {
   private readonly baseUrl = `${environment.apiUrl}/users`;
   private readonly userSubject = new BehaviorSubject<UserDTO[]>([]);
   users$ = this.userSubject.asObservable();
+  currentUser: UserDTO | undefined;
 
   constructor(
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService,
-    private readonly examService: ExamService,
-    private readonly authStoreService: AuthStoreService
-  ) {}
+    private readonly authStoreService: AuthStoreService,
+    private readonly socket: Socket
+  ) {
+    const currentUserString = localStorage.getItem('current_user');
+
+    if (currentUserString !== null) {
+      this.currentUser = JSON.parse(currentUserString) as UserDTO;
+      this.socket.on(
+        `userEvent-${this.currentUser._id}`,
+        (event: { data: UserDTO; action: string }) => {
+          if (event.action === 'userLevelUpdated') {
+            this.authStoreService.updateCurrentUser(event.data);
+          }
+        }
+      );
+    }
+  }
 
   getAll(): Observable<UserDTO[]> {
     return this.httpClient.get<UserDTO[]>(`${this.baseUrl}`).pipe(
@@ -112,5 +127,11 @@ export class UserService {
       throw this.errorService.handleHttpError(error);
     }
     throw this.errorService.handleGenericError(error, message);
+  }
+
+  ngOnDestroy(): void {
+    if (this.currentUser) {
+      this.socket.off(`userEvent-${this.currentUser._id}`);
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
   combineLatest,
   finalize,
@@ -14,6 +15,7 @@ import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confir
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { UserTableComponent } from 'src/app/components/user-table/user-table.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
@@ -21,6 +23,7 @@ import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+@UntilDestroy()
 @Component({
   selector: 'app-user-page',
   templateUrl: './user-page.component.html',
@@ -54,7 +57,6 @@ export class UserPageComponent implements OnInit, OnDestroy {
   currentSchool$: Observable<SchoolDTO | null>;
   private currentUserSubscription: Subscription | null;
   currentUser$: Observable<UserDTO | null>;
-  private usersSubscription: Subscription | null;
   users$: Observable<UserDTO[]>;
 
   // --- styles:
@@ -69,7 +71,8 @@ export class UserPageComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private readonly route: ActivatedRoute,
     public readonly schoolService: SchoolService,
-    public readonly authStoreService: AuthStoreService
+    public readonly authStoreService: AuthStoreService,
+    public readonly notificationService: NotificationService
   ) {
     this.userType = this.route.snapshot.data['userType'] as string;
     this.pageType = this.route.snapshot.data['pageType'] as string;
@@ -165,7 +168,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
   }
 
   openEditUserDialog(data: { user: UserDTO; formType: string | null }): void {
-    this.usersSubscription = this.users$.pipe(first()).subscribe((res) => {
+    this.users$.pipe(untilDestroyed(this), first()).subscribe((res) => {
       const existingUsers = res;
       const dialogRef = this.dialog.open(EditUserDialogComponent, {
         data: {
@@ -189,6 +192,25 @@ export class UserPageComponent implements OnInit, OnDestroy {
             .subscribe({
               next: () => {
                 this.snackbarService.open('info', 'User successfully updated');
+                if (result.level?.shortName !== data.user.level?.shortName) {
+                  this.notificationService
+                    .create({
+                      recipients: [data.user._id],
+                      message: `Your English level has been changed ${
+                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+                        result.level?.longName
+                          ? `to ${result.level.longName}`
+                          : ''
+                      }`,
+                      createdBy: data.user.schoolId as string,
+                      dateSent: new Date().getTime(),
+                      seenBy: [],
+                      schoolId: data.user.schoolId as string,
+                      link: 'lessons',
+                    })
+                    .pipe(untilDestroyed(this))
+                    .subscribe();
+                }
                 this.getUsers();
               },
               error: (error: Error) => {
@@ -301,9 +323,6 @@ export class UserPageComponent implements OnInit, OnDestroy {
     }
     if (this.currentUserSubscription) {
       this.currentUserSubscription.unsubscribe();
-    }
-    if (this.usersSubscription) {
-      this.usersSubscription.unsubscribe();
     }
   }
 }

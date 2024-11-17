@@ -11,7 +11,7 @@ export interface CreateUserDTO {
   profilePicture?: ProfilePictureDTO | null;
   level?: LevelDTO | null;
   // level?: string | null;
-  schoolId: number | string;
+  schoolId: number | string; // todo = updae to string only
   eltComplete: boolean;
   createdAt?: Date | null;
   updatedAt?: Date | null;
