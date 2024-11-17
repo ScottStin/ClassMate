@@ -14,9 +14,22 @@ $secondaryColor: var(--secondaryColor);
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  min-height: 150vh;
+  height: 100vh;
+  overflow: hidden;
+  // min-height: 150vh;
 }
 
 .page-content {
   padding:25px;
+}
+
+/* Hide scrollbars and keep scrolling */
+
+::ng-deep .mat-drawer-inner-container {
+  overflow-y: scroll !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+::ng-deep .mat-drawer-inner-container::-webkit-scrollbar {
+  display: none !important;
 }
