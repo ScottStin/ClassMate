@@ -23,6 +23,8 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
   @Input() users: UserDTO[] | null;
   @Input() currentUser: UserDTO | null;
   @Input() showUnfinishedHomeworkOnly: boolean;
+  @Input() displayCloseButton: boolean | undefined;
+  @Output() closeDialog = new EventEmitter();
   @Output() openDeleteCommentDialog = new EventEmitter<{
     homework: HomeworkDTO;
     comment: CommentDTO;
@@ -290,5 +292,10 @@ export class HomeworkCardComponent implements OnInit, OnChanges {
     } else {
       return undefined;
     }
+  }
+
+  // if homework card is opened as a dialog, this will emit a close message:
+  closeDialogClick(): void {
+    this.closeDialog.emit();
   }
 }

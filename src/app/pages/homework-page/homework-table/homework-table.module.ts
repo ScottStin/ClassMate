@@ -9,6 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { StudentsEnrolledHomeworkDialogModule } from 'src/app/components/students-enrolled-homework-dialog/students-enrolled-homework-dialog.module';
 
+import { HomeworkCardModule } from '../homework-card/homework-card.module';
 import { HomeworkTableComponent } from './homework-table.component';
 
 @NgModule({
@@ -23,6 +24,7 @@ import { HomeworkTableComponent } from './homework-table.component';
     MatPaginatorModule,
     MatTooltipModule,
     StudentsEnrolledHomeworkDialogModule,
+    HomeworkCardModule,
   ],
   exports: [HomeworkTableComponent],
 })

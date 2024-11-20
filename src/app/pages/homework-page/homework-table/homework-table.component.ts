@@ -3,11 +3,14 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
+  TemplateRef,
   ViewChild,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
@@ -21,16 +24,24 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './homework-table.component.html',
   styleUrls: ['./homework-table.component.scss'],
 })
-export class HomeworkTableComponent implements OnInit, AfterViewInit {
+export class HomeworkTableComponent
+  implements OnInit, AfterViewInit, OnChanges
+{
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<HomeworkDTO>;
+  @ViewChild('homeworkCardDialogTemplate')
+  homeworkCardDialogTemplate!: TemplateRef<void>;
+
   @Input() homeworkData: HomeworkDTO[] | null;
   @Input() users: UserDTO[] | null;
+  @Input() currentUser: UserDTO | null;
   @Input() homeworkPageLoading: boolean;
   @Output() openConfirmDeleteDialog = new EventEmitter<HomeworkDTO>();
   @Output() openEditHomeworkDialog = new EventEmitter<HomeworkDTO>();
 
+  dialogRef: MatDialogRef<void>;
+  selectedHomeworkItem: HomeworkDTO[]; // used for opening the homework card.
   filterText: string;
   dataSource?: MatTableDataSource<HomeworkDTO> | undefined;
   displayedColumns = [
@@ -54,6 +65,38 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
     this.dataSource = new MatTableDataSource<HomeworkDTO>(
       this.homeworkData ?? []
     );
+
+    if (
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      this.currentUser?._id &&
+      this.currentUser.userType.toLowerCase() === 'student'
+    ) {
+      // Get display columsn if user is student:
+      this.displayedColumns = [
+        'createdAt',
+        'name',
+        'description',
+        'assignedTeacherId',
+        'attachment',
+        'dueDate',
+        'actions',
+      ];
+
+      // If current user is student, filter homework to show only current user's homework:
+      this.filterHomeworkForCurrentUser();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      'homeworkData' in changes &&
+      this.homeworkData &&
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      this.currentUser?._id &&
+      this.currentUser.userType.toLowerCase() === 'student'
+    ) {
+      this.filterHomeworkForCurrentUser();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -63,6 +106,15 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
       this.table.dataSource = this.dataSource;
       this.dataSource.sortingDataAccessor = this.sortingDataAccessor.bind(this);
     }
+  }
+
+  filterHomeworkForCurrentUser(): void {
+    this.homeworkData =
+      this.homeworkData?.filter((homework) =>
+        homework.students
+          .map((student) => student.studentId)
+          .includes(this.currentUser?._id ?? '')
+      ) ?? null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,8 +176,28 @@ export class HomeworkTableComponent implements OnInit, AfterViewInit {
     }
   }
 
+  openHomeworkCard(homeworkItem: HomeworkDTO): void {
+    this.selectedHomeworkItem = [homeworkItem];
+    this.dialogRef = this.dialog.open(this.homeworkCardDialogTemplate, {
+      panelClass: 'full-screen-homework-card-dialog',
+      hasBackdrop: false,
+    });
+  }
+
   studentsIncompleteCounter(homeworkItem: HomeworkDTO): number {
-    return homeworkItem.students.filter((student) => !student.completed).length;
+    if (
+      this.currentUser &&
+      this.currentUser.userType.toLowerCase() === 'student'
+    ) {
+      return homeworkItem.students.find(
+        (student) => student.studentId === this.currentUser?._id
+      )?.completed ?? false
+        ? 0
+        : 1;
+    } else {
+      return homeworkItem.students.filter((student) => !student.completed)
+        .length;
+    }
   }
 
   getStudentsIncompleteList(homeworkItem: HomeworkDTO): string {

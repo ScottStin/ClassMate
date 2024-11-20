@@ -104,7 +104,7 @@
     <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef></mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <div>
+        <div *ngIf="currentUser?.userType?.toLowerCase() !== 'student'">
           <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>more_vert</mat-icon>
           </button>
@@ -118,6 +118,18 @@
               <span>Delete</span>
             </button>
           </mat-menu>
+        </div>
+
+        <div *ngIf="currentUser?.userType?.toLowerCase() === 'student'">
+          <button
+            mat-icon-button
+            color="primary"
+            #tooltip="matTooltip"
+            matTooltip="View homework submissions and feedback."
+            (click)="openHomeworkCard(row)"
+          >
+            <mat-icon>remove_red_eye</mat-icon>
+          </button>
         </div>
       </mat-cell>
     </ng-container>
@@ -155,3 +167,15 @@
   >
   </mat-paginator>
 </div>
+
+<ng-template #homeworkCardDialogTemplate>
+  <app-homework-card
+    [selectedStudent]="currentUser"
+    [homework]="selectedHomeworkItem"
+    [users]="users"
+    [currentUser]="currentUser"
+    [showUnfinishedHomeworkOnly]="false"
+    [displayCloseButton]="true"
+    (closeDialog)="dialogRef.close()"
+  ></app-homework-card>
+</ng-template>

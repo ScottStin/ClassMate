@@ -115,7 +115,7 @@
       </div>
     </mat-tab>
 
-    <mat-tab
+    <!-- <mat-tab
       *ngIf="(currentUser$ | async)?.userType?.toLowerCase() === 'student'"
       label="All homework"
     >
@@ -129,17 +129,15 @@
           (openDeleteCommentDialog)="openDeleteCommentDialog($event)"
         ></app-homework-card>
       </div>
-    </mat-tab>
+    </mat-tab> -->
 
-    <mat-tab
-      *ngIf="(currentUser$ | async)?.userType?.toLowerCase() !== 'student'"
-      label="View all homework"
-    >
+    <mat-tab label="View all homework">
       <div *ngIf="!homeworkPageLoading" class="table-container">
         <app-homework-table
           [homeworkData]="homework$ | async"
           [users]="users$ | async"
           [homeworkPageLoading]="homeworkPageLoading"
+          [currentUser]="currentUser$ | async"
           (openConfirmDeleteDialog)="openConfirmDeleteDialog($event)"
           (openEditHomeworkDialog)="openEditHomeworkDialog($event)"
         ></app-homework-table>

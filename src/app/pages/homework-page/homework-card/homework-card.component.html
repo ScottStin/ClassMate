@@ -5,6 +5,14 @@
   >
     <div class="row">
       <mat-card-header>
+        <button
+          mat-icon-button
+          style="position: absolute; right: 0; top: 0"
+          *ngIf="displayCloseButton"
+          (click)="closeDialogClick()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
         <mat-card-title
           [class.overdue-chip]="overdueHomework(homeworkItem) && homeworkCompleted(homeworkItem) === false"
           style="display: flex; align-items: center"
