@@ -64,7 +64,7 @@ export class LessonCardComponent implements OnChanges {
 
   getLevels(): string {
     if (this.lesson) {
-      const levelNames = this.lesson.level.map((level) => level.longName);
+      const levelNames = this.lesson.level.map((level) => level.shortName);
       return `${levelNames.join(', ')}`;
     } else {
       return '';

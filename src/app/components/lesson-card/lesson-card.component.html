@@ -1,36 +1,89 @@
 <mat-card class="card" *ngIf="lesson && filterLessonUsers(lesson)">
   <div class="row">
-    <div class="col-md-2 text-center" *ngIf="showPhoto">
+    <!--------------------------------->
+    <!----- Teacher Photo Column: ----->
+    <!--------------------------------->
+
+    <div class="col-md-3" *ngIf="showPhoto">
       <div class="profile-picture-container">
         <img
           alt="teacher photo"
           [src]="teacher?.profilePicture?.url ? teacher?.profilePicture?.url : profilePictureSrc"
-          class="profile-picture img-fluid"
+          class="profile-picture d-flex img-fluid"
         />
       </div>
-      <h2 class="primary-header mt-3" style="white-space: nowrap; width: 15vw">
-        {{teacher?.name}}
-      </h2>
     </div>
-    <div [class]="showPhoto ? 'col-md-9 offset-1' : 'col-12'">
+
+    <!--------------------------------->
+    <!----- Lesson Details Column: ---->
+    <!--------------------------------->
+
+    <div [class]="showPhoto ? 'col-md-9' : 'col-12'">
       <mat-card-header>
-        <mat-card-title>
-          <b>{{lesson.name}}</b>
-        </mat-card-title>
-        <mat-divider></mat-divider>
-        <mat-card-subtitle>
-          {{lesson.type.name}} Class<br />
-          <b>({{getLevels()}})</b>
-        </mat-card-subtitle>
+        <mat-card-title> {{lesson.name}} </mat-card-title>
       </mat-card-header>
-      <mat-divider></mat-divider>
-      <mat-card-content style="height: 20%; overflow-y: auto; width: 80%">
-        <p>{{lesson.description}}</p>
+
+      <mat-divider
+        style="
+          margin-right: 15px;
+          margin-top: -10px !important;
+          margin-left: -5px !important;
+          margin-bottom: 10px;
+        "
+      ></mat-divider>
+
+      <mat-card-content class="lesson-card-content">
+        <mat-card-subtitle><i>"{{lesson.description}}"</i></mat-card-subtitle>
+        <div class="row">
+          <div class="table-column">
+            <table>
+              <tbody>
+                <!-- <tr>
+                  <td class="title-row">
+                    <mat-icon>co_present</mat-icon>
+                    <b> &nbsp;&nbsp;Teacher:</b>
+                  </td>
+                  <td>{{teacher?.name}}</td>
+                </tr> -->
+                <tr>
+                  <td class="title-row">
+                    <mat-icon>category</mat-icon>
+                    <b> &nbsp;&nbsp;Lesson Type:</b>
+                  </td>
+                  <td>{{lesson.type.name}}</td>
+                </tr>
+                <tr>
+                  <td class="title-row">
+                    <mat-icon>hotel_class</mat-icon>
+                    <b> &nbsp;&nbsp;Level:</b>
+                  </td>
+                  <td>{{getLevels()}}</td>
+                </tr>
+                <tr>
+                  <td class="title-row">
+                    <mat-icon>calendar_today</mat-icon>
+                    <b> &nbsp;&nbsp;Start Date/Time:</b>
+                  </td>
+                  <td>
+                    {{lesson.startTime | date:'EEEE, dd MMMM yyyy h:mm a'}}
+                    ({{lesson.startTime | date:'z' }})
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </mat-card-content>
-      <mat-card-actions align="end">
+
+      <!--------------------------------->
+      <!----- Action Buttons Footer: ---->
+      <!--------------------------------->
+
+      <mat-card-actions
+        align="end"
+        style="position: absolute; right: 15px; bottom: -20px; width: 2000px"
+      >
         <div class="mat-card-actions">
-          <h6>{{lesson.startTime | date:'EEEE, dd MMMM yyyy h:mm a'}}&nbsp;</h6>
-          <h6 style="margin-right: 10px">({{lesson.startTime | date:'z' }})</h6>
           <button
             *ngIf="showJoinButton(lesson)"
             mat-mini-fab
@@ -85,37 +138,6 @@
             <mat-icon><i class="material-icons">remove_red_eye</i></mat-icon>
           </button>
         </div>
-
-        <button
-          mat-icon-button
-          [matMenuTriggerFor]="menu"
-          style="position: absolute; top: 5px; right: 5px"
-          *ngIf="
-          pageName==='lessons' &&
-          ((authStoreService.currentUser$ | async)?._id === teacher?._id || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school')
-        "
-          matTooltip="Open lesson options"
-        >
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item>
-            <mat-icon>edit</mat-icon>
-            <span>Edit</span>
-          </button>
-          <button mat-menu-item (click)="deleteLessonClick()">
-            <mat-icon>delete</mat-icon>
-            <span>Delete</span>
-          </button>
-          <button
-            mat-menu-item
-            *ngIf="this.pastLesson && this.currentUser?.userType?.toLowerCase() === 'teacher'"
-          >
-            <mat-icon>query_stats</mat-icon>
-            <span>Lesson Stats</span>
-          </button>
-        </mat-menu>
-
         <mat-chip-list
           *ngIf="!pastLesson"
           style="position: absolute; bottom: -15px; right: -20px"
@@ -133,4 +155,38 @@
       </mat-card-actions>
     </div>
   </div>
+
+  <!--------------------------------->
+  <!-- Lesson Options Menu Button: -->
+  <!--------------------------------->
+
+  <button
+    mat-icon-button
+    [matMenuTriggerFor]="menu"
+    style="position: absolute; top: 5px; right: 5px"
+    *ngIf="
+  pageName==='lessons' &&
+  ((authStoreService.currentUser$ | async)?._id === teacher?._id || (authStoreService.currentUser$ | async)?.userType?.toLowerCase() === 'school')
+"
+    matTooltip="Open lesson options"
+  >
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item>
+      <mat-icon>edit</mat-icon>
+      <span>Edit</span>
+    </button>
+    <button mat-menu-item (click)="deleteLessonClick()">
+      <mat-icon>delete</mat-icon>
+      <span>Delete</span>
+    </button>
+    <button
+      mat-menu-item
+      *ngIf="this.pastLesson && this.currentUser?.userType?.toLowerCase() === 'teacher'"
+    >
+      <mat-icon>query_stats</mat-icon>
+      <span>Lesson Stats</span>
+    </button>
+  </mat-menu>
 </mat-card>

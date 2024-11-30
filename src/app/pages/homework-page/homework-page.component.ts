@@ -296,8 +296,8 @@ export class HomeworkPageComponent implements OnInit {
                         : [feedback.feedback.teacherId ?? ''],
                     message:
                       feedback.feedback.commentType === 'feedback'
-                        ? `You have received new feedback on your homework from ${user.name}`
-                        : `${user.name} has submitted a new homework attempt and requires feedback.`,
+                        ? `You have received new feedback on your homework` // from ${user.name}`
+                        : `A student has submitted homework and requires feedback.`,
                     createdBy:
                       (feedback.feedback.commentType === 'feedback'
                         ? feedback.feedback.teacherId

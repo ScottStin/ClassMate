@@ -12,8 +12,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 */
 
 .card:hover {
-    border: solid 1px;
-    transition: all 100ms ease-in-out;
+  transform: scale(1.01);
+  transition: all 100ms ease-in-out;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .card {
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4) !important;
   }
 
 .button:hover {
