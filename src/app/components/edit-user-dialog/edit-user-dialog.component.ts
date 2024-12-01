@@ -13,7 +13,7 @@ import { Subject } from 'rxjs/internal/Subject';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { countryList } from 'src/app/shared/country-list';
 import { demoLevels } from 'src/app/shared/demo-data';
-import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-edit-user-dialog',
@@ -26,8 +26,7 @@ export class EditUserDialogComponent implements OnInit {
     email: FormControl<string>;
     phone: FormControl<string>;
     nationality: FormControl<string>;
-    level: FormControl<LevelDTO | null>;
-    // level: FormControl<string | null>;
+    level: FormControl<string | null>;
     statement: FormControl<string>;
     unhashedPassword: FormControl<string>;
     passwordMatchInput: FormControl<string>;
@@ -87,7 +86,7 @@ export class EditUserDialogComponent implements OnInit {
         validators: [],
         nonNullable: true,
       }),
-      level: new FormControl(this.data.currentUser?.level ?? null, {
+      level: new FormControl(this.data.currentUser?.level?.longName ?? null, {
         validators: [],
         nonNullable: false,
       }),
@@ -112,12 +111,6 @@ export class EditUserDialogComponent implements OnInit {
         nonNullable: false,
       }),
     });
-    if (this.data.currentUser?.level) {
-      const level = this.demoLevels.find(
-        (obj) => this.data.currentUser?.level?.shortName === obj.shortName
-      );
-      this.userForm.get('level')?.patchValue(level as LevelDTO | null);
-    }
 
     this.formPopulated.next(true);
   }
@@ -272,6 +265,14 @@ export class EditUserDialogComponent implements OnInit {
   }
 
   closeDialog(result: unknown): void {
-    this.dialogRef.close(result);
+    if ((result as UserDTO | undefined)?.level) {
+      const level = this.demoLevels.find(
+        (demoLevel) =>
+          demoLevel.longName === (result as UserDTO | undefined)?.level
+      );
+      this.dialogRef.close({ ...(result as UserDTO), level });
+    } else {
+      this.dialogRef.close(result);
+    }
   }
 }

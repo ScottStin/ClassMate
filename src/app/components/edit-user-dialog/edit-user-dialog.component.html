@@ -92,7 +92,7 @@
       >
         <mat-label>Level</mat-label>
         <mat-select formControlName="level">
-          <mat-option *ngFor="let level of demoLevels" [value]="level">
+          <mat-option *ngFor="let level of demoLevels" [value]="level.longName">
             {{ level.longName }}
           </mat-option>
           <mat-option *ngIf="data?.currentUser?.level" [value]="null">
