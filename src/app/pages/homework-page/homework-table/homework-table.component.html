@@ -88,7 +88,7 @@
       </mat-cell>
     </ng-container>
 
-    <!-- Created Column -->
+    <!-- Due date column -->
     <ng-container matColumnDef="dueDate">
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Due date
@@ -96,6 +96,19 @@
       <mat-cell *matCellDef="let row">
         <span *ngIf="row.dueDate"
           >{{ row.dueDate | date:'dd MMM yyyy h:mm a z'}}</span
+        >
+      </mat-cell>
+    </ng-container>
+
+    <!-- Overdue column -->
+    <ng-container matColumnDef="overdue">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>
+        Overdue?
+      </mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <span
+          *ngIf="row.dueDate && isOverdue(row.dueDate) && studentsIncompleteCounter(row) !== 0"
+          >True</span
         >
       </mat-cell>
     </ng-container>

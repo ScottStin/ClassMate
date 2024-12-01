@@ -16,6 +16,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { StudentsEnrolledHomeworkDialogComponent } from 'src/app/components/students-enrolled-homework-dialog/students-enrolled-homework-dialog.component';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { isOverdue } from 'src/app/shared/helpers/overdue.helper';
 import { HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -40,6 +41,7 @@ export class HomeworkTableComponent
   @Output() openConfirmDeleteDialog = new EventEmitter<HomeworkDTO>();
   @Output() openEditHomeworkDialog = new EventEmitter<HomeworkDTO>();
 
+  isOverdue = isOverdue;
   dialogRef: MatDialogRef<void>;
   selectedHomeworkItem: HomeworkDTO[]; // used for opening the homework card.
   filterText: string;
@@ -53,6 +55,7 @@ export class HomeworkTableComponent
     // 'studentsOutstanding',
     'attachment',
     'dueDate',
+    'overdue',
     'actions',
   ];
 
@@ -126,6 +129,16 @@ export class HomeworkTableComponent
         return data.description;
       case 'createdAt':
         return data.createdAt;
+      case 'assignedTeacherId':
+        return this.getUserName(data.assignedTeacherId);
+      case 'attachment':
+        return data.attachment;
+      case 'students':
+        return data.students.length;
+      case 'dueDate':
+        return data.dueDate;
+      case 'overdue':
+        return this.isOverdue(data.dueDate as unknown as string | Date);
       default:
         return data._id;
     }

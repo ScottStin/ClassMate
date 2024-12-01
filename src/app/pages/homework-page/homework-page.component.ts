@@ -397,7 +397,7 @@ export class HomeworkPageComponent implements OnInit {
             (student) => student.studentId === studentId && !student.completed
           ) &&
           homeworkItem.dueDate !== null &&
-          new Date(homeworkItem.dueDate).getTime() < new Date().getTime()
+          new Date(homeworkItem.dueDate).getTime() < new Date().getTime() // todo - replace with isOverdue helper
       );
       unfinishedHomework = filteredHomeworkItems.length;
     }
