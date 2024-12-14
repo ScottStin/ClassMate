@@ -1,6 +1,28 @@
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
 .form-field {
     width: 100%;
+    margin-bottom:15px;
   }
+
+  .button { // todo - move button colors to global format
+    color: $secondaryColor;
+    background-color: $primaryColor;
+  }
+
+.question-container{
+  border:1px solid black;
+  border-radius: 5px;
+  padding:30px;
+  transition: width 0.3s ease-in-out;
+}
+
+.question-list-container{
+  height:75vh;
+  overflow-y: scroll;
+  transition: width 0.3s ease-in-out;
+}
 
 .thumbnail-image {
   width: 50px;
@@ -46,17 +68,15 @@
 .add-new-question-button {
   margin:1px;
   padding:5px;
+  width:200px;
+  margin-bottom: 10px;
 }
 
 .new-question-text{
-  font-size:xx-small
+  font-size:x-small
 }
 
-.mat-grid-tile {
-  transition: width 0.3s ease-in-out;
-}
-
-.mat-grid-tile.expanded {
+.expanded {
   width: 100%;
 }
 
@@ -65,8 +85,21 @@
 }
 
 .current-question {
-  color: #6200EE;
+  color: $primaryColor;
   font-weight: bolder;
+}
+
+.arrow-down{
+  transform: rotate(90deg);
+  transition: 0.2s ease-in-out;
+}
+
+.arrow{
+  transition: 0.2s ease-in-out;
+}
+
+::ng-deep .test{
+  color:black !important;
 }
 
 // .multichoice-radio-group {

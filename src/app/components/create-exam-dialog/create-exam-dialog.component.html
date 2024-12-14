@@ -132,7 +132,8 @@
           </div>
           <div class="stepper-navigation">
             <button
-              mat-button
+              mat-raised-button
+              class="button"
               matStepperNext
               type="button"
               [disabled]="this.examForm.invalid"
@@ -143,37 +144,21 @@
         </mat-step>
       </div>
 
-      <!-- --- --- -->
-      <!-- Step 2 -->
-      <!-- --- --- -->
+      <!-- --- --------- -->
+      <!-- QUESTION STEP -->
+      <!-- --- --------- -->
 
       <div [formGroup]="questionForm">
         <mat-step label="Add Questions to Exam" [editable]="true">
           <div class="step-container">
-            <mat-grid-list
-              cols="4"
-              [rowHeight]="questionList.length>0 && currentQuestionDisplay ? '125px' : '100px'"
-            >
-              <!-- <mat-grid-tile
-                [class.expanded]="questionList.length > 0 && currentQuestionDisplay"
-                [colspan]="questionList.length>0 && currentQuestionDisplay ? 3 : 0"
-                rowspan="1"
-                style="background-color: aqua"
-              >
-                <mat-card style="width: 100%">
-                  <mat-card-content
-                    >{{currentQuestionDisplay?.name | titlecase}}
-                    Preview</mat-card-content
-                  >
-                </mat-card>
-              </mat-grid-tile> -->
-
-              <mat-grid-tile
-                [class.expanded]="questionList.length === 0 || !currentQuestionDisplay"
-                [colspan]="questionList.length>0 && currentQuestionDisplay ? 1 : 4"
-                rowspan="4"
-                style="overflow-y: auto"
-                [class]="questionList.length>0 && currentQuestionDisplay ? 'border-right' : ''"
+            <div class="row">
+              <div
+                [class]="questionList.length > 0 && currentQuestionDisplay ? 'col-sm-3' : 'col-sm-12'"
+                class="question-list-container"
+                [ngClass]="{
+                  'expanded': questionList.length === 0 || !currentQuestionDisplay,
+                  'border-right': questionList.length > 0 && currentQuestionDisplay
+                }"
               >
                 <div style="display: flex; flex-direction: column">
                   <div class="tree-container">
@@ -209,11 +194,9 @@
                             (click)="expandSection(question)"
                             style="cursor: pointer; margin-left: auto"
                           >
-                            <mat-icon *ngIf="question.expanded === false"
+                            <mat-icon
+                              [class]="question.expanded ? 'arrow-down' : 'arrow'"
                               >keyboard_arrow_right</mat-icon
-                            >
-                            <mat-icon *ngIf="question.expanded === true"
-                              >keyboard_arrow_down</mat-icon
                             >
                           </span>
                         </div></mat-list-item
@@ -289,11 +272,13 @@
                     </button>
                   </div>
                 </div>
-              </mat-grid-tile>
+              </div>
 
-              <mat-grid-tile
-                [colspan]="questionList.length>0 && currentQuestionDisplay ? 3 : 0"
-                rowspan="1"
+              <div
+                class="question-container"
+                [class]="questionList.length>0 && currentQuestionDisplay ? 'col-sm-7 offset-1' : 'col-0'"
+                *ngIf="questionList.length>0 && currentQuestionDisplay"
+                [style]="scrollThroughQuestionListStyling"
               >
                 <mat-form-field class="form-field" appearance="outline">
                   <mat-label>Question name</mat-label>
@@ -359,70 +344,39 @@
                     ></app-error-message>
                   </mat-error>
                 </mat-form-field>
-              </mat-grid-tile>
 
-              <mat-grid-tile
-                [colspan]="questionList.length>0 && currentQuestionDisplay ? 3 : 0"
-                rowspan="1"
-              >
-                <mat-form-field class="form-field" appearance="outline">
-                  <mat-label for="imagePrompt" class="file-label"
-                    ><mat-icon>attach_file</mat-icon> Image prompt
-                    URL...</mat-label
-                  >
-                  <input
-                    matInput
-                    id="imagePrompt"
-                    #imagePrompt
-                    formControlName="imagePrompt"
-                    type="text"
-                    placeholder="Add a URL to an image prompt for this question"
-                    (keyup)="formChange(imagePrompt.value, 'imagePrompt')"
-                  />
-                  <!-- <mat-label for="imagePrompt" class="file-label">
-                    <mat-icon>attach_file</mat-icon>
-                    Image prompt
-                  </mat-label> -->
-                  <!-- <div class="file-upload">
-                    <label for="imagePrompt" class="file-label">
-                      <mat-icon>attach_file</mat-icon> Image prompt
-                    </label>
-                    <input
-                      id="imagePrompt"
-                      type="file"
-                      (change)="onFileSelected($event)"
-                      accept="image/*"
-                      aria-label="Image prompt"
-                      #imagePrompt
-                      style="display: none"
-                    />
+                <div>
+                  <mat-form-field appearance="outline" style="width: 70%">
+                    <mat-label for="imagePrompt" class="file-label"
+                      ><mat-icon>attach_file</mat-icon> Prompt URL...</mat-label
+                    >
                     <input
                       matInput
-                      [value]="imagePromptFile"
-                      placeholder="Upload an image prompt for this question"
-                      readonly
+                      id="imagePrompt"
+                      #imagePrompt
+                      formControlName="imagePrompt"
+                      type="text"
+                      placeholder="Add a URL to a prompt for this question"
+                      (keyup)="formChange(imagePrompt.value, 'imagePrompt')"
                     />
-                  </div> -->
-                </mat-form-field>
+                  </mat-form-field>
 
-                <mat-form-field class="form-field" appearance="outline">
-                  <!-- <mat-label for="imagePrompt" class="file-label">
-                    <mat-icon>attach_file</mat-icon>
-                    Image prompt
-                  </mat-label> -->
-                  <!-- <div class="file-upload">
-                    <label for="audioPrompt" class="file-label">
-                      <mat-icon>attach_file</mat-icon> Audio prompt
-                    </label> -->
-                  <!-- <input
-                    id="audioPrompt"
-                    type="file"
-                    (change)="onFileSelected($event)"
-                    accept=".mp3,audio/*"
-                    aria-label="Audio prompt"
-                    #audioPrompt
-                    style="display: none"
-                  /> -->
+                  <mat-form-field
+                    appearance="outline"
+                    style="width: 25%; margin-left: 5%"
+                  >
+                    <mat-label>Prompt Type</mat-label>
+                    <mat-select>
+                      <mat-option
+                        *ngFor="let promptType of ['Image', 'Audio', 'Video']"
+                        [value]="promptType"
+                        >{{promptType}}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <!-- <mat-form-field class="form-field" appearance="outline">
                   <mat-label for="audioPrompt" class="file-label"
                     ><mat-icon>attach_file</mat-icon> Audio prompt
                     URL...</mat-label
@@ -436,16 +390,9 @@
                     placeholder="Add a URL to an audio prompt for this question"
                     (keyup)="formChange(audioPrompt.value, 'audioPrompt')"
                   />
-                  <!-- <input
-                    matInput
-                    [value]="audioPromptFile"
-                    placeholder="Upload an audio prompt for this question"
-                    readonly
-                  /> -->
-                  <!-- </div> -->
-                </mat-form-field>
+                </mat-form-field> -->
 
-                <mat-form-field class="form-field" appearance="outline">
+                <!-- <mat-form-field class="form-field" appearance="outline">
                   <mat-label for="videoPrompt" class="file-label"
                     ><mat-icon>attach_file</mat-icon> Video prompt
                     URL...</mat-label
@@ -459,18 +406,8 @@
                     placeholder="Add a URL to a video prompt for this question"
                     (keyup)="formChange(videoPrompt.value, 'videoPrompt')"
                   />
-                  <!-- <mat-error>
-                    <app-error-message
-                      [control]="questionForm.controls['videoPrompt'].errors"
-                    ></app-error-message>
-                  </mat-error> -->
-                </mat-form-field>
-              </mat-grid-tile>
+                </mat-form-field> -->
 
-              <mat-grid-tile
-                [colspan]="(questionList.length>0 && currentQuestionDisplay && (currentQuestionDisplay.timed === false || !currentQuestionDisplay.timed)) ? 3 : (questionList.length>0 && currentQuestionDisplay && currentQuestionDisplay.timed === true) ? 3 : 0"
-                rowspan="1"
-              >
                 <form [formGroup]="questionForm" class="form-field">
                   <mat-slide-toggle
                     id="teacherFeedback"
@@ -561,29 +498,6 @@
                   </mat-error>
                 </mat-form-field>
 
-                <!-- <mat-form-field class="form-field" appearance="outline">
-                  <mat-label>Total points</mat-label>
-                  <input
-                    matInput
-                    id="totalPoints"
-                    #totalPoints
-                    formControlName="totalPoints"
-                    type="number"
-                    placeholder="How many points will this question be worth? (default = 1)"
-                    (change)="formChange(totalPoints.value, 'totalPoints')"
-                  />
-                </mat-form-field> -->
-                <!-- <mat-error>
-                  <app-error-message
-                    [control]="questionForm.controls['totalPoints']?.errors"
-                  ></app-error-message>
-                </mat-error> -->
-              </mat-grid-tile>
-
-              <mat-grid-tile
-                [colspan]="questionList.length>0 && currentQuestionDisplay ? 3 : 0"
-                rowspan="1"
-              >
                 <mat-form-field
                   style="width: 30%"
                   class="form-field"
@@ -657,10 +571,6 @@
                   style="max-height: 400px; overflow-y: auto"
                 >
                   <mat-list role="list">
-                    <!-- <mat-radio-group
-                    role="listitem"
-                    class="multichoice-radio-group"
-                  > -->
                     <div
                       *ngFor="let question of currentQuestionDisplay?.multipleChoiceQuestionList; let i = index"
                     >
@@ -682,14 +592,7 @@
                         [class]="this.questionForm.getRawValue().type === 'multiple-choice-single' ? 'multi-choice-single-button' : ''"
                         >Correct option?</mat-checkbox
                       >
-                      <!-- <mat-radio-button
-                        class="multichoice-radio-button"
-                        [value]="question.correct"
-                        (change)="changeMultiChoice(currentQuestionDisplay,question, i)"
-                        >correct?</mat-radio-button
-                      > -->
                     </div>
-                    <!-- </mat-radio-group> -->
                   </mat-list>
                   <span
                     style="
@@ -845,12 +748,17 @@
                     >
                   </mat-slide-toggle>
                 </form>
-              </mat-grid-tile>
-            </mat-grid-list>
+              </div>
+            </div>
 
             <div class="stepper-navigation">
               <button mat-button matStepperPrevious type="button">Back</button>
-              <button mat-button type="button" (click)="saveExamClick()">
+              <button
+                mat-raised-button
+                type="button"
+                class="button"
+                (click)="saveExamClick()"
+              >
                 <b>Save Exam</b>
               </button>
             </div>

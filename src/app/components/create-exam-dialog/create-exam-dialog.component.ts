@@ -37,6 +37,7 @@ export class CreateExamDialogComponent implements OnInit {
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
   letters: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''); // used for labelling options in multiple choice questions;
+  scrollThroughQuestionListStyling = '';
 
   questionForm: FormGroup<{
     questionName: FormControl<string>;
@@ -105,6 +106,9 @@ export class CreateExamDialogComponent implements OnInit {
     this.populateQuestionForm();
   }
 
+  /*
+   * Populate the exam details on page load:
+   */
   populateExamForm(): void {
     this.examForm = new FormGroup({
       name: new FormControl(this.data.exam?.name ?? '', {
@@ -139,6 +143,9 @@ export class CreateExamDialogComponent implements OnInit {
     this.formPopulated.next(true);
   }
 
+  /*
+   * Initial population of question form on page load:
+   */
   populateQuestionForm(): void {
     this.questionForm = new FormGroup({
       questionName: new FormControl('', {
@@ -189,22 +196,9 @@ export class CreateExamDialogComponent implements OnInit {
     this.formPopulated.next(true);
   }
 
-  saveExamClick(): void {
-    // this.saveExam.emit(this.examForm.value as ExamDTO);
-    this.examService
-      .create(this.examForm.value as ExamDTO, this.questionList)
-      .subscribe({
-        next: () => {
-          this.snackbarService.open('info', 'Exam successfully created');
-          this.closeDialog(true);
-        },
-        error: (error: Error) => {
-          this.error = error;
-          this.snackbarService.openPermanent('error', error.message);
-        },
-      });
-  }
-
+  /*
+   * Adds a new section to the exam question list:
+   */
   addNewSection(): void {
     const newQuestion = {
       name: `New section ${this.sectionCounter}`,
@@ -223,6 +217,9 @@ export class CreateExamDialogComponent implements OnInit {
     this.updateForm();
   }
 
+  /*
+   * Adds a question to the questin list:
+   */
   addNewQuestion(): void {
     const newQuestion = {
       name: `New question ${this.questionCounter}`,
@@ -235,6 +232,9 @@ export class CreateExamDialogComponent implements OnInit {
     this.updateForm();
   }
 
+  /*
+   * Adds a subquestion to a section:
+   */
   addQuestionToSection(question: QuestionList): void {
     const clickedQuestion = this.questionList.find(
       (obj) => obj.id === question.id
@@ -256,16 +256,78 @@ export class CreateExamDialogComponent implements OnInit {
     this.updateForm();
   }
 
+  /*
+   * When the user clicks to edit a question in the question list, make that the current question to display:
+   */
   editQuestion(question: QuestionList, subQuestion: QuestionList | null): void {
     if (!subQuestion) {
-      this.currentQuestionDisplay = question;
+      //
+      // --- First, let's create a scroll effect, so it looks like we're scrolling up/down through the question list when the user changes questions, rather than just changing immediately:
+      const newQuestionIndex = this.questionList.findIndex(
+        (questionListItem) => question.id === questionListItem.id
+      );
+      const currentQuestionIndex = this.questionList.findIndex(
+        (questionListItem) =>
+          this.currentQuestionDisplay?.id === questionListItem.id
+      );
+
+      // eslint-disable-next-line require-await
+      const delay = async (ms: number): Promise<void> =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+
+      const updateQuestionDisplay = async (): Promise<void> => {
+        if (currentQuestionIndex > newQuestionIndex) {
+          // Loop backward with delay:
+          for (let i = currentQuestionIndex - 1; i >= newQuestionIndex; i--) {
+            this.scrollThroughQuestionListStyling =
+              'transform: translateY(2000px); transition: all 0.05s ease-in-out;';
+            this.currentQuestionDisplay = this.questionList[i];
+            await delay(25);
+            this.scrollThroughQuestionListStyling =
+              'transform: translateY(0px); transition: all 0.05s ease-in-out;';
+            await delay(25);
+            this.updateForm();
+          }
+        } else if (currentQuestionIndex < newQuestionIndex) {
+          // Loop forward with delay:
+          for (let i = currentQuestionIndex + 1; i <= newQuestionIndex; i++) {
+            this.scrollThroughQuestionListStyling =
+              'transform: translateY(-2000px); transition: all 0.05s ease-in-out;';
+            this.currentQuestionDisplay = this.questionList[i];
+            await delay(25);
+            this.scrollThroughQuestionListStyling =
+              'transform: translateY(0px); transition: all 0.05s ease-in-out;';
+            await delay(25);
+            this.updateForm();
+          }
+        }
+      };
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      updateQuestionDisplay();
     } else {
+      // todo - add loop to sub question display as above:
       this.currentQuestionDisplay = subQuestion;
       this.currentQuestionDisplay.parent = question.id as number;
+      this.updateForm();
     }
-    this.updateForm();
   }
 
+  /*
+   * Apply dynamic styling to question list whe the user changes questions to create scroll affect:
+   */
+  // scrollThroughQuestionListStyling(styles: {
+  //   transform: string;
+  //   transition: string;
+  // }): Record<string, string> {
+  //   return {
+  //     transform: styles.transform || 'translateY(0)',
+  //     transition: styles.transition || 'all 0.3s ease-in-out',
+  //   };
+  // }
+
+  /*
+   * When the current question being displayed to the user changes, update the question form:
+   */
   updateForm(): void {
     if (this.currentQuestionDisplay) {
       this.questionForm.controls.questionName.setValue(
@@ -397,6 +459,9 @@ export class CreateExamDialogComponent implements OnInit {
     }
   }
 
+  /*
+   * Delete a question from the question list:
+   */
   deleteQuestion(
     question: QuestionList,
     subQuestions: QuestionList | null
@@ -414,13 +479,9 @@ export class CreateExamDialogComponent implements OnInit {
     this.currentQuestionDisplay = null;
   }
 
-  // onFileSelected(event: Event): void {
-  //   const input = event.target as HTMLInputElement;
-  //   if (input.files && input.files.length > 0) {
-  //     this.imagePromptFile = input.files[0].name;
-  //   }
-  // }
-
+  /*
+   * When the user clicks on a seciton in the question list, expand that section to show the sub-questions:
+   */
   expandSection(question: QuestionList): void {
     const clickedQuestion = this.questionList.find(
       (obj) => obj.id === question.id
@@ -506,6 +567,9 @@ export class CreateExamDialogComponent implements OnInit {
     }
   }
 
+  /*
+   * Change the default level test (toggle on/off):
+   */
   updateDefaultExam(): void {
     const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -521,6 +585,25 @@ export class CreateExamDialogComponent implements OnInit {
         this.examForm.get('default')?.patchValue(false);
       }
     });
+  }
+
+  /*
+   * Finally, when the user is finished, we save the exam:
+   */
+  saveExamClick(): void {
+    // this.saveExam.emit(this.examForm.value as ExamDTO);
+    this.examService
+      .create(this.examForm.value as ExamDTO, this.questionList)
+      .subscribe({
+        next: () => {
+          this.snackbarService.open('info', 'Exam successfully created');
+          this.closeDialog(true);
+        },
+        error: (error: Error) => {
+          this.error = error;
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
   }
 
   closeDialog(result: boolean | null): void {
