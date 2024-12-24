@@ -22,6 +22,10 @@ import { MatTreeModule } from '@angular/material/tree';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { ErrorMessageModule } from '../error-message/error-message.module';
 import { CreateExamDialogComponent } from './create-exam-dialog.component';
+import { CreateFillBlanksExamQuestionDialogModule } from './create-fill-blanks-exam-question-dialog/create-fill-blanks-exam-question-dialog.module';
+import { CreateMultipleChoiceExamQuestionDialogModule } from './create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.module';
+import { CreateReorderSentenceExamQuestionDialogModule } from './create-reorder-sentence-exam-question-dialog/create-reorder-sentence-exam-question-dialog.module';
+import { CreateMatchOptionsExamQuestionDialogModule } from './match-options-exam-question-dialog/create-match-options-exam-question-dialog.module';
 
 @NgModule({
   declarations: [CreateExamDialogComponent],
@@ -48,6 +52,10 @@ import { CreateExamDialogComponent } from './create-exam-dialog.component';
     MatCheckboxModule,
     MatListModule,
     DialogHeaderModule,
+    CreateMultipleChoiceExamQuestionDialogModule,
+    CreateReorderSentenceExamQuestionDialogModule,
+    CreateMatchOptionsExamQuestionDialogModule,
+    CreateFillBlanksExamQuestionDialogModule,
   ],
   exports: [CreateExamDialogComponent],
 })

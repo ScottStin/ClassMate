@@ -13,6 +13,11 @@ import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.serv
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+import { CreateFillBlanksExamQuestionDialogComponent } from './create-fill-blanks-exam-question-dialog/create-fill-blanks-exam-question-dialog.component';
+import { CreateMultipleChoiceExamQuestionDialogComponent } from './create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.component';
+import { CreateReorderSentenceExamQuestionDialogComponent } from './create-reorder-sentence-exam-question-dialog/create-reorder-sentence-exam-question-dialog.component';
+import { CreateMatchOptionsExamQuestionDialogComponent } from './match-options-exam-question-dialog/create-match-options-exam-question-dialog.component';
+
 @Component({
   selector: 'app-create-exam-dialog',
   templateUrl: './create-exam-dialog.component.html',
@@ -36,7 +41,6 @@ export class CreateExamDialogComponent implements OnInit {
   audioPromptFile = '';
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
-  letters: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''); // used for labelling options in multiple choice questions;
   scrollThroughQuestionListStyling = '';
 
   questionForm: FormGroup<{
@@ -50,8 +54,6 @@ export class CreateExamDialogComponent implements OnInit {
     teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
     autoMarking: FormControl<boolean>; // false = teacher has to assign mark
     totalPoints: FormControl<number>;
-    randomQuestionOrder: FormControl<boolean | null>; // for multiple choice question, the questions will be in random order
-    partialMarking: FormControl<boolean | null>; // for fill-in-blanks question, partial marks will be awarded if he user gets some of the questions correct
     // caseSensitive: FormControl<boolean | null>; // for fill-in-blanks question, the student will have to get the case correct to score the points
     length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
     answers?: FormControl<{ question: string; correct: boolean }[] | null>; // used for multiple choice questions
@@ -75,7 +77,11 @@ export class CreateExamDialogComponent implements OnInit {
       description: '',
       label: 'Multiple Choice Multiple Answer',
     },
-    { type: 'reorder-sentence', description: '', label: 'Reorder Sentence' },
+    {
+      type: 'reorder-sentence',
+      description: '',
+      label: 'Reorder Sentence/Paragraph',
+    },
     { type: 'match-options', description: '', label: 'Match Options' },
     {
       type: 'fill-in-the-blanks',
@@ -179,12 +185,6 @@ export class CreateExamDialogComponent implements OnInit {
       autoMarking: new FormControl(false, {
         validators: [Validators.required],
         nonNullable: true,
-      }),
-      randomQuestionOrder: new FormControl(false, {
-        nonNullable: false,
-      }),
-      partialMarking: new FormControl(false, {
-        nonNullable: false,
       }),
       time: new FormControl(60, {
         nonNullable: false,
@@ -363,9 +363,6 @@ export class CreateExamDialogComponent implements OnInit {
       this.questionForm.controls.time.setValue(
         this.currentQuestionDisplay.time ?? null
       );
-      this.questionForm.controls.randomQuestionOrder.setValue(
-        this.currentQuestionDisplay.randomQuestionOrder ?? false
-      );
     }
   }
 
@@ -406,58 +403,34 @@ export class CreateExamDialogComponent implements OnInit {
         if (this.currentQuestionDisplay.reorderSentenceQuestionList) {
           this.currentQuestionDisplay.reorderSentenceQuestionList = null;
         }
-        this.currentQuestionDisplay.partialMarking = null;
-        this.currentQuestionDisplay.randomQuestionOrder = null;
       }
     }
   }
 
-  changeMultiChoice(index: number, checked: boolean): void {
-    if (
-      this.currentQuestionDisplay?.type === 'multiple-choice-single' &&
-      this.currentQuestionDisplay.multipleChoiceQuestionList
-    ) {
-      for (const question of this.currentQuestionDisplay
-        .multipleChoiceQuestionList) {
-        question.correct = false;
-      }
-    }
-    if (this.currentQuestionDisplay?.multipleChoiceQuestionList) {
-      this.currentQuestionDisplay.multipleChoiceQuestionList[index].correct =
-        checked;
-    }
-  }
+  // changeMatchOptionText(index: number, text: string, option: string): void {
+  //   if (this.currentQuestionDisplay?.matchOptionQuestionList) {
+  //     if (option === 'right') {
+  //       this.currentQuestionDisplay.matchOptionQuestionList[index].rightOption =
+  //         text;
+  //     }
+  //     if (option === 'left') {
+  //       this.currentQuestionDisplay.matchOptionQuestionList[index].leftOption =
+  //         text;
+  //     }
+  //   }
+  // }
 
-  changeMatchOptionText(index: number, text: string, option: string): void {
-    if (this.currentQuestionDisplay?.matchOptionQuestionList) {
-      if (option === 'right') {
-        this.currentQuestionDisplay.matchOptionQuestionList[index].rightOption =
-          text;
-      }
-      if (option === 'left') {
-        this.currentQuestionDisplay.matchOptionQuestionList[index].leftOption =
-          text;
-      }
-    }
-  }
+  // changeReorderSentenceText(index: number, text: string): void {
+  //   if (this.currentQuestionDisplay?.reorderSentenceQuestionList) {
+  //     this.currentQuestionDisplay.reorderSentenceQuestionList[index] = text;
+  //   }
+  // }
 
-  changeMultiChoiceText(index: number, text: string): void {
-    if (this.currentQuestionDisplay?.multipleChoiceQuestionList) {
-      this.currentQuestionDisplay.multipleChoiceQuestionList[index].text = text;
-    }
-  }
-
-  changeReorderSentenceText(index: number, text: string): void {
-    if (this.currentQuestionDisplay?.reorderSentenceQuestionList) {
-      this.currentQuestionDisplay.reorderSentenceQuestionList[index] = text;
-    }
-  }
-
-  changeFillBlankText(index: number, text: string): void {
-    if (this.currentQuestionDisplay?.fillBlanksQuestionList) {
-      this.currentQuestionDisplay.fillBlanksQuestionList[index].text = text;
-    }
-  }
+  // changeFillBlankText(index: number, text: string): void {
+  //   if (this.currentQuestionDisplay?.fillBlanksQuestionList) {
+  //     this.currentQuestionDisplay.fillBlanksQuestionList[index].text = text;
+  //   }
+  // }
 
   /*
    * Delete a question from the question list:
@@ -491,81 +464,51 @@ export class CreateExamDialogComponent implements OnInit {
     }
   }
 
-  addMultipleChoiceOption(): void {
-    if (
-      this.currentQuestionDisplay &&
-      !this.currentQuestionDisplay.multipleChoiceQuestionList
-    ) {
-      this.currentQuestionDisplay.multipleChoiceQuestionList = [
-        {
-          text: '',
-          correct: false,
-        },
-      ];
-    } else {
-      this.currentQuestionDisplay?.multipleChoiceQuestionList?.push({
-        text: '',
-        correct: false,
-      });
-    }
-  }
+  // addFillBlank(option: string): void {
+  //   if (
+  //     this.currentQuestionDisplay &&
+  //     !this.currentQuestionDisplay.fillBlanksQuestionList
+  //   ) {
+  //     if (option === 'blank') {
+  //       this.currentQuestionDisplay.fillBlanksQuestionList = [
+  //         { text: '', blank: true },
+  //       ];
+  //     } else {
+  //       this.currentQuestionDisplay.fillBlanksQuestionList = [
+  //         { text: '', blank: false },
+  //       ];
+  //     }
+  //   } else if (option === 'blank') {
+  //     this.currentQuestionDisplay?.fillBlanksQuestionList?.push({
+  //       text: '',
+  //       blank: true,
+  //     });
+  //   } else {
+  //     this.currentQuestionDisplay?.fillBlanksQuestionList?.push({
+  //       text: '',
+  //       blank: false,
+  //     });
+  //   }
+  // }
 
-  addReorderSentenceOption(): void {
-    if (
-      this.currentQuestionDisplay &&
-      !this.currentQuestionDisplay.reorderSentenceQuestionList
-    ) {
-      this.currentQuestionDisplay.reorderSentenceQuestionList = [''];
-    } else {
-      this.currentQuestionDisplay?.reorderSentenceQuestionList?.push('');
-    }
-  }
-
-  addFillBlank(option: string): void {
-    if (
-      this.currentQuestionDisplay &&
-      !this.currentQuestionDisplay.fillBlanksQuestionList
-    ) {
-      if (option === 'blank') {
-        this.currentQuestionDisplay.fillBlanksQuestionList = [
-          { text: '', blank: true },
-        ];
-      } else {
-        this.currentQuestionDisplay.fillBlanksQuestionList = [
-          { text: '', blank: false },
-        ];
-      }
-    } else if (option === 'blank') {
-      this.currentQuestionDisplay?.fillBlanksQuestionList?.push({
-        text: '',
-        blank: true,
-      });
-    } else {
-      this.currentQuestionDisplay?.fillBlanksQuestionList?.push({
-        text: '',
-        blank: false,
-      });
-    }
-  }
-
-  addMatchOption(): void {
-    if (
-      this.currentQuestionDisplay &&
-      !this.currentQuestionDisplay.matchOptionQuestionList
-    ) {
-      this.currentQuestionDisplay.matchOptionQuestionList = [
-        {
-          rightOption: '',
-          leftOption: '',
-        },
-      ];
-    } else {
-      this.currentQuestionDisplay?.matchOptionQuestionList?.push({
-        rightOption: '',
-        leftOption: '',
-      });
-    }
-  }
+  // addMatchOption(): void {
+  //   if (
+  //     this.currentQuestionDisplay &&
+  //     !this.currentQuestionDisplay.matchOptionQuestionList
+  //   ) {
+  //     this.currentQuestionDisplay.matchOptionQuestionList = [
+  //       {
+  //         rightOption: '',
+  //         leftOption: '',
+  //       },
+  //     ];
+  //   } else {
+  //     this.currentQuestionDisplay?.matchOptionQuestionList?.push({
+  //       rightOption: '',
+  //       leftOption: '',
+  //     });
+  //   }
+  // }
 
   /*
    * Change the default level test (toggle on/off):
@@ -583,6 +526,77 @@ export class CreateExamDialogComponent implements OnInit {
     confirmDialogRef.afterClosed().subscribe((result: boolean) => {
       if (!result) {
         this.examForm.get('default')?.patchValue(false);
+      }
+    });
+  }
+
+  /*
+   * Open multiple chouce dialog to add multiple choice options to question:
+   */
+  openQuestionDetailDialog(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let dialogName: any;
+    let title;
+    let questionType: string;
+
+    if (this.currentQuestionDisplay?.type === 'reorder-sentence') {
+      dialogName = CreateReorderSentenceExamQuestionDialogComponent;
+      title = 'Create Reorder Sentence/Paragraph Exam Question';
+      questionType = 'reorderSentenceQuestionList';
+    }
+
+    if (this.currentQuestionDisplay?.type === 'match-options') {
+      dialogName = CreateMatchOptionsExamQuestionDialogComponent;
+      title = 'Create Match Option Exam Question';
+      questionType = 'matchOptionQuestionList';
+    }
+
+    if (this.currentQuestionDisplay?.type === 'fill-in-the-blanks') {
+      dialogName = CreateFillBlanksExamQuestionDialogComponent;
+      title = 'Create Fill-in-the-Blanks Exam Question';
+      questionType = 'fillBlanksQuestionList';
+    }
+
+    if (
+      ['multiple-choice-single', 'multiple-choice-multi'].includes(
+        this.currentQuestionDisplay?.type ?? ''
+      )
+    ) {
+      dialogName = CreateMultipleChoiceExamQuestionDialogComponent;
+      title =
+        this.currentQuestionDisplay?.type === 'multiple-choice-single'
+          ? 'Create Multiple Choice (Single Answer) Exam Question'
+          : 'Create Multiple Choice (Multiple Answer) Exam Question';
+      questionType = 'multipleChoiceQuestionList';
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const dialogRef = this.dialog.open(dialogName, {
+      data: {
+        title,
+        currentQuestionDisplay: this.currentQuestionDisplay,
+      },
+    });
+    dialogRef.afterClosed().subscribe((result: QuestionList | null) => {
+      if (result) {
+        let foundQuestion;
+        if (this.currentQuestionDisplay?.parent !== undefined) {
+          // If current question in a subquestion of a section, update accordingly:
+          foundQuestion = this.questionList
+            .find((obj) => obj.id === this.currentQuestionDisplay?.parent)
+            ?.subQuestions?.find(
+              (obj) => obj.id === this.currentQuestionDisplay?.id
+            );
+        } else {
+          // If current question is not a sub question, update accordingly:
+          foundQuestion = this.questionList.find(
+            (question) => question.id === result.id
+          );
+        }
+
+        if (foundQuestion && questionType) {
+          foundQuestion[questionType] = result[questionType];
+        }
       }
     });
   }
@@ -623,9 +637,11 @@ export interface QuestionList {
   time?: number | null;
   randomQuestionOrder?: boolean | null;
   partialMarking?: boolean | null;
-  multipleChoiceQuestionList?: { text: string; correct: boolean }[] | null;
-  reorderSentenceQuestionList?: string[] | null;
-  fillBlanksQuestionList?: { text: string; blank: boolean }[] | null;
+  multipleChoiceQuestionList?: { text: string; correct: boolean }[] | null; // todo - seperate
+  reorderSentenceQuestionList?: { text: string }[] | null;
+  fillBlanksQuestionList?:
+    | { text: string; blanks: { text: string }[] }[]
+    | null;
   matchOptionQuestionList?:
     | { leftOption: string; rightOption: string }[]
     | null;

@@ -1,0 +1,57 @@
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="data.title"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
+  <h5>Question: {{temporarycurrentQuestionDisplay.name}}</h5>
+  <div mat-dialog-content>
+    <div class="form-field">
+      <mat-list role="list">
+        <div
+          *ngFor="let sentence of temporarycurrentQuestionDisplay?.reorderSentenceQuestionList; let i = index"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+          "
+        >
+          <span>
+            <button
+              mat-icon-button
+              matTooltip="Delete this option"
+              matTooltipPosition="after"
+              (click)="removeSentenceOption(i)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </span>
+          <textarea
+            type="text"
+            [value]="sentence.text"
+            placeholder="Type sentence/paragraph here"
+            id="reorderSentenceInput"
+            #reorderSentenceInput
+            (keyup)="changeReorderSentenceText(i, reorderSentenceInput.value)"
+            class="sentence-choice-textbox"
+          ></textarea>
+          <span>({{ positions[i] }}) </span>
+        </div>
+      </mat-list>
+      <span class="add-option-button" (click)="addReorderSentenceOption()"
+        ><mat-icon>add</mat-icon><b>Add sentence</b></span
+      >
+    </div>
+
+    <i style="margin-top: 10px"
+      >Note: The options will appear to the student in a random order</i
+    >
+  </div>
+  <app-dialog-actions
+    [matTooltip]="!temporarycurrentQuestionDisplay.reorderSentenceQuestionList || (temporarycurrentQuestionDisplay.reorderSentenceQuestionList ?? [null,null]).length < 2 ? 'Please add at least two options before saving' : ''"
+    matTooltipPosition="after"
+    (cancelAction)="closeDialog()"
+    (saveAction)="closeDialogSave()"
+    [disabled]="!temporarycurrentQuestionDisplay.reorderSentenceQuestionList || (temporarycurrentQuestionDisplay.reorderSentenceQuestionList ?? [null,null]).length < 2"
+  ></app-dialog-actions>
+</ng-container>

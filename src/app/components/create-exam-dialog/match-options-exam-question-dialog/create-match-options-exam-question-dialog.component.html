@@ -1,0 +1,106 @@
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="data.title"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
+  <h5>Question: {{temporarycurrentQuestionDisplay.name}}</h5>
+  <div mat-dialog-content>
+    <div mat-dialog-content>
+      <div class="form-field" style="max-height: 400px; overflow-y: auto">
+        <mat-list role="list">
+          <div
+            *ngFor="let matchOption of temporarycurrentQuestionDisplay?.matchOptionQuestionList; let i = index"
+          >
+            <span>
+              <button
+                mat-icon-button
+                matTooltip="Delete this option"
+                matTooltipPosition="after"
+                (click)="removeMatchOption(i)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </span>
+            <span *ngIf="!temporarycurrentQuestionDisplay?.randomQuestionOrder"
+              >{{ letters[i] }}:
+            </span>
+            <input
+              type="text"
+              [value]="matchOption.leftOption"
+              placeholder="Type left option here"
+              id="leftMatchOptionInput"
+              #leftMatchOptionInput
+              (keyup)="changeMatchOptionText(i, leftMatchOptionInput.value, 'leftOption')"
+              class="match-textbox"
+            />
+            <input
+              type="text"
+              [value]="matchOption.rightOption"
+              placeholder="Type right option here"
+              id="matchOptionInput"
+              #rightMatchOptionInput
+              (keyup)="changeMatchOptionText(i, rightMatchOptionInput.value, 'rightOption')"
+              class="match-textbox"
+            />
+          </div>
+        </mat-list>
+        <span
+          style="
+            display: flex;
+            align-items: center;
+            font-size: small;
+            cursor: pointer;
+          "
+          class="add-option-button"
+          (click)="addMatchOption()"
+          ><mat-icon>add</mat-icon><b>Add option</b></span
+        >
+      </div>
+
+      <div class="toggle-container">
+        <form [formGroup]="questionForm" class="form-field">
+          <mat-slide-toggle
+            id="randomQuestionOrder"
+            name="randomQuestionOrder"
+            #randomQuestionOrder
+            formControlName="randomQuestionOrder"
+            (change)="toggleRnadomQuestionOrder(randomQuestionOrder.checked)"
+            [checked]="temporarycurrentQuestionDisplay?.randomQuestionOrder"
+          >
+            Random question order?
+            <mat-icon
+              style="font-size: 20px"
+              #tooltip="matTooltip"
+              matTooltip="When turned on, the options you create in the left column will appear in a random order when the student takes the exam. When turned off, they will appear in the order you create them. Note that the left column will always appear in a random order regardless"
+              >info_outlined</mat-icon
+            >
+          </mat-slide-toggle>
+        </form>
+
+        <form [formGroup]="questionForm" class="form-field">
+          <mat-slide-toggle
+            id="partialMarking"
+            name="partialMarking"
+            #partialMarking
+            (change)="togglePartialMarking(partialMarking.checked)"
+            [checked]="temporarycurrentQuestionDisplay?.partialMarking"
+            >Partial Marking?
+            <mat-icon
+              style="font-size: 20px"
+              #tooltip="matTooltip"
+              matTooltip="When turned on, the student will be rewarded partial marking for getting some of the questions correct. When turned off, the student must get the whole question correct to be awarded the marks."
+              >info_outlined</mat-icon
+            >
+          </mat-slide-toggle>
+        </form>
+      </div>
+    </div>
+  </div>
+  <app-dialog-actions
+    [matTooltip]="!temporarycurrentQuestionDisplay.matchOptionQuestionList || (temporarycurrentQuestionDisplay.matchOptionQuestionList ?? [null,null]).length < 2 ? 'Please add at least two options before saving' : ''"
+    matTooltipPosition="after"
+    (cancelAction)="closeDialog()"
+    (saveAction)="closeDialogSave()"
+    [disabled]="!temporarycurrentQuestionDisplay.matchOptionQuestionList || (temporarycurrentQuestionDisplay.matchOptionQuestionList ?? [null,null]).length < 2"
+  ></app-dialog-actions>
+</ng-container>

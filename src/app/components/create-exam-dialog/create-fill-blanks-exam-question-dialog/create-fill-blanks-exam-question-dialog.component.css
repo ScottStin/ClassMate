@@ -1,0 +1,29 @@
+.fill-blanks-textbox {
+    width: 60%;
+    font-size: 16px;
+    padding: 5px;
+  }
+  
+  button {
+    align-self: flex-start; /* Align button with the column */
+  }
+  
+  .textarea-container {
+    flex: 1; /* Make the textarea container flexible */
+  }
+
+  .input-container {
+    display: flex;
+    flex-direction: column; /* Arrange inputs in a vertical column */
+    gap: 10px; /* Add spacing between the inputs */
+  }
+
+  .blank-input {
+    width: 150px; /* Adjust input width */
+  }
+
+  .question-row {
+    display: flex;
+    align-items: flex-start; /* Align textarea and inputs at the top */
+    gap: 20px; /* Add space between the textarea and the input column */
+  }

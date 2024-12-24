@@ -1,0 +1,74 @@
+<div>
+  <h3>Create Fill-in-the-Blanks Exam Question</h3>
+  <!-- <textarea [(ngModel)]="questionText" rows="5" cols="50" #textArea> </textarea>
+  <br />
+  <button (click)="addBlankToQuestion(textArea)">Add Blank</button>
+  <p><strong>Preview:</strong> {{ questionText }}</p> -->
+
+  <mat-list role="list">
+    <div
+      *ngFor="let multiChoiceOption of temporarycurrentQuestionDisplay?.fillBlanksQuestionList; let i = index"
+      class="question-row"
+    >
+      <div class="textarea-container">
+        <span>
+          <button
+            mat-icon-button
+            matTooltip="Delete this option"
+            matTooltipPosition="after"
+            (click)="removeQuestion(i)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </span>
+        <span *ngIf="!temporarycurrentQuestionDisplay?.randomQuestionOrder">
+          {{ i + 1 }}:
+        </span>
+        <textarea
+          [(ngModel)]="multiChoiceOption.text"
+          rows="5"
+          cols="50"
+          #textArea
+          class="fill-blanks-textbox"
+          (click)="preventClickOnBlanks($event, i)"
+          (keydown)="preventArrowKeysOnBlanks($event, i)"
+          (keydown)="preventDeleteOnBlanks($event, i)"
+          (select)="preventHighlightingBlanks($event, i)"
+        >
+        </textarea>
+      </div>
+      <div class="input-container">
+        <div *ngFor="let blank of multiChoiceOption.blanks; let blankIndex = index" class="blank-input-wrapper">
+          <input
+            type="text"
+            [value]="multiChoiceOption.blanks[blankIndex].text"
+            placeholder="Type blank here"
+            id="blankInput"
+            class="blank-input"
+            #blankInput
+            (keyup)="changeBlankText(i, blankIndex, blankInput.value)"
+          />
+          <button
+            mat-icon-button
+            matTooltip="Delete this blank"
+            (click)="deleteBlank(i, blankIndex, textArea)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+        <button (click)="addBlankToQuestion(i, textArea)">Add Blank</button>
+      </div>
+    </div>
+  </mat-list>
+  <span
+    style="
+      display: flex;
+      align-items: center;
+      font-size: small;
+      cursor: pointer;
+    "
+    class="add-option-button"
+    (click)="addQuestion()"
+    ><mat-icon>add</mat-icon><b>Add answer</b></span
+  >
+</div>

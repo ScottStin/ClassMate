@@ -98,9 +98,12 @@ $secondaryColor: var(--secondaryColor);
   transition: 0.2s ease-in-out;
 }
 
-::ng-deep .test{
-  color:black !important;
+.add-to-question-btn {
+  display: flex;
+  justify-content: center;
+  margin-top:50px; 
 }
+
 
 // .multichoice-radio-group {
 //   display: flex;
@@ -112,9 +115,3 @@ $secondaryColor: var(--secondaryColor);
 // .multichoice-radio-button {
 //   margin: 5px;
 // }
-
-::ng-deep .multi-choice-single-button {
-  & .mat-checkbox-background, .mat-checkbox-frame {
-    border-radius: 70% !important;
-  }
-}
