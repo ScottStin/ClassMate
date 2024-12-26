@@ -46,9 +46,12 @@ export class CreateMultipleChoiceExamQuestionDialogComponent implements OnInit {
 
   populateQuestionForm(): void {
     this.questionForm = new FormGroup({
-      randomQuestionOrder: new FormControl(false, {
-        nonNullable: false,
-      }),
+      randomQuestionOrder: new FormControl(
+        this.data.currentQuestionDisplay.randomQuestionOrder ?? false,
+        {
+          nonNullable: false,
+        }
+      ),
     });
     this.formPopulated.next(true);
   }

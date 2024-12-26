@@ -5,7 +5,7 @@
   ></app-dialog-header>
   <div mat-dialog-content>
     <mat-stepper [linear]="!data.exam" #stepper>
-    <!-- <mat-stepper #stepper> -->
+      <!-- <mat-stepper #stepper> -->
       <!-- --- ------------- -->
       <!-- EXAM DETAILS STEP -->
       <!-- --- ------------- -->
@@ -556,48 +556,6 @@
                   </mat-error>
                 </mat-form-field>
 
-                <!-- <div
-                  class="form-field"
-                  *ngIf="this.questionForm.getRawValue().type === 'match-options'"
-                  style="max-height: 400px; overflow-y: auto"
-                >
-                  <mat-list role="list">
-                    <div
-                      *ngFor="let question of currentQuestionDisplay?.matchOptionQuestionList; let i = index"
-                    >
-                      <input
-                        type="text"
-                        [value]="question.leftOption"
-                        placeholder="type left here"
-                        id="matchOptionInputLeft"
-                        #matchOptionInputLeft
-                        (keyup)="changeMatchOptionText(i, matchOptionInputLeft.value, 'left')"
-                        style="width: 40%; margin-bottom: 2px"
-                      />
-                      <input
-                        type="text"
-                        [value]="question.rightOption"
-                        placeholder="type right match here"
-                        id="matchOptionInputRight"
-                        #matchOptionInputRight
-                        (keyup)="changeMatchOptionText(i, matchOptionInputRight.value, 'right')"
-                        style="width: 40%"
-                      />
-                    </div>
-                  </mat-list>
-                  <span
-                    style="
-                      display: flex;
-                      align-items: center;
-                      font-size: small;
-                      cursor: pointer;
-                    "
-                    class="subQuestionList"
-                    (click)="addMatchOption()"
-                    ><mat-icon>add</mat-icon><b>Add pair</b></span
-                  >
-                </div> -->
-
                 <!------------------------------------>
                 <!----- Add-to-question Buttons: ----->
                 <!------------------------------------>
@@ -676,11 +634,11 @@
                     >
                       <span
                         *ngIf="!currentQuestionDisplay.fillBlanksQuestionList || currentQuestionDisplay.fillBlanksQuestionList.length === 0"
-                        >Add Match Options</span
+                        >Add Fill-in-the-Blanks Questions</span
                       >
                       <span
                         *ngIf="(currentQuestionDisplay.fillBlanksQuestionList ?? []).length > 0"
-                        >Edit Match Options</span
+                        >Edit Fill-in-the-Blanks Questions</span
                       >
                       <i
                         style="padding-left: 5px"
@@ -691,112 +649,6 @@
                     </div>
                   </button>
                 </div>
-
-                <!-- <div
-                  class="form-field"
-                  *ngIf="this.questionForm.getRawValue().type === 'fill-in-the-blanks'"
-                  style="max-height: 400px; overflow-y: auto"
-                >
-                  <mat-list role="list">
-                    <div
-                      *ngFor="let question of currentQuestionDisplay?.fillBlanksQuestionList; let i = index"
-                    >
-                      <input
-                        *ngIf="question.blank"
-                        type="text"
-                        [value]="question.text"
-                        placeholder="type blank here"
-                        id="fillBlanksInput"
-                        #fillBlanksInput
-                        (keyup)="changeFillBlankText(i, fillBlanksInput.value)"
-                        style="margin-bottom: 2px"
-                      />
-                      <textarea
-                        *ngIf="!question.blank"
-                        [value]="question.text"
-                        placeholder="type text here"
-                        id="fillBlanksInput"
-                        #fillBlanksInput
-                        (keyup)="changeFillBlankText(i, fillBlanksInput.value)"
-                        style="margin-bottom: 2px"
-                      ></textarea>
-                    </div>
-                  </mat-list>
-                  <span
-                    style="
-                      display: flex;
-                      align-items: center;
-                      font-size: small;
-                      cursor: pointer;
-                    "
-                    class="subQuestionList"
-                    (click)="addFillBlank('text')"
-                    ><mat-icon>add</mat-icon><b>Add text</b></span
-                  >
-                  <span
-                    style="
-                      display: flex;
-                      align-items: center;
-                      font-size: small;
-                      cursor: pointer;
-                    "
-                    class="subQuestionList"
-                    (click)="addFillBlank('blank')"
-                    ><mat-icon>add</mat-icon><b>Add blank</b></span
-                  >
-                </div> -->
-
-                <!-- <form
-                  [formGroup]="questionForm"
-                  class="form-field"
-                  *ngIf="['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence'].includes(this.questionForm.getRawValue().type)"
-                >
-                  <mat-slide-toggle
-                    id="randomQuestionOrder"
-                    name="randomQuestionOrder"
-                    #randomQuestionOrder
-                    formControlName="randomQuestionOrder"
-                    (change)="formChange(randomQuestionOrder.checked, 'randomQuestionOrder')"
-                    [checked]="currentQuestionDisplay?.randomQuestionOrder"
-                  >
-                    Random question order?
-                    <mat-icon
-                      style="font-size: 20px"
-                      #tooltip="matTooltip"
-                      matTooltip="When turned on, the options you create will appear in a random order when the student takes the exam. When turned off, they will appear in the order you create them."
-                      >info_outlined</mat-icon
-                    >
-                  </mat-slide-toggle>
-                </form> -->
-                <!-- <form
-                  [formGroup]="questionForm"
-                  class="form-field"
-                  *ngIf="['multiple-choice-single', 'multiple-choice-multi', 'match-options', 'fill-in-the-blanks'].includes(this.questionForm.getRawValue().type)"
-                >
-                  <mat-slide-toggle
-                    id="partialMarking"
-                    name="partialMarking"
-                    #partialMarking
-                    formControlName="partialMarking"
-                    (change)="formChange(partialMarking.checked, 'partialMarking')"
-                    [checked]="currentQuestionDisplay?.partialMarking"
-                  >
-                    <span
-                      *ngIf="this.questionForm.getRawValue().type === 'fill-in-the-blanks'"
-                      >Case sensitive?</span
-                    >
-                    <span
-                      *ngIf="this.questionForm.getRawValue().type !== 'fill-in-the-blanks'"
-                      >Partial marking?</span
-                    >
-                    <mat-icon
-                      style="font-size: 20px"
-                      #tooltip="matTooltip"
-                      [matTooltip]="this.questionForm.getRawValue().type === 'fill-in-the-blanks' ? 'When turned on, the student will have to get the case correct to be awarded the marks' : 'When turned on, the student will be rewarded partial marking for getting some of the questions correct. When turned off, the student will have to get the whole question correct to be awarded the marks.'"
-                      >info_outlined</mat-icon
-                    >
-                  </mat-slide-toggle>
-                </form> -->
               </div>
             </div>
 

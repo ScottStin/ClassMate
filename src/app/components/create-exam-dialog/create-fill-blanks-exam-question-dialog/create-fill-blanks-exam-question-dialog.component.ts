@@ -1,3 +1,4 @@
+/* eslint-disable no-multi-assign */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -9,6 +10,7 @@ import {
 import { Subject } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 
+import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { QuestionList } from '../create-exam-dialog.component';
 import { CreateMultipleChoiceExamQuestionDialogComponent } from '../create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.component';
 
@@ -18,6 +20,7 @@ import { CreateMultipleChoiceExamQuestionDialogComponent } from '../create-multi
   styleUrls: ['./create-fill-blanks-exam-question-dialog.component.css'],
 })
 export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
+  letters: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''); // used for labelling options in questions;
   questions: { text: string }[] = [
     { text: '' }, // Initialize with one question
   ];
@@ -47,9 +50,12 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
 
   populateQuestionForm(): void {
     this.questionForm = new FormGroup({
-      randomQuestionOrder: new FormControl(false, {
-        nonNullable: false,
-      }),
+      randomQuestionOrder: new FormControl(
+        this.data.currentQuestionDisplay.randomQuestionOrder ?? false,
+        {
+          nonNullable: false,
+        }
+      ),
     });
     this.formPopulated.next(true);
   }
@@ -59,9 +65,22 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
    * It also adds a corresponding input box next to that question for the user to type the blank
    */
   addBlankToQuestion(index: number, textArea: HTMLTextAreaElement): void {
-    if (this.temporarycurrentQuestionDisplay.fillBlanksQuestionList) {
+    if (
+      this.temporarycurrentQuestionDisplay.fillBlanksQuestionList &&
+      this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[index].blanks
+        .length < 8
+    ) {
       const currentText =
         this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[index].text;
+
+      // Check if the total length of text (including spaces) exceeds 2000 characters
+      if (currentText.length >= 2000) {
+        this.snackbarService.open(
+          'warn',
+          'The maximum text length of 2000 characters has been reached. Cannot add more blanks.'
+        );
+        return; // Prevent adding more blanks if the limit is exceeded
+      }
 
       // Get the current position of the cursor
       const start = textArea.selectionStart;
@@ -70,7 +89,7 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
       const textBehindCursor = currentText.slice(0, start);
 
       // Count how many "__________" exist in the text behind the cursor
-      const blankCount = (textBehindCursor.match(/__________/g) || []).length;
+      const blankCount = (textBehindCursor.match(/__________/gu) ?? []).length;
 
       // Insert the new blank at the blankCount position in the blanks array
       this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[
@@ -95,6 +114,13 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
         textArea.selectionEnd = start + blankText.length;
         textArea.focus();
       }, 0);
+
+      this.formChanged = true;
+    } else {
+      this.snackbarService.open(
+        'warn',
+        'Maximum number of blanks for this question have been reached. Please delete some blanks before adding more'
+      );
     }
   }
 
@@ -108,7 +134,7 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
         this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[
           questionIndex
         ].text;
-      textWithoutNumbers = textWithoutNumbers.replace(/\d+\./g, ''); // This removes numbers before blanks like '1.', '2.', etc.
+      textWithoutNumbers = textWithoutNumbers.replace(/\d+\./gu, ''); // This removes numbers before blanks like '1.', '2.', etc.
 
       // Now, add numbers before each blank (e.g., 1.__________, 2.__________, etc.)
       let textWithNumbers = textWithoutNumbers;
@@ -116,7 +142,7 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
 
       // Match all "__________" and replace them with numbered blanks
       textWithNumbers = textWithNumbers.replace(
-        /__________/g,
+        /__________/gu,
         () => `${blankIndex++}.__________`
       );
 
@@ -159,16 +185,13 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
 
       // Remove the corresponding blank from the text
       let blankCounter = 0;
-      const updatedText = question.text.replace(
-        /\d+\.\s*__________/g,
-        (match) => {
-          if (blankCounter === blankIndex) {
-            blankCounter++; // Skip this blank
-            return ''; // Remove this blank
-          }
-          return `${++blankCounter}.__________`; // Renumber the remaining blanks
+      const updatedText = question.text.replace(/\d+\.\s*__________/gu, () => {
+        if (blankCounter === blankIndex) {
+          blankCounter++; // Skip this blank
+          return ''; // Remove this blank
         }
-      );
+        return `${++blankCounter}.__________`; // Renumber the remaining blanks
+      });
 
       // Update the text
       question.text = updatedText;
@@ -287,6 +310,7 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
         }
       }
     }
+    this.formChanged = true;
   }
 
   /**
@@ -319,7 +343,59 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
     }
   }
 
-  changeQuestionText(index: number, text: string): void {}
+  /**
+   * Removes a question (text area) to the fillBlanksQuestionList
+   */
+  removeQuestion(index: number): void {
+    this.temporarycurrentQuestionDisplay.fillBlanksQuestionList?.splice(
+      index,
+      1
+    );
+    this.formChanged = true;
+  }
 
-  removeQuestion(index: number): void {}
+  /**
+   * Toggles:
+   */
+  togglePartialMarking(toggle: boolean): void {
+    this.temporarycurrentQuestionDisplay.partialMarking = toggle;
+    this.formChanged = true;
+  }
+
+  toggleRandomQuestionOrder(toggle: boolean): void {
+    this.temporarycurrentQuestionDisplay.randomQuestionOrder = toggle;
+    this.formChanged = true;
+  }
+
+  toggleCaseSensitive(toggle: boolean): void {
+    this.temporarycurrentQuestionDisplay.caseSensitive = toggle;
+    this.formChanged = true;
+  }
+
+  /**
+   * Close dialog actions:
+   */
+  closeDialog(): void {
+    if (this.formChanged) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: 'Close Fill-in-the-Blanks Question Form?',
+          message: 'Changes will be unsaved. Are you sure?',
+          okLabel: 'Close',
+          cancelLabel: 'Cancel',
+        },
+      });
+      dialogRef.afterClosed().subscribe((result: boolean) => {
+        if (result) {
+          this.dialogRef.close(null);
+        }
+      });
+    } else {
+      this.dialogRef.close(null);
+    }
+  }
+
+  closeDialogSave(): void {
+    this.dialogRef.close(this.temporarycurrentQuestionDisplay);
+  }
 }

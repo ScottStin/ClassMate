@@ -26,4 +26,13 @@
     display: flex;
     align-items: flex-start; /* Align textarea and inputs at the top */
     gap: 20px; /* Add space between the textarea and the input column */
+    margin-bottom: 50px;
+  }
+
+  .add-blank-button {
+    margin-left:15px;
+  }
+
+  .toggle-container {
+    margin-top:15px;
   }

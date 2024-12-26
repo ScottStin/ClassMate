@@ -1,74 +1,160 @@
-<div>
-  <h3>Create Fill-in-the-Blanks Exam Question</h3>
-  <!-- <textarea [(ngModel)]="questionText" rows="5" cols="50" #textArea> </textarea>
-  <br />
-  <button (click)="addBlankToQuestion(textArea)">Add Blank</button>
-  <p><strong>Preview:</strong> {{ questionText }}</p> -->
-
-  <mat-list role="list">
-    <div
-      *ngFor="let multiChoiceOption of temporarycurrentQuestionDisplay?.fillBlanksQuestionList; let i = index"
-      class="question-row"
-    >
-      <div class="textarea-container">
-        <span>
-          <button
-            mat-icon-button
-            matTooltip="Delete this option"
-            matTooltipPosition="after"
-            (click)="removeQuestion(i)"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
-        </span>
-        <span *ngIf="!temporarycurrentQuestionDisplay?.randomQuestionOrder">
-          {{ i + 1 }}:
-        </span>
-        <textarea
-          [(ngModel)]="multiChoiceOption.text"
-          rows="5"
-          cols="50"
-          #textArea
-          class="fill-blanks-textbox"
-          (click)="preventClickOnBlanks($event, i)"
-          (keydown)="preventArrowKeysOnBlanks($event, i)"
-          (keydown)="preventDeleteOnBlanks($event, i)"
-          (select)="preventHighlightingBlanks($event, i)"
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="data.title"
+    (closeAction)="closeDialog()"
+  ></app-dialog-header>
+  <h5>Question: {{temporarycurrentQuestionDisplay.name}}</h5>
+  <div mat-dialog-content>
+    <div class="form-field" style="max-height: 400px; overflow-y: auto">
+      <mat-list role="list">
+        <div
+          *ngFor="let question of temporarycurrentQuestionDisplay?.fillBlanksQuestionList; let i = index"
+          class="question-row"
         >
-        </textarea>
-      </div>
-      <div class="input-container">
-        <div *ngFor="let blank of multiChoiceOption.blanks; let blankIndex = index" class="blank-input-wrapper">
-          <input
-            type="text"
-            [value]="multiChoiceOption.blanks[blankIndex].text"
-            placeholder="Type blank here"
-            id="blankInput"
-            class="blank-input"
-            #blankInput
-            (keyup)="changeBlankText(i, blankIndex, blankInput.value)"
-          />
-          <button
-            mat-icon-button
-            matTooltip="Delete this blank"
-            (click)="deleteBlank(i, blankIndex, textArea)"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
+          <div class="textarea-container">
+            <span>
+              <button
+                mat-icon-button
+                matTooltip="Delete this question"
+                matTooltipPosition="after"
+                (click)="removeQuestion(i)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </span>
+            <span *ngIf="!temporarycurrentQuestionDisplay?.randomQuestionOrder">
+              {{ letters[i] }}:
+            </span>
+            <textarea
+              [(ngModel)]="question.text"
+              rows="5"
+              cols="50"
+              #textArea
+              class="fill-blanks-textbox"
+              (click)="preventClickOnBlanks($event, i)"
+              (keydown)="preventArrowKeysOnBlanks($event, i)"
+              (keydown)="preventDeleteOnBlanks($event, i)"
+              (select)="preventHighlightingBlanks($event, i)"
+              maxlength="2000"
+            >
+            </textarea>
+          </div>
+          <div class="input-container">
+            <div
+              *ngFor="let blank of question.blanks; let blankIndex = index"
+              class="blank-input-wrapper"
+            >
+              <input
+                type="text"
+                [value]="question.blanks[blankIndex].text"
+                placeholder="Type blank here"
+                id="blankInput"
+                class="blank-input"
+                #blankInput
+                (keyup)="changeBlankText(i, blankIndex, blankInput.value)"
+              />
+              <button
+                mat-icon-button
+                matTooltip="Delete this blank"
+                (click)="deleteBlank(i, blankIndex, textArea)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                font-size: small;
+                cursor: pointer;
+              "
+              class="add-blank-button"
+              (click)="addBlankToQuestion(i, textArea)"
+              ><mat-icon>add</mat-icon><b>Add blank</b></span
+            >
+          </div>
         </div>
-        <button (click)="addBlankToQuestion(i, textArea)">Add Blank</button>
-      </div>
+      </mat-list>
+      <span
+        style="
+          display: flex;
+          align-items: center;
+          font-size: small;
+          cursor: pointer;
+        "
+        class="add-blank-button"
+        (click)="addQuestion()"
+        ><mat-icon>add</mat-icon><b>Add question</b></span
+      >
     </div>
-  </mat-list>
-  <span
-    style="
-      display: flex;
-      align-items: center;
-      font-size: small;
-      cursor: pointer;
-    "
-    class="add-option-button"
-    (click)="addQuestion()"
-    ><mat-icon>add</mat-icon><b>Add answer</b></span
-  >
-</div>
+    <div class="toggle-container">
+      <form [formGroup]="questionForm" class="form-field">
+        <mat-slide-toggle
+          id="randomQuestionOrder"
+          name="randomQuestionOrder"
+          #randomQuestionOrder
+          formControlName="randomQuestionOrder"
+          (change)="toggleRandomQuestionOrder(randomQuestionOrder.checked)"
+          [checked]="temporarycurrentQuestionDisplay?.randomQuestionOrder"
+        >
+          Random question order?
+          <mat-icon
+            style="font-size: 20px"
+            #tooltip="matTooltip"
+            matTooltip="When turned on, the question you create will appear in a random order when the student takes the exam. When turned off, they will appear in the order you create them."
+            >info_outlined</mat-icon
+          >
+        </mat-slide-toggle>
+      </form>
+
+      <form
+        [formGroup]="questionForm"
+        class="form-field"
+        [style]="temporarycurrentQuestionDisplay?.type === 'multiple-choice-single' ? 'display: none' : ''"
+      >
+        <mat-slide-toggle
+          id="partialMarking"
+          name="partialMarking"
+          #partialMarking
+          (change)="togglePartialMarking(partialMarking.checked)"
+          [checked]="temporarycurrentQuestionDisplay?.partialMarking"
+          >Partial Marking?
+          <mat-icon
+            style="font-size: 20px"
+            #tooltip="matTooltip"
+            matTooltip="When turned on, the student will be rewarded partial marks for a question for getting some of the blanks correct. When turned off, the student must get all blanks correct to be awarded the for a question."
+            >info_outlined</mat-icon
+          >
+        </mat-slide-toggle>
+      </form>
+
+      <form
+        [formGroup]="questionForm"
+        class="form-field"
+        [style]="temporarycurrentQuestionDisplay?.type === 'multiple-choice-single' ? 'display: none' : ''"
+      >
+        <mat-slide-toggle
+          id="caseSenitive"
+          name="caseSenitive"
+          #caseSensitive
+          (change)="toggleCaseSensitive(caseSensitive.checked)"
+          [checked]="temporarycurrentQuestionDisplay?.caseSensitive"
+          >Case-sensitive?
+          <mat-icon
+            style="font-size: 20px"
+            #tooltip="matTooltip"
+            matTooltip="When turned on, the student will have to use the correct case for each letter in order to get the blank correct. When turned off, the student can use any case and still get the marks."
+            >info_outlined</mat-icon
+          >
+        </mat-slide-toggle>
+      </form>
+    </div>
+  </div>
+  <app-dialog-actions
+    [matTooltip]="!temporarycurrentQuestionDisplay.fillBlanksQuestionList || (temporarycurrentQuestionDisplay.fillBlanksQuestionList ?? [null]).length < 1 ? 'Please add at least one question before saving' : ''"
+    matTooltipPosition="after"
+    (cancelAction)="closeDialog()"
+    (saveAction)="closeDialogSave()"
+    [disabled]="!temporarycurrentQuestionDisplay.fillBlanksQuestionList || (temporarycurrentQuestionDisplay.fillBlanksQuestionList ?? [null]).length < 1"
+  ></app-dialog-actions>
+</ng-container>
