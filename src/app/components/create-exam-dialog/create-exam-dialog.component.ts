@@ -585,7 +585,10 @@ export class CreateExamDialogComponent implements OnInit {
   saveExamClick(): void {
     // this.saveExam.emit(this.examForm.value as ExamDTO);
     this.examService
-      .create(this.examForm.value as ExamDTO, this.questionList)
+      .create(
+        this.examForm.controls.examDetailsStep.value as ExamDTO,
+        this.questionList
+      )
       .subscribe({
         next: () => {
           this.snackbarService.open('info', 'Exam successfully created');
