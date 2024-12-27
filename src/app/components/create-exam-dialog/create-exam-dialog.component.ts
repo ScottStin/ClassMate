@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -34,8 +40,7 @@ export class CreateExamDialogComponent implements OnInit {
 
   questionList: QuestionList[] = [];
   currentQuestionDisplay: QuestionList | null = null;
-  imagePromptFile = '';
-  audioPromptFile = '';
+  selectedPromptType1 = 'Image';
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
   scrollThroughQuestionListStyling = '';
@@ -141,13 +146,18 @@ export class CreateExamDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      imagePrompt: new FormControl('', {
+      promptUrl1: new FormControl('', {
+        validators: [this.validUrl()],
         nonNullable: false,
       }),
-      videoPrompt: new FormControl('', {
+      promptUrl1Type: new FormControl('', {
         nonNullable: false,
       }),
-      audioPrompt: new FormControl('', {
+      promptUrl2: new FormControl('', {
+        validators: [this.validUrl()],
+        nonNullable: false,
+      }),
+      promptUrl2Type: new FormControl('', {
         nonNullable: false,
       }),
       length: new FormControl(NaN, {
@@ -315,14 +325,17 @@ export class CreateExamDialogComponent implements OnInit {
       questionForm.controls.autoMarking.setValue(
         this.currentQuestionDisplay.autoMarking ?? false
       );
-      questionForm.controls.imagePrompt.setValue(
-        this.currentQuestionDisplay.imagePrompt ?? ''
+      questionForm.controls.promptUrl1.setValue(
+        this.currentQuestionDisplay.promptUrl1?.url ?? null
       );
-      questionForm.controls.videoPrompt.setValue(
-        this.currentQuestionDisplay.videoPrompt ?? ''
+      questionForm.controls.promptUrl1Type.setValue(
+        this.currentQuestionDisplay.promptUrl1?.type ?? null
       );
-      questionForm.controls.audioPrompt.setValue(
-        this.currentQuestionDisplay.audioPrompt ?? ''
+      questionForm.controls.promptUrl2.setValue(
+        this.currentQuestionDisplay.promptUrl2?.url ?? null
+      );
+      questionForm.controls.promptUrl2Type.setValue(
+        this.currentQuestionDisplay.promptUrl2?.type ?? null
       );
       questionForm.controls.length.setValue(
         this.currentQuestionDisplay.length ?? NaN
@@ -336,24 +349,38 @@ export class CreateExamDialogComponent implements OnInit {
     }
   }
 
-  formChange(text: string | boolean, field: string): void {
+  /*
+   * Find the current quesiton being displayed in the questionList:
+   */
+
+  findCurrentQuestionFromList(): QuestionList | undefined {
+    let foundQuestion;
+
     if (this.currentQuestionDisplay?.parent !== undefined) {
-      const foundQuestion = this.questionList
+      foundQuestion = this.questionList
         .find((obj) => obj.id === this.currentQuestionDisplay?.parent)
         ?.subQuestions?.find(
           (obj) => obj.id === this.currentQuestionDisplay?.id
         );
-      if (foundQuestion) {
-        foundQuestion[field] = text;
-      }
     } else {
-      const foundQuestion = this.questionList.find(
+      foundQuestion = this.questionList.find(
         (obj) => obj.id === this.currentQuestionDisplay?.id
       );
-      if (foundQuestion) {
-        foundQuestion[field] = text;
-      }
     }
+
+    return foundQuestion;
+  }
+
+  formChange(text: string | boolean, field: string): void {
+    // Find the current question:
+    const foundQuestion = this.findCurrentQuestionFromList();
+
+    // update the current question:
+    if (foundQuestion) {
+      foundQuestion[field] = text;
+    }
+
+    // reset the form if type change:
     if (field === 'type') {
       if (this.currentQuestionDisplay) {
         if (this.currentQuestionDisplay.fillBlanksQuestionList) {
@@ -481,20 +508,7 @@ export class CreateExamDialogComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result: QuestionList | null) => {
       if (result) {
-        let foundQuestion;
-        if (this.currentQuestionDisplay?.parent !== undefined) {
-          // If current question in a subquestion of a section, update accordingly:
-          foundQuestion = this.questionList
-            .find((obj) => obj.id === this.currentQuestionDisplay?.parent)
-            ?.subQuestions?.find(
-              (obj) => obj.id === this.currentQuestionDisplay?.id
-            );
-        } else {
-          // If current question is not a sub question, update accordingly:
-          foundQuestion = this.questionList.find(
-            (question) => question.id === result.id
-          );
-        }
+        const foundQuestion = this.findCurrentQuestionFromList();
 
         // apply results:
         if (foundQuestion && questionType) {
@@ -505,6 +519,64 @@ export class CreateExamDialogComponent implements OnInit {
         }
       }
     });
+  }
+
+  /*
+   * Add/Remove/Update a new url prompt to the exam question:
+   */
+  addNewPrompt(): void {
+    const foundQuestion = this.findCurrentQuestionFromList();
+    if (foundQuestion) {
+      foundQuestion.promptUrl2 = { url: '', type: 'image' };
+    }
+  }
+
+  removePrompt(): void {
+    const foundQuestion = this.findCurrentQuestionFromList();
+    if (foundQuestion) {
+      foundQuestion.promptUrl2 = null;
+    }
+  }
+
+  updatePrompt(url: string, promptType: string | null | undefined): void {
+    const foundQuestion = this.findCurrentQuestionFromList();
+    if (foundQuestion) {
+      foundQuestion.promptUrl1 = {
+        url,
+        type: (promptType ?? 'image').toLowerCase(),
+      };
+    }
+  }
+
+  updatePrompt2(url: string, promptType: string | null | undefined): void {
+    const foundQuestion = this.findCurrentQuestionFromList();
+    if (foundQuestion) {
+      foundQuestion.promptUrl2 = {
+        url,
+        type: (promptType ?? 'image').toLowerCase(),
+      };
+    }
+  }
+
+  /*
+   *Custom url validator for question prompts:
+   */
+  validUrl(): ValidatorFn {
+    return (control: AbstractControl): Record<string, unknown> | null => {
+      const urlInput = control.value as string;
+
+      if (!urlInput) {
+        return null; // Allow blank url field;
+      }
+
+      try {
+        // eslint-disable-next-line no-new
+        new URL(urlInput);
+        return null;
+      } catch {
+        return { invalidUrl: true };
+      }
+    };
   }
 
   /*
@@ -552,11 +624,10 @@ export interface QuestionList {
   matchOptionQuestionList?:
     | { leftOption: string; rightOption: string }[]
     | null;
-  audioPrompt?: string | null;
   totalPoints?: number | null;
   length?: number | null;
-  videoPrompt?: string | null;
-  imagePrompt?: string | null;
+  promptUrl1?: { url: string; type: string } | null;
+  promptUrl2?: { url: string; type: string } | null;
   expanded?: boolean;
   id?: number | string;
   parent?: number | null;
@@ -585,9 +656,10 @@ export type QuestionStepForm = FormGroup<{
   writtenPrompt: FormControl<string>; // a short description of the question task
   time: FormControl<number | null>; // question time limit (seconds)
   type: FormControl<string>;
-  imagePrompt: FormControl<string | null>; // a visual prompt for the question
-  audioPrompt: FormControl<string | null>; // an audio prompt for the question
-  videoPrompt: FormControl<string | null>; // a video prompt for the question
+  promptUrl1: FormControl<string | null>; // a prompt url (image/audi/video) for the question
+  promptUrl1Type: FormControl<string | null>; // a prompt type for the url above
+  promptUrl2: FormControl<string | null>; // a second prompt for the question
+  promptUrl2Type: FormControl<string | null>; // a second prompt type for the question
   teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
   autoMarking: FormControl<boolean>; // false = teacher has to assign mark
   totalPoints: FormControl<number>;

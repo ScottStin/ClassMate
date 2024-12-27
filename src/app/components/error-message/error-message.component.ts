@@ -83,6 +83,9 @@ export class ErrorMessageComponent implements OnChanges {
       case 'lessThanOne':
         return 'Number must be greater than zero';
 
+      case 'invalidUrl':
+        return 'Please enter a valid URL';
+
       default:
         return 'Unknown error';
     }

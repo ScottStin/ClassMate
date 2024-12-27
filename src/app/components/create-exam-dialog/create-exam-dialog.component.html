@@ -3,17 +3,22 @@
     [dialogTitle]="data.title"
     (closeAction)="closeDialog(null)"
   ></app-dialog-header>
-  <!-- <mat-stepper #stepper> -->
-  <mat-stepper [linear]="!data.exam" #stepper>
+  <mat-stepper #stepper>
+    <!-- <mat-stepper [linear]="!data.exam" #stepper> -->
     <div [formGroup]="examForm">
       <!-- --- ------------- -->
       <!-- EXAM DETAILS STEP -->
       <!-- --- ------------- -->
-      <mat-step
+      <!-- <mat-step
         *ngIf="examForm.controls['examDetailsStep'] as examDetailsStepForm"
-        [stepControl]="examDetailsStepForm"
         label="Exam Details"
         [stepControl]="examDetailsStepForm"
+        formGroupName="examDetailsStep"
+        [editable]="true"
+      > -->
+      <mat-step
+        *ngIf="examForm.controls['examDetailsStep'] as examDetailsStepForm"
+        label="Exam Details"
         formGroupName="examDetailsStep"
         [editable]="true"
       >
@@ -397,7 +402,7 @@
                 />
               </mat-form-field>
 
-              <!----- Question Promot: ----->
+              <!----- Question Prompt (written): ----->
               <mat-form-field class="form-field" appearance="outline">
                 <mat-label>Question prompt</mat-label>
                 <input
@@ -417,20 +422,36 @@
                 </mat-error>
               </mat-form-field>
 
+              <!----- Question Prompt1 Url: ----->
               <div>
                 <mat-form-field appearance="outline" style="width: 70%">
-                  <mat-label for="imagePrompt" class="file-label"
+                  <mat-label for="promptUrl1" class="file-label"
                     ><mat-icon>attach_file</mat-icon> Prompt URL...</mat-label
                   >
                   <input
                     matInput
-                    id="imagePrompt"
-                    #imagePrompt
-                    formControlName="imagePrompt"
+                    id="promptUrl1"
+                    #promptUrl1
+                    formControlName="promptUrl1"
                     type="text"
                     placeholder="Add a URL to a prompt for this question"
-                    (keyup)="formChange(imagePrompt.value, 'imagePrompt')"
+                    (keyup)="updatePrompt(promptUrl1.value, questionStepForm.getRawValue().promptUrl1Type)"
                   />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    matTooltip="Add a new prompt"
+                    matTooltipPosition="after"
+                    (click)="addNewPrompt()"
+                    *ngIf="!currentQuestionDisplay.promptUrl2"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
+                  <mat-error>
+                    <app-error-message
+                      [control]="questionStepForm.controls['promptUrl1'].errors"
+                    ></app-error-message>
+                  </mat-error>
                 </mat-form-field>
 
                 <mat-form-field
@@ -438,47 +459,62 @@
                   style="width: 25%; margin-left: 5%"
                 >
                   <mat-label>Prompt Type</mat-label>
-                  <mat-select>
+                  <mat-select
+                    formControlName="promptUrl1Type"
+                    (selectionChange)="updatePrompt(promptUrl1.value, $event.value)"
+                  >
                     <mat-option
-                      *ngFor="let promptType of ['Image', 'Audio', 'Video']"
+                      *ngFor="let promptType of ['image', 'audio', 'video']"
                       [value]="promptType"
-                      >{{promptType}}</mat-option
+                      >{{promptType | titlecase}}</mat-option
                     >
                   </mat-select>
                 </mat-form-field>
               </div>
 
-              <!-- <mat-form-field class="form-field" appearance="outline">
-                  <mat-label for="audioPrompt" class="file-label"
-                    ><mat-icon>attach_file</mat-icon> Audio prompt
-                    URL...</mat-label
+              <!----- Question Prompt2 Url: ----->
+              <div *ngIf="currentQuestionDisplay.promptUrl2">
+                <mat-form-field appearance="outline" style="width: 70%">
+                  <mat-label for="promptUrl2" class="file-label"
+                    ><mat-icon>attach_file</mat-icon> Prompt URL...</mat-label
                   >
                   <input
                     matInput
-                    id="audioPrompt"
-                    #audioPrompt
-                    formControlName="audioPrompt"
+                    id="promptUrl2"
+                    #promptUrl2
+                    formControlName="promptUrl2"
                     type="text"
-                    placeholder="Add a URL to an audio prompt for this question"
-                    (keyup)="formChange(audioPrompt.value, 'audioPrompt')"
+                    placeholder="Add another URL to a prompt for this question"
+                    (keyup)="updatePrompt2(promptUrl2.value, questionStepForm.getRawValue().promptUrl2Type)"
                   />
-                </mat-form-field> -->
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    matTooltip="Remove prompt"
+                    matTooltipPosition="after"
+                    (click)="removePrompt()"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </mat-form-field>
 
-              <!-- <mat-form-field class="form-field" appearance="outline">
-                  <mat-label for="videoPrompt" class="file-label"
-                    ><mat-icon>attach_file</mat-icon> Video prompt
-                    URL...</mat-label
+                <mat-form-field
+                  appearance="outline"
+                  style="width: 25%; margin-left: 5%"
+                >
+                  <mat-label>Prompt Type</mat-label>
+                  <mat-select
+                    formControlName="promptUrl2Type"
+                    (selectionChange)="updatePrompt2(promptUrl2.value, $event.value)"
                   >
-                  <input
-                    matInput
-                    id="videoPrompt"
-                    #videoPrompt
-                    formControlName="videoPrompt"
-                    type="text"
-                    placeholder="Add a URL to a video prompt for this question"
-                    (keyup)="formChange(videoPrompt.value, 'videoPrompt')"
-                  />
-                </mat-form-field> -->
+                    <mat-option
+                      *ngFor="let promptType of ['image', 'audio', 'video']"
+                      [value]="promptType"
+                      >{{promptType | titlecase}}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
 
               <!----- Teacher Feedback Toggle: ----->
               <form [formGroup]="questionStepForm" class="form-field">
