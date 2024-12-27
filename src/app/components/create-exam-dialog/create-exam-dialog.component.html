@@ -3,22 +3,24 @@
     [dialogTitle]="data.title"
     (closeAction)="closeDialog(null)"
   ></app-dialog-header>
-  <div mat-dialog-content>
-    <mat-stepper [linear]="!data.exam" #stepper>
-      <!-- <mat-stepper #stepper> -->
+  <!-- <mat-stepper #stepper> -->
+  <mat-stepper [linear]="!data.exam" #stepper>
+    <div [formGroup]="examForm">
       <!-- --- ------------- -->
       <!-- EXAM DETAILS STEP -->
       <!-- --- ------------- -->
-
-      <div [formGroup]="examForm">
-        <mat-step
-          [stepControl]="examForm"
-          label="Exam Details"
-          [editable]="true"
-        >
+      <mat-step
+        *ngIf="examForm.controls['examDetailsStep'] as examDetailsStepForm"
+        [stepControl]="examDetailsStepForm"
+        label="Exam Details"
+        [stepControl]="examDetailsStepForm"
+        formGroupName="examDetailsStep"
+        [editable]="true"
+      >
+        <mat-dialog-content>
           <!----- Exam Name: ----->
-          <div class="step-container">
-            <mat-form-field class="form-field" appearance="outline">
+          <div class="row">
+            <mat-form-field class="form-field" appearance="outline" class="col">
               <mat-label>Exam name</mat-label>
               <input
                 matInput
@@ -30,13 +32,15 @@
               />
               <mat-error>
                 <app-error-message
-                  [control]="examForm.controls['name'].errors"
+                  [control]="examDetailsStepForm.controls['name'].errors"
                 ></app-error-message>
               </mat-error>
             </mat-form-field>
+          </div>
 
-            <!----- Exam Description: ----->
-            <mat-form-field class="form-field" appearance="outline">
+          <!----- Exam Description: ----->
+          <div class="row">
+            <mat-form-field class="form-field" appearance="outline" class="col">
               <mat-label>Exam description</mat-label>
               <textarea
                 matInput
@@ -48,13 +52,15 @@
               ></textarea>
               <mat-error>
                 <app-error-message
-                  [control]="examForm.controls['description'].errors"
+                  [control]="examDetailsStepForm.controls['description'].errors"
                 ></app-error-message>
               </mat-error>
             </mat-form-field>
+          </div>
 
-            <!----- Exam Instructions: ----->
-            <mat-form-field class="form-field" appearance="outline">
+          <!----- Exam Instructions: ----->
+          <div class="row">
+            <mat-form-field class="form-field" appearance="outline" class="col">
               <mat-label>Exam instructions</mat-label>
               <textarea
                 matInput
@@ -66,13 +72,15 @@
               ></textarea>
               <mat-error>
                 <app-error-message
-                  [control]="examForm.controls['instructions'].errors"
+                  [control]="examDetailsStepForm.controls['instructions'].errors"
                 ></app-error-message>
               </mat-error>
             </mat-form-field>
+          </div>
 
-            <!----- Exam Price: ----->
-            <mat-form-field class="form-field" appearance="outline">
+          <!----- Exam Price: ----->
+          <div class="row">
+            <mat-form-field class="form-field" appearance="outline" class="col">
               <mat-label>Casual Price (USD)</mat-label>
               <input
                 matInput
@@ -84,13 +92,15 @@
               <mat-icon matSuffix>attach_money</mat-icon>
               <mat-error>
                 <app-error-message
-                  [control]="examForm.controls['casualPrice'].errors"
+                  [control]="examDetailsStepForm.controls['casualPrice'].errors"
                 ></app-error-message>
               </mat-error>
             </mat-form-field>
+          </div>
 
-            <!----- Exam Teacher: ----->
-            <mat-form-field appearance="outline" class="form-field">
+          <!----- Exam Teacher: ----->
+          <div class="row">
+            <mat-form-field appearance="outline" class="form-field" class="col">
               <mat-label>Assigned teacher</mat-label>
               <mat-select formControlName="assignedTeacher">
                 <mat-option
@@ -111,13 +121,15 @@
               >
               <mat-error>
                 <app-error-message
-                  [control]="examForm.controls['assignedTeacher'].errors"
+                  [control]="examDetailsStepForm.controls['assignedTeacher'].errors"
                 ></app-error-message>
               </mat-error>
             </mat-form-field>
+          </div>
 
-            <!----- Exam Default Status: ----->
-            <form [formGroup]="examForm" class="form-field">
+          <!----- Exam Default Status: ----->
+          <div class="row">
+            <form [formGroup]="examForm" class="form-field" class="col">
               <mat-slide-toggle
                 formControlName="default"
                 id="default"
@@ -135,302 +147,308 @@
               </mat-slide-toggle>
               <mat-error>
                 <app-error-message
-                  [control]="examForm.controls['default'].errors"
+                  [control]="examDetailsStepForm.controls['default'].errors"
                 ></app-error-message>
               </mat-error>
             </form>
           </div>
+        </mat-dialog-content>
 
-          <!----- Exam Step nav: ----->
-          <div class="stepper-navigation">
-            <button
-              mat-raised-button
-              class="button"
-              matStepperNext
-              type="button"
-              [disabled]="this.examForm.invalid"
-            >
-              <b>Next</b>
-            </button>
-          </div>
-        </mat-step>
-      </div>
+        <!----- Exam Step nav: ----->
+        <div class="stepper-navigation">
+          <button
+            mat-raised-button
+            class="button"
+            matStepperNext
+            type="button"
+            [disabled]="examDetailsStepForm.invalid"
+          >
+            <b>Next</b>
+          </button>
+        </div>
+      </mat-step>
 
       <!-- --- --------- -->
       <!-- QUESTION STEP -->
       <!-- --- --------- -->
 
-      <div [formGroup]="questionForm">
-        <mat-step label="Add Questions to Exam" [editable]="true">
-          <div class="step-container">
-            <div class="row">
-              <!----- ---------------------- ----->
-              <!----- Question/Section List: ----->
-              <!----- ---------------------- ----->
+      <mat-step
+        *ngIf="examForm.controls['questionStep'] as questionStepForm"
+        label="Add Questions to Exam"
+        [editable]="true"
+        [stepControl]="questionStepForm"
+        formGroupName="questionStep"
+        [editable]="true"
+      >
+        <mat-dialog-content>
+          <div class="row">
+            <!----- ---------------------- ----->
+            <!----- Question/Section List: ----->
+            <!----- ---------------------- ----->
 
-              <div
-                [class]="questionList.length > 0 && currentQuestionDisplay ? 'col-sm-3' : 'col-sm-12'"
-                class="question-list-container"
-                [ngClass]="{
+            <div
+              [class]="questionList.length > 0 && currentQuestionDisplay ? 'col-sm-3' : 'col-sm-12'"
+              class="question-list-container"
+              [ngClass]="{
                   'expanded': questionList.length === 0 || !currentQuestionDisplay,
                   'border-right': questionList.length > 0 && currentQuestionDisplay
                 }"
-              >
-                <div style="display: flex; flex-direction: column">
-                  <div class="tree-container">
-                    <mat-list role="list" *ngFor="let question of questionList">
-                      <!----- Question List: ----->
-                      <mat-list-item role="listitem">
-                        <div style="display: flex; align-items: center">
-                          <span
-                            [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
-                            >{{question.name}}</span
-                          >
-                          <mat-icon
-                            style="
-                              cursor: pointer;
-                              font-size: 16px;
-                              margin-left: 10px;
-                            "
-                            #tooltip="matTooltip"
-                            [matTooltip]="'Edit ' + question.type"
-                            (click)="editQuestion(question, null)"
-                            [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
-                            >edit</mat-icon
-                          >
-                          <mat-icon
-                            style="cursor: pointer; font-size: 16px"
-                            #tooltip="matTooltip"
-                            [matTooltip]="'Delete ' + question.type"
-                            (click)="deleteQuestion(question, null)"
-                            [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
-                            >delete</mat-icon
-                          >
-                          <span
-                            *ngIf="question.subQuestions"
-                            (click)="expandSection(question)"
-                            style="cursor: pointer; margin-left: auto"
-                          >
-                            <mat-icon
-                              [class]="question.expanded ? 'arrow-down' : 'arrow'"
-                              >keyboard_arrow_right</mat-icon
-                            >
-                          </span>
-                        </div></mat-list-item
-                      >
-
-                      <!----- Sub question list in sections: ----->
-                      <div *ngIf="question.expanded">
-                        <mat-list-item
-                          class="subQuestionList"
-                          *ngFor="let subQuestion of question.subQuestions"
-                          [class]="subQuestion.id === currentQuestionDisplay?.id ? 'current-question' : ''"
-                        >
-                          <span>&#x2022; {{subQuestion.name}}</span>
-                          <mat-icon
-                            style="
-                              cursor: pointer;
-                              font-size: 16px;
-                              margin-left: 10px;
-                            "
-                            #tooltip="matTooltip"
-                            matTooltip="Edit question"
-                            (click)="editQuestion(question, subQuestion)"
-                            >edit</mat-icon
-                          >
-                          <mat-icon
-                            style="cursor: pointer; font-size: 16px"
-                            #tooltip="matTooltip"
-                            matTooltip="Delete question"
-                            (click)="deleteQuestion(question, subQuestion)"
-                            >delete</mat-icon
-                          >
-                        </mat-list-item>
+            >
+              <div style="display: flex; flex-direction: column">
+                <div class="tree-container">
+                  <mat-list role="list" *ngFor="let question of questionList">
+                    <!----- Question List: ----->
+                    <mat-list-item role="listitem">
+                      <div style="display: flex; align-items: center">
                         <span
-                          style="
-                            display: flex;
-                            align-items: center;
-                            font-size: small;
-                            cursor: pointer;
-                          "
-                          class="subQuestionList"
-                          (click)="addQuestionToSection(question)"
-                          ><mat-icon>add</mat-icon
-                          ><b>Add question to section</b></span
+                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          >{{question.name}}</span
                         >
-                      </div>
-                    </mat-list>
-                  </div>
-
-                  <mat-divider
-                    *ngIf="questionList.length>0 && currentQuestionDisplay"
-                  ></mat-divider>
-
-                  <!----- Add Question/Section to List Buttons: ----->
-                  <div class="tree-button-container">
-                    <button
-                      mat-raised-button
-                      type="button"
-                      class="button add-new-question-button"
-                      (click)="addNewQuestion()"
+                        <mat-icon
+                          style="
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-left: 10px;
+                          "
+                          #tooltip="matTooltip"
+                          [matTooltip]="'Edit ' + question.type"
+                          (click)="editQuestion(question, null)"
+                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          >edit</mat-icon
+                        >
+                        <mat-icon
+                          style="cursor: pointer; font-size: 16px"
+                          #tooltip="matTooltip"
+                          [matTooltip]="'Delete ' + question.type"
+                          (click)="deleteQuestion(question, null)"
+                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          >delete</mat-icon
+                        >
+                        <span
+                          *ngIf="question.subQuestions"
+                          (click)="expandSection(question)"
+                          style="cursor: pointer; margin-left: auto"
+                        >
+                          <mat-icon
+                            [class]="question.expanded ? 'arrow-down' : 'arrow'"
+                            >keyboard_arrow_right</mat-icon
+                          >
+                        </span>
+                      </div></mat-list-item
                     >
-                      <mat-icon>add</mat-icon>
+
+                    <!----- Sub question list in sections: ----->
+                    <div *ngIf="question.expanded">
+                      <mat-list-item
+                        class="subQuestionList"
+                        *ngFor="let subQuestion of question.subQuestions"
+                        [class]="subQuestion.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                      >
+                        <span>&#x2022; {{subQuestion.name}}</span>
+                        <mat-icon
+                          style="
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-left: 10px;
+                          "
+                          #tooltip="matTooltip"
+                          matTooltip="Edit question"
+                          (click)="editQuestion(question, subQuestion)"
+                          >edit</mat-icon
+                        >
+                        <mat-icon
+                          style="cursor: pointer; font-size: 16px"
+                          #tooltip="matTooltip"
+                          matTooltip="Delete question"
+                          (click)="deleteQuestion(question, subQuestion)"
+                          >delete</mat-icon
+                        >
+                      </mat-list-item>
                       <span
-                        [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
-                        >Add New Question</span
+                        style="
+                          display: flex;
+                          align-items: center;
+                          font-size: small;
+                          cursor: pointer;
+                        "
+                        class="subQuestionList"
+                        (click)="addQuestionToSection(question)"
+                        ><mat-icon>add</mat-icon
+                        ><b>Add question to section</b></span
                       >
-                    </button>
-                    <button
-                      mat-raised-button
-                      type="button"
-                      (click)="addNewSection()"
-                      class="button add-new-question-button"
+                    </div>
+                  </mat-list>
+                </div>
+
+                <mat-divider
+                  *ngIf="questionList.length>0 && currentQuestionDisplay"
+                ></mat-divider>
+
+                <!----- Add Question/Section to List Buttons: ----->
+                <div class="tree-button-container">
+                  <button
+                    mat-raised-button
+                    type="button"
+                    class="button add-new-question-button"
+                    (click)="addNewQuestion()"
+                  >
+                    <mat-icon>add</mat-icon>
+                    <span
+                      [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
+                      >Add New Question</span
                     >
-                      <mat-icon>add</mat-icon
-                      ><span
-                        [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
-                        >Add New Section</span
-                      >
-                    </button>
-                  </div>
+                  </button>
+                  <button
+                    mat-raised-button
+                    type="button"
+                    (click)="addNewSection()"
+                    class="button add-new-question-button"
+                  >
+                    <mat-icon>add</mat-icon
+                    ><span
+                      [class]="questionList.length>0 && currentQuestionDisplay ? 'new-question-text' : ''"
+                      >Add New Section</span
+                    >
+                  </button>
                 </div>
               </div>
+            </div>
 
-              <!----- ---------------------- ----->
-              <!----- Questions  Display Box ----->
-              <!----- ---------------------- ----->
+            <!----- ---------------------- ----->
+            <!----- Questions  Display Box ----->
+            <!----- ---------------------- ----->
 
-              <div
-                class="question-container"
-                [class]="questionList.length>0 && currentQuestionDisplay ? 'col-sm-7 offset-1' : 'col-0'"
-                *ngIf="questionList.length>0 && currentQuestionDisplay"
-                [style]="scrollThroughQuestionListStyling"
-              >
-                <!----- Question Name Form: ----->
-                <mat-form-field class="form-field" appearance="outline">
-                  <mat-label>Question name</mat-label>
-                  <input
-                    matInput
-                    id="questionName"
-                    #questionName
-                    formControlName="questionName"
-                    type="text"
-                    placeholder="E.g. Question 1 - Multiple Choice"
-                    required
-                    (keyup)="formChange(questionName.value, 'name')"
-                  />
-                  <mat-error>
-                    <app-error-message
-                      [control]="questionForm.controls['questionName'].errors"
-                    ></app-error-message>
-                  </mat-error>
-                </mat-form-field>
+            <div
+              class="question-container"
+              [class]="questionList.length>0 && currentQuestionDisplay ? 'col-sm-7 offset-1' : 'col-0'"
+              *ngIf="questionList.length>0 && currentQuestionDisplay"
+              [style]="scrollThroughQuestionListStyling"
+            >
+              <!----- Question Name Form: ----->
+              <mat-form-field class="form-field" appearance="outline">
+                <mat-label>Question name</mat-label>
+                <input
+                  matInput
+                  id="questionName"
+                  #questionName
+                  formControlName="questionName"
+                  type="text"
+                  placeholder="E.g. Question 1 - Multiple Choice"
+                  required
+                  (keyup)="formChange(questionName.value, 'name')"
+                />
+                <mat-error>
+                  <app-error-message
+                    [control]="questionStepForm.controls['questionName'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </mat-form-field>
 
-                <!----- Question Type Form: ----->
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>Question Type</mat-label>
-                  <mat-select
-                    formControlName="type"
-                    (selectionChange)="formChange($event.value, 'type')"
-                    [disabled]="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
-                  >
-                    <ng-container *ngFor="let questionType of questionTypes">
-                      <ng-container
-                        *ngIf="questionType.type !== 'section' || currentQuestionDisplay?.type === 'section'"
-                      >
-                        <mat-option
-                          [value]="questionType.type"
-                          #tooltip="matTooltip"
-                          [matTooltip]="questionType.label + ': ' + questionType.description"
-                          >{{questionType.label}}</mat-option
-                        >
-                      </ng-container>
-                    </ng-container>
-                  </mat-select>
-                  <mat-error>
-                    <app-error-message
-                      [control]="examForm.controls['assignedTeacher'].errors"
-                    ></app-error-message>
-                  </mat-error>
-                </mat-form-field>
-
-                <!----- Question Time Limit: ----->
-                <mat-form-field
-                  class="form-field"
-                  appearance="outline"
-                  *ngIf="['written-response','audio-response','repeat-sentence'].includes(this.questionForm.getRawValue().type.toLowerCase())"
+              <!----- Question Type Form: ----->
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Question Type</mat-label>
+                <mat-select
+                  formControlName="type"
+                  (selectionChange)="formChange($event.value, 'type')"
+                  [disabled]="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
                 >
-                  <mat-label
-                    *ngIf="this.questionForm.getRawValue().type === 'written-response'"
-                    >Response word limit</mat-label
-                  >
-                  <mat-label
-                    *ngIf="this.questionForm.getRawValue().type === 'audio-response' || this.questionForm.getRawValue().type === 'repeat-sentence'"
-                    >Response time limit (seconds)</mat-label
-                  >
-                  <input
-                    matInput
-                    id="length"
-                    #length
-                    formControlName="length"
-                    type="number"
-                    [placeholder]="this.questionForm.getRawValue().type === 'written-response' ? 'Enter word limit' : 'Enter audio response time (seconds)'"
-                    (change)="formChange(length.value, 'length')"
-                  />
-                </mat-form-field>
-
-                <!----- Question Promot: ----->
-                <mat-form-field class="form-field" appearance="outline">
-                  <mat-label>Question prompt</mat-label>
-                  <input
-                    matInput
-                    id="writtenPrompt"
-                    formControlName="writtenPrompt"
-                    #writtenPrompt
-                    type="text"
-                    placeholder="A short description of the question/section"
-                    required
-                    (keyup)="formChange(writtenPrompt.value, 'writtenPrompt')"
-                  />
-                  <mat-error>
-                    <app-error-message
-                      [control]="questionForm.controls['writtenPrompt'].errors"
-                    ></app-error-message>
-                  </mat-error>
-                </mat-form-field>
-
-                <div>
-                  <mat-form-field appearance="outline" style="width: 70%">
-                    <mat-label for="imagePrompt" class="file-label"
-                      ><mat-icon>attach_file</mat-icon> Prompt URL...</mat-label
+                  <ng-container *ngFor="let questionType of questionTypes">
+                    <ng-container
+                      *ngIf="questionType.type !== 'section' || currentQuestionDisplay?.type === 'section'"
                     >
-                    <input
-                      matInput
-                      id="imagePrompt"
-                      #imagePrompt
-                      formControlName="imagePrompt"
-                      type="text"
-                      placeholder="Add a URL to a prompt for this question"
-                      (keyup)="formChange(imagePrompt.value, 'imagePrompt')"
-                    />
-                  </mat-form-field>
-
-                  <mat-form-field
-                    appearance="outline"
-                    style="width: 25%; margin-left: 5%"
-                  >
-                    <mat-label>Prompt Type</mat-label>
-                    <mat-select>
                       <mat-option
-                        *ngFor="let promptType of ['Image', 'Audio', 'Video']"
-                        [value]="promptType"
-                        >{{promptType}}</mat-option
+                        [value]="questionType.type"
+                        #tooltip="matTooltip"
+                        [matTooltip]="questionType.label + ': ' + questionType.description"
+                        >{{questionType.label}}</mat-option
                       >
-                    </mat-select>
-                  </mat-form-field>
-                </div>
+                    </ng-container>
+                  </ng-container>
+                </mat-select>
+                <mat-error>
+                  <app-error-message
+                    [control]="questionStepForm.controls['type'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </mat-form-field>
 
-                <!-- <mat-form-field class="form-field" appearance="outline">
+              <!----- Question Time Limit: ----->
+              <mat-form-field
+                class="form-field"
+                appearance="outline"
+                *ngIf="['written-response','audio-response','repeat-sentence'].includes(questionStepForm.getRawValue().type.toLowerCase())"
+              >
+                <mat-label
+                  *ngIf="questionStepForm.getRawValue().type === 'written-response'"
+                  >Response word limit</mat-label
+                >
+                <mat-label
+                  *ngIf="questionStepForm.getRawValue().type === 'audio-response' || questionStepForm.getRawValue().type === 'repeat-sentence'"
+                  >Response time limit (seconds)</mat-label
+                >
+                <input
+                  matInput
+                  id="length"
+                  #length
+                  formControlName="length"
+                  type="number"
+                  [placeholder]="questionStepForm.getRawValue().type === 'written-response' ? 'Enter word limit' : 'Enter audio response time (seconds)'"
+                  (change)="formChange(length.value, 'length')"
+                />
+              </mat-form-field>
+
+              <!----- Question Promot: ----->
+              <mat-form-field class="form-field" appearance="outline">
+                <mat-label>Question prompt</mat-label>
+                <input
+                  matInput
+                  id="writtenPrompt"
+                  formControlName="writtenPrompt"
+                  #writtenPrompt
+                  type="text"
+                  placeholder="A short description of the question/section"
+                  required
+                  (keyup)="formChange(writtenPrompt.value, 'writtenPrompt')"
+                />
+                <mat-error>
+                  <app-error-message
+                    [control]="questionStepForm.controls['writtenPrompt'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </mat-form-field>
+
+              <div>
+                <mat-form-field appearance="outline" style="width: 70%">
+                  <mat-label for="imagePrompt" class="file-label"
+                    ><mat-icon>attach_file</mat-icon> Prompt URL...</mat-label
+                  >
+                  <input
+                    matInput
+                    id="imagePrompt"
+                    #imagePrompt
+                    formControlName="imagePrompt"
+                    type="text"
+                    placeholder="Add a URL to a prompt for this question"
+                    (keyup)="formChange(imagePrompt.value, 'imagePrompt')"
+                  />
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  style="width: 25%; margin-left: 5%"
+                >
+                  <mat-label>Prompt Type</mat-label>
+                  <mat-select>
+                    <mat-option
+                      *ngFor="let promptType of ['Image', 'Audio', 'Video']"
+                      [value]="promptType"
+                      >{{promptType}}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!-- <mat-form-field class="form-field" appearance="outline">
                   <mat-label for="audioPrompt" class="file-label"
                     ><mat-icon>attach_file</mat-icon> Audio prompt
                     URL...</mat-label
@@ -446,7 +464,7 @@
                   />
                 </mat-form-field> -->
 
-                <!-- <mat-form-field class="form-field" appearance="outline">
+              <!-- <mat-form-field class="form-field" appearance="outline">
                   <mat-label for="videoPrompt" class="file-label"
                     ><mat-icon>attach_file</mat-icon> Video prompt
                     URL...</mat-label
@@ -462,213 +480,210 @@
                   />
                 </mat-form-field> -->
 
-                <!----- Teacher Feedback Toggle: ----->
-                <form [formGroup]="questionForm" class="form-field">
-                  <mat-slide-toggle
-                    id="teacherFeedback"
-                    #teacherFeedback
-                    name="teacherFeedback"
-                    formControlName="teacherFeedback"
-                    (change)="formChange(teacherFeedback.checked, 'teacherFeedback')"
-                    [checked]="currentQuestionDisplay?.teacherFeedback"
-                  >
-                    Teacher feedback?
-                    <mat-icon
-                      style="font-size: 20px"
-                      #tooltip="matTooltip"
-                      matTooltip="When turned on, the teacher will be prompted to give written feedback when marking this exam."
-                      >info_outlined</mat-icon
-                    >
-                  </mat-slide-toggle>
-                  <mat-error>
-                    <app-error-message
-                      [control]="questionForm.controls['teacherFeedback'].errors"
-                    ></app-error-message>
-                  </mat-error>
-                </form>
-
-                <!----- Auto Marking Toggle: ----->
-                <form [formGroup]="questionForm" class="form-field">
-                  <mat-slide-toggle
-                    formControlName="autoMarking"
-                    id="autoMarking"
-                    name="autoMarking"
-                    #autoMarking
-                    (change)="formChange(autoMarking.checked, 'autoMarking')"
-                    [checked]="currentQuestionDisplay?.autoMarking"
-                  >
-                    Auto marking?
-                    <mat-icon
-                      style="font-size: 20px"
-                      #tooltip="matTooltip"
-                      matTooltip="When turned on, this exam will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher must provide the student with a score."
-                      >info_outlined</mat-icon
-                    >
-                  </mat-slide-toggle>
-                  <mat-error>
-                    <app-error-message
-                      [control]="questionForm.controls['autoMarking'].errors"
-                    ></app-error-message>
-                  </mat-error>
-                </form>
-
-                <!----- Question Timelimit Toggle: ----->
-                <div class="form-field">
-                  <mat-slide-toggle
-                    id="timed"
-                    name="timed"
-                    #timed
-                    (change)="formChange(timed.checked, 'timed')"
-                    [checked]="currentQuestionDisplay?.timed"
-                  >
-                    Timed?
-                    <mat-icon
-                      *ngIf="!currentQuestionDisplay?.timed"
-                      style="font-size: 20px"
-                      #tooltip="matTooltip"
-                      matTooltip="When turned on, this question/section will have a time limit"
-                      >info_outlined</mat-icon
-                    >
-                  </mat-slide-toggle>
-                </div>
-
-                <!----- Question Time limit : ----->
-                <mat-form-field
-                  class="form-field"
-                  appearance="outline"
-                  *ngIf="currentQuestionDisplay?.timed"
+              <!----- Teacher Feedback Toggle: ----->
+              <form [formGroup]="questionStepForm" class="form-field">
+                <mat-slide-toggle
+                  id="teacherFeedback"
+                  #teacherFeedback
+                  name="teacherFeedback"
+                  formControlName="teacherFeedback"
+                  (change)="formChange(teacherFeedback.checked, 'teacherFeedback')"
+                  [checked]="currentQuestionDisplay?.teacherFeedback"
                 >
-                  <mat-label>Time limit (seconds)</mat-label>
-                  <input
-                    matInput
-                    id="time"
-                    #time
-                    formControlName="time"
-                    type="text"
-                    placeholder="Time limit (seconds)"
-                    [required]="currentQuestionDisplay?.timed === true"
-                    (keyup)="formChange(time.value, 'time')"
-                  />
-                  <mat-error>
-                    <app-error-message
-                      [control]="questionForm.controls['time'].errors"
-                    ></app-error-message>
-                  </mat-error>
-                </mat-form-field>
-
-                <!------------------------------------>
-                <!----- Add-to-question Buttons: ----->
-                <!------------------------------------>
-                <div class="add-to-question-btn">
-                  <button
-                    mat-raised-button
-                    type="button"
-                    class="button"
-                    (click)="openQuestionDetailDialog()"
+                  Teacher feedback?
+                  <mat-icon
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, the teacher will be prompted to give written feedback when marking this exam."
+                    >info_outlined</mat-icon
                   >
-                    <!----- Add Multi Choice Options : ----->
-                    <div
-                      *ngIf="['multiple-choice-single', 'multiple-choice-multi'].includes(
+                </mat-slide-toggle>
+                <mat-error>
+                  <app-error-message
+                    [control]="questionStepForm.controls['teacherFeedback'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </form>
+
+              <!----- Auto Marking Toggle: ----->
+              <form [formGroup]="questionStepForm" class="form-field">
+                <mat-slide-toggle
+                  formControlName="autoMarking"
+                  id="autoMarking"
+                  name="autoMarking"
+                  #autoMarking
+                  (change)="formChange(autoMarking.checked, 'autoMarking')"
+                  [checked]="currentQuestionDisplay?.autoMarking"
+                >
+                  Auto marking?
+                  <mat-icon
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, this exam will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher must provide the student with a score."
+                    >info_outlined</mat-icon
+                  >
+                </mat-slide-toggle>
+                <mat-error>
+                  <app-error-message
+                    [control]="questionStepForm.controls['autoMarking'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </form>
+
+              <!----- Question Timelimit Toggle: ----->
+              <div class="form-field">
+                <mat-slide-toggle
+                  id="timed"
+                  name="timed"
+                  #timed
+                  (change)="formChange(timed.checked, 'timed')"
+                  [checked]="currentQuestionDisplay?.timed"
+                >
+                  Timed?
+                  <mat-icon
+                    *ngIf="!currentQuestionDisplay?.timed"
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, this question/section will have a time limit"
+                    >info_outlined</mat-icon
+                  >
+                </mat-slide-toggle>
+              </div>
+
+              <!----- Question Time limit : ----->
+              <mat-form-field
+                class="form-field"
+                appearance="outline"
+                *ngIf="currentQuestionDisplay?.timed"
+              >
+                <mat-label>Time limit (seconds)</mat-label>
+                <input
+                  matInput
+                  id="time"
+                  #time
+                  formControlName="time"
+                  type="text"
+                  placeholder="Time limit (seconds)"
+                  [required]="currentQuestionDisplay?.timed === true"
+                  (keyup)="formChange(time.value, 'time')"
+                />
+                <mat-error>
+                  <app-error-message
+                    [control]="questionStepForm.controls['time'].errors"
+                  ></app-error-message>
+                </mat-error>
+              </mat-form-field>
+
+              <!------------------------------------>
+              <!----- Add-to-question Buttons: ----->
+              <!------------------------------------>
+              <div class="add-to-question-btn">
+                <button
+                  mat-raised-button
+                  type="button"
+                  class="button"
+                  (click)="openQuestionDetailDialog()"
+                >
+                  <!----- Add Multi Choice Options : ----->
+                  <div
+                    *ngIf="['multiple-choice-single', 'multiple-choice-multi'].includes(
                     currentQuestionDisplay?.type ?? ''
                   )"
+                  >
+                    <span
+                      *ngIf="!currentQuestionDisplay.multipleChoiceQuestionList || currentQuestionDisplay.multipleChoiceQuestionList.length === 0"
+                      >Add Multiple Choice Options</span
                     >
-                      <span
-                        *ngIf="!currentQuestionDisplay.multipleChoiceQuestionList || currentQuestionDisplay.multipleChoiceQuestionList.length === 0"
-                        >Add Multiple Choice Options</span
-                      >
-                      <span
-                        *ngIf="(currentQuestionDisplay.multipleChoiceQuestionList ?? []).length > 0"
-                        >Edit Multiple Choice Options</span
-                      >
-                      <i
-                        style="padding-left: 5px"
-                        *ngIf="(currentQuestionDisplay.multipleChoiceQuestionList ?? []).length > 0"
-                        >({{((currentQuestionDisplay.multipleChoiceQuestionList
-                        ?? [])).length}} multi-choice options added)</i
-                      >
-                    </div>
+                    <span
+                      *ngIf="(currentQuestionDisplay.multipleChoiceQuestionList ?? []).length > 0"
+                      >Edit Multiple Choice Options</span
+                    >
+                    <i
+                      style="padding-left: 5px"
+                      *ngIf="(currentQuestionDisplay.multipleChoiceQuestionList ?? []).length > 0"
+                      >({{((currentQuestionDisplay.multipleChoiceQuestionList ??
+                      [])).length}} multi-choice options added)</i
+                    >
+                  </div>
 
-                    <!----- Add Reorder Sentence Options : ----->
-                    <div
-                      *ngIf="currentQuestionDisplay?.type === 'reorder-sentence'"
+                  <!----- Add Reorder Sentence Options : ----->
+                  <div
+                    *ngIf="currentQuestionDisplay?.type === 'reorder-sentence'"
+                  >
+                    <span
+                      *ngIf="!currentQuestionDisplay.reorderSentenceQuestionList || currentQuestionDisplay.reorderSentenceQuestionList.length === 0"
+                      >Add Reorder Sentence Options</span
                     >
-                      <span
-                        *ngIf="!currentQuestionDisplay.reorderSentenceQuestionList || currentQuestionDisplay.reorderSentenceQuestionList.length === 0"
-                        >Add Reorder Sentence Options</span
-                      >
-                      <span
-                        *ngIf="(currentQuestionDisplay.reorderSentenceQuestionList ?? []).length > 0"
-                        >Edit Reorder Sentence Options</span
-                      >
-                      <i
-                        style="padding-left: 5px"
-                        *ngIf="(currentQuestionDisplay.reorderSentenceQuestionList ?? []).length > 0"
-                        >({{((currentQuestionDisplay.reorderSentenceQuestionList
-                        ?? [])).length}} sentences added)</i
-                      >
-                    </div>
+                    <span
+                      *ngIf="(currentQuestionDisplay.reorderSentenceQuestionList ?? []).length > 0"
+                      >Edit Reorder Sentence Options</span
+                    >
+                    <i
+                      style="padding-left: 5px"
+                      *ngIf="(currentQuestionDisplay.reorderSentenceQuestionList ?? []).length > 0"
+                      >({{((currentQuestionDisplay.reorderSentenceQuestionList
+                      ?? [])).length}} sentences added)</i
+                    >
+                  </div>
 
-                    <!----- Add Match Options : ----->
-                    <div
-                      *ngIf="currentQuestionDisplay?.type === 'match-options'"
+                  <!----- Add Match Options : ----->
+                  <div *ngIf="currentQuestionDisplay?.type === 'match-options'">
+                    <span
+                      *ngIf="!currentQuestionDisplay.matchOptionQuestionList || currentQuestionDisplay.matchOptionQuestionList.length === 0"
+                      >Add Match Options</span
                     >
-                      <span
-                        *ngIf="!currentQuestionDisplay.matchOptionQuestionList || currentQuestionDisplay.matchOptionQuestionList.length === 0"
-                        >Add Match Options</span
-                      >
-                      <span
-                        *ngIf="(currentQuestionDisplay.matchOptionQuestionList ?? []).length > 0"
-                        >Edit Match Options</span
-                      >
-                      <i
-                        style="padding-left: 5px"
-                        *ngIf="(currentQuestionDisplay.matchOptionQuestionList ?? []).length > 0"
-                        >({{((currentQuestionDisplay.matchOptionQuestionList ??
-                        [])).length}} options added)</i
-                      >
-                    </div>
+                    <span
+                      *ngIf="(currentQuestionDisplay.matchOptionQuestionList ?? []).length > 0"
+                      >Edit Match Options</span
+                    >
+                    <i
+                      style="padding-left: 5px"
+                      *ngIf="(currentQuestionDisplay.matchOptionQuestionList ?? []).length > 0"
+                      >({{((currentQuestionDisplay.matchOptionQuestionList ??
+                      [])).length}} options added)</i
+                    >
+                  </div>
 
-                    <!----- Add Fill in Blanks : ----->
-                    <div
-                      *ngIf="currentQuestionDisplay?.type === 'fill-in-the-blanks'"
+                  <!----- Add Fill in Blanks : ----->
+                  <div
+                    *ngIf="currentQuestionDisplay?.type === 'fill-in-the-blanks'"
+                  >
+                    <span
+                      *ngIf="!currentQuestionDisplay.fillBlanksQuestionList || currentQuestionDisplay.fillBlanksQuestionList.length === 0"
+                      >Add Fill-in-the-Blanks Questions</span
                     >
-                      <span
-                        *ngIf="!currentQuestionDisplay.fillBlanksQuestionList || currentQuestionDisplay.fillBlanksQuestionList.length === 0"
-                        >Add Fill-in-the-Blanks Questions</span
-                      >
-                      <span
-                        *ngIf="(currentQuestionDisplay.fillBlanksQuestionList ?? []).length > 0"
-                        >Edit Fill-in-the-Blanks Questions</span
-                      >
-                      <i
-                        style="padding-left: 5px"
-                        *ngIf="(currentQuestionDisplay.fillBlanksQuestionList ?? []).length > 0"
-                        >({{((currentQuestionDisplay.fillBlanksQuestionList ??
-                        [])).length}} options added)</i
-                      >
-                    </div>
-                  </button>
-                </div>
+                    <span
+                      *ngIf="(currentQuestionDisplay.fillBlanksQuestionList ?? []).length > 0"
+                      >Edit Fill-in-the-Blanks Questions</span
+                    >
+                    <i
+                      style="padding-left: 5px"
+                      *ngIf="(currentQuestionDisplay.fillBlanksQuestionList ?? []).length > 0"
+                      >({{((currentQuestionDisplay.fillBlanksQuestionList ??
+                      [])).length}} options added)</i
+                    >
+                  </div>
+                </button>
               </div>
             </div>
-
-            <!----- Question Stepper Nav: ----->
-            <div class="stepper-navigation">
-              <button mat-button matStepperPrevious type="button">Back</button>
-              <button
-                mat-raised-button
-                type="button"
-                class="button"
-                (click)="saveExamClick()"
-              >
-                <b>Save Exam</b>
-              </button>
-            </div>
           </div>
-        </mat-step>
-      </div>
-    </mat-stepper>
-  </div>
+        </mat-dialog-content>
+
+        <!----- Question Stepper Nav: ----->
+        <div class="stepper-navigation">
+          <button mat-button matStepperPrevious type="button">Back</button>
+          <button
+            mat-raised-button
+            type="button"
+            class="button"
+            (click)="saveExamClick()"
+          >
+            <b>Save Exam</b>
+          </button>
+        </div>
+      </mat-step>
+    </div>
+  </mat-stepper>
   <!-- <mat-dialog-actions align="end">
     <button mat-button color="primary" [mat-dialog-close]="false">Cancel</button>
     <button

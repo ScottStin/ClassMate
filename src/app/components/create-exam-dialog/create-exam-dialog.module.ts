@@ -19,6 +19,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 
+import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { ErrorMessageModule } from '../error-message/error-message.module';
 import { CreateExamDialogComponent } from './create-exam-dialog.component';
@@ -56,6 +57,7 @@ import { CreateMatchOptionsExamQuestionDialogModule } from './match-options-exam
     CreateReorderSentenceExamQuestionDialogModule,
     CreateMatchOptionsExamQuestionDialogModule,
     CreateFillBlanksExamQuestionDialogModule,
+    DialogActionsModule,
   ],
   exports: [CreateExamDialogComponent],
 })

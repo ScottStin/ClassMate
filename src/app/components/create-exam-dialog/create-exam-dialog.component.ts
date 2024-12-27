@@ -24,17 +24,14 @@ import { CreateMatchOptionsExamQuestionDialogComponent } from './match-options-e
   styleUrls: ['./create-exam-dialog.component.scss'],
 })
 export class CreateExamDialogComponent implements OnInit {
-  error: Error;
   @Output() saveExam = new EventEmitter<ExamDTO>();
+  error: Error;
+
   examForm: FormGroup<{
-    name: FormControl<string>;
-    description: FormControl<string>;
-    instructions: FormControl<string>;
-    casualPrice: FormControl<number>;
-    default: FormControl<boolean>;
-    assignedTeacher: FormControl<string>;
-    defaultExam: FormControl<boolean>;
+    examDetailsStep: ExamDetailStepForm;
+    questionStep: QuestionStepForm;
   }>;
+
   questionList: QuestionList[] = [];
   currentQuestionDisplay: QuestionList | null = null;
   imagePromptFile = '';
@@ -42,21 +39,6 @@ export class CreateExamDialogComponent implements OnInit {
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
   scrollThroughQuestionListStyling = '';
-
-  questionForm: FormGroup<{
-    questionName: FormControl<string>;
-    writtenPrompt: FormControl<string>; // a short description of the question task
-    time: FormControl<number | null>; // question time limit (seconds)
-    type: FormControl<string>;
-    imagePrompt: FormControl<string | null>; // a visual prompt for the question
-    audioPrompt: FormControl<string | null>; // an audio prompt for the question
-    videoPrompt: FormControl<string | null>; // a video prompt for the question
-    teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
-    autoMarking: FormControl<boolean>; // false = teacher has to assign mark
-    totalPoints: FormControl<number>;
-    length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
-    answers?: FormControl<{ question: string; correct: boolean }[] | null>; // used for multiple choice questions
-  }>;
 
   questionTypes: { type: string; description: string; label: string }[] = [
     { type: 'written-response', description: '', label: 'Written Response' },
@@ -107,15 +89,14 @@ export class CreateExamDialogComponent implements OnInit {
   formPopulated = new Subject<boolean>();
 
   ngOnInit(): void {
-    this.populateExamForm();
-    this.populateQuestionForm();
+    this.populateForm();
   }
 
   /*
-   * Populate the exam details on page load:
+   * Populate the exam form on page load:
    */
-  populateExamForm(): void {
-    this.examForm = new FormGroup({
+  populateForm(): void {
+    const examDetailsStep = new FormGroup({
       name: new FormControl(this.data.exam?.name ?? '', {
         validators: [Validators.required],
         nonNullable: true,
@@ -146,13 +127,8 @@ export class CreateExamDialogComponent implements OnInit {
       }),
     });
     this.formPopulated.next(true);
-  }
 
-  /*
-   * Initial population of question form on page load:
-   */
-  populateQuestionForm(): void {
-    this.questionForm = new FormGroup({
+    const questionStep = new FormGroup({
       questionName: new FormControl('', {
         validators: [Validators.required],
         nonNullable: true,
@@ -192,6 +168,12 @@ export class CreateExamDialogComponent implements OnInit {
         nonNullable: true,
       }),
     });
+
+    this.examForm = new FormGroup({
+      examDetailsStep,
+      questionStep,
+    });
+
     this.formPopulated.next(true);
   }
 
@@ -312,54 +294,43 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   /*
-   * Apply dynamic styling to question list whe the user changes questions to create scroll affect:
-   */
-  // scrollThroughQuestionListStyling(styles: {
-  //   transform: string;
-  //   transition: string;
-  // }): Record<string, string> {
-  //   return {
-  //     transform: styles.transform || 'translateY(0)',
-  //     transition: styles.transition || 'all 0.3s ease-in-out',
-  //   };
-  // }
-
-  /*
    * When the current question being displayed to the user changes, update the question form:
    */
   updateForm(): void {
     if (this.currentQuestionDisplay) {
-      this.questionForm.controls.questionName.setValue(
+      const questionForm = this.examForm.controls.questionStep;
+
+      questionForm.controls.questionName.setValue(
         this.currentQuestionDisplay.name
       );
-      this.questionForm.controls.writtenPrompt.setValue(
+      questionForm.controls.writtenPrompt.setValue(
         this.currentQuestionDisplay.writtenPrompt ?? ''
       );
-      this.questionForm.controls.type.setValue(
+      questionForm.controls.type.setValue(
         this.currentQuestionDisplay.type ?? ''
       );
-      this.questionForm.controls.teacherFeedback.setValue(
+      questionForm.controls.teacherFeedback.setValue(
         this.currentQuestionDisplay.teacherFeedback ?? false
       );
-      this.questionForm.controls.autoMarking.setValue(
+      questionForm.controls.autoMarking.setValue(
         this.currentQuestionDisplay.autoMarking ?? false
       );
-      this.questionForm.controls.imagePrompt.setValue(
+      questionForm.controls.imagePrompt.setValue(
         this.currentQuestionDisplay.imagePrompt ?? ''
       );
-      this.questionForm.controls.videoPrompt.setValue(
+      questionForm.controls.videoPrompt.setValue(
         this.currentQuestionDisplay.videoPrompt ?? ''
       );
-      this.questionForm.controls.audioPrompt.setValue(
+      questionForm.controls.audioPrompt.setValue(
         this.currentQuestionDisplay.audioPrompt ?? ''
       );
-      this.questionForm.controls.length.setValue(
+      questionForm.controls.length.setValue(
         this.currentQuestionDisplay.length ?? NaN
       );
-      this.questionForm.controls.totalPoints.setValue(
+      questionForm.controls.totalPoints.setValue(
         this.currentQuestionDisplay.totalPoints ?? NaN
       );
-      this.questionForm.controls.time.setValue(
+      questionForm.controls.time.setValue(
         this.currentQuestionDisplay.time ?? null
       );
     }
@@ -391,7 +362,7 @@ export class CreateExamDialogComponent implements OnInit {
         // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         if (this.currentQuestionDisplay.length) {
           this.currentQuestionDisplay.length = null;
-          this.questionForm.controls.length.setValue(NaN);
+          this.examForm.controls.questionStep.controls.length.setValue(NaN);
         }
         if (this.currentQuestionDisplay.matchOptionQuestionList) {
           this.currentQuestionDisplay.matchOptionQuestionList = null;
@@ -453,7 +424,9 @@ export class CreateExamDialogComponent implements OnInit {
     });
     confirmDialogRef.afterClosed().subscribe((result: boolean) => {
       if (!result) {
-        this.examForm.get('default')?.patchValue(false);
+        this.examForm.controls.examDetailsStep
+          .get('default')
+          ?.patchValue(false);
       }
     });
   }
@@ -596,3 +569,28 @@ export interface QuestionList {
   }[];
 }
 [];
+
+export type ExamDetailStepForm = FormGroup<{
+  name: FormControl<string>;
+  description: FormControl<string>;
+  instructions: FormControl<string>;
+  casualPrice: FormControl<number>;
+  default: FormControl<boolean>;
+  assignedTeacher: FormControl<string>;
+  defaultExam: FormControl<boolean>;
+}>;
+
+export type QuestionStepForm = FormGroup<{
+  questionName: FormControl<string>;
+  writtenPrompt: FormControl<string>; // a short description of the question task
+  time: FormControl<number | null>; // question time limit (seconds)
+  type: FormControl<string>;
+  imagePrompt: FormControl<string | null>; // a visual prompt for the question
+  audioPrompt: FormControl<string | null>; // an audio prompt for the question
+  videoPrompt: FormControl<string | null>; // a video prompt for the question
+  teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
+  autoMarking: FormControl<boolean>; // false = teacher has to assign mark
+  totalPoints: FormControl<number>;
+  length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
+  answers?: FormControl<{ question: string; correct: boolean }[] | null>; // used for multiple choice questions
+}>;
