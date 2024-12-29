@@ -209,46 +209,54 @@
         <div
           *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && !row.studentsEnrolled.includes(currentUser?.email)"
         >
-          <mat-icon
+          <button
+            mat-icon-button
             #tooltip="matTooltip"
             matTooltip="Sign up for this exam."
-            style="cursor: pointer; color: green"
             (click)="enrolExam(row)"
-            >add_shopping_cart</mat-icon
+            class="icon-button"
           >
+            <mat-icon>add_shopping_cart</mat-icon>
+          </button>
         </div>
         <div
           *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && !studentCompleted(row)"
         >
-          <mat-icon
+          <button
+            mat-icon-button
             #tooltip="matTooltip"
             matTooltip="Start exam"
-            style="cursor: pointer; color: blue"
             (click)="startExamClick(row)"
-            >play_circle_filled</mat-icon
+            class="icon-button"
           >
+            <mat-icon>play_circle_filled</mat-icon>
+          </button>
         </div>
         <div
           *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && studentCompleted(row) && !getResult(row)"
         >
-          <mat-icon
+          <button
+            mat-icon-button
             #tooltip="matTooltip"
             matTooltip="Your exam is being marked."
-            style="cursor: pointer"
             (click)="examMarkPending(row)"
-            >hourglass_empty</mat-icon
+            class="icon-button"
           >
+            <mat-icon>hourglass_empty</mat-icon>
+          </button>
         </div>
         <div
           *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && getResult(row)"
         >
-          <mat-icon
+          <button
+            mat-icon-button
             #tooltip="matTooltip"
             matTooltip="Click here to view your feedback."
-            style="cursor: pointer; color: purple"
             (click)="displayExam(row, false, true, currentUser?.email)"
-            >remove_red_eye</mat-icon
+            class="icon-button"
           >
+            <mat-icon>remove_red_eye</mat-icon>
+          </button>
         </div>
       </mat-cell>
     </ng-container>

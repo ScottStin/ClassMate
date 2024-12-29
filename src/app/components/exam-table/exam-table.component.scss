@@ -1,3 +1,6 @@
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
 //  ----------------------------------
 //  --- TODO - Move to global styling component ---
 //  ----------------------------------
@@ -52,4 +55,8 @@
         display: table-cell;
       }
     }
+  }
+
+  .icon-button { // todo - move button colors to global format
+    color: $primaryColor;
   }
