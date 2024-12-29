@@ -399,12 +399,25 @@
                   type="number"
                   [placeholder]="questionStepForm.getRawValue().type === 'written-response' ? 'Enter word limit' : 'Enter audio response time (seconds)'"
                   (change)="formChange(length.value, 'length')"
+                  [attr.max]="questionStepForm.getRawValue().type === 'written-response' ? maxWrittenResponseWordLimit : maxAudioResponseTimeLimit"
                 />
+                <mat-error>
+                  <app-error-message
+                    [control]="questionStepForm.controls['length'].errors"
+                  ></app-error-message>
+                </mat-error>
               </mat-form-field>
 
               <!----- Question Prompt (written): ----->
               <mat-form-field class="form-field" appearance="outline">
-                <mat-label>Question prompt</mat-label>
+                <mat-label
+                  *ngIf="currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+                  >Question prompt</mat-label
+                >
+                <mat-label
+                  *ngIf="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
+                  >Section prompt</mat-label
+                >
                 <input
                   matInput
                   id="writtenPrompt"
@@ -517,7 +530,11 @@
               </div>
 
               <!----- Teacher Feedback Toggle: ----->
-              <form [formGroup]="questionStepForm" class="form-field">
+              <form
+                [formGroup]="questionStepForm"
+                class="form-field"
+                *ngIf="!['section','information-page'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '')"
+              >
                 <mat-slide-toggle
                   id="teacherFeedback"
                   #teacherFeedback
@@ -526,11 +543,11 @@
                   (change)="formChange(teacherFeedback.checked, 'teacherFeedback')"
                   [checked]="currentQuestionDisplay?.teacherFeedback"
                 >
-                  Teacher feedback?
+                  Feedback required?
                   <mat-icon
                     style="font-size: 20px"
                     #tooltip="matTooltip"
-                    matTooltip="When turned on, the teacher will be prompted to give written feedback when marking this exam."
+                    matTooltip="When turned on, the teacher will be prompted to give written feedback to the student for this question."
                     >info_outlined</mat-icon
                   >
                 </mat-slide-toggle>
@@ -542,7 +559,11 @@
               </form>
 
               <!----- Auto Marking Toggle: ----->
-              <form [formGroup]="questionStepForm" class="form-field">
+              <form
+                [formGroup]="questionStepForm"
+                class="form-field"
+                *ngIf="!['section','information-page'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '')"
+              >
                 <mat-slide-toggle
                   formControlName="autoMarking"
                   id="autoMarking"
@@ -551,11 +572,17 @@
                   (change)="formChange(autoMarking.checked, 'autoMarking')"
                   [checked]="currentQuestionDisplay?.autoMarking"
                 >
-                  Auto marking?
+                  <span *ngIf="!currentQuestionDisplay?.teacherFeedback"
+                    >Auto marking?</span
+                  >
+                  <span *ngIf="currentQuestionDisplay?.teacherFeedback"
+                    >Auto marking/feedback?</span
+                  >
+
                   <mat-icon
                     style="font-size: 20px"
                     #tooltip="matTooltip"
-                    matTooltip="When turned on, this exam will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher must provide the student with a score."
+                    [matTooltip]="currentQuestionDisplay?.teacherFeedback ? 'When turned on, this question will automatically be marked by our marking software and the student will be given a score and feedback. When turned off, the teacher must provide the student with a score/feedback.' : 'When turned on, this question will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher must provide the student with a score.'"
                     >info_outlined</mat-icon
                   >
                 </mat-slide-toggle>

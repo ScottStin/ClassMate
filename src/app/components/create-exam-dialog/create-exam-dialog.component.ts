@@ -40,7 +40,8 @@ export class CreateExamDialogComponent implements OnInit {
 
   questionList: QuestionList[] = [];
   currentQuestionDisplay: QuestionList | null = null;
-  selectedPromptType1 = 'Image';
+  maxWrittenResponseWordLimit = 600;
+  maxAudioResponseTimeLimit = 120;
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
   scrollThroughQuestionListStyling = '';
@@ -161,6 +162,7 @@ export class CreateExamDialogComponent implements OnInit {
         nonNullable: false,
       }),
       length: new FormControl(NaN, {
+        validators: [this.maxLengthValidator()],
         nonNullable: false,
       }),
       teacherFeedback: new FormControl(false, {
@@ -402,6 +404,13 @@ export class CreateExamDialogComponent implements OnInit {
         }
       }
     }
+
+    if (field === 'autoMarking' && text === true) {
+      this.snackbarService.openPermanent(
+        'info',
+        'Please note that you will be charged 5 cents per question that uses our automarking software. For example, if you have an exam that has 10 auto marked questions, you will be charged 50 cents per student who completes that exam (assuming that they complete all auto marked questions).'
+      );
+    }
   }
 
   /*
@@ -576,6 +585,58 @@ export class CreateExamDialogComponent implements OnInit {
       } catch {
         return { invalidUrl: true };
       }
+    };
+  }
+
+  /*
+   *Custom url validator for length of written and audio responses:
+   */
+  maxLengthValidator(): ValidatorFn {
+    return (control: AbstractControl): Record<string, unknown> | null => {
+      const input = control.value as number;
+
+      if (
+        ['audio-response', 'repeat-sentence', 'written-response'].includes(
+          this.currentQuestionDisplay?.type ?? ''
+        ) &&
+        !input
+      ) {
+        return { required: true };
+      }
+
+      if (
+        this.currentQuestionDisplay?.type === 'written-response' &&
+        input > this.maxWrittenResponseWordLimit
+      ) {
+        return { tooManyWords: true };
+      }
+
+      if (
+        this.currentQuestionDisplay?.type === 'written-response' &&
+        input < 1
+      ) {
+        return { tooFewWords: true };
+      }
+
+      if (
+        ['audio-response', 'repeat-sentence'].includes(
+          this.currentQuestionDisplay?.type ?? ''
+        ) &&
+        input > this.maxAudioResponseTimeLimit
+      ) {
+        return { tooLong: true };
+      }
+
+      if (
+        ['audio-response', 'repeat-sentence'].includes(
+          this.currentQuestionDisplay?.type ?? ''
+        ) &&
+        input < 1
+      ) {
+        return { tooShort: true };
+      }
+
+      return null;
     };
   }
 
