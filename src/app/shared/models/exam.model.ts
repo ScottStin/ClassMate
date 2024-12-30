@@ -5,7 +5,8 @@ export interface ExamDTO {
     studentsEnrolled: string[];
     // studentsCompleted: string[];
     studentsCompleted: {email: string; mark?: string | number | null}[];
-    totalPoints?: number | null;
+    totalPointsMin?: number | null;
+    totalPointsMax?: number | null;
     description: string;
     instructions?: string | null;
     casualPrice: number;

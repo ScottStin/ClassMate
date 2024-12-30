@@ -119,6 +119,12 @@ export class CreateExamDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
+      totalPointsMin: new FormControl(this.data.exam?.totalPointsMin ?? 0, {
+        nonNullable: true,
+      }),
+      totalPointsMax: new FormControl(this.data.exam?.totalPointsMax ?? 100, {
+        nonNullable: true,
+      }),
       default: new FormControl(this.data.exam?.default ?? false, {
         validators: [Validators.required],
         nonNullable: true,
@@ -145,6 +151,12 @@ export class CreateExamDialogComponent implements OnInit {
       }),
       writtenPrompt: new FormControl('', {
         validators: [Validators.required],
+        nonNullable: true,
+      }),
+      totalPointsMin: new FormControl(0, {
+        nonNullable: true,
+      }),
+      totalPointsMax: new FormControl(5, {
         nonNullable: true,
       }),
       promptUrl1: new FormControl('', {
@@ -175,9 +187,6 @@ export class CreateExamDialogComponent implements OnInit {
       }),
       time: new FormControl(60, {
         nonNullable: false,
-      }),
-      totalPoints: new FormControl(1, {
-        nonNullable: true,
       }),
     });
 
@@ -342,8 +351,11 @@ export class CreateExamDialogComponent implements OnInit {
       questionForm.controls.length.setValue(
         this.currentQuestionDisplay.length ?? NaN
       );
-      questionForm.controls.totalPoints.setValue(
-        this.currentQuestionDisplay.totalPoints ?? NaN
+      questionForm.controls.totalPointsMin.setValue(
+        this.currentQuestionDisplay.totalPointsMin ?? NaN
+      );
+      questionForm.controls.totalPointsMax.setValue(
+        this.currentQuestionDisplay.totalPointsMax ?? NaN
       );
       questionForm.controls.time.setValue(
         this.currentQuestionDisplay.time ?? null
@@ -688,7 +700,8 @@ export interface QuestionList {
   matchOptionQuestionList?:
     | { leftOption: string; rightOption: string }[]
     | null;
-  totalPoints?: number | null;
+  totalPointsMin?: number | null;
+  totalPointsMax?: number | null;
   length?: number | null;
   promptUrl1?: { url: string; type: string } | null;
   promptUrl2?: { url: string; type: string } | null;
@@ -710,6 +723,8 @@ export type ExamDetailStepForm = FormGroup<{
   description: FormControl<string>;
   instructions: FormControl<string>;
   casualPrice: FormControl<number>;
+  totalPointsMin: FormControl<number>;
+  totalPointsMax: FormControl<number>;
   default: FormControl<boolean>;
   assignedTeacher: FormControl<string>;
   defaultExam: FormControl<boolean>;
@@ -720,13 +735,14 @@ export type QuestionStepForm = FormGroup<{
   writtenPrompt: FormControl<string>; // a short description of the question task
   time: FormControl<number | null>; // question time limit (seconds)
   type: FormControl<string>;
+  totalPointsMin: FormControl<number>; // smallest amount of points rewarded for question/section
+  totalPointsMax: FormControl<number>; // total amount of points rewarded for question/section
   promptUrl1: FormControl<string | null>; // a prompt url (image/audi/video) for the question
   promptUrl1Type: FormControl<string | null>; // a prompt type for the url above
   promptUrl2: FormControl<string | null>; // a second prompt for the question
   promptUrl2Type: FormControl<string | null>; // a second prompt type for the question
   teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
   autoMarking: FormControl<boolean>; // false = teacher has to assign mark
-  totalPoints: FormControl<number>;
   length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
   answers?: FormControl<{ question: string; correct: boolean }[] | null>; // used for multiple choice questions
 }>;

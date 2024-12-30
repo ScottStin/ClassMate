@@ -33,7 +33,6 @@ export class ExamService {
   }
 
   create(exam: ExamDTO, questions: QuestionList[]): Observable<ExamDTO> {
-    console.log(exam);
     return this.httpClient
       .post<ExamDTO>(`${this.baseUrl}/new`, { exam, questions })
       .pipe(

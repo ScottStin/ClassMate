@@ -103,6 +103,53 @@
             </mat-form-field>
           </div>
 
+          <!----- Exam Total Points: ----->
+          <div>
+            <mat-form-field
+              class="form-field"
+              appearance="outline"
+              class="col"
+              style="width: 47.5%"
+            >
+              <mat-label>Total Points (min)</mat-label>
+              <input
+                matInput
+                id="totalPointsMin"
+                formControlName="totalPointsMin"
+                type="number"
+                placeholder="The smallest number of points a student can be awarded (e.g. 10 for PTE, 0 for IELTS, 80 for Cambridge etc.) Default is 0"
+              />
+              <mat-error>
+                <app-error-message
+                  [control]="examDetailsStepForm.controls['totalPointsMin'].errors"
+                ></app-error-message>
+              </mat-error>
+            </mat-form-field>
+
+            <span style="width: 10%">&nbsp; - &nbsp;</span>
+
+            <mat-form-field
+              class="form-field"
+              appearance="outline"
+              class="col"
+              style="width: 47.5%"
+            >
+              <mat-label>Total Points (max)</mat-label>
+              <input
+                matInput
+                id="totalPointsMax"
+                formControlName="totalPointsMax"
+                type="number"
+                placeholder="The total amount of points this exam will be marked out of (e.g. 90 for PTE, 9 for IELTS, 230 for Cambridge etc.) Default is 100."
+              />
+              <mat-error>
+                <app-error-message
+                  [control]="examDetailsStepForm.controls['totalPointsMax'].errors"
+                ></app-error-message>
+              </mat-error>
+            </mat-form-field>
+          </div>
+
           <!----- Exam Teacher: ----->
           <div class="row">
             <mat-form-field appearance="outline" class="form-field" class="col">
@@ -434,6 +481,59 @@
                   ></app-error-message>
                 </mat-error>
               </mat-form-field>
+
+              <!----- Question/Section Total Points: ----->
+              <div
+                *ngIf="currentQuestionDisplay?.type?.toLowerCase() !== 'information-page'"
+              >
+                <mat-form-field
+                  class="form-field"
+                  appearance="outline"
+                  class="col"
+                  style="width: 47.5%"
+                >
+                  <mat-label>Total Points (min)</mat-label>
+                  <input
+                    matInput
+                    id="totalPointsMin"
+                    formControlName="totalPointsMin"
+                    #totalPointsMin
+                    type="number"
+                    (keyup)="formChange(totalPointsMin.value, 'totalPointsMin')"
+                    placeholder="The smallest number of points a student can be awarded for this question/section. The default is 0"
+                  />
+                  <mat-error>
+                    <app-error-message
+                      [control]="questionStepForm.controls['totalPointsMin'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+
+                <span style="width: 10%">&nbsp; - &nbsp;</span>
+
+                <mat-form-field
+                  class="form-field"
+                  appearance="outline"
+                  class="col"
+                  style="width: 47.5%"
+                >
+                  <mat-label>Total Points (max)</mat-label>
+                  <input
+                    matInput
+                    id="totalPointsMax"
+                    formControlName="totalPointsMax"
+                    #totalPointsMax
+                    type="number"
+                    (keyup)="formChange(totalPointsMax.value, 'totalPointsMax')"
+                    placeholder="The total amount of points this question/section will be marked out of. The default is 5."
+                  />
+                  <mat-error>
+                    <app-error-message
+                      [control]="questionStepForm.controls['totalPointsMax'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+              </div>
 
               <!----- Question Prompt1 Url: ----->
               <div>
