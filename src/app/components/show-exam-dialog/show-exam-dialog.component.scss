@@ -1,0 +1,133 @@
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
+.subQuestionList {
+    margin-left:15px;
+    margin-top:0px;
+    padding-top:0px;
+    margin-bottom:0px;
+    padding-bottom:0px;
+  }
+
+  .current-question {
+    color: $primaryColor;
+    font-weight: bolder;
+  }
+
+
+.expanded {
+  width: 100%;
+}
+
+.border-right {
+  border-right: 2px solid #ccc;
+}
+
+
+.question-container{
+  border:1px solid black;
+  border-radius: 5px;
+  padding:30px;
+  transition: width 0.3s ease-in-out;
+}
+
+.question-list-container{
+  height:75vh;
+  overflow-y: scroll;
+  transition: width 0.3s ease-in-out;
+}
+
+.tree-button-container {
+  margin-top:10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.button { // todo - move button colors to global format
+  color: $secondaryColor;
+  background-color: $primaryColor;
+}
+
+.start-exam-button {
+  height: 80px;
+  width: 250px;
+  padding: 16px 32px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-content {
+  height: 80vh; 
+  overflow-y: auto;
+}
+
+/* .ng-star-inserted {
+
+}
+
+::ng-deep app-show-exam-dialog {
+  color: green !important;
+  height:2000px !important;
+}
+
+::ng-deep app-show-exam-dialog .ng-star-inserted {
+  color: green !important;
+}
+
+::ng-deep .mat-dialog-content {
+  height: 5000px !important;
+}
+
+::ng-deep .mat-grid-list {
+  height: 5000px !important;
+} */
+
+// --- Marking Table:
+
+.marking-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.marking-table-header-row,
+.marking-table-row {
+  display: grid;
+  grid-template-columns: 1fr repeat(5, 1fr);
+  align-items: center;
+}
+
+.marking-table-header-cell {
+  font-weight: bold;
+  text-align: center;
+  padding: 8px;
+  border: 1px solid #ddd;
+  background-color: #f4f4f4;
+}
+
+.marking-table-cell {
+  text-align: center;
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+mat-radio-button {
+  display: inline-flex;
+  margin: 0 auto;
+}
+
+.marking-table-radio-group {
+  display: contents; /* Allows radio buttons to align within the grid cells */
+}

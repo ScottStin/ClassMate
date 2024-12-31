@@ -1,87 +1,31 @@
-<mat-card style="padding: 25px">
+<mat-card class="question-card mat-elevation-z4">
+  <!-- Header Promots: -->
   <mat-card-header>
-    <mat-card-title><b>{{question?.name}}</b></mat-card-title>
-    <mat-card-subtitle>dsfsdf{{question?.writtenPrompt}}</mat-card-subtitle>
+    <mat-card-title>
+      <b>{{question?.name}}</b>
+      <!-- <mat-divider></mat-divider> -->
+    </mat-card-title>
+    <mat-card-subtitle>{{question?.writtenPrompt}}</mat-card-subtitle>
   </mat-card-header>
+
+  <!-- Media Promots: -->
   <img
     mat-card-image
     src="https://material.angular.io/assets/img/examples/shiba2.jpg"
     alt="image prompt"
-    style="width: '20vw'"
+    class="url-prompt-1"
   />
-  <mat-card-content style="padding-top: 50px; width: 100vw">
+
+  <!-- Question Components: -->
+  <mat-card-content
+    style="padding-top: 50px; width: 100%; max-height: 70vh; overflow-y: auto"
+  >
     <app-written-response-question
       *ngIf="question?.type==='written-response'"
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
       [currentUser]="student ? student : currentUser?.email"
-      (response)="updateResponse($event)"
+      (response)="onResponseChange($event)"
     ></app-written-response-question>
   </mat-card-content>
-  <div *ngIf="question?.teacherFeedback && markMode" [formGroup]="feedbackForm">
-    <hr />
-    <mat-form-field
-      class="form-field"
-      appearance="outline"
-      style="width: 500px"
-    >
-      <mat-label [style]="markMode ? 'color:black' : ''">Feedback</mat-label>
-      <textarea
-        matInput
-        id="teacherFeedback"
-        #teacherFeedback
-        formControlName="teacherFeedback"
-        type="text"
-        placeholder="Give the student some helpful feedback..."
-        [required]="markMode && currentUser?.userType?.toLowerCase() ==='teacher'"
-        style="width: 500px; font-size: 16px"
-        rows="5"
-        [style]="markMode ? 'color:black' : ''"
-      ></textarea>
-      <mat-error>
-        <app-error-message
-          [control]="feedbackForm.controls['teacherFeedback'].errors"
-        ></app-error-message>
-      </mat-error>
-    </mat-form-field>
-    <mat-card-actions align="end" style="display: flex; align-items: center">
-      <mat-form-field
-        class="form-field"
-        appearance="outline"
-        style="margin-right: 15px"
-      >
-        <mat-label *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
-          >Mark this question</mat-label
-        >
-        <mat-label
-          *ngIf="currentUser?.userType?.toLowerCase() ==='student'"
-          [style]="markMode ? 'color:black' : ''"
-          >Your score:</mat-label
-        >
-        <input
-          matInput
-          id="mark"
-          #mark
-          formControlName="mark"
-          type="text"
-          placeholder="Question score"
-          [style]="markMode ? 'color:black' : ''"
-        />
-        <mat-error>
-          <app-error-message
-            [control]="feedbackForm.controls['mark'].errors"
-          ></app-error-message>
-        </mat-error>
-      </mat-form-field>
-      <button
-        mat-raised-button
-        class="submit-feedback-button"
-        [disabled]="this.feedbackForm.invalid"
-        (click)="saveFeedback(teacherFeedback.value, mark.value)"
-        *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
-      >
-        Save feedback
-      </button>
-    </mat-card-actions>
-  </div>
 </mat-card>

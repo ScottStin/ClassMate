@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
+import { QuestionService } from 'src/app/services/question-service/question.service';
 
 import { QuestionList } from '../../create-exam-dialog/create-exam-dialog.component';
 
@@ -24,6 +25,7 @@ export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   @Output() response = new EventEmitter<string>();
   wordCount: number;
   loading = true;
+  test: any;
 
   questionForm: FormGroup<{
     writtenResponse: FormControl<string>;
@@ -32,10 +34,12 @@ export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if ('question' in changes) {
       this.populateQuestionForm();
+
+      console.log(this.question);
     }
   }
 
-  // constructor() {}
+  constructor(private readonly questionService: QuestionService) {}
 
   formPopulated = new Subject<boolean>();
 
@@ -69,5 +73,14 @@ export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   wordCounter(text: string): void {
     this.response.emit(text);
     this.wordCount = text.split(/\s+/u).length;
+  }
+
+  testClick(text: string): void {
+    this.questionService
+      .testAiFeedback(text, 10)
+      .subscribe((test: { feedback: string; score: any }) => {
+        console.log(test);
+        this.test = test;
+      });
   }
 }

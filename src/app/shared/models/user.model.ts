@@ -29,6 +29,7 @@ export interface ProfilePictureDTO {
 export interface LevelDTO {
   longName: string | null;
   shortName: string | null;
+  number?: number | null;
 }
 
 export type UserLoginDTO = Pick<UserDTO, 'email' | 'unhashedPassword'>;

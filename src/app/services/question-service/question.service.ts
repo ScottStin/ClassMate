@@ -84,6 +84,25 @@ export class QuestionService {
       );
   }
 
+  testAiFeedback(
+    text: string,
+    score: number
+  ): Observable<{ feedback: string; score: any }> {
+    return this.httpClient
+      .post<{ feedback: string; score: any }>(
+        `${this.baseUrl}/generate-ai-feedback/`,
+        {
+          text,
+          score,
+        }
+      )
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to generate AI Feedback');
+        })
+      );
+  }
+
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {
       throw this.errorService.handleHttpError(error);

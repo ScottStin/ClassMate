@@ -366,7 +366,7 @@ export class CreateExamDialogComponent implements OnInit {
   /*
    * Find the current quesiton being displayed in the questionList:
    */
-
+  // todo - move to seperate reusable service or helper.
   findCurrentQuestionFromList(): QuestionList | undefined {
     let foundQuestion;
 
@@ -709,14 +709,24 @@ export interface QuestionList {
   id?: number | string;
   parent?: number | null;
   [key: string]: unknown;
-  studentResponse?: {
-    student?: string | null;
-    response?: string | null;
-    mark?: number | string | null;
-    feedback?: { text: string; teacher: string } | null;
-  }[];
+  studentResponse?: StudentQuestionReponse[];
 }
 [];
+
+export interface StudentQuestionReponse {
+  student?: string | null;
+  response?: string | null;
+  mark?: {
+    vocabMark?: number | string | null;
+    grammarMark?: number | string | null;
+    contentMark?: number | string | null;
+    fluencyMark?: number | string | null;
+    pronounciationMark?: number | string | null;
+    accuracyMark?: number | string | null;
+    totalMark?: number | string | null;
+  } | null;
+  feedback?: { text: string; teacher: string } | null;
+}
 
 export type ExamDetailStepForm = FormGroup<{
   name: FormControl<string>;

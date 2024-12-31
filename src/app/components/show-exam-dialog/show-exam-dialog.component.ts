@@ -1,23 +1,33 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
 import { QuestionService } from 'src/app/services/question-service/question.service';
 // import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { demoLevels } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
-import { UserDTO } from 'src/app/shared/models/user.model';
+import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
 
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component';
+import {
+  QuestionList,
+  StudentQuestionReponse,
+} from '../create-exam-dialog/create-exam-dialog.component';
 
 @Component({
   selector: 'app-show-exam-dialog',
   templateUrl: './show-exam-dialog.component.html',
-  styleUrls: ['./show-exam-dialog.component.css'],
+  styleUrls: ['./show-exam-dialog.component.scss'],
 })
 export class ShowExamDialogComponent implements OnInit {
   error: Error;
@@ -26,6 +36,12 @@ export class ShowExamDialogComponent implements OnInit {
   currentQuestionIndex = 0;
   currentSubQuestionIndex = 0;
   examStarted = false;
+  markingCategories = [
+    { displayName: 'Vocabulary and Spelling', value: 'vocabMark' },
+    { displayName: 'Grammar and Punctuation', value: 'grammarMark' },
+    { displayName: 'Content', value: 'contentMark' },
+  ];
+  demoLevels = demoLevels;
 
   // examScoreForm: FormGroup = new FormGroup({
   //   examScore: new FormControl<string>('', [Validators.required]),
@@ -36,6 +52,14 @@ export class ShowExamDialogComponent implements OnInit {
     examScore: ['', Validators.required],
     totalExamScore: ['', Validators.required],
   });
+
+  feedbackForm: FormGroup<{
+    teacherFeedback: FormControl<string>;
+    vocabMark: FormControl<string | number>;
+    grammarMark: FormControl<string | number>;
+    contentMark: FormControl<string | number>;
+  }>;
+  feedbackFormPopulated = new Subject<boolean>();
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -67,6 +91,8 @@ export class ShowExamDialogComponent implements OnInit {
       examScore: score ?? '',
       totalExamScore: '',
     });
+
+    this.populateFeedbackForm();
   }
 
   startExam(): void {
@@ -74,6 +100,9 @@ export class ShowExamDialogComponent implements OnInit {
     this.currentQuestionDisplay = this.questionList[this.currentQuestionIndex];
   }
 
+  /*
+   * Navigate, start and end questions/sections:
+   */
   selectQuestion(question: QuestionList): void {
     this.currentQuestionDisplay = question;
     let index = NaN;
@@ -96,6 +125,11 @@ export class ShowExamDialogComponent implements OnInit {
       );
       this.currentQuestionIndex = index;
     }
+
+    // update the feedback form:
+    if (this.data.markMode) {
+      this.updateForm();
+    }
   }
 
   nextQuestion(): void {
@@ -115,6 +149,11 @@ export class ShowExamDialogComponent implements OnInit {
           parent.subQuestions[this.currentSubQuestionIndex];
       }
     }
+
+    // update the feedback form:
+    if (this.data.markMode) {
+      this.updateForm();
+    }
   }
 
   previousQuestion(): void {
@@ -133,6 +172,11 @@ export class ShowExamDialogComponent implements OnInit {
           parent.subQuestions[this.currentSubQuestionIndex];
       }
     }
+
+    // update the feedback form:
+    if (this.data.markMode) {
+      this.updateForm();
+    }
   }
 
   startSection(): void {
@@ -148,6 +192,9 @@ export class ShowExamDialogComponent implements OnInit {
     this.currentQuestionDisplay = this.questionList[this.currentQuestionIndex];
   }
 
+  /*
+   * Get the index of the current sub question being displayed:
+   */
   subQuestionIndex(): string {
     const parent = this.questionList.find(
       (obj) => obj['_id'] === this.currentQuestionDisplay?.parent
@@ -167,6 +214,9 @@ export class ShowExamDialogComponent implements OnInit {
     return '';
   }
 
+  /*
+   * Get the index of the current question being displayed:
+   */
   questionIndex(): string {
     const index = this.questionList.findIndex(
       (obj) => obj === this.currentQuestionDisplay
@@ -178,6 +228,9 @@ export class ShowExamDialogComponent implements OnInit {
     }
   }
 
+  /*
+   * Get the index of the parent (section) of the current sub question:
+   */
   parentQuestionIndex(): string {
     const index = this.questionList.findIndex(
       (obj) => obj['_id'] === this.currentQuestionDisplay?.parent
@@ -189,6 +242,182 @@ export class ShowExamDialogComponent implements OnInit {
     }
   }
 
+  /*
+   * Populate the teacher feebcack form on init:
+   */
+  populateFeedbackForm(): void {
+    const studentResponse = this.currentQuestionDisplay?.studentResponse?.find(
+      (obj) => obj.student === this.data.student
+    );
+    this.feedbackForm = new FormGroup({
+      teacherFeedback: new FormControl(
+        {
+          value: studentResponse?.feedback?.text ?? '',
+          disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
+        },
+        { validators: [Validators.required], nonNullable: true }
+      ),
+      vocabMark: new FormControl(
+        {
+          value: studentResponse?.mark?.vocabMark ?? '',
+          disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
+        },
+        { validators: [Validators.required], nonNullable: true }
+      ),
+      grammarMark: new FormControl(
+        {
+          value: studentResponse?.mark?.grammarMark ?? '',
+          disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
+        },
+        { validators: [Validators.required], nonNullable: true }
+      ),
+      contentMark: new FormControl(
+        {
+          value: studentResponse?.mark?.contentMark ?? '',
+          disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
+        },
+        { validators: [Validators.required], nonNullable: true }
+      ),
+    });
+    this.feedbackFormPopulated.next(true);
+  }
+
+  /*
+   * Changes to the student's response are emitted from the app-question component and updated here:
+   */
+  updateStudentResponse(text: string): void {
+    if (
+      this.currentQuestionDisplay?.parent !== null &&
+      this.currentQuestionDisplay !== null
+    ) {
+      const currentQuestion = this.questionList
+        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
+        ?.subQuestions?.find(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
+        );
+      if (currentQuestion) {
+        if (!currentQuestion.studentResponse) {
+          currentQuestion.studentResponse = [];
+        }
+        const studentResponse = currentQuestion.studentResponse.find(
+          (obj) => obj.student === this.data.currentUser?.email
+        );
+        if (!studentResponse) {
+          currentQuestion.studentResponse.push({
+            response: text,
+            student: this.data.currentUser?.email,
+          });
+        } else {
+          studentResponse.response = text;
+        }
+      }
+    } else {
+      const currentQuestion = this.questionList.find(
+        (obj) => obj === this.currentQuestionDisplay
+      );
+      if (currentQuestion) {
+        if (!currentQuestion.studentResponse) {
+          currentQuestion.studentResponse = [];
+        }
+        const studentResponse = currentQuestion.studentResponse.find(
+          (obj) => obj.student === this.data.currentUser?.email
+        );
+        if (!studentResponse) {
+          currentQuestion.studentResponse.push({
+            response: text,
+            student: this.data.currentUser?.email,
+          });
+        } else {
+          studentResponse.response = text;
+        }
+      }
+    }
+  }
+
+  /*
+   * When the teacher enters text into the feedback form, save the result locally and update the current question
+   */
+  feedbackTextChange(text: string): void {
+    if (
+      this.currentQuestionDisplay?.parent !== null &&
+      this.currentQuestionDisplay !== null
+    ) {
+      const currentQuestion = this.questionList
+        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
+        ?.subQuestions?.find(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
+        );
+      if (currentQuestion) {
+        if (!currentQuestion.studentResponse) {
+          currentQuestion.studentResponse = [];
+        }
+        const studentResponse = currentQuestion.studentResponse.find(
+          (obj) => obj.student === this.data.student
+        );
+        if (!studentResponse) {
+          currentQuestion.studentResponse.push({
+            student: this.data.student,
+            feedback: {
+              text,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              teacher: this.data.currentUser!.email,
+            },
+          });
+          this.snackbarService.openPermanent('info', 'feedback and mark saved');
+        } else {
+          studentResponse.feedback = {
+            text,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            teacher: this.data.currentUser!.email,
+          };
+        }
+      }
+    } else {
+      const currentQuestion = this.questionList.find(
+        (obj) => obj === this.currentQuestionDisplay
+      );
+      if (currentQuestion) {
+        if (!currentQuestion.studentResponse) {
+          currentQuestion.studentResponse = [];
+        }
+        const studentResponse = currentQuestion.studentResponse.find(
+          (obj) => obj.student === this.data.student
+        );
+        if (!studentResponse) {
+          currentQuestion.studentResponse.push({
+            student: this.data.student,
+            feedback: {
+              text,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              teacher: this.data.currentUser!.email,
+            },
+          });
+        } else {
+          studentResponse.feedback = {
+            text,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            teacher: this.data.currentUser!.email,
+          };
+        }
+      }
+    }
+  }
+
+  /*
+   * When the teacher selects a mark for the student's question in the marking table, save the result locally and update the current question
+   */
+  onMarkSelect(levels: LevelDTO, category: string): void {
+    console.log(levels);
+    console.log(category);
+    console.log(this.currentQuestionDisplay?.totalPointsMax);
+    console.log(this.currentQuestionDisplay?.totalPointsMin);
+  }
+
+  /*
+   * When the teacher finishes their review and clicks 'submit feedback':
+   */
   submitFeedback(): void {
     const missingFeedback: string[] = [];
     for (const question of this.questionList) {
@@ -299,6 +528,9 @@ export class ShowExamDialogComponent implements OnInit {
     }
   }
 
+  /*
+   * When the student finishes their exam and clicks 'complete exam':
+   */
   completeExam(): void {
     const missingAnswers: string[] = [];
     for (const question of this.questionList) {
@@ -388,132 +620,36 @@ export class ShowExamDialogComponent implements OnInit {
     }
   }
 
-  response(text: string): void {
-    if (
-      this.currentQuestionDisplay?.parent !== null &&
-      this.currentQuestionDisplay !== null
-    ) {
-      const currentQuestion = this.questionList
-        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
-        ?.subQuestions?.find(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
-        );
-      if (currentQuestion) {
-        if (!currentQuestion.studentResponse) {
-          currentQuestion.studentResponse = [];
-        }
-        const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === this.data.currentUser?.email
-        );
-        if (!studentResponse) {
-          currentQuestion.studentResponse.push({
-            response: text,
-            student: this.data.currentUser?.email,
-          });
-        } else {
-          studentResponse.response = text;
-        }
-      }
-    } else {
-      const currentQuestion = this.questionList.find(
-        (obj) => obj === this.currentQuestionDisplay
+  /*
+   * When the current question being displayed to the user changes, update the teacher feedback form:
+   */
+  updateForm(): void {
+    const studentResponse = this.findCurrentStudentReponse(
+      this.currentQuestionDisplay ?? undefined
+    );
+
+    if (this.currentQuestionDisplay) {
+      const feedbackForm = this.feedbackForm.controls;
+
+      feedbackForm.teacherFeedback.setValue(
+        studentResponse?.feedback?.text ?? ''
       );
-      if (currentQuestion) {
-        if (!currentQuestion.studentResponse) {
-          currentQuestion.studentResponse = [];
-        }
-        const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === this.data.currentUser?.email
-        );
-        if (!studentResponse) {
-          currentQuestion.studentResponse.push({
-            response: text,
-            student: this.data.currentUser?.email,
-          });
-        } else {
-          studentResponse.response = text;
-        }
-      }
     }
   }
 
-  feedback(data: { feedback: string; mark: string; student: string }): void {
-    if (
-      this.currentQuestionDisplay?.parent !== null &&
-      this.currentQuestionDisplay !== null
-    ) {
-      const currentQuestion = this.questionList
-        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
-        ?.subQuestions?.find(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
-        );
-      if (currentQuestion) {
-        if (!currentQuestion.studentResponse) {
-          currentQuestion.studentResponse = [];
-        }
-        const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === data.student
-        );
-        if (!studentResponse) {
-          currentQuestion.studentResponse.push({
-            student: data.student,
-            feedback: {
-              text: data.feedback,
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              teacher: this.data.currentUser!.email,
-            },
-            mark: data.mark,
-          });
-          this.snackbarService.openPermanent('info', 'feedback and mark saved');
-        } else {
-          // if (this.currentUser?.user.email) {
-          studentResponse.feedback = {
-            text: data.feedback,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            teacher: this.data.currentUser!.email,
-          };
-          studentResponse.mark = data.mark;
-          this.snackbarService.openPermanent('info', 'feedback and mark saved');
-          // }
-        }
-      }
-    } else {
-      const currentQuestion = this.questionList.find(
-        (obj) => obj === this.currentQuestionDisplay
+  /*
+   * Get the current student's response to the question
+   */
+  findCurrentStudentReponse(
+    currentQuestion: QuestionList | undefined
+  ): StudentQuestionReponse | undefined {
+    let studentResponse;
+    if (currentQuestion?.studentResponse) {
+      studentResponse = currentQuestion.studentResponse.find(
+        (obj) => obj.student === this.data.student
       );
-      if (currentQuestion) {
-        if (!currentQuestion.studentResponse) {
-          currentQuestion.studentResponse = [];
-        }
-        const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === data.student
-        );
-        if (!studentResponse) {
-          currentQuestion.studentResponse.push({
-            student: data.student,
-            feedback: {
-              text: data.feedback,
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              teacher: this.data.currentUser!.email,
-            },
-            mark: data.mark,
-          });
-          this.snackbarService.openPermanent('info', 'feedback and mark saved');
-        } else {
-          // if (this.currentUser?.user.email) {
-          studentResponse.feedback = {
-            text: data.feedback,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            teacher: this.data.currentUser!.email,
-          };
-          studentResponse.mark = data.mark;
-          this.snackbarService.openPermanent('info', 'feedback and mark saved');
-          // }
-        }
-      }
     }
+    return studentResponse;
   }
 
   getStudentMark(question: QuestionList): string | number | null | undefined {
@@ -521,7 +657,7 @@ export class ShowExamDialogComponent implements OnInit {
       const studentResponse = question.studentResponse?.find(
         (obj) => obj.student === this.data.student
       );
-      return studentResponse?.mark;
+      return studentResponse?.mark?.totalMark;
     } else {
       const subQuestion = this.questionList.find(
         (obj) => obj['_id'] === question['_id']
@@ -529,7 +665,7 @@ export class ShowExamDialogComponent implements OnInit {
       const studentResponse = subQuestion?.studentResponse?.find(
         (obj) => obj.student === this.data.student
       );
-      return studentResponse?.mark;
+      return studentResponse?.mark?.totalMark;
     }
   }
 
