@@ -138,6 +138,7 @@ export class EditUserDialogComponent implements OnInit {
     };
   }
 
+  // todo - move to service or helper
   wordCountValidator(minWords: number, maxWords: number): ValidatorFn {
     return (control: AbstractControl): Record<string, unknown> | null => {
       if (this.data.currentUser?.userType.toLowerCase() === 'teacher') {

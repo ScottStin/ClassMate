@@ -129,5 +129,18 @@ mat-radio-button {
 }
 
 .marking-table-radio-group {
-  display: contents; /* Allows radio buttons to align within the grid cells */
+  display: contents;
+}
+
+// todo - move radio color styling to global styling
+::ng-deep .mat-radio-checked .mat-radio-inner-circle {
+  background-color: $primaryColor !important;
+}
+
+::ng-deep .mat-radio-checked .mat-radio-outer-circle {
+  border-color: $primaryColor !important;
+}
+
+::ng-deep .mat-radio-ripple .mat-ripple-element {
+  background-color: $primaryColor !important;
 }

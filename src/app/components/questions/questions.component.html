@@ -25,7 +25,7 @@
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
       [currentUser]="student ? student : currentUser?.email"
-      (response)="onResponseChange($event)"
+      (responseChange)="onResponseChange($event)"
     ></app-written-response-question>
   </mat-card-content>
 </mat-card>
