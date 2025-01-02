@@ -41,11 +41,10 @@
           <div class="tree-container">
             <mat-list role="list" *ngFor="let question of questionList">
               <!----- Question List: ----->
-              <mat-list-item role="listitem">
+              <mat-list-item role="listitem" (click)="selectQuestion(question)">
                 <div style="display: flex; align-items: center">
                   <span
                     [class]="question === currentQuestionDisplay ? 'current-question' : ''"
-                    (click)="selectQuestion(question)"
                     style="cursor: pointer"
                     >{{question.name}}</span
                   >
@@ -63,10 +62,9 @@
                   class="subQuestionList"
                   *ngFor="let subQuestion of question.subQuestions"
                   [class]="subQuestion === currentQuestionDisplay ? 'current-question' : ''"
+                  (click)="selectQuestion(subQuestion)"
                 >
-                  <span
-                    (click)="selectQuestion(subQuestion)"
-                    style="cursor: pointer"
+                  <span style="cursor: pointer"
                     >&#x2022; {{subQuestion.name}}</span
                   >
                   <span

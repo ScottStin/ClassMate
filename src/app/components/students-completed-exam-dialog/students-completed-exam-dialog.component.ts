@@ -15,7 +15,14 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
   exam: ExamDTO;
   usersLoading: boolean;
   users$: Observable<UserDTO[]>;
+
   studentNames: {
+    name: string | undefined;
+    email: string | undefined;
+    marked?: string | number | null;
+  }[] = [];
+
+  studentNamesAwaitingMark: {
     name: string | undefined;
     email: string | undefined;
     marked?: string | number | null;
@@ -46,6 +53,11 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
             email: res.find((obj) => obj.email === student.email)?.email,
             marked,
           });
+
+          this.studentNamesAwaitingMark = this.studentNames.filter(
+            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+            (studentName) => !studentName.marked
+          );
         }
         this.usersLoading = false;
       },
