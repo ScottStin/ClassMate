@@ -124,7 +124,7 @@
     class="marking-table"
     role="region"
     tabindex="0"
-    *ngIf="currentQuestionDisplay?.teacherFeedback && data.markMode"
+    *ngIf="data.markMode"
     [formGroup]="feedbackForm"
   >
     <div class="marking-table-header-row">
@@ -176,46 +176,6 @@
         ></app-error-message>
       </mat-error>
     </mat-form-field>
-
-    <!-- <mat-card-actions align="end" style="display: flex; align-items: center">
-      <mat-form-field
-        class="form-field"
-        appearance="outline"
-        style="margin-right: 15px"
-      >
-        <mat-label *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
-          >Mark this question</mat-label
-        >
-        <mat-label
-          *ngIf="currentUser?.userType?.toLowerCase() ==='student'"
-          [style]="markMode ? 'color:black' : ''"
-          >Your score:</mat-label
-        >
-        <input
-          matInput
-          id="mark"
-          #mark
-          formControlName="mark"
-          type="text"
-          placeholder="Question score"
-          [style]="markMode ? 'color:black' : ''"
-        />
-        <mat-error>
-          <app-error-message
-            [control]="feedbackForm.controls['mark'].errors"
-          ></app-error-message>
-        </mat-error>
-      </mat-form-field>
-      <button
-        mat-raised-button
-        class="submit-feedback-button"
-        [disabled]="this.feedbackForm.invalid"
-        (click)="saveFeedback(teacherFeedback.value, mark.value)"
-        *ngIf="currentUser?.userType?.toLowerCase() ==='teacher'"
-      >
-        Save feedback
-      </button>
-    </mat-card-actions> -->
   </div>
 
   <!----- ---------------------- ----->
@@ -262,7 +222,8 @@
       Submit exam <mat-icon>done</mat-icon>
     </button>
     <button
-      mat-button
+      mat-raised-button
+      class="button"
       cdkFocusInitial
       (click)="submitFeedback()"
       *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"

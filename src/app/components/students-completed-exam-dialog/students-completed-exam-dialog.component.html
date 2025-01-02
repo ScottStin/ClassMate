@@ -53,14 +53,17 @@
                 <div>{{ student.name }}</div>
                 <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
                 <div *ngIf="student.marked">
-                  Exam Mark: {{ student.marked }}
+                  Exam Mark: &nbsp;
+                  <span style="white-space: nowrap"
+                    >&nbsp; {{ student.marked }} / {{exam.totalPointsMax}}</span
+                  >
                 </div>
               </div>
               <div
                 style="cursor: pointer"
                 (click)="markExam(student)"
                 #tooltip="matTooltip"
-                [matTooltip]="'Mark exam of ' + student.name"
+                [matTooltip]="student.marked ? 'Edit mark/feedback for ' + student.name : 'Mark exam of ' + student.name"
               >
                 <b *ngIf="student.marked"
                   >edit feedback

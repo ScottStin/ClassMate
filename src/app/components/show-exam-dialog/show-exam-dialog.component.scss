@@ -44,6 +44,10 @@ $secondaryColor: var(--secondaryColor);
   transition: all 100ms ease-in-out !important;
 }
 
+.mat-list-item{
+  margin-bottom:15px;
+}
+
 .subQuestionList {
   margin-left:15px;
   margin-top:0px;

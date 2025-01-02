@@ -44,21 +44,11 @@ export class ShowExamDialogComponent implements OnInit {
   ];
   demoLevels = demoLevels;
 
-  // examScoreForm: FormGroup = new FormGroup({
-  //   examScore: new FormControl<string>('', [Validators.required]),
-  //   totalExamScore: new FormControl<string>('', [Validators.required])
-  // });
-
-  examScoreForm: FormGroup = this.formBuilder.group({
-    examScore: ['', Validators.required],
-    totalExamScore: ['', Validators.required],
-  });
-
   feedbackForm: FormGroup<{
     teacherFeedback: FormControl<string>;
-    vocabMark: FormControl<string | number>;
-    grammarMark: FormControl<string | number>;
-    contentMark: FormControl<string | number>;
+    vocabMark: FormControl<number>;
+    grammarMark: FormControl<number>;
+    contentMark: FormControl<number>;
   }>;
   feedbackFormPopulated = new Subject<boolean>();
 
@@ -85,13 +75,6 @@ export class ShowExamDialogComponent implements OnInit {
     if (this.data.displayMode || this.data.markMode) {
       this.startExam();
     }
-    const score = this.data.exam?.studentsCompleted.find(
-      (obj) => obj.email === this.data.student
-    )?.mark;
-    this.examScoreForm.patchValue({
-      examScore: score ?? '',
-      totalExamScore: '',
-    });
 
     this.populateFeedbackForm();
   }
@@ -260,21 +243,21 @@ export class ShowExamDialogComponent implements OnInit {
       ),
       vocabMark: new FormControl(
         {
-          value: studentResponse?.mark?.vocabMark ?? '',
+          value: Number(studentResponse?.mark?.vocabMark ?? ''),
           disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
       ),
       grammarMark: new FormControl(
         {
-          value: studentResponse?.mark?.grammarMark ?? '',
+          value: Number(studentResponse?.mark?.grammarMark ?? ''),
           disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
       ),
       contentMark: new FormControl(
         {
-          value: studentResponse?.mark?.contentMark ?? '',
+          value: Number(studentResponse?.mark?.contentMark ?? ''),
           disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
@@ -373,6 +356,15 @@ export class ShowExamDialogComponent implements OnInit {
       this.currentQuestionDisplay?.totalPointsMin ?? 0,
       this.currentQuestionDisplay?.totalPointsMax ?? 5
     );
+
+    // update the original value of the student's mark in data.exam:
+    const totalScaledMark = this.getScaledTotalExamScore();
+    const studentScore = this.data.exam?.studentsCompleted.find(
+      (studentCompleted) => studentCompleted.email === this.data.student
+    );
+    if (studentScore) {
+      studentScore.mark = totalScaledMark;
+    }
   }
 
   /*
@@ -431,41 +423,31 @@ export class ShowExamDialogComponent implements OnInit {
         }
       }
     }
-    if (
-      missingFeedback.length > 0 ||
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
-      !this.examScoreForm.getRawValue().examScore
-    ) {
-      let title = 'Wait! You have not answered all the questions.';
-      let message = `You have not given feedback/marks for the following question(s): <br> <br> 
+    if (missingFeedback.length > 0) {
+      const message = `You have not given feedback/marks for the following question(s): <br> <br> 
       <b>${missingFeedback.join(
         ',<br>'
       )}. </b> <br> <br> Are you sure you want to submit the exam? The student will receive a score of zero for the question you have not marked.`;
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
-      if (!this.examScoreForm.getRawValue().examScore) {
-        title = 'Wait! You have not given a score.';
-        message = 'You must give a score for this exam before proceeding.';
-      }
+
       const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
         data: {
-          title,
+          title: 'Wait! You have not answered all the questions.',
           message,
-          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
-          okLabel: this.examScoreForm.getRawValue().examScore ? `Submit` : null,
+          okLabel: 'Submit',
           cancelLabel: `Return`,
           routerLink: '',
         },
       });
       confirmDialogRef.afterClosed().subscribe((result) => {
         // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
-        if (result === true && this.examScoreForm.getRawValue().examScore) {
+        if (result === true) {
           this.questionService
             .submitTeacherFeedback(
               this.questionList,
               this.data.currentUser?.email,
               this.data.exam?._id,
               this.data.student,
-              this.examScoreForm.get('examScore')?.value as string
+              this.getScaledTotalExamScore().toString()
             )
             .subscribe({
               next: () => {
@@ -489,7 +471,7 @@ export class ShowExamDialogComponent implements OnInit {
           this.data.currentUser?.email,
           this.data.exam?._id,
           this.data.student,
-          this.examScoreForm.get('examScore')?.value as string
+          this.getScaledTotalExamScore().toString()
         )
         .subscribe({
           next: () => {
@@ -610,12 +592,14 @@ export class ShowExamDialogComponent implements OnInit {
       feedbackForm.teacherFeedback.setValue(
         studentResponse?.feedback?.text ?? ''
       );
-      feedbackForm.vocabMark.setValue(studentResponse?.mark?.vocabMark ?? '');
+      feedbackForm.vocabMark.setValue(
+        Number(studentResponse?.mark?.vocabMark ?? '')
+      );
       feedbackForm.grammarMark.setValue(
-        studentResponse?.mark?.grammarMark ?? ''
+        Number(studentResponse?.mark?.grammarMark ?? '')
       );
       feedbackForm.contentMark.setValue(
-        studentResponse?.mark?.contentMark ?? ''
+        Number(studentResponse?.mark?.contentMark ?? '')
       );
     }
   }
