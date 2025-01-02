@@ -1,56 +1,7 @@
 $primaryColor: var(--primaryColor);
 $secondaryColor: var(--secondaryColor);
 
-.subQuestionList {
-    margin-left:15px;
-    margin-top:0px;
-    padding-top:0px;
-    margin-bottom:0px;
-    padding-bottom:0px;
-  }
-
-  .current-question {
-    color: $primaryColor;
-    font-weight: bolder;
-  }
-
-
-.expanded {
-  width: 100%;
-}
-
-.border-right {
-  border-right: 2px solid #ccc;
-}
-
-
-.question-container{
-  border:1px solid black;
-  border-radius: 5px;
-  padding:30px;
-  transition: width 0.3s ease-in-out;
-}
-
-.question-list-container{
-  height:75vh;
-  overflow-y: scroll;
-  transition: width 0.3s ease-in-out;
-}
-
-.tree-button-container {
-  margin-top:10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-mat-dialog-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
+// --- general:
 
 .button { // todo - move button colors to global format
   color: $secondaryColor;
@@ -67,31 +18,72 @@ mat-dialog-content {
   justify-content: center;
 }
 
+// --- Side question list:
+
+.question-list-container{
+  height:75vh;
+  overflow-y: scroll;
+  transition: width 0.3s ease-in-out;
+}
+
+.tree-button-container {
+  margin-top:10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.mat-list-item:hover {
+  background: whitesmoke;
+  cursor: pointer;
+  transform: scale(1.02);
+  transition: all 100ms ease-in-out;
+  overflow: hidden;
+  transition: all 100ms ease-in-out !important;
+}
+
+.subQuestionList {
+  margin-left:15px;
+  margin-top:0px;
+  padding-top:0px;
+  margin-bottom:0px;
+  padding-bottom:0px;
+}
+
+.current-question {
+  color: $primaryColor;
+  font-weight: bolder;
+}
+
+.expanded {
+width: 100%;
+}
+
+.border-right {
+border-right: 2px solid #ccc;
+}
+
+// --- Display question:
+
+.question-container{
+  border:1px solid black;
+  border-radius: 5px;
+  padding:30px;
+  transition: width 0.3s ease-in-out;
+}
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .dialog-content {
   height: 80vh; 
   overflow-y: auto;
 }
-
-/* .ng-star-inserted {
-
-}
-
-::ng-deep app-show-exam-dialog {
-  color: green !important;
-  height:2000px !important;
-}
-
-::ng-deep app-show-exam-dialog .ng-star-inserted {
-  color: green !important;
-}
-
-::ng-deep .mat-dialog-content {
-  height: 5000px !important;
-}
-
-::ng-deep .mat-grid-list {
-  height: 5000px !important;
-} */
 
 // --- Marking Table:
 

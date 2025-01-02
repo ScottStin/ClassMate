@@ -49,8 +49,12 @@
                     style="cursor: pointer"
                     >{{question.name}}</span
                   >
-                  <span *ngIf="getStudentMark(question)" style="opacity: 0.6">
-                    &nbsp; - {{getStudentMark(question)}}</span
+                  <span
+                    *ngIf="getStudentMark(question) !== null && getStudentMark(question) !== undefined"
+                    style="opacity: 0.6; white-space: nowrap"
+                  >
+                    &nbsp; {{getStudentMark(question)}} /
+                    {{question?.totalPointsMax}}</span
                   >
                 </div>
               </mat-list-item>
@@ -66,42 +70,29 @@
                     >&#x2022; {{subQuestion.name}}</span
                   >
                   <span
-                    *ngIf="getStudentMark(subQuestion)"
-                    style="opacity: 0.6"
+                    *ngIf="getStudentMark(question) !== null && getStudentMark(question) !== undefined"
+                    style="opacity: 0.6; white-space: nowrap"
                   >
-                    &nbsp; - {{getStudentMark(subQuestion)}}</span
+                    &nbsp; {{getStudentMark(subQuestion)}} /
+                    {{question?.totalPointsMax}}</span
                   >
                 </mat-list-item>
               </div>
             </mat-list>
 
-            <!----- Scoring: ----->
+            <!----- Total Scoring: ----->
             <mat-divider></mat-divider>
             <div
-              style="margin-top: 10px"
-              *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+              style="margin-top: 20px"
+              *ngIf="!data.displayMode && data.markMode"
             >
-              <span><b>Total Score:</b></span>
-              <form [formGroup]="examScoreForm">
-                <mat-form-field appearance="fill">
-                  <mat-label>Score</mat-label>
-                  <input
-                    matInput
-                    formControlName="examScore"
-                    #examScore
-                    id="examScore"
-                  />
-                </mat-form-field>
-                <mat-form-field class="example-full-width" appearance="fill">
-                  <mat-label>Out of</mat-label>
-                  <input
-                    matInput
-                    formControlName="totalExamScore"
-                    #totalExamScore
-                    id="totalExamScore"
-                  />
-                </mat-form-field>
-              </form>
+              <span (click)="getScaledTotalExamScore()"
+                ><b>Total Score: &nbsp;</b></span
+              >
+              <span style="white-space: nowrap"
+                >&nbsp; {{getScaledTotalExamScore()}} /
+                {{data.exam?.totalPointsMax}}</span
+              >
             </div>
           </div>
         </div>
@@ -134,6 +125,7 @@
     role="region"
     tabindex="0"
     *ngIf="currentQuestionDisplay?.teacherFeedback && data.markMode"
+    [formGroup]="feedbackForm"
   >
     <div class="marking-table-header-row">
       <div class="marking-table-header-cell">Category</div>
@@ -147,9 +139,10 @@
         class="marking-table-radio-group"
         aria-label="Select a result"
         (change)="onMarkSelect($event.value, category.value)"
+        [formControlName]="category.value"
       >
         <div class="marking-table-cell" *ngFor="let level of demoLevels">
-          <mat-radio-button [value]="level"></mat-radio-button>
+          <mat-radio-button [value]="level.number"></mat-radio-button>
         </div>
       </mat-radio-group>
     </div>
@@ -183,6 +176,7 @@
         ></app-error-message>
       </mat-error>
     </mat-form-field>
+
     <!-- <mat-card-actions align="end" style="display: flex; align-items: center">
       <mat-form-field
         class="form-field"

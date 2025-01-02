@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, Inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -286,6 +287,7 @@ export class ShowExamDialogComponent implements OnInit {
    * Changes to the student's response are emitted from the app-question component and updated here:
    */
   updateStudentResponse(text: string): void {
+    // todo = simplfy function by using findCurrentStudentReponse;
     if (
       this.currentQuestionDisplay?.parent !== null &&
       this.currentQuestionDisplay !== null
@@ -339,80 +341,57 @@ export class ShowExamDialogComponent implements OnInit {
    * When the teacher enters text into the feedback form, save the result locally and update the current question
    */
   feedbackTextChange(text: string): void {
-    if (
-      this.currentQuestionDisplay?.parent !== null &&
-      this.currentQuestionDisplay !== null
-    ) {
-      const currentQuestion = this.questionList
-        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
-        ?.subQuestions?.find(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
-        );
-      if (currentQuestion) {
-        if (!currentQuestion.studentResponse) {
-          currentQuestion.studentResponse = [];
-        }
-        const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === this.data.student
-        );
-        if (!studentResponse) {
-          currentQuestion.studentResponse.push({
-            student: this.data.student,
-            feedback: {
-              text,
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              teacher: this.data.currentUser!.email,
-            },
-          });
-          this.snackbarService.openPermanent('info', 'feedback and mark saved');
-        } else {
-          studentResponse.feedback = {
-            text,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            teacher: this.data.currentUser!.email,
-          };
-        }
-      }
-    } else {
-      const currentQuestion = this.questionList.find(
-        (obj) => obj === this.currentQuestionDisplay
-      );
-      if (currentQuestion) {
-        if (!currentQuestion.studentResponse) {
-          currentQuestion.studentResponse = [];
-        }
-        const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === this.data.student
-        );
-        if (!studentResponse) {
-          currentQuestion.studentResponse.push({
-            student: this.data.student,
-            feedback: {
-              text,
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              teacher: this.data.currentUser!.email,
-            },
-          });
-        } else {
-          studentResponse.feedback = {
-            text,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            teacher: this.data.currentUser!.email,
-          };
-        }
-      }
-    }
+    const studentResponse = this.findCurrentStudentReponse() ?? {};
+    studentResponse.feedback = {
+      text,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      teacher: this.data.currentUser!.email,
+    };
   }
 
   /*
    * When the teacher selects a mark for the student's question in the marking table, save the result locally and update the current question
    */
-  onMarkSelect(levels: LevelDTO, category: string): void {
-    console.log(levels);
-    console.log(category);
-    console.log(this.currentQuestionDisplay?.totalPointsMax);
-    console.log(this.currentQuestionDisplay?.totalPointsMin);
+  onMarkSelect(level: LevelDTO, category: string): void {
+    const studentResponse = this.findCurrentStudentReponse() ?? {};
+    studentResponse.mark = studentResponse.mark ?? {};
+    studentResponse.mark[category] = level;
+
+    const marksArray = [
+      studentResponse.mark.vocabMark ?? 0,
+      studentResponse.mark.grammarMark ?? 0,
+      studentResponse.mark.contentMark ?? 0,
+    ].map(Number);
+
+    const totalUnscaledMark =
+      marksArray.reduce((sum, num) => sum + num, 0) / marksArray.length;
+
+    studentResponse.mark.totalMark = this.convertScore(
+      totalUnscaledMark,
+      0,
+      4,
+      this.currentQuestionDisplay?.totalPointsMin ?? 0,
+      this.currentQuestionDisplay?.totalPointsMax ?? 5
+    );
+  }
+
+  /*
+   * Feedback in the feedback table is based on a level score (e.g. 0 = a1, 1 = a2, 2 = b1, 3 = b2, 4 = c1)
+   * This needs to be converted to the scale for the current question (totalPointsMin and totalPointsMax)
+   */
+  convertScore(
+    unscaledScore: number,
+    originalMin: number,
+    originalMax: number,
+    scaledMin: number,
+    scaledMax: number
+  ): number {
+    const scaledMark =
+      ((unscaledScore - originalMin) / (originalMax - originalMin)) *
+        (scaledMax - scaledMin) +
+      scaledMin;
+
+    return Math.round(scaledMark * 10) / 10;
   }
 
   /*
@@ -624,34 +603,39 @@ export class ShowExamDialogComponent implements OnInit {
    * When the current question being displayed to the user changes, update the teacher feedback form:
    */
   updateForm(): void {
-    const studentResponse = this.findCurrentStudentReponse(
-      this.currentQuestionDisplay ?? undefined
-    );
-
+    const studentResponse = this.findCurrentStudentReponse();
     if (this.currentQuestionDisplay) {
       const feedbackForm = this.feedbackForm.controls;
 
       feedbackForm.teacherFeedback.setValue(
         studentResponse?.feedback?.text ?? ''
       );
+      feedbackForm.vocabMark.setValue(studentResponse?.mark?.vocabMark ?? '');
+      feedbackForm.grammarMark.setValue(
+        studentResponse?.mark?.grammarMark ?? ''
+      );
+      feedbackForm.contentMark.setValue(
+        studentResponse?.mark?.contentMark ?? ''
+      );
     }
   }
 
   /*
-   * Get the current student's response to the question
+   * Get the student's response to the question
    */
-  findCurrentStudentReponse(
-    currentQuestion: QuestionList | undefined
-  ): StudentQuestionReponse | undefined {
+  findCurrentStudentReponse(): StudentQuestionReponse | undefined {
     let studentResponse;
-    if (currentQuestion?.studentResponse) {
-      studentResponse = currentQuestion.studentResponse.find(
+    if (this.currentQuestionDisplay?.studentResponse) {
+      studentResponse = this.currentQuestionDisplay.studentResponse.find(
         (obj) => obj.student === this.data.student
       );
     }
     return studentResponse;
   }
 
+  /*
+   * Get the student's mark for the question
+   */
   getStudentMark(question: QuestionList): string | number | null | undefined {
     if (question.type?.toLocaleUpperCase() !== 'section') {
       const studentResponse = question.studentResponse?.find(
@@ -667,6 +651,70 @@ export class ShowExamDialogComponent implements OnInit {
       );
       return studentResponse?.mark?.totalMark;
     }
+  }
+
+  /*
+   * Get the student's mark for the exam
+   */
+  getScaledTotalExamScore(): number {
+    // get a list of all student responses for current exam:
+    const studentResponses = this.questionList.flatMap(
+      (question) => question.studentResponse
+    );
+
+    // filter the list for the current student whose exam is being marked/displayed
+    const currentStudentResponses = studentResponses.filter(
+      (response) => response?.student === this.data.student
+    );
+
+    // get the sum of all the points the student has scored accross all the questions:
+    const totalMarkUnscaled = currentStudentResponses
+      // .filter((response) => response?.mark?.totalMark)
+      .map((response) => Number(response?.mark?.totalMark))
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+    // get the min possible points the student can score for all the questions combined:
+    const unscaledMin = this.questionList
+      .flatMap((question) => question.totalPointsMin)
+      .filter((point): point is number => point !== null && point !== undefined)
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+    // get the maximum possible points the student can score for all the questions combined:
+    const unscaledMax = this.questionList
+      .flatMap((question) => question.totalPointsMax)
+      .filter((point): point is number => point !== null && point !== undefined)
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+    const totalScaledMark = this.convertScore(
+      totalMarkUnscaled,
+      unscaledMin,
+      unscaledMax,
+      this.data.exam?.totalPointsMin ?? 0,
+      this.data.exam?.totalPointsMax ?? 100
+    );
+    return totalScaledMark;
+  }
+
+  /*
+   * Find the current exam question from the questionList
+   * todo - move to seperate reusable service or helper.
+   */
+  findCurrentQuestionFromList(): QuestionList | undefined {
+    let foundQuestion;
+
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if (this.currentQuestionDisplay?.parent) {
+      foundQuestion = this.questionList
+        .find((obj) => obj.id === this.currentQuestionDisplay?.parent)
+        ?.subQuestions?.find(
+          (obj) => obj.id === this.currentQuestionDisplay?.id
+        );
+    } else {
+      foundQuestion = this.questionList.find(
+        (obj) => obj.id === this.currentQuestionDisplay?.id
+      );
+    }
+    return foundQuestion;
   }
 
   closeDialog(result: boolean | null): void {
