@@ -61,7 +61,8 @@ export class QuestionService {
     currentUser: string | undefined,
     examId: string | number | undefined,
     student: string | undefined,
-    score: string | number
+    score: string | number | undefined,
+    aiMarkingComplete: boolean | undefined
   ): Observable<QuestionList[]> {
     console.log(questions);
     console.log(currentUser);
@@ -73,6 +74,7 @@ export class QuestionService {
         questions,
         student,
         score,
+        aiMarkingComplete,
       })
       .pipe(
         tap(() => {

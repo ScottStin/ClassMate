@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -8,7 +9,6 @@ import {
 } from '@angular/material/dialog';
 import { forkJoin, map, Observable, of, Subject, tap } from 'rxjs';
 import { QuestionService } from 'src/app/services/question-service/question.service';
-// import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { demoLevels } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
@@ -73,7 +73,14 @@ export class ShowExamDialogComponent implements OnInit {
     this.populateFeedbackForm();
 
     // --- Apply AI feedback if marking for the first time:
-    if (this.data.markMode && !this.data.exam?.aiMarkingComplete) {
+    if (
+      this.data.markMode &&
+      !(
+        this.data.exam?.aiMarkingComplete
+          ?.map((student) => student.email)
+          .includes(this.data.student) ?? false
+      )
+    ) {
       //
       // first, let's check if there are any AI questions in this exam:
       const aiMarkingQuestions = this.questionList.filter(
@@ -90,7 +97,30 @@ export class ShowExamDialogComponent implements OnInit {
 
         forkJoin(aiMarkingObservables).subscribe({
           next: () => {
-            this.aiMarkingLoading = false; // All requests completed
+            // Save Ai marking/feedback to question:
+            this.questionService
+              .submitTeacherFeedback(
+                this.questionList,
+                this.data.currentUser?.email,
+                this.data.exam?._id,
+                this.data.student,
+                undefined, // undefined score so the backend knows that the marking is not complete,
+                true // ai marking complete
+              )
+              .subscribe({
+                next: () => {
+                  this.snackbarService.openPermanent(
+                    'info',
+                    "Ai marking and feedback for this student's exam has been saved. Please review the marking/feedback carefully, as the Ai is not perfect and can sometimes make mistakes."
+                  );
+                },
+                error: (error: Error) => {
+                  this.error = error;
+                  this.snackbarService.openPermanent('error', error.message);
+                },
+              });
+
+            this.aiMarkingLoading = false;
           },
           error: (error: Error) => {
             this.error = error;
@@ -521,7 +551,8 @@ export class ShowExamDialogComponent implements OnInit {
               this.data.currentUser?.email,
               this.data.exam?._id,
               this.data.student,
-              this.getScaledTotalExamScore().toString()
+              this.getScaledTotalExamScore().toString(),
+              undefined // indicates that Ai marking has not been done on this req
             )
             .subscribe({
               next: () => {
@@ -545,7 +576,8 @@ export class ShowExamDialogComponent implements OnInit {
           this.data.currentUser?.email,
           this.data.exam?._id,
           this.data.student,
-          this.getScaledTotalExamScore().toString()
+          this.getScaledTotalExamScore().toString(),
+          undefined // indicates that Ai marking has not been done on this req
         )
         .subscribe({
           next: () => {
