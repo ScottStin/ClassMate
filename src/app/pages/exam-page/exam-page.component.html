@@ -18,13 +18,16 @@
     [(selectedIndex)]="selectedTabIndex"
   >
     <mat-tab
-      *ngFor="let examType of ['My Exams','All Exams']"
+      *ngFor="let examType of ['My Exams', 'All Exams']; let i = index"
       [label]="examType"
     >
-      <div *ngIf="!examPageLoading" class="table-container">
+      <div
+        *ngIf="!examPageLoading && selectedTabIndex === i"
+        class="table-container"
+      >
         <app-exam-table
           [examData]="getUserExams(examType) | async"
-          [examType]="examType"
+          [selectedTabIndex]="i"
           [questionData]="questions$ | async"
           [currentUser]="currentUser$ | async"
           [users]="users$ | async"

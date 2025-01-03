@@ -26,7 +26,10 @@
     </ng-container>
 
     <!-- casualPrice Column -->
-    <ng-container matColumnDef="casualPrice">
+    <ng-container
+      matColumnDef="casualPrice"
+      *ngIf="selectedTabIndex === 1 || currentUser?.userType?.toLowerCase() !== 'student'"
+    >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Price (USD)
       </mat-header-cell>
@@ -41,7 +44,7 @@
     </ng-container>
 
     <!-- Marking Column -->
-    <ng-container
+    <!-- <ng-container
       matColumnDef="autoMarking"
       *ngIf="currentUser?.userType?.toLowerCase() ==='student' || !this.currentUser"
     >
@@ -58,7 +61,7 @@
         <span *ngIf="row.autoMarking">Auto Marking</span>
         <span *ngIf="!row.autoMarking">Teacher Feedback</span>
       </mat-cell>
-    </ng-container>
+    </ng-container> -->
 
     <!-- studentsEnrolled Column -->
     <ng-container
@@ -164,7 +167,7 @@
       </mat-cell>
     </ng-container>
 
-    <!-- default Column -->
+    <!-- result Column -->
     <ng-container
       matColumnDef="result"
       *ngIf="currentUser?.userType?.toLowerCase() ==='student'"

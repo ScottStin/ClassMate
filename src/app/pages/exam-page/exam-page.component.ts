@@ -43,7 +43,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
   teachers$: Observable<UserDTO[]>;
   questions$: Observable<QuestionList[]>;
   error: Error;
-  selectedTabIndex: number;
+  selectedTabIndex = 0;
 
   // --- subscriptions and auth data:
   private currentUserSubscription: Subscription | null;

@@ -32,7 +32,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatTable) table: MatTable<ExamDTO>;
   @Input() examData: ExamDTO[] | null;
   @Input() questionData: QuestionList[] | null;
-  @Input() examType?: string;
+  @Input() selectedTabIndex: number;
   @Input() users: UserDTO[] | null;
   @Input() currentUser: UserDTO | null;
   @Output() openEditExamDialog = new EventEmitter<ExamDTO>();
@@ -66,18 +66,16 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
       this.currentUser?.userType.toLowerCase() === 'student' ||
       !this.currentUser
     ) {
-      this.displayedColumns = [
-        'name',
-        'description',
-        'casualPrice',
-        'autoMarking',
-        'actions',
-      ];
-      if (this.examType?.toLocaleLowerCase() === 'my exams') {
+      this.displayedColumns = ['name', 'description', 'casualPrice', 'actions'];
+      if (this.selectedTabIndex === 0) {
         this.displayedColumns = this.displayedColumns.filter(
           (item) => item !== 'casualPrice'
         );
-        this.displayedColumns.splice(3, 0, 'result');
+        this.displayedColumns.splice(
+          this.displayedColumns.length - 1,
+          0,
+          'result'
+        );
       }
     }
   }
@@ -100,8 +98,6 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
         return data.description;
       case 'casualPrice':
         return data.casualPrice;
-      case 'autoMarking':
-        return data.autoMarking;
       case 'studentsEnrolled':
         return data.studentsEnrolled;
       case 'studentsCompleted':
@@ -273,7 +269,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
 
   displayExam(
     exam: ExamDTO,
-    displayMode: boolean,
+    displayMode: boolean, // used to view the exam only, students cannot answer questions and teachers cannot give feedback
     markMode: boolean,
     student?: string | null
   ): void {
