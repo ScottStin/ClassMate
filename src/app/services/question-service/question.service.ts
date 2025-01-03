@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
@@ -84,21 +85,32 @@ export class QuestionService {
       );
   }
 
-  testAiFeedback(
-    text: string,
-    score: number
-  ): Observable<{ feedback: string; score: any }> {
+  /**
+   * AI Feedbback / marking
+   * todo - move to seperate service
+   */
+  generateAiFeedbackWrittenExamQuestion(data: {
+    text: string;
+    prompt: string;
+  }): Observable<{
+    feedback?: string;
+    mark: { vocabMark?: number; grammarMark?: number; contentMark?: number };
+  }> {
+    const { text, prompt } = data;
     return this.httpClient
-      .post<{ feedback: string; score: any }>(
-        `${this.baseUrl}/generate-ai-feedback/`,
-        {
-          text,
-          score,
-        }
-      )
+      .post<{
+        feedback: string;
+        mark: { vocabMark: number; grammarMark: number; contentMark: number };
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/written-question`, {
+        text,
+        prompt,
+      })
       .pipe(
         catchError((error: Error) => {
-          this.handleError(error, 'Failed to generate AI Feedback');
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for written exam question'
+          );
         })
       );
   }

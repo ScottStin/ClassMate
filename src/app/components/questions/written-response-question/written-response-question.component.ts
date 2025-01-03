@@ -32,7 +32,6 @@ export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   @Output() responseChange = new EventEmitter<string>();
   wordCount: number;
   loading = true;
-  test: any;
 
   questionForm: FormGroup<{
     writtenResponse: FormControl<string>;
@@ -41,7 +40,6 @@ export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if ('question' in changes) {
       this.populateQuestionForm();
-      console.log(this.question);
     }
   }
 
@@ -80,15 +78,6 @@ export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   wordCounter(text: string): void {
     this.responseChange.emit(text);
     this.wordCount = text.split(/\s+/u).length - 1;
-  }
-
-  testClick(text: string): void {
-    this.questionService
-      .testAiFeedback(text, 10)
-      .subscribe((test: { feedback: string; score: any }) => {
-        console.log(test);
-        this.test = test;
-      });
   }
 
   // todo - move to service or helper

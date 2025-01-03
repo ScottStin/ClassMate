@@ -13,6 +13,6 @@ export interface ExamDTO {
   questions?: string[] | null;
   createdAt?: Date | null;
   assignedTeacher: string;
-  autoMarking: boolean;
+  aiMarkingComplete: boolean;
   school: string | null;
 }

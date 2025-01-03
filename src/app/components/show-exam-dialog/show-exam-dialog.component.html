@@ -1,10 +1,18 @@
+<div *ngIf="aiMarkingLoading" class="ai-feedback-loading-spinner-container">
+  <mat-spinner></mat-spinner>
+  <span>Applying AI marking and feedback, please wait</span>
+</div>
+
 <ng-container>
   <app-dialog-header
     [dialogTitle]="data.title"
     (closeAction)="closeDialog(null)"
   ></app-dialog-header>
 
-  <mat-dialog-content class="dialog-content">
+  <mat-dialog-content
+    class="dialog-content"
+    [class]="aiMarkingLoading ? 'ai-feedback-loading-overlay' : ''"
+  >
     <!----- ---------------------- ----->
     <!----- Start Exam Button: --------->
     <!----- ---------------------- ----->
@@ -120,6 +128,7 @@
   <!-- Marking Table: -->
   <div
     class="marking-table"
+    [class.ai-feedback-loading-overlay]="aiMarkingLoading"
     role="region"
     tabindex="0"
     *ngIf="data.markMode"
@@ -150,6 +159,7 @@
   <div
     *ngIf="currentQuestionDisplay?.teacherFeedback && data.markMode"
     [formGroup]="feedbackForm"
+    [class.ai-feedback-loading-overlay]="aiMarkingLoading"
   >
     <mat-form-field class="form-field" appearance="outline" style="width: 100%">
       <mat-label [style]="data.markMode ? 'color:black' : ''"
@@ -163,7 +173,6 @@
         type="text"
         placeholder="Give the student some helpful feedback..."
         [required]="data.markMode && data.currentUser?.userType?.toLowerCase() ==='teacher'"
-        style="width: 500px; font-size: 16px"
         rows="5"
         [style]="data.markMode ? 'color:black' : ''"
         (keyup)="feedbackTextChange(teacherFeedback.value)"
@@ -180,7 +189,11 @@
   <!----- Dialog Actions ------- ----->
   <!----- ---------------------- ----->
 
-  <mat-dialog-actions align="end" *ngIf="examStarted">
+  <mat-dialog-actions
+    align="end"
+    *ngIf="examStarted"
+    [class.ai-feedback-loading-overlay]="aiMarkingLoading"
+  >
     <button
       mat-button
       *ngIf="currentQuestionDisplay !== questionList[0] && (subQuestionIndex() !== 'first' || subQuestionIndex() === '')"

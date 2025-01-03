@@ -1,23 +1,18 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, Inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
+import { forkJoin, map, Observable, of, Subject, tap } from 'rxjs';
 import { QuestionService } from 'src/app/services/question-service/question.service';
 // import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { demoLevels } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
-import { LevelDTO, UserDTO } from 'src/app/shared/models/user.model';
+import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import {
@@ -43,6 +38,7 @@ export class ShowExamDialogComponent implements OnInit {
     { displayName: 'Content', value: 'contentMark' },
   ];
   demoLevels = demoLevels;
+  aiMarkingLoading = false;
 
   feedbackForm: FormGroup<{
     teacherFeedback: FormControl<string>;
@@ -66,8 +62,7 @@ export class ShowExamDialogComponent implements OnInit {
     private readonly dialogRef: MatDialogRef<ShowExamDialogComponent>,
     private readonly questionService: QuestionService,
     private readonly snackbarService: SnackbarService,
-    public dialog: MatDialog,
-    private readonly formBuilder: FormBuilder
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -75,8 +70,35 @@ export class ShowExamDialogComponent implements OnInit {
     if (this.data.displayMode || this.data.markMode) {
       this.startExam();
     }
-
     this.populateFeedbackForm();
+
+    // --- Apply AI feedback if marking for the first time:
+    if (this.data.markMode && !this.data.exam?.aiMarkingComplete) {
+      //
+      // first, let's check if there are any AI questions in this exam:
+      const aiMarkingQuestions = this.questionList.filter(
+        (question) => question.autoMarking
+      );
+
+      // Now, let's loop through the AI questions and apply our AI marking:
+      if (aiMarkingQuestions.length > 0) {
+        this.aiMarkingLoading = true;
+
+        const aiMarkingObservables = aiMarkingQuestions.map((question) =>
+          this.markAiQuestion(question)
+        );
+
+        forkJoin(aiMarkingObservables).subscribe({
+          next: () => {
+            this.aiMarkingLoading = false; // All requests completed
+          },
+          error: (error: Error) => {
+            this.error = error;
+            this.snackbarService.openPermanent('error', error.message);
+          },
+        });
+      }
+    }
   }
 
   startExam(): void {
@@ -84,10 +106,62 @@ export class ShowExamDialogComponent implements OnInit {
     this.currentQuestionDisplay = this.questionList[this.currentQuestionIndex];
   }
 
+  markAiQuestion(question: QuestionList): Observable<void> {
+    const studentResponse = question.studentResponse?.find(
+      (response) => response.student === this.data.student
+    )?.response;
+
+    if (
+      studentResponse &&
+      question.type?.toLowerCase() === 'written-response'
+    ) {
+      return this.questionService
+        .generateAiFeedbackWrittenExamQuestion({
+          text: studentResponse,
+          prompt: question.writtenPrompt ?? '',
+        })
+        .pipe(
+          tap((res) => {
+            this.selectQuestion(question);
+
+            // Apply AI teacher feedback:
+            if (question.teacherFeedback) {
+              this.feedbackForm.controls.teacherFeedback.setValue(
+                res.feedback ?? ''
+              );
+              this.feedbackTextChange(res.feedback ?? '');
+            }
+
+            // Apply AI marking:
+            this.feedbackForm.controls.vocabMark.setValue(
+              res.mark.vocabMark ?? 0
+            );
+            this.feedbackForm.controls.grammarMark.setValue(
+              res.mark.grammarMark ?? 0
+            );
+            this.feedbackForm.controls.contentMark.setValue(
+              res.mark.contentMark ?? 0
+            );
+
+            this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
+            this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
+            this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
+          }),
+          map(() => {
+            // Transform the result to void since we don't need the actual response here
+          })
+        );
+    }
+
+    // Return an empty Observable if there's no student response or it's not a written-response question
+    return of();
+  }
+
   /*
    * Navigate, start and end questions/sections:
    */
   selectQuestion(question: QuestionList): void {
+    console.log(question);
     this.currentQuestionDisplay = question;
     let index = NaN;
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -335,7 +409,7 @@ export class ShowExamDialogComponent implements OnInit {
   /*
    * When the teacher selects a mark for the student's question in the marking table, save the result locally and update the current question
    */
-  onMarkSelect(level: LevelDTO, category: string): void {
+  onMarkSelect(level: number, category: string): void {
     const studentResponse = this.findCurrentStudentReponse() ?? {};
     studentResponse.mark = studentResponse.mark ?? {};
     studentResponse.mark[category] = level;

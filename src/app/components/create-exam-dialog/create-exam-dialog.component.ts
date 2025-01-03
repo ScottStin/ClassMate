@@ -724,6 +724,7 @@ export interface StudentQuestionReponse {
     pronounciationMark?: number | string | null;
     accuracyMark?: number | string | null;
     totalMark?: number | string | null;
+    [key: string]: unknown;
   } | null;
   feedback?: { text: string; teacher: string } | null;
 }
