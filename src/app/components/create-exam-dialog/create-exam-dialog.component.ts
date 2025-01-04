@@ -601,7 +601,8 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   /*
-   *Custom url validator for length of written and audio responses:
+   *Custom validator for length of written and audio responses:
+   todo - move to global directive or helper
    */
   maxLengthValidator(): ValidatorFn {
     return (control: AbstractControl): Record<string, unknown> | null => {

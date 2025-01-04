@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -39,6 +45,7 @@ export class ShowExamDialogComponent implements OnInit {
   ];
   demoLevels = demoLevels;
   aiMarkingLoading = false;
+  maxFeedbackWordLimit = 600;
 
   feedbackForm: FormGroup<{
     teacherFeedback: FormControl<string>;
@@ -191,7 +198,6 @@ export class ShowExamDialogComponent implements OnInit {
    * Navigate, start and end questions/sections:
    */
   selectQuestion(question: QuestionList): void {
-    console.log(question);
     this.currentQuestionDisplay = question;
     let index = NaN;
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -343,7 +349,10 @@ export class ShowExamDialogComponent implements OnInit {
           value: studentResponse?.feedback?.text ?? '',
           disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
         },
-        { validators: [Validators.required], nonNullable: true }
+        {
+          validators: [Validators.required, this.maxFeedbackLengthValidator()],
+          nonNullable: true,
+        }
       ),
       vocabMark: new FormControl(
         {
@@ -600,6 +609,8 @@ export class ShowExamDialogComponent implements OnInit {
    */
   completeExam(): void {
     const missingAnswers: string[] = [];
+
+    // check to see if there are missing answers before completing the exam:
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
         (obj) => obj.student === this.data.currentUser?.email
@@ -630,10 +641,12 @@ export class ShowExamDialogComponent implements OnInit {
         }
       }
     }
+
+    // Warn student about unanswered quesitons before submitting:
     if (missingAnswers.length > 0) {
-      let message = 'The following questions have no been answered';
+      let message = 'The following questions have not been answered';
       if (missingAnswers.length === 1) {
-        message = 'The following question has no been answered';
+        message = 'The following question has not been answered';
       }
       const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
         data: {
@@ -641,7 +654,7 @@ export class ShowExamDialogComponent implements OnInit {
           message: `${message}: <br> <br> 
             <b>${missingAnswers.join(
               ',<br>'
-            )}. </b> <br> <br> If you submit your exam without answering a question, you will be given a marking of 0 for that question.`,
+            )}. </b> <br> <br> If you submit your exam without answering a question, you will be given a score of 0 for that question.`,
           okLabel: `Submit`,
           cancelLabel: `Return`,
           routerLink: '',
@@ -649,42 +662,109 @@ export class ShowExamDialogComponent implements OnInit {
       });
       confirmDialogRef.afterClosed().subscribe((result) => {
         if (result === true) {
-          this.questionService
-            .submitStudentResponse(
-              this.questionList,
-              this.data.currentUser?.email,
-              this.data.exam?._id
-            )
-            .subscribe({
-              next: () => {
-                this.snackbarService.open('info', 'Exam completed! Well done.');
-                this.closeDialog(true);
-              },
-              error: (error: Error) => {
-                this.error = error;
-                this.snackbarService.openPermanent('error', error.message);
-              },
-            });
+          this.submitExam();
         }
       });
-    } else {
-      this.questionService
-        .submitStudentResponse(
-          this.questionList,
-          this.data.currentUser?.email,
-          this.data.exam?._id
-        )
-        .subscribe({
-          next: () => {
-            this.snackbarService.open('info', 'Exam completed! Well done.');
-            this.closeDialog(true);
-          },
-          error: (error: Error) => {
-            this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
-          },
-        });
     }
+
+    // If no unanswered questions, submit exam:
+    else {
+      this.submitExam();
+    }
+  }
+
+  submitExam(): void {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Are you sure you want to submit your exam?',
+        message:
+          "Once you submit your exam, you won't be able to edit your answers.",
+        okLabel: 'Submit',
+        cancelLabel: `Return`,
+        routerLink: '',
+      },
+    });
+    confirmDialogRef.afterClosed().subscribe((result) => {
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+      if (result === true) {
+        this.questionService
+          .submitStudentResponse(
+            this.questionList,
+            this.data.currentUser?.email,
+            this.data.exam?._id
+          )
+          .subscribe({
+            next: () => {
+              this.snackbarService.open('info', 'Exam completed! Well done.');
+              this.closeDialog(true);
+            },
+            error: (error: Error) => {
+              this.error = error;
+              this.snackbarService.openPermanent('error', error.message);
+            },
+          });
+      }
+    });
+  }
+
+  /*
+   * Before submitting the exam, validate the student's responses and disable submit if errors
+   */
+  invalidStudentResponses(): boolean {
+    let invalid = false;
+    for (const question of this.questionList) {
+      const studentResponse = question.studentResponse?.find(
+        (response) => response.student === this.data.currentUser?.email
+      );
+
+      // if written response exceeds word limit:
+      if (
+        question.type === 'written-response' &&
+        (studentResponse?.response?.trim().split(/\s+/u).length ?? 0) >
+          (question.length ?? 600)
+      ) {
+        invalid = true;
+      }
+    }
+    return invalid;
+  }
+
+  /*
+   * Before submitting the review, validate the teacher's feedback and disable submit if errors
+   */
+  invalidTeacherFeedback(): boolean {
+    let invalid = false;
+    for (const question of this.questionList) {
+      const teacherFeedback = question.studentResponse?.find(
+        (response) => response.student === this.data.student
+      )?.feedback?.text;
+
+      if (
+        question.type === 'written-response' &&
+        (teacherFeedback?.trim().split(/\s+/u).length ?? 0) >
+          this.maxFeedbackWordLimit
+      ) {
+        invalid = true;
+      }
+    }
+    return invalid;
+  }
+
+  /*
+     *Custom validator for teacher feedback word length:
+     todo - move to global directive or helper
+     */
+  maxFeedbackLengthValidator(): ValidatorFn {
+    return (control: AbstractControl): Record<string, unknown> | null => {
+      const input = control.value as string | undefined;
+
+      if (
+        (input?.trim().split(/\s+/u).length ?? 600) > this.maxFeedbackWordLimit
+      ) {
+        return { tooManyWords: true };
+      }
+      return null;
+    };
   }
 
   /*

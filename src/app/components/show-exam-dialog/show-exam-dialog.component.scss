@@ -18,6 +18,8 @@ $secondaryColor: var(--secondaryColor);
   justify-content: center;
 }
 
+// Ai feedback loading:
+
 .ai-feedback-loading-overlay {
   pointer-events: none;
   backdrop-filter: blur(20px);
@@ -38,6 +40,10 @@ $secondaryColor: var(--secondaryColor);
   align-items: center;
   z-index: 1000;
 }
+
+::ng-deep .mat-progress-spinner circle, .mat-spinner circle { // todo - move to global styling
+  stroke: $primaryColor !important;
+  }
 
 // --- Side question list:
 

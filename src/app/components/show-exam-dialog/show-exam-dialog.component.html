@@ -229,6 +229,9 @@
       cdkFocusInitial
       (click)="completeExam()"
       *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+      [disabled]="invalidStudentResponses()"
+      #tooltip="matTooltip"
+      [matTooltip]="invalidStudentResponses() ? 'One or more of your responses are invalid. Please double check before submitting' : ''"
     >
       Submit exam <mat-icon>done</mat-icon>
     </button>
@@ -238,6 +241,9 @@
       cdkFocusInitial
       (click)="submitFeedback()"
       *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+      [disabled]="invalidTeacherFeedback()"
+      #tooltip="matTooltip"
+      [matTooltip]="invalidTeacherFeedback() ? 'One or more of your feedback responses are invalid. Please double check before submitting' : ''"
     >
       Submit feedback <mat-icon>done</mat-icon>
     </button>

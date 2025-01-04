@@ -12,6 +12,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { ErrorMessageModule } from '../error-message/error-message.module';
@@ -38,6 +39,7 @@ import { ShowExamDialogComponent } from './show-exam-dialog.component';
     ErrorMessageModule,
     MatProgressSpinnerModule,
     MatRadioModule,
+    MatTooltipModule,
   ],
   exports: [ShowExamDialogComponent],
 })
