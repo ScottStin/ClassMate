@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import * as RecordRTC from 'recordrtc';
 import { Observable, Subject } from 'rxjs';
 
+// demo: https://stackblitz.com/edit/angular-audio-recorder?file=src%2Fapp%2Fapp.component.ts,src%2Fapp%2Fapp.component.css
+
 interface RecordedAudioOutput {
   blob: Blob;
   title: string;

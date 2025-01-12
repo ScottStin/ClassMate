@@ -20,6 +20,7 @@
   <mat-card-content
     style="padding-top: 50px; width: 100%; max-height: 70vh; overflow-y: auto"
   >
+    <!-- written response -->
     <app-written-response-question
       *ngIf="question?.type==='written-response'"
       [question]="question"
@@ -27,5 +28,10 @@
       [currentUser]="student ? student : currentUser?.email"
       (responseChange)="onResponseChange($event)"
     ></app-written-response-question>
+
+    <!-- audio response -->
+    <app-audio-response-question
+      *ngIf="question?.type==='audio-response'"
+    ></app-audio-response-question>
   </mat-card-content>
 </mat-card>

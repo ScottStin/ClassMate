@@ -1,17 +1,47 @@
-<div>
-	<button class="start-button" *ngIf="!isRecording && !blobUrl" (click)="startRecording()">Start Recording</button>
+<div class="mic-button-container">
+  <button
+    mat-icon-button
+    [matTooltip]="!isRecording && !blobUrl ? 'Start audio recording' : 'Stop audio recording'"
+    matTooltipPosition="after"
+    (click)="!isRecording && !blobUrl ? startRecording() : stopRecording()"
+    *ngIf="(!isRecording && !blobUrl) || isRecording"
+    class="button"
+  >
+    <mat-icon *ngIf="!isRecording && !blobUrl" class="large-mic-icon">mic</mat-icon>
+    <mat-icon *ngIf="isRecording" class="large-mic-icon">mic_off</mat-icon>
+  </button>
 
-	<button class="stop-button" *ngIf="isRecording && !blobUrl" (click)="stopRecording()">Stop Recording</button>
+  <button
+    mat-icon-button
+    matTooltip="Reset recording"
+    matTooltipPosition="after"
+    (click)="clearRecordedData()"
+    *ngIf="!isRecording && blobUrl"
+    class="button"
+  >
+    <mat-icon class="large-mic-icon">restart_alt</mat-icon>
+  </button>
 
-	<button class="cancel-button" *ngIf="!isRecording && blobUrl" (click)="clearRecordedData()">Clear Recording</button>
+  <!-- <button
+    *ngIf="!isRecording && blobUrl"
+    (click)="download()"
+  >
+    Download Recording
+  </button> -->
 
-	<br>
-	<button class="cancel-button" *ngIf="!isRecording && blobUrl" (click)="download()">Download Recording</button>
+  <mat-progress-bar
+    #progressBar
+    *ngIf="isRecording"
+    class="example-margin"
+    mode="determinate"
+    [value]="getRecordingProgressBarValue()">
+  </mat-progress-bar>
 
-	<div *ngIf="isRecording && !blobUrl"> {{recordedTime}} </div>
-	<div>
-		<audio *ngIf="!isRecording && blobUrl" controls>
-			<source [src]="blobUrl" type="audio/webm">
-		</audio>
-	</div>
+
+  <div *ngIf="isRecording && !blobUrl">{{recordedTime}}</div>
+  <div class="audio-player-container">
+    <audio *ngIf="!isRecording && blobUrl" controls>
+      <source [src]="blobUrl" type="audio/webm" />
+    </audio>
+  </div>
 </div>
