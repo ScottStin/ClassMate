@@ -7,7 +7,9 @@
     *ngIf="(!isRecording && !blobUrl) || isRecording"
     class="button"
   >
-    <mat-icon *ngIf="!isRecording && !blobUrl" class="large-mic-icon">mic</mat-icon>
+    <mat-icon *ngIf="!isRecording && !blobUrl" class="large-mic-icon"
+      >mic</mat-icon
+    >
     <mat-icon *ngIf="isRecording" class="large-mic-icon">mic_off</mat-icon>
   </button>
 
@@ -22,21 +24,14 @@
     <mat-icon class="large-mic-icon">restart_alt</mat-icon>
   </button>
 
-  <!-- <button
-    *ngIf="!isRecording && blobUrl"
-    (click)="download()"
-  >
-    Download Recording
-  </button> -->
-
   <mat-progress-bar
     #progressBar
     *ngIf="isRecording"
     class="example-margin"
     mode="determinate"
-    [value]="getRecordingProgressBarValue()">
+    [value]="getRecordingProgressBarValue()"
+  >
   </mat-progress-bar>
-
 
   <div *ngIf="isRecording && !blobUrl">{{recordedTime}}</div>
   <div class="audio-player-container">
@@ -45,3 +40,10 @@
     </audio>
   </div>
 </div>
+
+<!-- <button
+    *ngIf="!isRecording && blobUrl"
+    (click)="download()"
+  >
+    Download Recording
+  </button> -->
