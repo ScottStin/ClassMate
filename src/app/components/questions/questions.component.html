@@ -32,6 +32,9 @@
     <!-- audio response -->
     <app-audio-response-question
       *ngIf="question?.type==='audio-response'"
+      [question]="question"
+      [currentUser]="student ? student : currentUser?.email"
+      (responseChange)="onResponseChange($event)"
     ></app-audio-response-question>
   </mat-card-content>
 </mat-card>

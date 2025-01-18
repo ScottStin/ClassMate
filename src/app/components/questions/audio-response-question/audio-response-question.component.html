@@ -1,4 +1,14 @@
 <div class="mic-button-container">
+  <div style="margin-bottom: 10px"></div>
+  <span *ngIf="!isRecording && !blobUrl"
+    >Note: After pressing the microphone button below, you'll have You have
+    {{question?.time ?? 10}} seconds to speak.</span
+  >
+  <span *ngIf="isRecording">Say your answer now...</span>
+  <span *ngIf="!isRecording && blobUrl"
+    >Listen to your answer. If you're unhappy with your response, click the
+    reset button to erase your answer and try again.</span
+  >
   <button
     mat-icon-button
     [matTooltip]="!isRecording && !blobUrl ? 'Start audio recording' : 'Stop audio recording'"
@@ -27,7 +37,6 @@
   <mat-progress-bar
     #progressBar
     *ngIf="isRecording"
-    class="example-margin"
     mode="determinate"
     [value]="getRecordingProgressBarValue()"
   >
