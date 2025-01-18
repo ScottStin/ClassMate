@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
   Component,
@@ -13,7 +14,6 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { AudioRecordingService } from 'src/app/services/audio-recording-service/audio-recording.service';
 
 import { QuestionList } from '../../create-exam-dialog/create-exam-dialog.component';
-import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-audio-response-question',
@@ -28,7 +28,7 @@ export class AudioResponseQuestionComponent
   @Output() responseChange = new EventEmitter<any>();
 
   isRecording = false;
-  recordedTime: any;
+  recordedTime: string;
   blobUrl: any;
   teste: any;
   recordingTimeout: any;
@@ -36,7 +36,7 @@ export class AudioResponseQuestionComponent
 
   constructor(
     private readonly audioRecordingService: AudioRecordingService,
-    private readonly sanitizer: DomSanitizer,
+    private readonly sanitizer: DomSanitizer
   ) {
     // stop recoridng on fail:
     this.audioRecordingService
@@ -79,14 +79,10 @@ export class AudioResponseQuestionComponent
       (obj) => obj.student === this.currentUser
     );
 
-    console.log(studentResponse);
-
     if (studentResponse?.response) {
       setTimeout(() => {
-        
-      this.blobUrl = studentResponse.response;
+        this.blobUrl = studentResponse.response;
       }, 110);
-      console.log(this.blobUrl);
     }
   }
 
@@ -97,6 +93,7 @@ export class AudioResponseQuestionComponent
 
       // Automatically stop recording after maxRecordingTime seconds
       this.recordingTimeout = setTimeout(() => {
+        // Call the async function without `await`
         this.stopRecording();
       }, this.maxRecordingTime * 1000);
     }
@@ -106,26 +103,31 @@ export class AudioResponseQuestionComponent
     if (this.isRecording) {
       this.isRecording = false;
       this.audioRecordingService.abortRecording();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       clearTimeout(this.recordingTimeout); // Clear timeout if recording is aborted
     }
   }
 
-  async stopRecording(): Promise<void> {
+  stopRecording(): void {
     if (this.isRecording) {
       this.audioRecordingService.stopRecording();
       this.isRecording = false;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       clearTimeout(this.recordingTimeout); // Clear timeout if recording stops
-  
+
       setTimeout(async () => {
         try {
           console.log(this.blobUrl);
-  
+
           // Extract the blob URL from SafeUrlImpl if it's wrapped in a SafeUrlImpl object
-          const blobUrl = (this.blobUrl as any).changingThisBreaksApplicationSecurity || this.blobUrl;
-  
-          // Convert blobUrl to Base64 and emit the result
+          const blobUrl =
+            this.blobUrl.changingThisBreaksApplicationSecurity || this.blobUrl;
+
+          // Convert blobUrl to Base64
           const base64String = await this.convertBlobToBase64(blobUrl);
           console.log(base64String);
+
+          // emit the results:
           this.responseChange.emit(base64String);
         } catch (error) {
           console.error('Error converting Blob URL to Base64:', error);
@@ -133,7 +135,6 @@ export class AudioResponseQuestionComponent
       }, 100);
     }
   }
-  
 
   clearRecordedData(): void {
     this.blobUrl = null;
@@ -152,12 +153,16 @@ export class AudioResponseQuestionComponent
     // Fetch the Blob object from the blob URL
     const response = await fetch(blobUrl);
     const blob = await response.blob();
-  
+
     // Convert Blob to Base64
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string); // Base64 string
-      reader.onerror = (error) => reject(error);
+      reader.onloadend = (): void => {
+        resolve(reader.result as string);
+      }; // Base64 string
+      reader.onerror = (error): void => {
+        reject(error);
+      };
       reader.readAsDataURL(blob); // Convert Blob to Base64
     });
   }
@@ -165,12 +170,4 @@ export class AudioResponseQuestionComponent
   ngOnDestroy(): void {
     this.abortRecording();
   }
-
-  // download(): void {
-  //   const url = window.URL.createObjectURL(this.teste.blob);
-  //   const link = document.createElement('a');
-  //   link.href = url;
-  //   link.download = this.teste.title;
-  //   link.click();
-  // }
 }
