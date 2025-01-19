@@ -722,7 +722,7 @@ export interface StudentQuestionReponse {
     grammarMark?: number | string | null;
     contentMark?: number | string | null;
     fluencyMark?: number | string | null;
-    pronounciationMark?: number | string | null;
+    pronunciationMark?: number | string | null;
     accuracyMark?: number | string | null;
     totalMark?: number | string | null;
     [key: string]: unknown;

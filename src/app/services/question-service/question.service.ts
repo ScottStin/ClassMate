@@ -92,13 +92,13 @@ export class QuestionService {
     prompt: string;
   }): Observable<{
     feedback?: string;
-    mark: { vocabMark?: number; grammarMark?: number; contentMark?: number };
+    mark: WrittenMark;
   }> {
     const { text, prompt } = data;
     return this.httpClient
       .post<{
         feedback: string;
-        mark: { vocabMark: number; grammarMark: number; contentMark: number };
+        mark: WrittenMark;
       }>(`${this.baseUrl}/generate-ai-exam-feedback/written-question`, {
         text,
         prompt,
@@ -113,10 +113,47 @@ export class QuestionService {
       );
   }
 
+  generateAiFeedbackAudioExamQuestion(data: {
+    audioUrl: string;
+    prompt: string;
+  }): Observable<{
+    feedback?: string;
+    mark: AudioMark;
+  }> {
+    const { audioUrl, prompt } = data;
+    return this.httpClient
+      .post<{
+        feedback: string;
+        mark: AudioMark;
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/audio-question`, {
+        audioUrl,
+        prompt,
+      })
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for audio exam question'
+          );
+        })
+      );
+  }
+
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {
       throw this.errorService.handleHttpError(error);
     }
     throw this.errorService.handleGenericError(error, message);
   }
+}
+
+export interface WrittenMark {
+  vocabMark?: number;
+  grammarMark?: number;
+  contentMark?: number;
+}
+
+export interface AudioMark extends WrittenMark {
+  pronunciationMark?: number;
+  fluencyMark?: number;
 }

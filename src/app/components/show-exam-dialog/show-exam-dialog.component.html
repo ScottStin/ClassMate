@@ -140,7 +140,10 @@
         {{ level.shortName }}
       </div>
     </div>
-    <div class="marking-table-row" *ngFor="let category of markingCategories">
+    <div
+      class="marking-table-row"
+      *ngFor="let category of getMarkingCategories()"
+    >
       <div>{{ category.displayName }}</div>
       <mat-radio-group
         class="marking-table-radio-group"

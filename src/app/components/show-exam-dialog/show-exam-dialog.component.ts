@@ -38,11 +38,6 @@ export class ShowExamDialogComponent implements OnInit {
   currentQuestionIndex = 0;
   currentSubQuestionIndex = 0;
   examStarted = false;
-  markingCategories = [
-    { displayName: 'Vocabulary and Spelling', value: 'vocabMark' },
-    { displayName: 'Grammar and Punctuation', value: 'grammarMark' },
-    { displayName: 'Content', value: 'contentMark' },
-  ];
   demoLevels = demoLevels;
   aiMarkingLoading = false;
   maxFeedbackWordLimit = 600;
@@ -52,6 +47,8 @@ export class ShowExamDialogComponent implements OnInit {
     vocabMark: FormControl<number>;
     grammarMark: FormControl<number>;
     contentMark: FormControl<number>;
+    pronunciationMark?: FormControl<number | undefined>;
+    fluencyMark?: FormControl<number | undefined>;
   }>;
   feedbackFormPopulated = new Subject<boolean>();
 
@@ -148,10 +145,13 @@ export class ShowExamDialogComponent implements OnInit {
       (response) => response.student === this.data.student
     )?.response;
 
-    if (
-      studentResponse &&
-      question.type?.toLowerCase() === 'written-response'
-    ) {
+    // --- Early return if no student response:
+    if (!studentResponse) {
+      return of();
+    }
+
+    // --- Written Response Ai Feedback:
+    if (question.type?.toLowerCase() === 'written-response') {
       return this.questionService
         .generateAiFeedbackWrittenExamQuestion({
           text: studentResponse,
@@ -183,6 +183,57 @@ export class ShowExamDialogComponent implements OnInit {
             this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
             this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
             this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
+          }),
+          map(() => {
+            // Transform the result to void since we don't need the actual response here
+          })
+        );
+    }
+
+    // --- Audio Response Ai Feedback:
+    if (question.type?.toLowerCase() === 'audio-response') {
+      return this.questionService
+        .generateAiFeedbackAudioExamQuestion({
+          audioUrl: studentResponse,
+          prompt: question.writtenPrompt ?? '',
+        })
+        .pipe(
+          tap((res) => {
+            this.selectQuestion(question);
+
+            // Apply AI teacher feedback:
+            if (question.teacherFeedback) {
+              this.feedbackForm.controls.teacherFeedback.setValue(
+                res.feedback ?? ''
+              );
+              this.feedbackTextChange(res.feedback ?? '');
+            }
+
+            // Apply AI marking:
+            this.feedbackForm.controls.vocabMark.setValue(
+              res.mark.vocabMark ?? 0
+            );
+            this.feedbackForm.controls.grammarMark.setValue(
+              res.mark.grammarMark ?? 0
+            );
+            this.feedbackForm.controls.contentMark.setValue(
+              res.mark.contentMark ?? 0
+            );
+            this.feedbackForm.controls.pronunciationMark?.setValue(
+              res.mark.pronunciationMark ?? 0
+            );
+            this.feedbackForm.controls.fluencyMark?.setValue(
+              res.mark.fluencyMark ?? 0
+            );
+
+            this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
+            this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
+            this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
+            this.onMarkSelect(res.mark.fluencyMark ?? 0, 'fluencyMark');
+            this.onMarkSelect(
+              res.mark.pronunciationMark ?? 0,
+              'pronunciationMark'
+            );
           }),
           map(() => {
             // Transform the result to void since we don't need the actual response here
@@ -343,7 +394,9 @@ export class ShowExamDialogComponent implements OnInit {
     const studentResponse = this.currentQuestionDisplay?.studentResponse?.find(
       (obj) => obj.student === this.data.student
     );
-    this.feedbackForm = new FormGroup({
+
+    // Initialize FormGroup
+    const formControls = {
       teacherFeedback: new FormControl(
         {
           value: studentResponse?.feedback?.text ?? '',
@@ -375,60 +428,53 @@ export class ShowExamDialogComponent implements OnInit {
         },
         { validators: [Validators.required], nonNullable: true }
       ),
-    });
+    };
+
+    // Add fluencyMark and pronunciationMark if the condition is met
+    if (this.currentQuestionDisplay?.type === 'audio-response') {
+      (formControls as any).fluencyMark = new FormControl(
+        {
+          value: Number(studentResponse?.mark?.fluencyMark ?? ''),
+          disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
+        },
+        { validators: [Validators.required], nonNullable: false }
+      );
+
+      (formControls as any).pronunciationMark = new FormControl(
+        {
+          value: Number(studentResponse?.mark?.pronunciationMark ?? ''),
+          disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
+        },
+        { validators: [Validators.required], nonNullable: false }
+      );
+    }
+
+    // Set the form controls to the FormGroup
+    this.feedbackForm = new FormGroup(formControls);
+
     this.feedbackFormPopulated.next(true);
   }
 
   /*
    * Changes to the student's response are emitted from the app-question component and updated here:
    */
-  updateStudentResponse(text: string): void {
-    // todo = simplfy function by using findCurrentStudentReponse;
-    if (
-      this.currentQuestionDisplay?.parent !== null &&
-      this.currentQuestionDisplay !== null
-    ) {
-      const currentQuestion = this.questionList
-        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
-        ?.subQuestions?.find(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
-        );
-      if (currentQuestion) {
-        if (!currentQuestion.studentResponse) {
-          currentQuestion.studentResponse = [];
-        }
-        const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === this.data.currentUser?.email
-        );
-        if (!studentResponse) {
-          currentQuestion.studentResponse.push({
-            response: text,
-            student: this.data.currentUser?.email,
-          });
-        } else {
-          studentResponse.response = text;
-        }
+  updateStudentResponse(response: string): void {
+    const foundQuestion = this.findCurrentQuestionFromList();
+    if (foundQuestion) {
+      if (!foundQuestion.studentResponse) {
+        foundQuestion.studentResponse = [];
       }
-    } else {
-      const currentQuestion = this.questionList.find(
-        (obj) => obj === this.currentQuestionDisplay
+
+      const studentResponse = foundQuestion.studentResponse.find(
+        (obj) => obj.student === this.data.currentUser?.email
       );
-      if (currentQuestion) {
-        if (!currentQuestion.studentResponse) {
-          currentQuestion.studentResponse = [];
-        }
-        const studentResponse = currentQuestion.studentResponse.find(
-          (obj) => obj.student === this.data.currentUser?.email
-        );
-        if (!studentResponse) {
-          currentQuestion.studentResponse.push({
-            response: text,
-            student: this.data.currentUser?.email,
-          });
-        } else {
-          studentResponse.response = text;
-        }
+      if (!studentResponse) {
+        foundQuestion.studentResponse.push({
+          response,
+          student: this.data.currentUser?.email,
+        });
+      } else {
+        studentResponse.response = response;
       }
     }
   }
@@ -865,23 +911,46 @@ export class ShowExamDialogComponent implements OnInit {
     return totalScaledMark;
   }
 
+  getMarkingCategories(): { displayName: string; value: string }[] {
+    const markingCategories = [
+      { displayName: 'Vocabulary and Spelling', value: 'vocabMark' },
+      { displayName: 'Grammar and Punctuation', value: 'grammarMark' },
+      { displayName: 'Content', value: 'contentMark' },
+    ];
+    if (this.currentQuestionDisplay?.type === 'audio-response') {
+      markingCategories.push(
+        {
+          displayName: 'Flueny',
+          value: 'fluencyMark',
+        },
+        {
+          displayName: 'Pronuciation',
+          value: 'pronunciationMark',
+        }
+      );
+    }
+    return markingCategories;
+  }
+
   /*
    * Find the current exam question from the questionList
    * todo - move to seperate reusable service or helper.
    */
   findCurrentQuestionFromList(): QuestionList | undefined {
     let foundQuestion;
-
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    if (this.currentQuestionDisplay?.parent) {
+    if (
+      this.currentQuestionDisplay?.parent !== null &&
+      this.currentQuestionDisplay !== null
+    ) {
       foundQuestion = this.questionList
-        .find((obj) => obj.id === this.currentQuestionDisplay?.parent)
+        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
         ?.subQuestions?.find(
-          (obj) => obj.id === this.currentQuestionDisplay?.id
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
         );
     } else {
       foundQuestion = this.questionList.find(
-        (obj) => obj.id === this.currentQuestionDisplay?.id
+        (obj) => obj === this.currentQuestionDisplay
       );
     }
     return foundQuestion;
