@@ -63,7 +63,6 @@ export class AudioResponseQuestionComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('question' in changes) {
-      console.log(this.question);
       this.maxRecordingTime = (this.question?.time ?? 10) + 1;
       this.stopRecording();
       setTimeout(() => {
@@ -117,17 +116,14 @@ export class AudioResponseQuestionComponent
 
       setTimeout(async () => {
         try {
-          console.log(this.blobUrl);
-
           // Extract the blob URL from SafeUrlImpl if it's wrapped in a SafeUrlImpl object
           const blobUrl =
             this.blobUrl.changingThisBreaksApplicationSecurity || this.blobUrl;
 
           // Convert blobUrl to Base64
           const base64String = await this.convertBlobToBase64(blobUrl);
-          console.log(base64String);
 
-          // emit the results:
+          // Emit the results:
           this.responseChange.emit(base64String);
         } catch (error) {
           console.error('Error converting Blob URL to Base64:', error);

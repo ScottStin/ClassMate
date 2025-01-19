@@ -41,9 +41,6 @@ export class QuestionService {
     currentUser: string | undefined,
     examId: string | number | undefined
   ): Observable<QuestionList[]> {
-    console.log(questions);
-    console.log(currentUser);
-    console.log(examId);
     return this.httpClient
       .patch<QuestionList[]>(`${this.baseUrl}/submit-exam/${examId!}`, {
         currentUser,
@@ -64,10 +61,6 @@ export class QuestionService {
     score: string | number | undefined,
     aiMarkingComplete: boolean | undefined
   ): Observable<QuestionList[]> {
-    console.log(questions);
-    console.log(currentUser);
-    console.log(examId);
-    console.log(student);
     return this.httpClient
       .patch<QuestionList[]>(`${this.baseUrl}/submit-feedback/${examId!}`, {
         currentUser,
@@ -88,9 +81,12 @@ export class QuestionService {
   }
 
   /**
+   * =================================
    * AI Feedbback / marking
    * todo - move to seperate service
+   * ================================
    */
+
   generateAiFeedbackWrittenExamQuestion(data: {
     text: string;
     prompt: string;
