@@ -13,7 +13,8 @@ import {
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { forkJoin, map, Observable, of, Subject, tap } from 'rxjs';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { finalize, forkJoin, map, Observable, of, Subject, tap } from 'rxjs';
 import { QuestionService } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { demoLevels } from 'src/app/shared/demo-data';
@@ -26,6 +27,7 @@ import {
   StudentQuestionReponse,
 } from '../create-exam-dialog/create-exam-dialog.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-show-exam-dialog',
   templateUrl: './show-exam-dialog.component.html',
@@ -40,6 +42,7 @@ export class ShowExamDialogComponent implements OnInit {
   examStarted = false;
   demoLevels = demoLevels;
   aiMarkingLoading = false;
+  submitExamLoading = false;
   maxFeedbackWordLimit = 600;
 
   feedbackForm: FormGroup<{
@@ -111,6 +114,12 @@ export class ShowExamDialogComponent implements OnInit {
                 undefined, // undefined score so the backend knows that the marking is not complete,
                 true // ai marking complete
               )
+              .pipe(
+                finalize(() => {
+                  this.aiMarkingLoading = false;
+                }),
+                untilDestroyed(this)
+              )
               .subscribe({
                 next: () => {
                   this.snackbarService.openPermanent(
@@ -123,8 +132,6 @@ export class ShowExamDialogComponent implements OnInit {
                   this.snackbarService.openPermanent('error', error.message);
                 },
               });
-
-            this.aiMarkingLoading = false;
           },
           error: (error: Error) => {
             this.error = error;
@@ -432,6 +439,7 @@ export class ShowExamDialogComponent implements OnInit {
 
     // Add fluencyMark and pronunciationMark if the condition is met
     if (this.currentQuestionDisplay?.type === 'audio-response') {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       (formControls as any).fluencyMark = new FormControl(
         {
           value: Number(studentResponse?.mark?.fluencyMark ?? ''),
@@ -440,6 +448,7 @@ export class ShowExamDialogComponent implements OnInit {
         { validators: [Validators.required], nonNullable: false }
       );
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       (formControls as any).pronunciationMark = new FormControl(
         {
           value: Number(studentResponse?.mark?.pronunciationMark ?? ''),
@@ -733,16 +742,23 @@ export class ShowExamDialogComponent implements OnInit {
     confirmDialogRef.afterClosed().subscribe((result) => {
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
       if (result === true) {
+        this.submitExamLoading = true;
         this.questionService
           .submitStudentResponse(
             this.questionList,
             this.data.currentUser?.email,
             this.data.exam?._id
           )
+          .pipe(
+            finalize(() => {
+              this.submitExamLoading = false;
+            }),
+            untilDestroyed(this)
+          )
           .subscribe({
             next: () => {
               this.snackbarService.open('info', 'Exam completed! Well done.');
-              this.closeDialog(true);
+              this.dialogRef.close(true);
             },
             error: (error: Error) => {
               this.error = error;
@@ -957,6 +973,29 @@ export class ShowExamDialogComponent implements OnInit {
   }
 
   closeDialog(result: boolean | null): void {
-    this.dialogRef.close(result);
+    if (
+      this.data.currentUser?.userType.toLowerCase() === 'student' &&
+      !this.data.displayMode &&
+      !this.data.markMode
+    ) {
+      const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title:
+            'Wait! Are you sure you want to exit the exam without submitting it?',
+          message:
+            'You have not submitted your exam. Your answers will not be saved/submitted if you exit now.',
+          okLabel: 'Exit Exam',
+          cancelLabel: `Return to Exam`,
+          routerLink: '',
+        },
+      });
+      confirmDialogRef.afterClosed().subscribe((res) => {
+        if (res) {
+          this.dialogRef.close();
+        }
+      });
+    } else {
+      this.dialogRef.close(result);
+    }
   }
 }

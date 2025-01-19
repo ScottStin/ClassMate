@@ -33,6 +33,7 @@
     <app-audio-response-question
       *ngIf="question?.type==='audio-response'"
       [question]="question"
+      [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
       [currentUser]="student ? student : currentUser?.email"
       (responseChange)="onResponseChange($event)"
     ></app-audio-response-question>

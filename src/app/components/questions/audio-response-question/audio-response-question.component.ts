@@ -25,6 +25,7 @@ export class AudioResponseQuestionComponent
 {
   @Input() question: QuestionList | null;
   @Input() currentUser: string | undefined;
+  @Input() disableForms: boolean;
   @Output() responseChange = new EventEmitter<any>();
 
   isRecording = false;
@@ -57,13 +58,13 @@ export class AudioResponseQuestionComponent
   }
 
   ngOnInit(): void {
-    this.maxRecordingTime = (this.question?.time ?? 10) + 1;
+    this.maxRecordingTime = (this.question?.length ?? 10) + 1;
     this.preloadAudio();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('question' in changes) {
-      this.maxRecordingTime = (this.question?.time ?? 10) + 1;
+      this.maxRecordingTime = (this.question?.length ?? 10) + 1;
       this.stopRecording();
       setTimeout(() => {
         this.clearRecordedData();

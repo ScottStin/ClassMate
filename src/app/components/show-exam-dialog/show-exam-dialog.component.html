@@ -1,6 +1,11 @@
-<div *ngIf="aiMarkingLoading" class="ai-feedback-loading-spinner-container">
+<div *ngIf="aiMarkingLoading" class="exam-form-loading-spinner-container">
   <mat-spinner></mat-spinner>
-  <span>Applying AI marking and feedback, please wait</span>
+  <span>Applying AI marking and feedback, please wait.</span>
+</div>
+
+<div *ngIf="submitExamLoading" class="exam-form-loading-spinner-container">
+  <mat-spinner></mat-spinner>
+  <span>Submitting your responses, please wait.</span>
 </div>
 
 <ng-container>
@@ -11,7 +16,7 @@
 
   <mat-dialog-content
     class="dialog-content"
-    [class]="aiMarkingLoading ? 'ai-feedback-loading-overlay' : ''"
+    [class]="(aiMarkingLoading || submitExamLoading) ? 'exam-form-loading-overlay' : ''"
   >
     <!----- ---------------------- ----->
     <!----- Start Exam Button: --------->
@@ -49,7 +54,11 @@
           <div class="tree-container">
             <mat-list role="list" *ngFor="let question of questionList">
               <!----- Question List: ----->
-              <mat-list-item role="listitem" (click)="selectQuestion(question)">
+              <mat-list-item
+                role="listitem"
+                (click)="selectQuestion(question)"
+                class="questionListItem"
+              >
                 <div style="display: flex; align-items: center">
                   <span
                     [class]="question === currentQuestionDisplay ? 'current-question' : ''"
@@ -67,7 +76,7 @@
               </mat-list-item>
               <div>
                 <mat-list-item
-                  class="subQuestionList"
+                  class="subQuestionListItem"
                   *ngFor="let subQuestion of question.subQuestions"
                   [class]="subQuestion === currentQuestionDisplay ? 'current-question' : ''"
                   (click)="selectQuestion(subQuestion)"
@@ -128,7 +137,7 @@
   <!-- Marking Table: -->
   <div
     class="marking-table"
-    [class.ai-feedback-loading-overlay]="aiMarkingLoading"
+    [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
     role="region"
     tabindex="0"
     *ngIf="data.markMode"
@@ -162,7 +171,7 @@
   <div
     *ngIf="currentQuestionDisplay?.teacherFeedback && data.markMode"
     [formGroup]="feedbackForm"
-    [class.ai-feedback-loading-overlay]="aiMarkingLoading"
+    [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
   >
     <mat-form-field class="form-field" appearance="outline" style="width: 100%">
       <mat-label [style]="data.markMode ? 'color:black' : ''"
@@ -195,7 +204,7 @@
   <mat-dialog-actions
     align="end"
     *ngIf="examStarted"
-    [class.ai-feedback-loading-overlay]="aiMarkingLoading"
+    [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
   >
     <button
       mat-button

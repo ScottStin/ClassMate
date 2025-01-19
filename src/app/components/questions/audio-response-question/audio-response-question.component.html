@@ -2,13 +2,14 @@
   <div style="margin-bottom: 10px"></div>
   <span *ngIf="!isRecording && !blobUrl"
     >Note: After pressing the microphone button below, you'll have You have
-    {{question?.time ?? 10}} seconds to speak.</span
+    {{question?.length ?? 10}} seconds to speak.</span
   >
   <span *ngIf="isRecording">Say your answer now...</span>
-  <span *ngIf="!isRecording && blobUrl"
+  <span *ngIf="!isRecording && blobUrl && !disableForms"
     >Listen to your answer. If you're unhappy with your response, click the
     reset button to erase your answer and try again.</span
   >
+  <span *ngIf="disableForms">Response:</span>
   <button
     mat-icon-button
     [matTooltip]="!isRecording && !blobUrl ? 'Start audio recording' : 'Stop audio recording'"
@@ -17,7 +18,9 @@
     *ngIf="(!isRecording && !blobUrl) || isRecording"
     class="button"
   >
-    <mat-icon *ngIf="!isRecording && !blobUrl" class="large-mic-icon"
+    <mat-icon
+      *ngIf="!isRecording && !blobUrl && !disableForms"
+      class="large-mic-icon"
       >mic</mat-icon
     >
     <mat-icon *ngIf="isRecording" class="large-mic-icon">mic_off</mat-icon>
@@ -28,7 +31,7 @@
     matTooltip="Reset recording"
     matTooltipPosition="after"
     (click)="clearRecordedData()"
-    *ngIf="!isRecording && blobUrl"
+    *ngIf="!isRecording && blobUrl && !disableForms"
     class="button"
   >
     <mat-icon class="large-mic-icon">restart_alt</mat-icon>
