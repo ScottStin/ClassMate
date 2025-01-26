@@ -15,7 +15,10 @@ import {
 } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { finalize, forkJoin, map, Observable, of, Subject, tap } from 'rxjs';
-import { QuestionService } from 'src/app/services/question-service/question.service';
+import {
+  AudioMark,
+  QuestionService,
+} from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { demoLevels } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
@@ -157,99 +160,74 @@ export class ShowExamDialogComponent implements OnInit {
       return of();
     }
 
-    // --- Written Response Ai Feedback:
-    if (question.type?.toLowerCase() === 'written-response') {
-      return this.questionService
-        .generateAiFeedbackWrittenExamQuestion({
-          text: studentResponse,
-          prompt: question.writtenPrompt ?? '',
-        })
-        .pipe(
-          tap((res) => {
-            this.selectQuestion(question);
+    // --- Get question type:
+    const questionType = question.type?.toLowerCase() as
+      | 'written-response'
+      | 'audio-response'
+      | 'repeat-sentence';
 
-            // Apply AI teacher feedback:
-            if (question.teacherFeedback) {
-              this.feedbackForm.controls.teacherFeedback.setValue(
-                res.feedback ?? ''
-              );
-              this.feedbackTextChange(res.feedback ?? '');
-            }
-
-            // Apply AI marking:
-            this.feedbackForm.controls.vocabMark.setValue(
-              res.mark.vocabMark ?? 0
-            );
-            this.feedbackForm.controls.grammarMark.setValue(
-              res.mark.grammarMark ?? 0
-            );
-            this.feedbackForm.controls.contentMark.setValue(
-              res.mark.contentMark ?? 0
-            );
-
-            this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
-            this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
-            this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
-          }),
-          map(() => {
-            // Transform the result to void since we don't need the actual response here
-          })
-        );
+    if (!['written-response', 'audio-response'].includes(questionType)) {
+      return of();
     }
 
-    // --- Audio Response Ai Feedback:
-    if (question.type?.toLowerCase() === 'audio-response') {
-      return this.questionService
-        .generateAiFeedbackAudioExamQuestion({
-          audioUrl: studentResponse,
-          prompt: question.writtenPrompt ?? '',
-        })
-        .pipe(
-          tap((res) => {
-            this.selectQuestion(question);
+    // --- Generate Ai Feedback:
+    return this.questionService
+      .generateAiFeedbackExamQuestion({
+        text: studentResponse,
+        audioUrl: studentResponse,
+        prompt: question.writtenPrompt ?? '',
+        questionType,
+      })
+      .pipe(
+        tap((res) => {
+          this.selectQuestion(question);
 
-            // Apply AI teacher feedback:
-            if (question.teacherFeedback) {
-              this.feedbackForm.controls.teacherFeedback.setValue(
-                res.feedback ?? ''
-              );
-              this.feedbackTextChange(res.feedback ?? '');
-            }
+          // Apply AI teacher feedback:
+          if (question.teacherFeedback) {
+            this.feedbackForm.controls.teacherFeedback.setValue(
+              res.feedback ?? ''
+            );
+            this.feedbackTextChange(res.feedback ?? '');
+          }
 
-            // Apply AI marking:
-            this.feedbackForm.controls.vocabMark.setValue(
-              res.mark.vocabMark ?? 0
-            );
-            this.feedbackForm.controls.grammarMark.setValue(
-              res.mark.grammarMark ?? 0
-            );
-            this.feedbackForm.controls.contentMark.setValue(
-              res.mark.contentMark ?? 0
-            );
+          // Apply AI marking:
+          this.feedbackForm.controls.vocabMark.setValue(
+            res.mark.vocabMark ?? 0
+          );
+          this.feedbackForm.controls.grammarMark.setValue(
+            res.mark.grammarMark ?? 0
+          );
+          this.feedbackForm.controls.contentMark.setValue(
+            res.mark.contentMark ?? 0
+          );
+
+          this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
+          this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
+          this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
+
+          // apply audi specific ai marking:
+          if (questionType === 'audio-response') {
             this.feedbackForm.controls.pronunciationMark?.setValue(
-              res.mark.pronunciationMark ?? 0
+              (res.mark as AudioMark).pronunciationMark ?? 0
             );
             this.feedbackForm.controls.fluencyMark?.setValue(
-              res.mark.fluencyMark ?? 0
+              (res.mark as AudioMark).fluencyMark ?? 0
             );
 
-            this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
-            this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
-            this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
-            this.onMarkSelect(res.mark.fluencyMark ?? 0, 'fluencyMark');
             this.onMarkSelect(
-              res.mark.pronunciationMark ?? 0,
+              (res.mark as AudioMark).fluencyMark ?? 0,
+              'fluencyMark'
+            );
+            this.onMarkSelect(
+              (res.mark as AudioMark).pronunciationMark ?? 0,
               'pronunciationMark'
             );
-          }),
-          map(() => {
-            // Transform the result to void since we don't need the actual response here
-          })
-        );
-    }
-
-    // Return an empty Observable if there's no student response or it's not a written-response question
-    return of();
+          }
+        }),
+        map(() => {
+          // Transform the result to void since we don't need the actual response here
+        })
+      );
   }
 
   /*

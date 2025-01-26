@@ -87,7 +87,39 @@ export class QuestionService {
    * ================================
    */
 
-  generateAiFeedbackWrittenExamQuestion(data: {
+  generateAiFeedbackExamQuestion(data: {
+    questionType: 'written-response' | 'audio-response' | 'repeat-sentence';
+    text?: string;
+    audioUrl?: string;
+    prompt: string;
+  }): Observable<{
+    feedback?: string;
+    mark: WrittenMark | AudioMark;
+  }> {
+    const { questionType, text, audioUrl, prompt } = data;
+
+    if (questionType === 'written-response') {
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (!text) {
+        throw new Error('Text is required for written-response question type');
+      }
+      return this.generateAiFeedbackWritten({ text, prompt });
+    }
+
+    if (questionType === 'audio-response') {
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (!audioUrl) {
+        throw new Error(
+          'Audio URL is required for audio-response question type'
+        );
+      }
+      return this.generateAiFeedbackAudio({ audioUrl, prompt });
+    }
+
+    throw new Error('Invalid questionType provided');
+  }
+
+  generateAiFeedbackWritten(data: {
     text: string;
     prompt: string;
   }): Observable<{
@@ -113,7 +145,7 @@ export class QuestionService {
       );
   }
 
-  generateAiFeedbackAudioExamQuestion(data: {
+  generateAiFeedbackAudio(data: {
     audioUrl: string;
     prompt: string;
   }): Observable<{
