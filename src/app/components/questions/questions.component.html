@@ -9,12 +9,48 @@
   </mat-card-header>
 
   <!-- Media Promots: -->
-  <img
-    mat-card-image
-    src="https://material.angular.io/assets/img/examples/shiba2.jpg"
-    alt="image prompt"
-    class="url-prompt-1"
-  />
+  <div class="media-prompt-container">
+    <div
+      *ngIf="question?.prompt1?.fileString && question?.prompt1?.type"
+      class="prompt"
+    >
+      <img
+        *ngIf="question?.prompt1?.type === 'image'"
+        mat-card-image
+        [src]="question?.prompt1?.fileString"
+        alt="image prompt"
+        class="prompt-item"
+      />
+      <audio
+        *ngIf="question?.prompt1?.type === 'audio'"
+        controls
+        class="prompt-item"
+      >
+        <source [src]="question?.prompt1?.fileString" type="audio/webm" />
+      </audio>
+    </div>
+
+    <div
+      *ngIf="question?.prompt2?.fileString && question?.prompt2?.type"
+      class="prompt"
+    >
+      <img
+        *ngIf="question?.prompt2?.type === 'image'"
+        mat-card-image
+        [src]="question?.prompt2?.fileString"
+        alt="image prompt"
+        class="prompt-item"
+      />
+
+      <audio
+        *ngIf="question?.prompt2?.type === 'audio'"
+        controls
+        class="prompt-item"
+      >
+        <source [src]="question?.prompt2?.fileString" type="audio/webm" />
+      </audio>
+    </div>
+  </div>
 
   <!-- Question Components: -->
   <mat-card-content

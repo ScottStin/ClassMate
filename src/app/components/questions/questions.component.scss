@@ -4,7 +4,21 @@
     overflow-y:scroll;
 }
 
-.url-prompt-1 {
-    width: 20vw;
-    margin-left:15px
-}
+.media-prompt-container {
+    display: flex;
+    gap: 16px;
+    padding:20px;
+  }
+  
+  .prompt {
+    flex: 1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .prompt-item {
+    max-width: 20vw;
+    max-height: 20vw;
+    object-fit: contain;
+  }
