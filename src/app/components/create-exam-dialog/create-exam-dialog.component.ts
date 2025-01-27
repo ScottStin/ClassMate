@@ -19,6 +19,7 @@ import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.serv
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+import { PreviewExamQuestionComponent } from '../preview-exam-question/preview-exam-question.component';
 import { CreateFillBlanksExamQuestionDialogComponent } from './create-fill-blanks-exam-question-dialog/create-fill-blanks-exam-question-dialog.component';
 import { CreateMultipleChoiceExamQuestionDialogComponent } from './create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.component';
 import { CreateReorderSentenceExamQuestionDialogComponent } from './create-reorder-sentence-exam-question-dialog/create-reorder-sentence-exam-question-dialog.component';
@@ -444,6 +445,7 @@ export class CreateExamDialogComponent implements OnInit {
 
   /*
    * Delete a question from the question list:
+   * todo - replace subQuestions/ question logic with findCurrentQuestionFromList
    */
   deleteQuestion(
     question: QuestionList,
@@ -460,6 +462,27 @@ export class CreateExamDialogComponent implements OnInit {
       this.questionList = this.questionList.filter((obj) => obj !== question);
     }
     this.currentQuestionDisplay = null;
+  }
+
+  /**
+   * Show a preview of what the current question will look like:
+   */
+  previewQuestion(): void {
+    // Find the current question:
+    const foundQuestion = this.findCurrentQuestionFromList();
+
+    // open dialog:
+    this.dialog.open(PreviewExamQuestionComponent, {
+      data: {
+        question: foundQuestion,
+        placeholderUser: this.data.teachers[0],
+      },
+      // panelClass: 'fullscreen-dialog',
+      // height: '95vh',
+      autoFocus: false,
+      hasBackdrop: true,
+      disableClose: true,
+    });
   }
 
   /*

@@ -23,6 +23,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { ErrorMessageModule } from '../error-message/error-message.module';
+import { PreviewExamQuestionModule } from '../preview-exam-question/preview-exam-question.module';
 import { CreateExamDialogComponent } from './create-exam-dialog.component';
 import { CreateFillBlanksExamQuestionDialogModule } from './create-fill-blanks-exam-question-dialog/create-fill-blanks-exam-question-dialog.module';
 import { CreateMultipleChoiceExamQuestionDialogModule } from './create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.module';
@@ -60,6 +61,7 @@ import { CreateMatchOptionsExamQuestionDialogModule } from './match-options-exam
     CreateFillBlanksExamQuestionDialogModule,
     DialogActionsModule,
     MatProgressSpinnerModule,
+    PreviewExamQuestionModule,
   ],
   exports: [CreateExamDialogComponent],
 })

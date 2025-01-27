@@ -278,6 +278,15 @@
                           [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
                           >delete</mat-icon
                         >
+                        <mat-icon
+                          style="cursor: pointer; font-size: 16px"
+                          #tooltip="matTooltip"
+                          [matTooltip]="'Preview ' + question.type"
+                          (click)="previewQuestion()"
+                          *ngIf="question.id === currentQuestionDisplay?.id"
+                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          >remove_red_eye</mat-icon
+                        >
                         <span
                           *ngIf="question.subQuestions"
                           (click)="expandSection(question)"
@@ -316,6 +325,14 @@
                           matTooltip="Delete question"
                           (click)="deleteQuestion(question, subQuestion)"
                           >delete</mat-icon
+                        >
+                        <mat-icon
+                          style="cursor: pointer; font-size: 16px"
+                          #tooltip="matTooltip"
+                          matTooltip="Preview question"
+                          (click)="previewQuestion()"
+                          *ngIf="subQuestion.id === currentQuestionDisplay?.id"
+                          >remove_red_eye</mat-icon
                         >
                       </mat-list-item>
                       <span
