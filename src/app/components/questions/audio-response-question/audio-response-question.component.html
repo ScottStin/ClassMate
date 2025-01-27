@@ -1,7 +1,7 @@
 <div class="mic-button-container">
   <div style="margin-bottom: 10px"></div>
   <span *ngIf="!isRecording && !blobUrl"
-    >Note: After pressing the microphone button below, you'll have You have
+    >Note: After pressing the microphone button below, you'll have
     {{question?.length ?? 10}} seconds to speak.</span
   >
   <span *ngIf="isRecording">Say your answer now...</span>
@@ -15,12 +15,10 @@
     [matTooltip]="!isRecording && !blobUrl ? 'Start audio recording' : 'Stop audio recording'"
     matTooltipPosition="after"
     (click)="!isRecording && !blobUrl ? startRecording() : stopRecording()"
-    *ngIf="(!isRecording && !blobUrl) || isRecording"
+    *ngIf="((!isRecording && !blobUrl) || isRecording) && !disableForms"
     class="button"
   >
-    <mat-icon
-      *ngIf="!isRecording && !blobUrl && !disableForms"
-      class="large-mic-icon"
+    <mat-icon *ngIf="!isRecording && !blobUrl" class="large-mic-icon"
       >mic</mat-icon
     >
     <mat-icon *ngIf="isRecording" class="large-mic-icon">mic_off</mat-icon>
@@ -50,6 +48,10 @@
     <audio *ngIf="!isRecording && blobUrl" controls>
       <source [src]="blobUrl" type="audio/webm" />
     </audio>
+
+    <span *ngIf="disableForms && !blobUrl && !isRecording"
+      >No response given</span
+    >
   </div>
 </div>
 
