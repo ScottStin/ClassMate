@@ -125,6 +125,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
 
   getUsers(): void {
     this.userPageLoading = true;
+    // todo, replace with this.currentSchool$.getValue()
     this.currentSchool$.subscribe((currentSchool) => {
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (currentSchool?._id) {

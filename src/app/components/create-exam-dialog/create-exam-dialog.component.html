@@ -1,9 +1,18 @@
+<div *ngIf="createExamLoading" class="exam-form-loading-spinner-container">
+  <mat-spinner></mat-spinner>
+  <span>We're creating your exam now, please wait.</span>
+</div>
+
 <ng-container>
   <app-dialog-header
     [dialogTitle]="data.title"
     (closeAction)="closeDialog(null)"
   ></app-dialog-header>
-  <mat-stepper [linear]="!data.exam" #stepper>
+  <mat-stepper
+    [linear]="!data.exam"
+    #stepper
+    [class]="createExamLoading ? 'exam-form-loading-overlay' : ''"
+  >
     <div [formGroup]="examForm">
       <!-- --- ------------- -->
       <!-- EXAM DETAILS STEP -->
@@ -528,20 +537,30 @@
                 </mat-form-field>
               </div>
 
-              <!----- Question Prompt1 Url: ----->
+              <!----- Question Prompt1: ----->
               <div>
                 <mat-form-field appearance="outline" style="width: 70%">
-                  <mat-label for="promptUrl1" class="file-label"
-                    ><mat-icon>attach_file</mat-icon> Prompt URL...</mat-label
-                  >
+                  <mat-label for="prompt1" class="file-label"
+                    ><mat-icon>attach_file</mat-icon>
+                    <span *ngIf="!fileNamePrompt1">Prompt Attachment...</span>
+                    <span *ngIf="fileNamePrompt1">{{fileNamePrompt1}}</span>
+                  </mat-label>
+                  <input
+                    #prompt1
+                    type="file"
+                    hidden="true"
+                    (change)="updatePrompt($event, 'prompt1', 'prompt1Type')"
+                    [accept]="questionStepForm.getRawValue().prompt1Type === 'image' 
+                              ? 'image/png, image/jpeg, image/gif, image/tiff' 
+                              : (questionStepForm.getRawValue().prompt1Type === 'audio' 
+                                ? 'audio/mpeg, audio/wav, audio/ogg' 
+                                : 'image/png, image/jpeg, image/gif, image/tiff, audio/mpeg, audio/wav, audio/ogg')"
+                  />
                   <input
                     matInput
-                    id="promptUrl1"
-                    #promptUrl1
-                    formControlName="promptUrl1"
-                    type="text"
-                    placeholder="Add a URL to a prompt for this question"
-                    (keyup)="updatePrompt(promptUrl1.value, questionStepForm.getRawValue().promptUrl1Type)"
+                    [placeholder]="fileNamePrompt1 || 'Upload an audio or visual prompt for this question'"
+                    (click)="prompt1.click()"
+                    readonly
                   />
                   <button
                     mat-icon-button
@@ -549,13 +568,13 @@
                     matTooltip="Add a new prompt"
                     matTooltipPosition="after"
                     (click)="addNewPrompt()"
-                    *ngIf="!currentQuestionDisplay.promptUrl2"
+                    *ngIf="!currentQuestionDisplay.prompt2"
                   >
                     <mat-icon>add</mat-icon>
                   </button>
                   <mat-error>
                     <app-error-message
-                      [control]="questionStepForm.controls['promptUrl1'].errors"
+                      [control]="questionStepForm.controls['prompt1'].errors"
                     ></app-error-message>
                   </mat-error>
                 </mat-form-field>
@@ -566,11 +585,11 @@
                 >
                   <mat-label>Prompt Type</mat-label>
                   <mat-select
-                    formControlName="promptUrl1Type"
-                    (selectionChange)="updatePrompt(promptUrl1.value, $event.value)"
+                    formControlName="prompt1Type"
+                    (selectionChange)="updatePromptType($event.value, 'prompt1', true)"
                   >
                     <mat-option
-                      *ngFor="let promptType of ['image', 'audio', 'video']"
+                      *ngFor="let promptType of ['image', 'audio']"
                       [value]="promptType"
                       >{{promptType | titlecase}}</mat-option
                     >
@@ -578,20 +597,30 @@
                 </mat-form-field>
               </div>
 
-              <!----- Question Prompt2 Url: ----->
-              <div *ngIf="currentQuestionDisplay.promptUrl2">
+              <!----- Question Prompt2: ----->
+              <div *ngIf="currentQuestionDisplay.prompt2">
                 <mat-form-field appearance="outline" style="width: 70%">
-                  <mat-label for="promptUrl2" class="file-label"
-                    ><mat-icon>attach_file</mat-icon> Prompt URL...</mat-label
-                  >
+                  <mat-label for="prompt2" class="file-label"
+                    ><mat-icon>attach_file</mat-icon>
+                    <span *ngIf="!fileNamePrompt2">Prompt Attachment...</span>
+                    <span *ngIf="fileNamePrompt2">{{fileNamePrompt2}}</span>
+                  </mat-label>
+                  <input
+                    #prompt2
+                    type="file"
+                    hidden="true"
+                    (change)="updatePrompt($event, 'prompt2', 'prompt2Type')"
+                    [accept]="questionStepForm.getRawValue().prompt2Type === 'image' 
+                              ? 'image/png, image/jpeg, image/gif, image/tiff' 
+                              : (questionStepForm.getRawValue().prompt2Type === 'audio' 
+                                ? 'audio/mpeg, audio/wav, audio/ogg' 
+                                : 'image/png, image/jpeg, image/gif, image/tiff, audio/mpeg, audio/wav, audio/ogg')"
+                  />
                   <input
                     matInput
-                    id="promptUrl2"
-                    #promptUrl2
-                    formControlName="promptUrl2"
-                    type="text"
-                    placeholder="Add another URL to a prompt for this question"
-                    (keyup)="updatePrompt2(promptUrl2.value, questionStepForm.getRawValue().promptUrl2Type)"
+                    [placeholder]="fileNamePrompt2 || 'Upload another audio or visual prompt for this question'"
+                    (click)="prompt2.click()"
+                    readonly
                   />
                   <button
                     mat-icon-button
@@ -602,6 +631,11 @@
                   >
                     <mat-icon>delete</mat-icon>
                   </button>
+                  <mat-error>
+                    <app-error-message
+                      [control]="questionStepForm.controls['prompt2'].errors"
+                    ></app-error-message>
+                  </mat-error>
                 </mat-form-field>
 
                 <mat-form-field
@@ -610,11 +644,11 @@
                 >
                   <mat-label>Prompt Type</mat-label>
                   <mat-select
-                    formControlName="promptUrl2Type"
-                    (selectionChange)="updatePrompt2(promptUrl2.value, $event.value)"
+                    formControlName="prompt2Type"
+                    (selectionChange)="updatePromptType($event.value, 'prompt2', true)"
                   >
                     <mat-option
-                      *ngFor="let promptType of ['image', 'audio', 'video']"
+                      *ngFor="let promptType of ['image', 'audio']"
                       [value]="promptType"
                       >{{promptType | titlecase}}</mat-option
                     >

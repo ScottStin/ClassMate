@@ -12,7 +12,7 @@ import {
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
+import { finalize, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -45,6 +45,13 @@ export class CreateExamDialogComponent implements OnInit {
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
   scrollThroughQuestionListStyling = '';
+  createExamLoading = false;
+
+  fileChangedEvent: Event | string = '';
+  fileLinkPrompt1: string | null | undefined;
+  fileNamePrompt1 = '';
+  fileLinkPrompt2: string | null | undefined;
+  fileNamePrompt2 = '';
 
   questionTypes: { type: string; description: string; label: string }[] = [
     { type: 'written-response', description: '', label: 'Written Response' },
@@ -159,18 +166,20 @@ export class CreateExamDialogComponent implements OnInit {
       totalPointsMax: new FormControl(5, {
         nonNullable: true,
       }),
-      promptUrl1: new FormControl('', {
-        validators: [this.validUrl()],
+      prompt1: new FormControl('', {
+        // validators: [this.validUrl()],
+        validators: [],
         nonNullable: false,
       }),
-      promptUrl1Type: new FormControl('', {
+      prompt1Type: new FormControl('', {
         nonNullable: false,
       }),
-      promptUrl2: new FormControl('', {
-        validators: [this.validUrl()],
+      prompt2: new FormControl('', {
+        // validators: [this.validUrl()],
+        validators: [],
         nonNullable: false,
       }),
-      promptUrl2Type: new FormControl('', {
+      prompt2Type: new FormControl('', {
         nonNullable: false,
       }),
       length: new FormControl(NaN, {
@@ -336,30 +345,38 @@ export class CreateExamDialogComponent implements OnInit {
       questionForm.controls.autoMarking.setValue(
         this.currentQuestionDisplay.autoMarking ?? false
       );
-      questionForm.controls.promptUrl1.setValue(
-        this.currentQuestionDisplay.promptUrl1?.url ?? null
+      questionForm.controls.prompt1.setValue(
+        this.currentQuestionDisplay.prompt1?.fileString ?? null
       );
-      questionForm.controls.promptUrl1Type.setValue(
-        this.currentQuestionDisplay.promptUrl1?.type ?? null
+      questionForm.controls.prompt1Type.setValue(
+        this.currentQuestionDisplay.prompt1?.type ?? null
       );
-      questionForm.controls.promptUrl2.setValue(
-        this.currentQuestionDisplay.promptUrl2?.url ?? null
+      questionForm.controls.prompt2.setValue(
+        this.currentQuestionDisplay.prompt2?.fileString ?? null
       );
-      questionForm.controls.promptUrl2Type.setValue(
-        this.currentQuestionDisplay.promptUrl2?.type ?? null
+      questionForm.controls.prompt2Type.setValue(
+        this.currentQuestionDisplay.prompt2?.type ?? null
       );
       questionForm.controls.length.setValue(
         this.currentQuestionDisplay.length ?? NaN
       );
       questionForm.controls.totalPointsMin.setValue(
-        this.currentQuestionDisplay.totalPointsMin ?? NaN
+        this.currentQuestionDisplay.totalPointsMin ?? 0
       );
       questionForm.controls.totalPointsMax.setValue(
-        this.currentQuestionDisplay.totalPointsMax ?? NaN
+        this.currentQuestionDisplay.totalPointsMax ?? 10
       );
       questionForm.controls.time.setValue(
         this.currentQuestionDisplay.time ?? null
       );
+
+      // update prompt attachement strings/names:
+      this.fileLinkPrompt1 = this.currentQuestionDisplay.prompt1?.fileString;
+      this.fileNamePrompt1 =
+        this.currentQuestionDisplay.prompt1?.fileName ?? '';
+      this.fileLinkPrompt2 = this.currentQuestionDisplay.prompt2?.fileString;
+      this.fileNamePrompt2 =
+        this.currentQuestionDisplay.prompt2?.fileName ?? '';
     }
   }
 
@@ -543,62 +560,184 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   /*
-   * Add/Remove/Update a new url prompt to the exam question:
+   * Add/Remove/Update a new prompt to the exam question:
    */
   addNewPrompt(): void {
     const foundQuestion = this.findCurrentQuestionFromList();
     if (foundQuestion) {
-      foundQuestion.promptUrl2 = { url: '', type: 'image' };
+      foundQuestion.prompt2 = { fileString: '', type: 'image', fileName: '' };
     }
   }
 
   removePrompt(): void {
     const foundQuestion = this.findCurrentQuestionFromList();
     if (foundQuestion) {
-      foundQuestion.promptUrl2 = null;
+      foundQuestion.prompt2 = null;
     }
   }
 
-  updatePrompt(url: string, promptType: string | null | undefined): void {
-    const foundQuestion = this.findCurrentQuestionFromList();
-    if (foundQuestion) {
-      foundQuestion.promptUrl1 = {
-        url,
-        type: (promptType ?? 'image').toLowerCase(),
-      };
+  async updatePrompt(
+    event: Event,
+    promptNumber: 'prompt1' | 'prompt2',
+    promptTypeNumber: string // 'prompt1Type' | 'prompt2Type'
+  ): Promise<void> {
+    this.fileChangedEvent = event;
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      if (this.validateFile(input.files[0])) {
+        if (promptNumber === 'prompt1') {
+          this.fileNamePrompt1 = input.files[0].name;
+        }
+        if (promptNumber === 'prompt2') {
+          this.fileNamePrompt2 = input.files[0].name;
+        }
+        await this.convertFileToBase64(input.files[0], promptNumber);
+
+        const foundQuestion = this.findCurrentQuestionFromList();
+        if (foundQuestion) {
+          foundQuestion[promptNumber] = {
+            // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style, prettier/prettier
+            fileString: (promptNumber === 'prompt1' ? this.fileLinkPrompt1 : (this.fileLinkPrompt2 ?? '')) as string,
+            type:
+              this.examForm.controls.questionStep.getRawValue()[
+                promptTypeNumber as 'prompt1Type' | 'prompt2Type'
+              ] ?? '',
+            fileName:
+              promptNumber === 'prompt1'
+                ? this.fileNamePrompt1
+                : this.fileNamePrompt2,
+          };
+
+          // Change prompt type to match uploaded file type:
+          if (input.files[0].type.startsWith('image/')) {
+            this.examForm.controls.questionStep.controls[
+              promptTypeNumber as 'prompt1Type' | 'prompt2Type'
+            ].setValue('image');
+            this.updatePromptType('image', promptNumber, false);
+          } else if (input.files[0].type.startsWith('audio/')) {
+            this.examForm.controls.questionStep.controls[
+              promptTypeNumber as 'prompt1Type' | 'prompt2Type'
+            ].setValue('audio');
+            this.updatePromptType('audio', promptNumber, false);
+          }
+        }
+      }
     }
   }
 
-  updatePrompt2(url: string, promptType: string | null | undefined): void {
+  updatePromptType(
+    promptType: string | null | undefined,
+    promptNumber: 'prompt1' | 'prompt2',
+    clear: boolean
+  ): void {
     const foundQuestion = this.findCurrentQuestionFromList();
     if (foundQuestion) {
-      foundQuestion.promptUrl2 = {
-        url,
-        type: (promptType ?? 'image').toLowerCase(),
-      };
+      if (promptNumber === 'prompt1') {
+        if (clear) {
+          this.fileNamePrompt1 = ''; // clear file when prompt type changes:
+          this.fileLinkPrompt1 = '';
+        }
+        foundQuestion[promptNumber] = {
+          fileString: this.fileLinkPrompt1 ?? '',
+          type: (promptType ?? 'image').toLowerCase(),
+          fileName: this.fileNamePrompt1,
+        };
+      }
+
+      if (promptNumber === 'prompt2') {
+        if (clear) {
+          this.fileNamePrompt2 = ''; // clear file when prompt type changes:
+          this.fileLinkPrompt2 = '';
+        }
+        foundQuestion[promptNumber] = {
+          fileString: this.fileLinkPrompt2 ?? '',
+          type: (promptType ?? 'image').toLowerCase(),
+          fileName: this.fileNamePrompt2,
+        };
+      }
     }
   }
 
   /*
-   *Custom url validator for question prompts:
+   * Handle file upload and validation:
    */
-  validUrl(): ValidatorFn {
-    return (control: AbstractControl): Record<string, unknown> | null => {
-      const urlInput = control.value as string;
 
-      if (!urlInput) {
-        return null; // Allow blank url field;
-      }
-
-      try {
-        // eslint-disable-next-line no-new
-        new URL(urlInput);
-        return null;
-      } catch {
-        return { invalidUrl: true };
-      }
-    };
+  // todo = move to shared service or directive
+  // eslint-disable-next-line require-await
+  async convertFileToBase64(file: File, promptNumber: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (): void => {
+        if (promptNumber === 'prompt1') {
+          this.fileLinkPrompt1 = reader.result as string;
+        }
+        if (promptNumber === 'prompt2') {
+          this.fileLinkPrompt2 = reader.result as string;
+        }
+        resolve(); // Resolves the promise once the file is converted
+      };
+      reader.onerror = (): void => {
+        reject(new Error('Failed to read file.'));
+      };
+      reader.readAsDataURL(file);
+    });
   }
+
+  // todo = move to shared service or directive
+  validateFile(file: File): boolean {
+    const types = [
+      'image/png',
+      'image/gif',
+      'image/tiff',
+      'image/jpeg',
+      'audio/mpeg',
+      'audio/wav',
+      'audio/ogg',
+    ]; // todo - this should validate image and audio uploads seperately
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    const maxSize = 1000 * 1024 * 10; // 10,000 KB
+    if (!types.includes(file.type)) {
+      this.snackbarService.openPermanent(
+        'error',
+        'File must be an either a png, gif, tiff, jpeg, mpeg, wav, or ogg type',
+        'dismiss'
+      );
+      return false;
+    }
+    if (file.size > maxSize) {
+      this.snackbarService.openPermanent(
+        'error',
+        'File must be 1-10,000 kb in size',
+        'dismiss'
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  /*
+   *Custom url validator for question prompts:
+   * Not needed since we've changed the prompts from url link to file
+   */
+
+  // validUrl(): ValidatorFn {
+  //   return (control: AbstractControl): Record<string, unknown> | null => {
+  //     const urlInput = control.value as string;
+
+  //     if (!urlInput) {
+  //       return null; // Allow blank url field;
+  //     }
+
+  //     try {
+  //       // eslint-disable-next-line no-new
+  //       new URL(urlInput);
+  //       return null;
+  //     } catch {
+  //       return { invalidUrl: true };
+  //     }
+  //   };
+  // }
 
   /*
    *Custom validator for length of written and audio responses:
@@ -657,11 +796,17 @@ export class CreateExamDialogComponent implements OnInit {
    * Finally, when the user is finished, we save the exam:
    */
   saveExamClick(): void {
-    // this.saveExam.emit(this.examForm.value as ExamDTO);
+    this.createExamLoading = true;
+    this.saveExam.emit(this.examForm.value as ExamDTO);
     this.examService
       .create(
         this.examForm.controls.examDetailsStep.value as ExamDTO,
         this.questionList
+      )
+      .pipe(
+        finalize(() => {
+          this.createExamLoading = false;
+        })
       )
       .subscribe({
         next: () => {
@@ -704,8 +849,8 @@ export interface QuestionList {
   totalPointsMin?: number | null;
   totalPointsMax?: number | null;
   length?: number | null;
-  promptUrl1?: { url: string; type: string } | null;
-  promptUrl2?: { url: string; type: string } | null;
+  prompt1?: { fileString: string; type: string; fileName: string } | null;
+  prompt2?: { fileString: string; type: string; fileName: string } | null;
   expanded?: boolean;
   id?: number | string;
   parent?: number | null;
@@ -749,10 +894,10 @@ export type QuestionStepForm = FormGroup<{
   type: FormControl<string>;
   totalPointsMin: FormControl<number>; // smallest amount of points rewarded for question/section
   totalPointsMax: FormControl<number>; // total amount of points rewarded for question/section
-  promptUrl1: FormControl<string | null>; // a prompt url (image/audi/video) for the question
-  promptUrl1Type: FormControl<string | null>; // a prompt type for the url above
-  promptUrl2: FormControl<string | null>; // a second prompt for the question
-  promptUrl2Type: FormControl<string | null>; // a second prompt type for the question
+  prompt1: FormControl<string | null>; // a prompt (image/audi/video) for the question
+  prompt1Type: FormControl<string | null>; // a prompt type for the prompt above
+  prompt2: FormControl<string | null>; // a second prompt for the question
+  prompt2Type: FormControl<string | null>; // a second prompt type for the question
   teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
   autoMarking: FormControl<boolean>; // false = teacher has to assign mark
   length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions

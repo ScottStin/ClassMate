@@ -14,5 +14,5 @@ export interface ExamDTO {
   createdAt?: Date | null;
   assignedTeacher: string;
   aiMarkingComplete?: { email: string }[];
-  school: string | null;
+  schoolId: string | null;
 }

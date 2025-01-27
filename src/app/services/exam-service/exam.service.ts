@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { QuestionList } from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
@@ -15,11 +16,20 @@ export class ExamService {
   private readonly baseUrl = `${environment.apiUrl}/exams`;
   private readonly examSubject = new BehaviorSubject<ExamDTO[]>([]);
   exams$ = this.examSubject.asObservable();
+  currentSchoolString: SchoolDTO | undefined;
 
   constructor(
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService
-  ) {}
+  ) {
+    const currentSchoolString = localStorage.getItem('current_school');
+
+    if (currentSchoolString !== null) {
+      this.currentSchoolString = JSON.parse(currentSchoolString) as
+        | SchoolDTO
+        | undefined;
+    }
+  }
 
   getAll(): Observable<ExamDTO[]> {
     return this.httpClient.get<ExamDTO[]>(`${this.baseUrl}`).pipe(
@@ -33,8 +43,15 @@ export class ExamService {
   }
 
   create(exam: ExamDTO, questions: QuestionList[]): Observable<ExamDTO> {
+    //
+    // add school id to exam data:
+    const examData = {
+      ...exam,
+      schoolId: this.currentSchoolString?._id,
+    };
+
     return this.httpClient
-      .post<ExamDTO>(`${this.baseUrl}/new`, { exam, questions })
+      .post<ExamDTO>(`${this.baseUrl}/new`, { examData, questions })
       .pipe(
         catchError((error: Error) => {
           this.handleError(error, 'Failed to create new exam');
