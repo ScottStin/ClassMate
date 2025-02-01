@@ -126,3 +126,7 @@ $secondaryColor: var(--secondaryColor);
   cursor: not-allowed;
   opacity: 0.1;
 }
+
+::ng-deep .mat-progress-spinner circle, .mat-spinner circle { // todo - move to global styling
+  stroke: $primaryColor !important;
+  }

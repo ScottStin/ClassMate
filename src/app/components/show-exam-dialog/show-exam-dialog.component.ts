@@ -176,6 +176,14 @@ export class ShowExamDialogComponent implements OnInit {
         text: studentResponse,
         audioUrl: studentResponse,
         prompt: question.writtenPrompt ?? '',
+        mediaPrompt1: {
+          url: question.prompt1?.fileString ?? '',
+          type: question.prompt1?.type ?? '',
+        },
+        mediaPrompt2: {
+          url: question.prompt1?.fileString ?? '',
+          type: question.prompt1?.type ?? '',
+        },
         questionType,
       })
       .pipe(

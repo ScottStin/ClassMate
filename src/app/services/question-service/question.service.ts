@@ -92,18 +92,33 @@ export class QuestionService {
     text?: string;
     audioUrl?: string;
     prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
   }): Observable<{
     feedback?: string;
     mark: WrittenMark | AudioMark;
   }> {
-    const { questionType, text, audioUrl, prompt } = data;
+    console.log('test1');
+    const { questionType, text, audioUrl, prompt, mediaPrompt1, mediaPrompt2 } =
+      data;
 
     if (questionType === 'written-response') {
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (!text) {
         throw new Error('Text is required for written-response question type');
       }
-      return this.generateAiFeedbackWritten({ text, prompt });
+      return this.generateAiFeedbackWritten({
+        text,
+        prompt,
+        mediaPrompt1,
+        mediaPrompt2,
+      });
     }
 
     if (questionType === 'audio-response') {
@@ -113,7 +128,12 @@ export class QuestionService {
           'Audio URL is required for audio-response question type'
         );
       }
-      return this.generateAiFeedbackAudio({ audioUrl, prompt });
+      return this.generateAiFeedbackAudio({
+        audioUrl,
+        prompt,
+        mediaPrompt1,
+        mediaPrompt2,
+      });
     }
 
     throw new Error('Invalid questionType provided');
@@ -122,19 +142,23 @@ export class QuestionService {
   generateAiFeedbackWritten(data: {
     text: string;
     prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
   }): Observable<{
     feedback?: string;
     mark: WrittenMark;
   }> {
-    const { text, prompt } = data;
     return this.httpClient
       .post<{
         feedback: string;
         mark: WrittenMark;
-      }>(`${this.baseUrl}/generate-ai-exam-feedback/written-question`, {
-        text,
-        prompt,
-      })
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/written-question`, data)
       .pipe(
         catchError((error: Error) => {
           this.handleError(
@@ -148,19 +172,23 @@ export class QuestionService {
   generateAiFeedbackAudio(data: {
     audioUrl: string;
     prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
   }): Observable<{
     feedback?: string;
     mark: AudioMark;
   }> {
-    const { audioUrl, prompt } = data;
     return this.httpClient
       .post<{
         feedback: string;
         mark: AudioMark;
-      }>(`${this.baseUrl}/generate-ai-exam-feedback/audio-question`, {
-        audioUrl,
-        prompt,
-      })
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/audio-question`, data)
       .pipe(
         catchError((error: Error) => {
           this.handleError(
