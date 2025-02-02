@@ -157,11 +157,16 @@
       <mat-radio-group
         class="marking-table-radio-group"
         aria-label="Select a result"
-        (change)="onMarkSelect($event.value, category.value)"
         [formControlName]="category.value"
       >
-        <div class="marking-table-cell" *ngFor="let level of demoLevels">
-          <mat-radio-button [value]="level.number"></mat-radio-button>
+        <div
+          class="marking-table-cell"
+          *ngFor="let level of demoLevels; let colIndex = index"
+        >
+          <mat-radio-button
+            [value]="level.number"
+            (click)="onMarkSelect(colIndex, category.value)"
+          ></mat-radio-button>
         </div>
       </mat-radio-group>
     </div>

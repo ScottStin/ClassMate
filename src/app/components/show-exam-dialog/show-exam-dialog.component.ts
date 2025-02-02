@@ -519,6 +519,9 @@ export class ShowExamDialogComponent implements OnInit {
     if (studentScore) {
       studentScore.mark = totalScaledMark;
     }
+
+    // update the feedback form:
+    this.updateForm();
   }
 
   /*
@@ -835,6 +838,12 @@ export class ShowExamDialogComponent implements OnInit {
       feedbackForm.contentMark.setValue(
         Number(studentResponse?.mark?.contentMark ?? '')
       );
+      feedbackForm.pronunciationMark?.setValue(
+        Number(studentResponse?.mark?.pronunciationMark ?? '')
+      );
+      feedbackForm.fluencyMark?.setValue(
+        Number(studentResponse?.mark?.fluencyMark ?? '')
+      );
     }
   }
 
@@ -914,13 +923,21 @@ export class ShowExamDialogComponent implements OnInit {
   }
 
   getMarkingCategories(): { displayName: string; value: string }[] {
-    const markingCategories = [
-      { displayName: 'Vocabulary and Spelling', value: 'vocabMark' },
-      { displayName: 'Grammar and Punctuation', value: 'grammarMark' },
-      { displayName: 'Content', value: 'contentMark' },
-    ];
+    const markingCategories = [];
+
+    if (this.currentQuestionDisplay?.type === 'written-response') {
+      markingCategories.push(
+        { displayName: 'Vocabulary and Spelling', value: 'vocabMark' },
+        { displayName: 'Grammar and Punctuation', value: 'grammarMark' },
+        { displayName: 'Content', value: 'contentMark' }
+      );
+    }
+
     if (this.currentQuestionDisplay?.type === 'audio-response') {
       markingCategories.push(
+        { displayName: 'Vocabulary', value: 'vocabMark' },
+        { displayName: 'Grammar', value: 'grammarMark' },
+        { displayName: 'Content', value: 'contentMark' },
         {
           displayName: 'Flueny',
           value: 'fluencyMark',
@@ -931,6 +948,7 @@ export class ShowExamDialogComponent implements OnInit {
         }
       );
     }
+
     return markingCategories;
   }
 
