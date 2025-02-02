@@ -1002,6 +1002,29 @@ export class ShowExamDialogComponent implements OnInit {
           this.dialogRef.close();
         }
       });
+    } else if (
+      ['teacher', 'admin', 'school'].includes(
+        this.data.currentUser?.userType.toLowerCase() ?? ''
+      ) &&
+      !this.data.displayMode &&
+      this.data.markMode
+    ) {
+      const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title:
+            'Wait! Are you sure you want to exit the exam without saving your feedback?',
+          message:
+            'You have not saved your feedback/marking changes. Your feedback/marking changes will not be saved if you exit now. To save/submit your feedback and marking changes, navigate to the last question and click the Submit button.',
+          okLabel: 'Exit Exam Marking',
+          cancelLabel: `Return to Marking`,
+          routerLink: '',
+        },
+      });
+      confirmDialogRef.afterClosed().subscribe((res) => {
+        if (res) {
+          this.dialogRef.close();
+        }
+      });
     } else {
       this.dialogRef.close(result);
     }
