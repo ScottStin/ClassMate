@@ -554,8 +554,23 @@
                 </mat-form-field>
               </div>
 
+              <div
+                *ngIf="!currentQuestionDisplay.prompt1 && !currentQuestionDisplay.prompt2"
+                class="form-field"
+                style="margin-bottom: 60px"
+              >
+                <span style="cursor: pointer" (click)="addNewPrompt()"
+                  ><mat-icon>add</mat-icon> Add media prompt</span
+                >
+                <mat-icon
+                  matTooltip="Add one or more media prompts to this question (e.g. an audio file or an image)."
+                  matTooltipPosition="after"
+                  >info_outlined</mat-icon
+                >
+              </div>
+
               <!----- Question Prompt1: ----->
-              <div>
+              <div *ngIf="currentQuestionDisplay.prompt1">
                 <mat-form-field appearance="outline" style="width: 70%">
                   <mat-label for="prompt1" class="file-label"
                     ><mat-icon>attach_file</mat-icon>
@@ -588,6 +603,16 @@
                     *ngIf="!currentQuestionDisplay.prompt2"
                   >
                     <mat-icon>add</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    matTooltip="Remove prompt"
+                    matTooltipPosition="after"
+                    *ngIf="!currentQuestionDisplay.prompt2"
+                    (click)="removePrompt('prompt1')"
+                  >
+                    <mat-icon>delete</mat-icon>
                   </button>
                   <mat-error>
                     <app-error-message
@@ -642,9 +667,20 @@
                   <button
                     mat-icon-button
                     matSuffix
+                    matTooltip="Add a new prompt"
+                    matTooltipPosition="after"
+                    (click)="addNewPrompt()"
+                    *ngIf="!currentQuestionDisplay.prompt3"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    matSuffix
                     matTooltip="Remove prompt"
                     matTooltipPosition="after"
-                    (click)="removePrompt()"
+                    (click)="removePrompt('prompt2')"
+                    *ngIf="!currentQuestionDisplay.prompt3"
                   >
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -663,6 +699,65 @@
                   <mat-select
                     formControlName="prompt2Type"
                     (selectionChange)="updatePromptType($event.value, 'prompt2', true)"
+                  >
+                    <mat-option
+                      *ngFor="let promptType of ['image', 'audio']"
+                      [value]="promptType"
+                      >{{promptType | titlecase}}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!----- Question Prompt3: ----->
+              <div *ngIf="currentQuestionDisplay.prompt3">
+                <mat-form-field appearance="outline" style="width: 70%">
+                  <mat-label for="prompt3" class="file-label"
+                    ><mat-icon>attach_file</mat-icon>
+                    <span *ngIf="!fileNamePrompt2">Prompt Attachment...</span>
+                    <span *ngIf="fileNamePrompt2">{{fileNamePrompt3}}</span>
+                  </mat-label>
+                  <input
+                    #prompt3
+                    type="file"
+                    hidden="true"
+                    (change)="updatePrompt($event, 'prompt3', 'prompt3Type')"
+                    [accept]="questionStepForm.getRawValue().prompt3Type === 'image' 
+                              ? 'image/png, image/jpeg, image/gif, image/tiff' 
+                              : (questionStepForm.getRawValue().prompt3Type === 'audio' 
+                                ? 'audio/mpeg, audio/wav, audio/ogg' 
+                                : 'image/png, image/jpeg, image/gif, image/tiff, audio/mpeg, audio/wav, audio/ogg')"
+                  />
+                  <input
+                    matInput
+                    [placeholder]="fileNamePrompt3 || 'Upload another audio or visual prompt for this question'"
+                    (click)="prompt3.click()"
+                    readonly
+                  />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    matTooltip="Remove prompt"
+                    matTooltipPosition="after"
+                    (click)="removePrompt('prompt3')"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <mat-error>
+                    <app-error-message
+                      [control]="questionStepForm.controls['prompt3'].errors"
+                    ></app-error-message>
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  style="width: 25%; margin-left: 5%"
+                >
+                  <mat-label>Prompt Type</mat-label>
+                  <mat-select
+                    formControlName="prompt3Type"
+                    (selectionChange)="updatePromptType($event.value, 'prompt3', true)"
                   >
                     <mat-option
                       *ngFor="let promptType of ['image', 'audio']"

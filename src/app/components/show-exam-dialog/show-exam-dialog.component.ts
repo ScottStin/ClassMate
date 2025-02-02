@@ -181,8 +181,12 @@ export class ShowExamDialogComponent implements OnInit {
           type: question.prompt1?.type ?? '',
         },
         mediaPrompt2: {
-          url: question.prompt1?.fileString ?? '',
-          type: question.prompt1?.type ?? '',
+          url: question.prompt2?.fileString ?? '',
+          type: question.prompt2?.type ?? '',
+        },
+        mediaPrompt3: {
+          url: question.prompt3?.fileString ?? '',
+          type: question.prompt3?.type ?? '',
         },
         questionType,
       })

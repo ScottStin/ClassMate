@@ -100,13 +100,23 @@ export class QuestionService {
       url: string;
       type: string;
     };
+    mediaPrompt3?: {
+      url: string;
+      type: string;
+    };
   }): Observable<{
     feedback?: string;
     mark: WrittenMark | AudioMark;
   }> {
-    console.log('test1');
-    const { questionType, text, audioUrl, prompt, mediaPrompt1, mediaPrompt2 } =
-      data;
+    const {
+      questionType,
+      text,
+      audioUrl,
+      prompt,
+      mediaPrompt1,
+      mediaPrompt2,
+      mediaPrompt3,
+    } = data;
 
     if (questionType === 'written-response') {
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -118,6 +128,7 @@ export class QuestionService {
         prompt,
         mediaPrompt1,
         mediaPrompt2,
+        mediaPrompt3,
       });
     }
 
@@ -133,6 +144,7 @@ export class QuestionService {
         prompt,
         mediaPrompt1,
         mediaPrompt2,
+        mediaPrompt3,
       });
     }
 
@@ -147,6 +159,10 @@ export class QuestionService {
       type: string;
     };
     mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt3?: {
       url: string;
       type: string;
     };
@@ -177,6 +193,10 @@ export class QuestionService {
       type: string;
     };
     mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt3?: {
       url: string;
       type: string;
     };

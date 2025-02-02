@@ -9,7 +9,7 @@
   </mat-card-header>
 
   <!-- Media Promots: -->
-  <div class="media-prompt-container">
+  <div class="media-prompt-container" *ngIf="question?.prompt1?.fileString">
     <div
       *ngIf="question?.prompt1?.fileString && question?.prompt1?.type"
       class="prompt"
@@ -48,6 +48,27 @@
         class="prompt-item"
       >
         <source [src]="question?.prompt2?.fileString" type="audio/webm" />
+      </audio>
+    </div>
+
+    <div
+      *ngIf="question?.prompt3?.fileString && question?.prompt3?.type"
+      class="prompt"
+    >
+      <img
+        *ngIf="question?.prompt3?.type === 'image'"
+        mat-card-image
+        [src]="question?.prompt3?.fileString"
+        alt="image prompt"
+        class="prompt-item"
+      />
+
+      <audio
+        *ngIf="question?.prompt3?.type === 'audio'"
+        controls
+        class="prompt-item"
+      >
+        <source [src]="question?.prompt3?.fileString" type="audio/webm" />
       </audio>
     </div>
   </div>

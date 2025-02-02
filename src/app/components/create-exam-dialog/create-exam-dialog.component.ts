@@ -53,6 +53,8 @@ export class CreateExamDialogComponent implements OnInit {
   fileNamePrompt1 = '';
   fileLinkPrompt2: string | null | undefined;
   fileNamePrompt2 = '';
+  fileLinkPrompt3: string | null | undefined;
+  fileNamePrompt3 = '';
 
   questionTypes: { type: string; description: string; label: string }[] = [
     { type: 'written-response', description: '', label: 'Written Response' },
@@ -167,6 +169,7 @@ export class CreateExamDialogComponent implements OnInit {
       totalPointsMax: new FormControl(5, {
         nonNullable: true,
       }),
+
       prompt1: new FormControl('', {
         // validators: [this.validUrl()],
         validators: [],
@@ -176,13 +179,20 @@ export class CreateExamDialogComponent implements OnInit {
         nonNullable: false,
       }),
       prompt2: new FormControl('', {
-        // validators: [this.validUrl()],
         validators: [],
         nonNullable: false,
       }),
       prompt2Type: new FormControl('', {
         nonNullable: false,
       }),
+      prompt3: new FormControl('', {
+        validators: [],
+        nonNullable: false,
+      }),
+      prompt3Type: new FormControl('', {
+        nonNullable: false,
+      }),
+
       length: new FormControl(NaN, {
         validators: [this.maxLengthValidator()],
         nonNullable: false,
@@ -346,6 +356,7 @@ export class CreateExamDialogComponent implements OnInit {
       questionForm.controls.autoMarking.setValue(
         this.currentQuestionDisplay.autoMarking ?? false
       );
+
       questionForm.controls.prompt1.setValue(
         this.currentQuestionDisplay.prompt1?.fileString ?? null
       );
@@ -358,6 +369,13 @@ export class CreateExamDialogComponent implements OnInit {
       questionForm.controls.prompt2Type.setValue(
         this.currentQuestionDisplay.prompt2?.type ?? null
       );
+      questionForm.controls.prompt3.setValue(
+        this.currentQuestionDisplay.prompt3?.fileString ?? null
+      );
+      questionForm.controls.prompt3Type.setValue(
+        this.currentQuestionDisplay.prompt3?.type ?? null
+      );
+
       questionForm.controls.length.setValue(
         this.currentQuestionDisplay.length ?? NaN
       );
@@ -378,6 +396,9 @@ export class CreateExamDialogComponent implements OnInit {
       this.fileLinkPrompt2 = this.currentQuestionDisplay.prompt2?.fileString;
       this.fileNamePrompt2 =
         this.currentQuestionDisplay.prompt2?.fileName ?? '';
+      this.fileLinkPrompt3 = this.currentQuestionDisplay.prompt3?.fileString;
+      this.fileNamePrompt3 =
+        this.currentQuestionDisplay.prompt3?.fileName ?? '';
     }
   }
 
@@ -587,22 +608,40 @@ export class CreateExamDialogComponent implements OnInit {
    */
   addNewPrompt(): void {
     const foundQuestion = this.findCurrentQuestionFromList();
-    if (foundQuestion) {
+    if (!foundQuestion) {
+      return;
+    }
+
+    if (!foundQuestion.prompt1) {
+      foundQuestion.prompt1 = { fileString: '', type: 'image', fileName: '' };
+    } else if (!foundQuestion.prompt2) {
       foundQuestion.prompt2 = { fileString: '', type: 'image', fileName: '' };
+    } else if (!foundQuestion.prompt3) {
+      foundQuestion.prompt3 = { fileString: '', type: 'image', fileName: '' };
     }
   }
 
-  removePrompt(): void {
+  removePrompt(promptName: 'prompt1' | 'prompt2' | 'prompt3'): void {
     const foundQuestion = this.findCurrentQuestionFromList();
-    if (foundQuestion) {
+    if (!foundQuestion) {
+      return;
+    }
+
+    if (promptName === 'prompt1') {
+      foundQuestion.prompt1 = null;
+    }
+    if (promptName === 'prompt2') {
       foundQuestion.prompt2 = null;
+    }
+    if (promptName === 'prompt3') {
+      foundQuestion.prompt3 = null;
     }
   }
 
   async updatePrompt(
     event: Event,
-    promptNumber: 'prompt1' | 'prompt2',
-    promptTypeNumber: string // 'prompt1Type' | 'prompt2Type'
+    promptNumber: 'prompt1' | 'prompt2' | 'prompt3',
+    promptTypeNumber: string // 'prompt1Type' | 'prompt2Type' | 'prompt3Type'
   ): Promise<void> {
     this.fileChangedEvent = event;
     const input = event.target as HTMLInputElement;
@@ -613,6 +652,9 @@ export class CreateExamDialogComponent implements OnInit {
         }
         if (promptNumber === 'prompt2') {
           this.fileNamePrompt2 = input.files[0].name;
+        }
+        if (promptNumber === 'prompt3') {
+          this.fileNamePrompt3 = input.files[0].name;
         }
         await this.convertFileToBase64(input.files[0], promptNumber);
 
@@ -628,18 +670,20 @@ export class CreateExamDialogComponent implements OnInit {
             fileName:
               promptNumber === 'prompt1'
                 ? this.fileNamePrompt1
-                : this.fileNamePrompt2,
+                : promptNumber === 'prompt2'
+                ? this.fileNamePrompt2
+                : this.fileNamePrompt3,
           };
 
           // Change prompt type to match uploaded file type:
           if (input.files[0].type.startsWith('image/')) {
             this.examForm.controls.questionStep.controls[
-              promptTypeNumber as 'prompt1Type' | 'prompt2Type'
+              promptTypeNumber as 'prompt1Type' | 'prompt2Type' | 'prompt3Type'
             ].setValue('image');
             this.updatePromptType('image', promptNumber, false);
           } else if (input.files[0].type.startsWith('audio/')) {
             this.examForm.controls.questionStep.controls[
-              promptTypeNumber as 'prompt1Type' | 'prompt2Type'
+              promptTypeNumber as 'prompt1Type' | 'prompt2Type' | 'prompt3Type'
             ].setValue('audio');
             this.updatePromptType('audio', promptNumber, false);
           }
@@ -650,7 +694,7 @@ export class CreateExamDialogComponent implements OnInit {
 
   updatePromptType(
     promptType: string | null | undefined,
-    promptNumber: 'prompt1' | 'prompt2',
+    promptNumber: 'prompt1' | 'prompt2' | 'prompt3',
     clear: boolean
   ): void {
     const foundQuestion = this.findCurrentQuestionFromList();
@@ -678,6 +722,18 @@ export class CreateExamDialogComponent implements OnInit {
           fileName: this.fileNamePrompt2,
         };
       }
+
+      if (promptNumber === 'prompt3') {
+        if (clear) {
+          this.fileNamePrompt3 = ''; // clear file when prompt type changes:
+          this.fileLinkPrompt3 = '';
+        }
+        foundQuestion[promptNumber] = {
+          fileString: this.fileLinkPrompt3 ?? '',
+          type: (promptType ?? 'image').toLowerCase(),
+          fileName: this.fileNamePrompt3,
+        };
+      }
     }
   }
 
@@ -696,6 +752,9 @@ export class CreateExamDialogComponent implements OnInit {
         }
         if (promptNumber === 'prompt2') {
           this.fileLinkPrompt2 = reader.result as string;
+        }
+        if (promptNumber === 'prompt3') {
+          this.fileLinkPrompt3 = reader.result as string;
         }
         resolve(); // Resolves the promise once the file is converted
       };
@@ -874,6 +933,7 @@ export interface QuestionList {
   length?: number | null;
   prompt1?: { fileString: string; type: string; fileName: string } | null;
   prompt2?: { fileString: string; type: string; fileName: string } | null;
+  prompt3?: { fileString: string; type: string; fileName: string } | null;
   expanded?: boolean;
   id?: number | string;
   parent?: number | null;
@@ -921,6 +981,8 @@ export type QuestionStepForm = FormGroup<{
   prompt1Type: FormControl<string | null>; // a prompt type for the prompt above
   prompt2: FormControl<string | null>; // a second prompt for the question
   prompt2Type: FormControl<string | null>; // a second prompt type for the question
+  prompt3: FormControl<string | null>; // a second prompt for the question
+  prompt3Type: FormControl<string | null>; // a second prompt type for the question
   teacherFeedback: FormControl<boolean>; // true = teacher has to give feedback
   autoMarking: FormControl<boolean>; // false = teacher has to assign mark
   length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
