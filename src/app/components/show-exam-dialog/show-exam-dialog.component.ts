@@ -620,6 +620,7 @@ export class ShowExamDialogComponent implements OnInit {
    * When the teacher finishes their review and clicks 'submit feedback':
    */
   submitFeedback(): void {
+    // --- determine if there is missing feedback:
     const missingFeedback: string[] = [];
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
@@ -653,6 +654,7 @@ export class ShowExamDialogComponent implements OnInit {
         }
       }
     }
+
     if (missingFeedback.length > 0) {
       const message = `You have not given feedback/marks for the following question(s): <br> <br> 
       <b>${missingFeedback.join(
@@ -686,7 +688,7 @@ export class ShowExamDialogComponent implements OnInit {
                   'info',
                   'Your feedback has been submitted. Thank you.'
                 );
-                this.closeDialog(true);
+                this.dialogRef.close(true);
               },
               error: (error: Error) => {
                 this.error = error;
@@ -696,6 +698,8 @@ export class ShowExamDialogComponent implements OnInit {
         }
       });
     } else {
+      //
+      // --- If there is no missing feedback, submit feedback:
       this.questionService
         .submitTeacherFeedback(
           this.questionList,
@@ -711,7 +715,7 @@ export class ShowExamDialogComponent implements OnInit {
               'info',
               'Your feedback has been submitted. Thank you.'
             );
-            this.closeDialog(true);
+            this.dialogRef.close(true);
           },
           error: (error: Error) => {
             this.error = error;
