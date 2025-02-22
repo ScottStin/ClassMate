@@ -430,7 +430,7 @@
                       <mat-option
                         [value]="questionType.type"
                         #tooltip="matTooltip"
-                        [matTooltip]="questionType.label + ': ' + questionType.description"
+                        [matTooltip]="questionType.description"
                         >{{questionType.label}}</mat-option
                       >
                     </ng-container>
@@ -600,7 +600,7 @@
                     matTooltip="Add a new prompt"
                     matTooltipPosition="after"
                     (click)="addNewPrompt()"
-                    *ngIf="!currentQuestionDisplay.prompt2"
+                    *ngIf="!currentQuestionDisplay.prompt2 && currentQuestionDisplay?.type !== 'repeat-sentence'"
                   >
                     <mat-icon>add</mat-icon>
                   </button>
@@ -609,7 +609,7 @@
                     matSuffix
                     matTooltip="Remove prompt"
                     matTooltipPosition="after"
-                    *ngIf="!currentQuestionDisplay.prompt2"
+                    *ngIf="!currentQuestionDisplay.prompt2 && currentQuestionDisplay?.type !== 'repeat-sentence'"
                     (click)="removePrompt('prompt1')"
                   >
                     <mat-icon>delete</mat-icon>
@@ -629,6 +629,7 @@
                   <mat-select
                     formControlName="prompt1Type"
                     (selectionChange)="updatePromptType($event.value, 'prompt1', true)"
+                    [disabled]="currentQuestionDisplay?.type === 'repeat-sentence'"
                   >
                     <mat-option
                       *ngFor="let promptType of ['image', 'audio']"

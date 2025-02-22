@@ -25,6 +25,7 @@
         *ngIf="question?.prompt1?.type === 'audio'"
         controls
         class="prompt-item"
+        #audioRef
       >
         <source [src]="question?.prompt1?.fileString" type="audio/webm" />
       </audio>
@@ -88,7 +89,7 @@
 
     <!-- audio response -->
     <app-audio-response-question
-      *ngIf="question?.type==='audio-response'"
+      *ngIf="['audio-response', 'repeat-sentence'].includes(question?.type ?? '')"
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
       [currentUser]="student ? student : currentUser?.email"

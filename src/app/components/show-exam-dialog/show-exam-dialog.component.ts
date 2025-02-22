@@ -18,6 +18,7 @@ import { finalize, forkJoin, map, Observable, of, Subject, tap } from 'rxjs';
 import {
   AudioMark,
   QuestionService,
+  RepeatSentenceMark,
 } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { demoLevels } from 'src/app/shared/demo-data';
@@ -50,11 +51,12 @@ export class ShowExamDialogComponent implements OnInit {
 
   feedbackForm: FormGroup<{
     teacherFeedback: FormControl<string>;
-    vocabMark: FormControl<number>;
-    grammarMark: FormControl<number>;
-    contentMark: FormControl<number>;
+    vocabMark?: FormControl<number>;
+    grammarMark?: FormControl<number>;
+    contentMark?: FormControl<number>;
     pronunciationMark?: FormControl<number | undefined>;
     fluencyMark?: FormControl<number | undefined>;
+    accuracyMark?: FormControl<number | undefined>;
   }>;
   feedbackFormPopulated = new Subject<boolean>();
 
@@ -166,7 +168,11 @@ export class ShowExamDialogComponent implements OnInit {
       | 'audio-response'
       | 'repeat-sentence';
 
-    if (!['written-response', 'audio-response'].includes(questionType)) {
+    if (
+      !['written-response', 'audio-response', 'repeat-sentence'].includes(
+        questionType
+      )
+    ) {
       return of();
     }
 
@@ -202,23 +208,25 @@ export class ShowExamDialogComponent implements OnInit {
             this.feedbackTextChange(res.feedback ?? '');
           }
 
-          // Apply AI marking:
-          this.feedbackForm.controls.vocabMark.setValue(
-            res.mark.vocabMark ?? 0
-          );
-          this.feedbackForm.controls.grammarMark.setValue(
-            res.mark.grammarMark ?? 0
-          );
-          this.feedbackForm.controls.contentMark.setValue(
-            res.mark.contentMark ?? 0
-          );
+          // Apply AI for audi and written response marking:
+          if (['audio-response', 'written-response'].includes(questionType)) {
+            this.feedbackForm.controls.vocabMark?.setValue(
+              res.mark.vocabMark ?? 0
+            );
+            this.feedbackForm.controls.grammarMark?.setValue(
+              res.mark.grammarMark ?? 0
+            );
+            this.feedbackForm.controls.contentMark?.setValue(
+              res.mark.contentMark ?? 0
+            );
 
-          this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
-          this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
-          this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
+            this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
+            this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
+            this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
+          }
 
-          // apply audi specific ai marking:
-          if (questionType === 'audio-response') {
+          // Apply audio specific ai marking:
+          if (['audio-response', 'repeat-sentence'].includes(questionType)) {
             this.feedbackForm.controls.pronunciationMark?.setValue(
               (res.mark as AudioMark).pronunciationMark ?? 0
             );
@@ -233,6 +241,18 @@ export class ShowExamDialogComponent implements OnInit {
             this.onMarkSelect(
               (res.mark as AudioMark).pronunciationMark ?? 0,
               'pronunciationMark'
+            );
+          }
+
+          // Apply repeat sentence ai marking:
+          if (questionType === 'repeat-sentence') {
+            this.feedbackForm.controls.pronunciationMark?.setValue(
+              (res.mark as RepeatSentenceMark).accuracyMark ?? 0
+            );
+
+            this.onMarkSelect(
+              (res.mark as RepeatSentenceMark).accuracyMark ?? 0,
+              'accuracyMark'
             );
           }
         }),
@@ -404,31 +424,46 @@ export class ShowExamDialogComponent implements OnInit {
           nonNullable: true,
         }
       ),
-      vocabMark: new FormControl(
+    };
+
+    // add content, grammar and vocabMark
+    if (
+      ['audio-response', 'written-response'].includes(
+        this.currentQuestionDisplay?.type ?? ''
+      )
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      (formControls as any).vocabMark = new FormControl(
         {
           value: Number(studentResponse?.mark?.vocabMark ?? ''),
           disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
-      ),
-      grammarMark: new FormControl(
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      (formControls as any).grammarMark = new FormControl(
         {
           value: Number(studentResponse?.mark?.grammarMark ?? ''),
           disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
-      ),
-      contentMark: new FormControl(
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      (formControls as any).contentMark = new FormControl(
         {
           value: Number(studentResponse?.mark?.contentMark ?? ''),
           disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
-      ),
-    };
+      );
+    }
 
-    // Add fluencyMark and pronunciationMark if the condition is met
-    if (this.currentQuestionDisplay?.type === 'audio-response') {
+    // Add fluencyMark and pronunciationMark
+    if (
+      ['audio-response', 'repeat-sentence'].includes(
+        this.currentQuestionDisplay?.type ?? ''
+      )
+    ) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       (formControls as any).fluencyMark = new FormControl(
         {
@@ -448,9 +483,20 @@ export class ShowExamDialogComponent implements OnInit {
       );
     }
 
+    // Add accuracyMark
+    if (['repeat-sentence'].includes(this.currentQuestionDisplay?.type ?? '')) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      (formControls as any).accuracyMark = new FormControl(
+        {
+          value: Number(studentResponse?.mark?.accuracyMark ?? ''),
+          disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
+        },
+        { validators: [Validators.required], nonNullable: false }
+      );
+    }
+
     // Set the form controls to the FormGroup
     this.feedbackForm = new FormGroup(formControls);
-
     this.feedbackFormPopulated.next(true);
   }
 
@@ -497,12 +543,35 @@ export class ShowExamDialogComponent implements OnInit {
     const studentResponse = this.findCurrentStudentReponse() ?? {};
     studentResponse.mark = studentResponse.mark ?? {};
     studentResponse.mark[category] = level;
+    const marksArray: number[] = [];
+    const questionType = this.currentQuestionDisplay?.type?.toLowerCase();
 
-    const marksArray = [
-      studentResponse.mark.vocabMark ?? 0,
-      studentResponse.mark.grammarMark ?? 0,
-      studentResponse.mark.contentMark ?? 0,
-    ].map(Number);
+    if (questionType) {
+      if (['audio-response', 'written-response'].includes(questionType)) {
+        marksArray.push(
+          ...[
+            studentResponse.mark.vocabMark ?? 0,
+            studentResponse.mark.grammarMark ?? 0,
+            studentResponse.mark.contentMark ?? 0,
+          ].map(Number)
+        );
+      }
+
+      if (['audio-response', 'repeat-sentence'].includes(questionType)) {
+        marksArray.push(
+          ...[
+            studentResponse.mark.pronunciationMark ?? 0,
+            studentResponse.mark.fluencyMark ?? 0,
+          ].map(Number)
+        );
+      }
+
+      if (questionType === 'repeat-sentence') {
+        marksArray.push(
+          ...[studentResponse.mark.accuracyMark ?? 0].map(Number)
+        );
+      }
+    }
 
     const totalUnscaledMark =
       marksArray.reduce((sum, num) => sum + num, 0) / marksArray.length;
@@ -833,13 +902,13 @@ export class ShowExamDialogComponent implements OnInit {
       feedbackForm.teacherFeedback.setValue(
         studentResponse?.feedback?.text ?? ''
       );
-      feedbackForm.vocabMark.setValue(
+      feedbackForm.vocabMark?.setValue(
         Number(studentResponse?.mark?.vocabMark ?? '')
       );
-      feedbackForm.grammarMark.setValue(
+      feedbackForm.grammarMark?.setValue(
         Number(studentResponse?.mark?.grammarMark ?? '')
       );
-      feedbackForm.contentMark.setValue(
+      feedbackForm.contentMark?.setValue(
         Number(studentResponse?.mark?.contentMark ?? '')
       );
       feedbackForm.pronunciationMark?.setValue(
@@ -847,6 +916,9 @@ export class ShowExamDialogComponent implements OnInit {
       );
       feedbackForm.fluencyMark?.setValue(
         Number(studentResponse?.mark?.fluencyMark ?? '')
+      );
+      feedbackForm.accuracyMark?.setValue(
+        Number(studentResponse?.mark?.accuracyMark ?? '')
       );
     }
   }
@@ -942,6 +1014,23 @@ export class ShowExamDialogComponent implements OnInit {
         { displayName: 'Vocabulary', value: 'vocabMark' },
         { displayName: 'Grammar', value: 'grammarMark' },
         { displayName: 'Content', value: 'contentMark' },
+        {
+          displayName: 'Flueny',
+          value: 'fluencyMark',
+        },
+        {
+          displayName: 'Pronuciation',
+          value: 'pronunciationMark',
+        }
+      );
+    }
+
+    if (this.currentQuestionDisplay?.type === 'repeat-sentence') {
+      markingCategories.push(
+        {
+          displayName: 'Accuracy',
+          value: 'accuracyMark',
+        },
         {
           displayName: 'Flueny',
           value: 'fluencyMark',

@@ -88,7 +88,11 @@ export class QuestionService {
    */
 
   generateAiFeedbackExamQuestion(data: {
-    questionType: 'written-response' | 'audio-response' | 'repeat-sentence';
+    questionType:
+      | 'written-response'
+      | 'audio-response'
+      | 'repeat-sentence'
+      | '';
     text?: string;
     audioUrl?: string;
     prompt: string;
@@ -145,6 +149,20 @@ export class QuestionService {
         mediaPrompt1,
         mediaPrompt2,
         mediaPrompt3,
+      });
+    }
+
+    if (questionType === 'repeat-sentence') {
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (!audioUrl) {
+        throw new Error(
+          'Audio URL is required for repeat-sentence question type'
+        );
+      }
+      return this.generateAiFeedbackRepeatSentence({
+        audioUrl,
+        prompt,
+        mediaPrompt1,
       });
     }
 
@@ -219,6 +237,32 @@ export class QuestionService {
       );
   }
 
+  generateAiFeedbackRepeatSentence(data: {
+    audioUrl: string;
+    prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+  }): Observable<{
+    feedback?: string;
+    mark: RepeatSentenceMark;
+  }> {
+    return this.httpClient
+      .post<{
+        feedback: string;
+        mark: AudioMark;
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/repeat-sentence`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for repeat sentence exam question'
+          );
+        })
+      );
+  }
+
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {
       throw this.errorService.handleHttpError(error);
@@ -236,4 +280,10 @@ export interface WrittenMark {
 export interface AudioMark extends WrittenMark {
   pronunciationMark?: number;
   fluencyMark?: number;
+}
+
+export interface RepeatSentenceMark {
+  pronunciationMark?: number;
+  fluencyMark?: number;
+  accuracyMark?: number;
 }

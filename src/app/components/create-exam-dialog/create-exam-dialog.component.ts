@@ -57,35 +57,72 @@ export class CreateExamDialogComponent implements OnInit {
   fileNamePrompt3 = '';
 
   questionTypes: { type: string; description: string; label: string }[] = [
-    { type: 'written-response', description: '', label: 'Written Response' },
-    { type: 'audio-response', description: '', label: 'Audio Response' },
+    {
+      type: 'written-response',
+      description:
+        'Student must write a response to one or more prompts. The student will be marked on 3 categories: vocab/spelling, grammar/punctuation, and content (how accurately they address the prompt(s)). The student will have a given word limit.',
+      label: 'Written Response',
+    },
+    {
+      type: 'audio-response',
+      description:
+        'Student must give spoken response to one or more prompts. The student will be marked on 5 categories: vocabulary, grammar, pronunciation, fluency, and content (how accurately they address the prompt(s)). The student will have a given time limit in which they must respond.',
+      label: 'Audio Response',
+    },
     {
       type: 'repeat-sentence',
-      description: '',
+      description:
+        'The student will hear an audio recording of word, phrase, paragraph or sentence, and they must repeat what they hear. The student will be marked on 3 categories: accuracy, pronunciation and fluency.',
       label: 'Audio response - repeat word/sentence/paragraph',
     },
     {
+      type: 'read-outloud',
+      description:
+        'The student will be provided with a text and must read it out loud. The student will be marked on 3 categories: accuracy, pronunciation and fluency.',
+      label: 'Audio response - read out loud',
+    },
+    {
       type: 'multiple-choice-single',
-      description: '',
+      description:
+        'This is a multiple choice question where only one answer is correct. The student is marked on accuracy.',
       label: 'Multiple Choice Single Answer',
     },
     {
       type: 'multiple-choice-multi',
-      description: '',
+      description:
+        'This is a multiple choice question where multiple answers may be correct. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
       label: 'Multiple Choice Multiple Answer',
     },
     {
       type: 'reorder-sentence',
-      description: '',
+      description:
+        'The student provided with texts that are out of order, and must drop and drag the text to place them in the correct order. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
       label: 'Reorder Sentence/Paragraph',
     },
-    { type: 'match-options', description: '', label: 'Match Options' },
+    {
+      type: 'match-options',
+      description:
+        'The student is given two columns of items and must match the items in the left column to the correct items in the right column. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
+      label: 'Match Options',
+    },
     {
       type: 'fill-in-the-blanks',
-      description: '',
+      description:
+        'The student is given one or more texts and must complete the missing blanks.',
       label: 'Fill in the Blanks',
     },
-    { type: 'information-page', description: '', label: 'Information Page' },
+    {
+      type: 'essay',
+      description:
+        'The student must write an essay on one or more give prompt(s). This is different from a written-response question, as the student will be marked on different categories. For an essay question, the student will be marked on 4 categories: vocab/spelling, grammar/punctuation, structure of the essay, and content. The student will have a given word limit.',
+      label: 'Essay',
+    },
+    {
+      type: 'information-page',
+      description:
+        'This is just an information page that provides the student with context or instructions to the exam or for an upcoming question/section. It has no marking.',
+      label: 'Information Page',
+    },
     { type: 'section', description: '', label: 'Section' },
   ];
 
@@ -425,15 +462,15 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   formChange(text: string | boolean, field: string): void {
-    // Find the current question:
+    // --- Find the current question:
     const foundQuestion = this.findCurrentQuestionFromList();
 
-    // update the current question:
+    // --- update the current question:
     if (foundQuestion) {
       foundQuestion[field] = text;
     }
 
-    // reset the form if type change:
+    // --- reset the form if type change:
     if (field === 'type') {
       if (this.currentQuestionDisplay) {
         if (this.currentQuestionDisplay.fillBlanksQuestionList) {
@@ -453,6 +490,38 @@ export class CreateExamDialogComponent implements OnInit {
         if (this.currentQuestionDisplay.reorderSentenceQuestionList) {
           this.currentQuestionDisplay.reorderSentenceQuestionList = null;
         }
+
+        this.examForm.controls.questionStep.controls.writtenPrompt.setValue('');
+      }
+
+      // --- if no prompt1 and the new question type is repeat sentence, add a new audio prompt
+      if (this.currentQuestionDisplay?.type === 'repeat-sentence') {
+        if (!this.currentQuestionDisplay.prompt1) {
+          this.addNewPrompt();
+        }
+        if (this.currentQuestionDisplay.prompt1?.type !== 'audio') {
+          this.updatePromptType('audio', 'prompt1', true);
+          this.examForm.controls.questionStep.controls.prompt1Type.setValue(
+            'audio'
+          );
+        }
+
+        // repeat sentence can only have one prompt, so remove the others:
+        if (this.currentQuestionDisplay.prompt3) {
+          this.removePrompt('prompt3');
+        }
+        if (this.currentQuestionDisplay.prompt2) {
+          this.removePrompt('prompt2');
+        }
+
+        // set the written prompt:
+        const writtePrompt =
+          this.currentQuestionDisplay.writtenPrompt ??
+          "Listen to the audio then repeat what you hear. Try your best to say exactly what the speaker in the audio says, word for word. You won't be marked down for accent. You will only be marked on pronunciation, fluency and accuracy.";
+        this.examForm.controls.questionStep.controls.writtenPrompt.setValue(
+          writtePrompt
+        );
+        this.currentQuestionDisplay.writtenPrompt = writtePrompt;
       }
     }
 
