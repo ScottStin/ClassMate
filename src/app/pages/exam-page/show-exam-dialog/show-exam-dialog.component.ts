@@ -25,11 +25,11 @@ import { demoLevels } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import {
   QuestionList,
   StudentQuestionReponse,
-} from '../create-exam-dialog/create-exam-dialog.component';
+} from '../../../components/create-exam-dialog/create-exam-dialog.component';
 
 @UntilDestroy()
 @Component({

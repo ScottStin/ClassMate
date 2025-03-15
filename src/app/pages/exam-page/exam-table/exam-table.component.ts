@@ -18,8 +18,8 @@ import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { QuestionList } from '../../../components/create-exam-dialog/create-exam-dialog.component';
-import { ShowExamDialogComponent } from '../../../components/show-exam-dialog/show-exam-dialog.component';
 import { StudentsCompletedExamDialogComponent } from '../../../components/students-completed-exam-dialog/students-completed-exam-dialog.component';
+import { ShowExamDialogComponent } from '../show-exam-dialog/show-exam-dialog.component';
 
 @Component({
   selector: 'app-exam-table',

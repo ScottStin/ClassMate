@@ -16,7 +16,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
-import { QuestionsModule } from '../exam-questions/questions.module';
+import { QuestionsModule } from '../../../components/exam-questions/questions.module';
 import { ShowExamDialogComponent } from './show-exam-dialog.component';
 
 describe('ShowExamDialogComponent', () => {

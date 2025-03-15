@@ -14,9 +14,9 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
-import { ErrorMessageModule } from '../error-message/error-message.module';
-import { QuestionsModule } from '../exam-questions/questions.module';
+import { DialogHeaderModule } from '../../../components/dialog-header/dialog-header.module';
+import { ErrorMessageModule } from '../../../components/error-message/error-message.module';
+import { QuestionsModule } from '../../../components/exam-questions/questions.module';
 import { ShowExamDialogComponent } from './show-exam-dialog.component';
 
 @NgModule({
