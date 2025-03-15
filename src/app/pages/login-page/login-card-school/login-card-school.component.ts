@@ -30,7 +30,7 @@ import { defaultStyles } from 'src/app/shared/default-styles';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO, UserLoginDTO } from 'src/app/shared/models/user.model';
 
-import { SchoolLoginRedirectorComponent } from '../school-login-redirector/school-login-redirector.component';
+import { SchoolLoginRedirectorComponent } from '../../../components/school-login-redirector/school-login-redirector.component';
 
 @Component({
   selector: 'app-login-card-school',

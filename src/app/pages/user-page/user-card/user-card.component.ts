@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
-import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
+import { MenuItemDTO, menuItems } from '../../../components/side-nav/side-nav.component';
 
 @Component({
   selector: 'app-user-card',

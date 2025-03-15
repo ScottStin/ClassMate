@@ -6,7 +6,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ConfirmDialogModule } from 'src/app/components/confirm-dialog/confirm-dialog.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
-import { LessonCardModule } from 'src/app/components/lesson-card/lesson-card.module';
+import { LessonCardModule } from 'src/app/pages/lesson-page/lesson-card/lesson-card.module';
 
 import { HomePageComponent } from './home-page.component';
 

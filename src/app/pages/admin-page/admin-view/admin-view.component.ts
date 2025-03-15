@@ -20,7 +20,7 @@ import {
   FormatStep,
   LessonStep,
   LogoStep,
-} from 'src/app/components/login-card-school/login-card-school.component';
+} from 'src/app/pages/login-page/login-card-school/login-card-school.component';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { TempStylesDTO } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';

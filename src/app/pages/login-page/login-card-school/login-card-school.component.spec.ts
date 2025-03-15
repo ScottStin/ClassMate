@@ -14,8 +14,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ImageCropperModule } from 'ngx-image-cropper';
 
-import { ErrorMessageModule } from '../../components/error-message/error-message.module';
-import { SchoolLoginRedirectorModule } from '../school-login-redirector/school-login-redirector.module';
+import { ErrorMessageModule } from '../../../components/error-message/error-message.module';
+import { SchoolLoginRedirectorModule } from '../../../components/school-login-redirector/school-login-redirector.module';
 import { LoginCardSchoolComponent } from './login-card-school.component';
 
 describe('LoginCardSchoolComponent', () => {

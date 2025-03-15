@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 
-import { ErrorMessageModule } from '../../components/error-message/error-message.module';
+import { ErrorMessageModule } from '../../../components/error-message/error-message.module';
 import { LoginCardComponent } from './login-card.component';
 
 @NgModule({

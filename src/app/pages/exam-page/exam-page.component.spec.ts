@@ -7,7 +7,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CreateExamDialogModule } from 'src/app/components/create-exam-dialog/create-exam-dialog.module';
-import { ExamTableModule } from 'src/app/components/exam-table/exam-table.module';
+import { ExamTableModule } from 'src/app/pages/exam-page/exam-table/exam-table.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
 import { ShowExamDialogModule } from 'src/app/components/show-exam-dialog/show-exam-dialog.module';
 

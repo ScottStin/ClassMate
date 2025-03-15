@@ -16,7 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { ErrorMessageModule } from '../error-message/error-message.module';
-import { QuestionsModule } from '../questions/questions.module';
+import { QuestionsModule } from '../exam-questions/questions.module';
 import { ShowExamDialogComponent } from './show-exam-dialog.component';
 
 @NgModule({

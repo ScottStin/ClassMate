@@ -9,8 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { AddStudentToLessonDialogModule } from '../add-student-to-lesson-dialog/add-student-to-lesson-dialog.module';
-import { StudentsEnrolledLessonDialogModule } from '../students-enrolled-lesson-dialog/students-enrolled-lesson-dialog.module';
+import { AddStudentToLessonDialogModule } from '../../../components/add-student-to-lesson-dialog/add-student-to-lesson-dialog.module';
+import { StudentsEnrolledLessonDialogModule } from '../../../components/students-enrolled-lesson-dialog/students-enrolled-lesson-dialog.module';
 import { LessonCardComponent } from './lesson-card.component';
 
 @NgModule({

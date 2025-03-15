@@ -9,9 +9,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterTestingModule } from '@angular/router/testing';
 import { EditUserDialogModule } from 'src/app/components/edit-user-dialog/edit-user-dialog.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
-import { LessonCardModule } from 'src/app/components/lesson-card/lesson-card.module';
-import { UserCardModule } from 'src/app/components/user-card/user-card.module';
-import { UserTableModule } from 'src/app/components/user-table/user-table.module';
+import { LessonCardModule } from 'src/app/pages/lesson-page/lesson-card/lesson-card.module';
+import { UserCardModule } from 'src/app/pages/user-page/user-card/user-card.module';
+import { UserTableModule } from 'src/app/pages/user-page/user-table/user-table.module';
 
 import { UserPageComponent } from './user-page.component';
 

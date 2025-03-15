@@ -2,8 +2,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
-import { LoginCardModule } from 'src/app/components/login-card/login-card.module';
-import { LoginCardSchoolModule } from 'src/app/components/login-card-school/login-card-school.module';
+import { LoginCardModule } from 'src/app/pages/login-page/login-card/login-card.module';
+import { LoginCardSchoolModule } from 'src/app/pages/login-page/login-card-school/login-card-school.module';
 
 import { LoginPageComponent } from './login-page.component';
 

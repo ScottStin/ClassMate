@@ -16,7 +16,7 @@ import {
   CreateExamDialogComponent,
   QuestionList,
 } from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
-import { ExamTableComponent } from 'src/app/components/exam-table/exam-table.component';
+import { ExamTableComponent } from 'src/app/pages/exam-page/exam-table/exam-table.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { QuestionService } from 'src/app/services/question-service/question.service';

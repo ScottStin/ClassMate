@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { MatDialogModule } from '@angular/material/dialog';
 
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
-import { QuestionsModule } from '../questions/questions.module';
+import { QuestionsModule } from '../exam-questions/questions.module';
 import { PreviewExamQuestionComponent } from './preview-exam-question.component';
 
 @NgModule({

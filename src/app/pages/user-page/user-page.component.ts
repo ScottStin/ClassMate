@@ -13,7 +13,7 @@ import {
 } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
-import { UserTableComponent } from 'src/app/components/user-table/user-table.component';
+import { UserTableComponent } from 'src/app/pages/user-page/user-table/user-table.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';

@@ -8,7 +8,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { StudentsCompletedExamDialogModule } from '../students-completed-exam-dialog/students-completed-exam-dialog.module';
+import { StudentsCompletedExamDialogModule } from '../../../components/students-completed-exam-dialog/students-completed-exam-dialog.module';
 import { ExamTableComponent } from './exam-table.component';
 
 @NgModule({

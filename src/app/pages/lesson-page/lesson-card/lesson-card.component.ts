@@ -13,8 +13,8 @@ import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
-import { AddStudentToLessonDialogComponent } from '../add-student-to-lesson-dialog/add-student-to-lesson-dialog.component';
-import { StudentsEnrolledLessonDialogComponent } from '../students-enrolled-lesson-dialog/students-enrolled-lesson-dialog.component';
+import { AddStudentToLessonDialogComponent } from '../../../components/add-student-to-lesson-dialog/add-student-to-lesson-dialog.component';
+import { StudentsEnrolledLessonDialogComponent } from '../../../components/students-enrolled-lesson-dialog/students-enrolled-lesson-dialog.component';
 
 @Component({
   selector: 'app-lesson-card',
