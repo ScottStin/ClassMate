@@ -1,6 +1,8 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
+  combineLatest,
   finalize,
   first,
   forkJoin,
@@ -27,6 +29,7 @@ import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+@UntilDestroy()
 @Component({
   selector: 'app-exam-page',
   templateUrl: './exam-page.component.html',
@@ -113,27 +116,29 @@ export class ExamPageComponent implements OnInit, OnDestroy {
   }
 
   createExam(): void {
-    this.teachers$.pipe(first()).subscribe((res) => {
-      const teachers = res;
-      const dialogRef = this.dialog.open(CreateExamDialogComponent, {
-        data: {
-          title: `Create New Exam`,
-          exam: null,
-          okLabel: 'Delete',
-          cancelLabel: 'Cancel',
-          teachers,
-        },
-        panelClass: 'fullscreen-dialog',
-        autoFocus: false,
-        hasBackdrop: true,
-        disableClose: true,
+    combineLatest([this.teachers$, this.currentUser$])
+      .pipe(untilDestroyed(this))
+      .subscribe(([teachers, currentUser]) => {
+        const dialogRef = this.dialog.open(CreateExamDialogComponent, {
+          data: {
+            title: `Create New Exam`,
+            exam: null,
+            okLabel: 'Delete',
+            cancelLabel: 'Cancel',
+            teachers,
+            currentTeacher: currentUser,
+          },
+          panelClass: 'fullscreen-dialog',
+          autoFocus: false,
+          hasBackdrop: true,
+          disableClose: true,
+        });
+        dialogRef.afterClosed().subscribe((result: ExamDTO | undefined) => {
+          if (result) {
+            this.loadPageData();
+          }
+        });
       });
-      dialogRef.afterClosed().subscribe((result: ExamDTO | undefined) => {
-        if (result) {
-          this.loadPageData();
-        }
-      });
-    });
   }
 
   filterResults(text: string): void {

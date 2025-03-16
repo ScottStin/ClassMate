@@ -92,6 +92,7 @@ export class QuestionService {
       | 'written-response'
       | 'audio-response'
       | 'repeat-sentence'
+      | 'read-outloud'
       | '';
     text?: string;
     audioUrl?: string;
@@ -163,6 +164,17 @@ export class QuestionService {
         audioUrl,
         prompt,
         mediaPrompt1,
+      });
+    }
+
+    if (questionType === 'read-outloud') {
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (!audioUrl) {
+        throw new Error('Audio URL is required for read-outloud question type');
+      }
+      return this.generateAiFeedbacReadOutloud({
+        audioUrl,
+        prompt,
       });
     }
 
@@ -263,6 +275,28 @@ export class QuestionService {
       );
   }
 
+  generateAiFeedbacReadOutloud(data: {
+    audioUrl: string;
+    prompt: string;
+  }): Observable<{
+    feedback?: string;
+    mark: ReadOutloudMark;
+  }> {
+    return this.httpClient
+      .post<{
+        feedback: string;
+        mark: AudioMark;
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/read-outloud`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for read outloud exam question'
+          );
+        })
+      );
+  }
+
   private handleError(error: Error, message: string): never {
     if (error instanceof HttpErrorResponse) {
       throw this.errorService.handleHttpError(error);
@@ -287,3 +321,17 @@ export interface RepeatSentenceMark {
   fluencyMark?: number;
   accuracyMark?: number;
 }
+
+export interface ReadOutloudMark {
+  pronunciationMark?: number;
+  fluencyMark?: number;
+  accuracyMark?: number;
+}
+
+// hardcoded read out loud question prompt:
+export const readOutloudQuestionPrompt =
+  "Read the given text out loud. Try your best to repeat it word for word. You won't be marked down for accent. You will only be marked on pronunciation, fluency and accuracy.";
+
+// hardcoded repeat sentence question prompt:
+export const repeatSentenceQuestionPrompt =
+  "Listen to the audio then repeat what you hear. Try your best to say exactly what the speaker in the audio says, word for word. You won't be marked down for accent. You will only be marked on pronunciation, fluency and accuracy.";

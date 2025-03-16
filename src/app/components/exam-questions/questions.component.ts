@@ -8,6 +8,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { readOutloudQuestionPrompt } from 'src/app/services/question-service/question.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component';
@@ -27,6 +28,8 @@ export class QuestionsComponent implements OnChanges {
   @Input() currentUser: UserDTO | null;
 
   @Output() updateStudentResponse = new EventEmitter<string>();
+
+  readOutloudQuestionPrompt = readOutloudQuestionPrompt;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.audioElement && 'question' in changes) {

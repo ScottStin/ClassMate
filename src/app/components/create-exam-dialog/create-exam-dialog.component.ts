@@ -15,6 +15,10 @@ import {
 import { finalize, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
+import {
+  readOutloudQuestionPrompt,
+  repeatSentenceQuestionPrompt,
+} from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -47,6 +51,7 @@ export class CreateExamDialogComponent implements OnInit {
   questionCounter = 1; //  used to assign an id to a new question;
   scrollThroughQuestionListStyling = '';
   createExamLoading = false;
+  readOutloudQuestionPrompt = readOutloudQuestionPrompt;
 
   fileChangedEvent: Event | string = '';
   fileLinkPrompt1: string | null | undefined;
@@ -132,6 +137,7 @@ export class CreateExamDialogComponent implements OnInit {
       title: string;
       exam: ExamDTO | undefined;
       teachers: UserDTO[];
+      currentTeacher: UserDTO;
     },
     private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
     private readonly examService: ExamService,
@@ -180,10 +186,16 @@ export class CreateExamDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      assignedTeacher: new FormControl(this.data.exam?.assignedTeacher ?? '', {
-        validators: [Validators.required],
-        nonNullable: true,
-      }),
+      assignedTeacher: new FormControl(
+        this.data.exam?.assignedTeacher ?? // on edit exam, set the assigned teacher
+          (this.data.currentTeacher.userType.toLowerCase() === 'teacher' // if user creating the exam is not admin, assigned teacher should be current teacher by default
+            ? this.data.currentTeacher.email
+            : ''),
+        {
+          validators: [Validators.required],
+          nonNullable: true,
+        }
+      ),
     });
     this.formPopulated.next(true);
 
@@ -441,8 +453,8 @@ export class CreateExamDialogComponent implements OnInit {
 
   /*
    * Find the current quesiton being displayed in the questionList:
+   * Todo - move to seperate reusable service or helper.
    */
-  // todo - move to seperate reusable service or helper.
   findCurrentQuestionFromList(): QuestionList | undefined {
     let foundQuestion;
 
@@ -491,11 +503,15 @@ export class CreateExamDialogComponent implements OnInit {
           this.currentQuestionDisplay.reorderSentenceQuestionList = null;
         }
 
-        this.examForm.controls.questionStep.controls.writtenPrompt.setValue('');
+        this.examForm.controls.questionStep.controls.writtenPrompt.reset();
+        this.examForm.controls.questionStep.controls.writtenPrompt.enable();
+        this.currentQuestionDisplay.writtenPrompt = null;
       }
 
-      // --- if no prompt1 and the new question type is repeat sentence, add a new audio prompt
+      // --- If prompt type is repeat sentence:
       if (this.currentQuestionDisplay?.type === 'repeat-sentence') {
+        //
+        // if no prompt1 for repeat sentence, add a new audio prompt
         if (!this.currentQuestionDisplay.prompt1) {
           this.addNewPrompt();
         }
@@ -515,13 +531,38 @@ export class CreateExamDialogComponent implements OnInit {
         }
 
         // set the written prompt:
-        const writtePrompt =
+        const writtenPrompt =
           this.currentQuestionDisplay.writtenPrompt ??
-          "Listen to the audio then repeat what you hear. Try your best to say exactly what the speaker in the audio says, word for word. You won't be marked down for accent. You will only be marked on pronunciation, fluency and accuracy.";
+          repeatSentenceQuestionPrompt;
+        this.currentQuestionDisplay.writtenPrompt = writtenPrompt;
         this.examForm.controls.questionStep.controls.writtenPrompt.setValue(
-          writtePrompt
+          writtenPrompt
         );
-        this.currentQuestionDisplay.writtenPrompt = writtePrompt;
+        this.examForm.controls.questionStep.controls.writtenPrompt.disable();
+      }
+
+      // --- If prompt type is read-outloud:
+      if (this.currentQuestionDisplay?.type === 'read-outloud') {
+        //
+        // read outloud has no media prompts, so remove them:
+        if (this.currentQuestionDisplay.prompt3) {
+          this.removePrompt('prompt3');
+        }
+        if (this.currentQuestionDisplay.prompt2) {
+          this.removePrompt('prompt2');
+        }
+        if (this.currentQuestionDisplay.prompt1) {
+          this.removePrompt('prompt1');
+        }
+
+        // // Set the written prompt:
+        // const writtenPrompt =
+        //   this.currentQuestionDisplay.writtenPrompt ??
+        //   "Read the given text out loud. Try your best to repeat it word for word. You won't be marked down for accent. You will only be marked on pronunciation, fluency and accuracy.";
+        // this.currentQuestionDisplay.writtenPrompt = writtenPrompt;
+        // this.examForm.controls.questionStep.controls.writtenPrompt.setValue(
+        //   writtenPrompt
+        // );
       }
     }
 

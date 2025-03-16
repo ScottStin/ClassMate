@@ -166,12 +166,16 @@ export class ShowExamDialogComponent implements OnInit {
     const questionType = question.type?.toLowerCase() as
       | 'written-response'
       | 'audio-response'
-      | 'repeat-sentence';
+      | 'repeat-sentence'
+      | 'read-outloud';
 
     if (
-      !['written-response', 'audio-response', 'repeat-sentence'].includes(
-        questionType
-      )
+      ![
+        'written-response',
+        'audio-response',
+        'repeat-sentence',
+        'read-outloud',
+      ].includes(questionType)
     ) {
       return of();
     }
@@ -226,7 +230,11 @@ export class ShowExamDialogComponent implements OnInit {
           }
 
           // Apply audio specific ai marking:
-          if (['audio-response', 'repeat-sentence'].includes(questionType)) {
+          if (
+            ['audio-response', 'repeat-sentence', 'read-outloud'].includes(
+              questionType
+            )
+          ) {
             this.feedbackForm.controls.pronunciationMark?.setValue(
               (res.mark as AudioMark).pronunciationMark ?? 0
             );
@@ -245,9 +253,9 @@ export class ShowExamDialogComponent implements OnInit {
           }
 
           // Apply repeat sentence ai marking:
-          if (questionType === 'repeat-sentence') {
+          if (['repeat-sentence', 'read-outloud'].includes(questionType)) {
             this.feedbackForm.controls.pronunciationMark?.setValue(
-              (res.mark as RepeatSentenceMark).accuracyMark ?? 0
+              (res.mark as RepeatSentenceMark).pronunciationMark ?? 0
             );
 
             this.onMarkSelect(
@@ -460,7 +468,7 @@ export class ShowExamDialogComponent implements OnInit {
 
     // Add fluencyMark and pronunciationMark
     if (
-      ['audio-response', 'repeat-sentence'].includes(
+      ['audio-response', 'repeat-sentence', 'read-outloud'].includes(
         this.currentQuestionDisplay?.type ?? ''
       )
     ) {
@@ -484,7 +492,11 @@ export class ShowExamDialogComponent implements OnInit {
     }
 
     // Add accuracyMark
-    if (['repeat-sentence'].includes(this.currentQuestionDisplay?.type ?? '')) {
+    if (
+      ['repeat-sentence', 'read-outloud'].includes(
+        this.currentQuestionDisplay?.type ?? ''
+      )
+    ) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       (formControls as any).accuracyMark = new FormControl(
         {
@@ -557,7 +569,11 @@ export class ShowExamDialogComponent implements OnInit {
         );
       }
 
-      if (['audio-response', 'repeat-sentence'].includes(questionType)) {
+      if (
+        ['audio-response', 'repeat-sentence', 'read-outloud'].includes(
+          questionType
+        )
+      ) {
         marksArray.push(
           ...[
             studentResponse.mark.pronunciationMark ?? 0,
@@ -566,7 +582,7 @@ export class ShowExamDialogComponent implements OnInit {
         );
       }
 
-      if (questionType === 'repeat-sentence') {
+      if (['repeat-sentence', 'read-outloud'].includes(questionType)) {
         marksArray.push(
           ...[studentResponse.mark.accuracyMark ?? 0].map(Number)
         );
@@ -1029,7 +1045,11 @@ export class ShowExamDialogComponent implements OnInit {
       );
     }
 
-    if (this.currentQuestionDisplay?.type === 'repeat-sentence') {
+    if (
+      ['repeat-sentence', 'read-outloud'].includes(
+        this.currentQuestionDisplay?.type ?? ''
+      )
+    ) {
       markingCategories.push(
         {
           displayName: 'Accuracy',
