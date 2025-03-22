@@ -217,7 +217,9 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
   async getBadgeNumber(menuItem: string): Promise<number | null | undefined> {
     if (menuItem === 'Exam Marking') {
-      const exams = await this.examService.getAll().toPromise();
+      const exams = await this.examService
+        .getAllBySchoolId(this.currentSchool?._id ?? '')
+        .toPromise();
       let count = 0;
 
       // todo - fix infinte loop when adding live data using methods below for homework

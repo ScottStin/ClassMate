@@ -28,7 +28,6 @@
         <app-exam-table
           [examData]="getUserExams(examType) | async"
           [selectedTabIndex]="i"
-          [questionData]="questions$ | async"
           [currentUser]="currentUser$ | async"
           [users]="users$ | async"
           (openEditExamDialog)="openEditExamDialog($event)"
@@ -36,6 +35,7 @@
           (registerForExam)="registerForExam($event)"
           (startExam)="startExam($event)"
           (reloadExams)="reloadExams()"
+          (openShowExamDialog)="openShowExamDialog($event)"
         ></app-exam-table>
       </div>
     </mat-tab>

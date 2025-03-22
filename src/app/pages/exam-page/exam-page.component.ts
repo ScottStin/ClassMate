@@ -14,10 +14,7 @@ import {
   tap,
 } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
-import {
-  CreateExamDialogComponent,
-  QuestionList,
-} from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
+import { CreateExamDialogComponent } from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
 import { ExamTableComponent } from 'src/app/pages/exam-page/exam-table/exam-table.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
@@ -28,6 +25,8 @@ import { UserService } from 'src/app/services/user-service/user.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
+
+import { ShowExamDialogComponent } from './show-exam-dialog/show-exam-dialog.component';
 
 @UntilDestroy()
 @Component({
@@ -44,7 +43,6 @@ export class ExamPageComponent implements OnInit, OnDestroy {
   users$: Observable<UserDTO[]>;
   examPageLoading = false;
   teachers$: Observable<UserDTO[]>;
-  questions$: Observable<QuestionList[]>;
   error: Error;
   selectedTabIndex = 0;
 
@@ -70,17 +68,27 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     this.currentUser$ = this.authStoreService.currentUser$;
     this.exams$ = this.examService.exams$;
     this.users$ = this.userService.users$;
-    this.questions$ = this.questionService.questions$;
     this.loadPageData();
   }
 
+  getCurrentSchoolFromLocalStore(): SchoolDTO | undefined {
+    // todo - replace with global service
+    const currentSchoolString: string | null =
+      localStorage.getItem('current_school');
+    const currentSchool = (
+      currentSchoolString !== null ? JSON.parse(currentSchoolString) : undefined
+    ) as SchoolDTO | undefined;
+
+    return currentSchool;
+  }
+
   loadPageData(): void {
+    const currentSchoolId = this.getCurrentSchoolFromLocalStore()?._id ?? '';
     this.currentSchoolSubscription = this.currentSchool$.subscribe();
     this.examPageLoading = true;
     forkJoin([
-      this.examService.getAll(),
-      this.userService.getAll(),
-      this.questionService.getAll(),
+      this.examService.getAllBySchoolId(currentSchoolId),
+      this.userService.getAllBySchoolId(currentSchoolId),
     ])
       .pipe(
         first(),
@@ -205,6 +213,51 @@ export class ExamPageComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  openShowExamDialog(input: {
+    exam: ExamDTO;
+    displayMode: boolean; // used to view the exam only, students cannot answer questions and teachers cannot give feedback
+    markMode: boolean;
+    studentId?: string | null;
+    currentUser: UserDTO | null;
+  }): void {
+    const { exam, displayMode, markMode, studentId, currentUser } = input;
+
+    this.questionService
+      .getAllByExamId(exam._id ?? '')
+      .pipe(untilDestroyed(this))
+      .subscribe((questions) => {
+        if (questions.length > 0) {
+          const dialogRef = this.dialog.open(ShowExamDialogComponent, {
+            data: {
+              title: exam.name,
+              exam,
+              questions,
+              displayMode,
+              markMode,
+              studentId,
+              currentUser,
+            },
+            panelClass: 'fullscreen-dialog',
+            // height: '100%',
+            autoFocus: false,
+            hasBackdrop: true,
+            disableClose: true,
+          });
+
+          dialogRef.afterClosed().subscribe((result) => {
+            if (result === true) {
+              this.loadPageData();
+            }
+          });
+        } else {
+          this.snackbarService.openPermanent(
+            'error',
+            'This exam has no questions'
+          );
+        }
+      });
   }
 
   changeTabs(): void {

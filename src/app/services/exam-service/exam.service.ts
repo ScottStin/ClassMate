@@ -42,6 +42,19 @@ export class ExamService {
     );
   }
 
+  getAllBySchoolId(currentSchoolId: string): Observable<ExamDTO[]> {
+    return this.httpClient
+      .get<ExamDTO[]>(`${this.baseUrl}?currentSchoolId=${currentSchoolId}`)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to load exams');
+        }),
+        tap((exams) => {
+          this.examSubject.next(exams);
+        })
+      );
+  }
+
   create(exam: ExamDTO, questions: QuestionList[]): Observable<ExamDTO> {
     //
     // add school id to exam data:

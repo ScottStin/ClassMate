@@ -13,13 +13,10 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
-import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
-import { QuestionList } from '../../../components/create-exam-dialog/create-exam-dialog.component';
 import { StudentsCompletedExamDialogComponent } from '../../../components/students-completed-exam-dialog/students-completed-exam-dialog.component';
-import { ShowExamDialogComponent } from '../show-exam-dialog/show-exam-dialog.component';
 
 @Component({
   selector: 'app-exam-table',
@@ -31,12 +28,18 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<ExamDTO>;
   @Input() examData: ExamDTO[] | null;
-  @Input() questionData: QuestionList[] | null;
   @Input() selectedTabIndex: number;
   @Input() users: UserDTO[] | null;
   @Input() currentUser: UserDTO | null;
   @Output() openEditExamDialog = new EventEmitter<ExamDTO>();
   @Output() openConfirmDeleteDialog = new EventEmitter<ExamDTO>();
+  @Output() openShowExamDialog = new EventEmitter<{
+    exam: ExamDTO;
+    displayMode: boolean;
+    markMode: boolean;
+    studentId?: string | null;
+    currentUser: UserDTO | null;
+  }>();
   @Output() startExam = new EventEmitter<ExamDTO>();
   @Output() registerForExam = new EventEmitter<ExamDTO>();
   @Output() reloadExams = new EventEmitter();
@@ -55,10 +58,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     'actions',
   ];
 
-  constructor(
-    public dialog: MatDialog,
-    private readonly snackbarService: SnackbarService
-  ) {}
+  constructor(public dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.dataSource = new MatTableDataSource<ExamDTO>(this.examData ?? []);
@@ -271,58 +271,15 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     exam: ExamDTO,
     displayMode: boolean, // used to view the exam only, students cannot answer questions and teachers cannot give feedback
     markMode: boolean,
-    student?: string | null
+    studentId?: string | null
   ): void {
-    const questions = [];
-    if (exam.questions && exam.questions.length > 0) {
-      for (const question of exam.questions) {
-        const foundQuestion = this.questionData?.find(
-          (obj) => obj['_id'] === question
-        );
-        if (
-          foundQuestion?.subQuestions !== undefined &&
-          foundQuestion.subQuestions !== null &&
-          foundQuestion.subQuestions.length > 0
-        ) {
-          const subQuestions = [];
-          for (const subQuestion of foundQuestion.subQuestions) {
-            const foundSubQuestion = this.questionData?.find(
-              (obj) => obj['_id'] === subQuestion
-            );
-            if (foundSubQuestion) {
-              subQuestions.push(foundSubQuestion);
-            }
-          }
-          foundQuestion.subQuestions = subQuestions;
-        }
-        if (foundQuestion) {
-          questions.push(foundQuestion);
-        }
-      }
-      const dialogRef = this.dialog.open(ShowExamDialogComponent, {
-        data: {
-          title: exam.name,
-          exam,
-          questions,
-          displayMode,
-          markMode,
-          student,
-          currentUser: this.currentUser,
-        },
-        panelClass: 'fullscreen-dialog',
-        // height: '100%',
-        autoFocus: false,
-        hasBackdrop: true,
-        disableClose: true,
-      });
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result === true) {
-          this.reloadExams.emit();
-        }
-      });
-    } else {
-      this.snackbarService.openPermanent('error', 'This exam has no questions');
-    }
+    this.openShowExamDialog.emit({
+      exam,
+      displayMode,
+      markMode,
+      studentId,
+      currentUser: this.currentUser,
+    });
   }
 
   filterResults(text: string): void {

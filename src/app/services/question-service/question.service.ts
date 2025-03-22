@@ -36,6 +36,19 @@ export class QuestionService {
     );
   }
 
+  getAllByExamId(examId: string): Observable<QuestionList[]> {
+    return this.httpClient
+      .get<QuestionList[]>(`${this.baseUrl}?examId=${examId}`)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to load questions');
+        }),
+        tap((questions) => {
+          this.questionSubject.next(questions);
+        })
+      );
+  }
+
   submitStudentResponse(
     questions: QuestionList[],
     currentUser: string | undefined,
