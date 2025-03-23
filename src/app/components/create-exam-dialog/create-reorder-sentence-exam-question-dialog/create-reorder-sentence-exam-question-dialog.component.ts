@@ -6,9 +6,9 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
-import { QuestionList } from '../create-exam-dialog.component';
 
 @Component({
   selector: 'app-create-reorder-sentence-exam-question-dialog',
@@ -32,13 +32,13 @@ export class CreateReorderSentenceExamQuestionDialogComponent {
   formChanged = false;
   temporarycurrentQuestionDisplay = JSON.parse(
     JSON.stringify(this.data.currentQuestionDisplay)
-  ) as QuestionList; // used to hold the value of currentQuestionDisplay without modifying the original
+  ) as CreateExamQuestionDto; // used to hold the value of currentQuestionDisplay without modifying the original
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
       title: string;
-      currentQuestionDisplay: QuestionList;
+      currentQuestionDisplay: CreateExamQuestionDto;
     },
     private readonly dialogRef: MatDialogRef<CreateReorderSentenceExamQuestionDialogComponent>,
     public dialog: MatDialog,

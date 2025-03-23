@@ -1,8 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { QuestionList } from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
+import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
@@ -55,7 +55,10 @@ export class ExamService {
       );
   }
 
-  create(exam: ExamDTO, questions: QuestionList[]): Observable<ExamDTO> {
+  create(
+    exam: ExamDTO,
+    questions: CreateExamQuestionDto[]
+  ): Observable<ExamDTO> {
     //
     // add school id to exam data:
     const examData = {
@@ -74,7 +77,7 @@ export class ExamService {
 
   registerForExam(exam: ExamDTO, student: UserDTO): Observable<ExamDTO> {
     return this.httpClient
-      .patch<ExamDTO>(`${this.baseUrl}/register/${exam._id!}`, student)
+      .patch<ExamDTO>(`${this.baseUrl}/register/${exam._id}`, student)
       .pipe(
         catchError((error: Error) => {
           this.handleError(error, 'Failed to sign up for exam');
@@ -96,7 +99,7 @@ export class ExamService {
     return (
       this.httpClient
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        .delete<ExamDTO>(`${this.baseUrl}/${data._id!}`)
+        .delete<ExamDTO>(`${this.baseUrl}/${data._id}`)
         .pipe(
           catchError((error: Error) => {
             this.handleError(error, 'Failed to delete exam');

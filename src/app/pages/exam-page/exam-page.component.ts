@@ -225,7 +225,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     const { exam, displayMode, markMode, studentId, currentUser } = input;
 
     this.questionService
-      .getAllByExamId(exam._id ?? '')
+      .getAllByExamId(exam._id)
       .pipe(untilDestroyed(this))
       .subscribe((questions) => {
         if (questions.length > 0) {
@@ -236,7 +236,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
               questions,
               displayMode,
               markMode,
-              studentId,
+              studentId, // todo - replace studentEmail with student id
               currentUser,
             },
             panelClass: 'fullscreen-dialog',

@@ -9,9 +9,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import { readOutloudQuestionPrompt } from 'src/app/services/question-service/question.service';
+import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
-
-import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component';
 
 @Component({
   selector: 'app-questions',
@@ -21,7 +20,7 @@ import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component
 export class QuestionsComponent implements OnChanges {
   @ViewChild('audioRef', { static: false }) audioElement?: ElementRef;
 
-  @Input() question: QuestionList | null;
+  @Input() question: CreateExamQuestionDto | null;
   @Input() displayMode: boolean;
   @Input() student: string;
   @Input() markMode: boolean;

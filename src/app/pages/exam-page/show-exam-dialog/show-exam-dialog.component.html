@@ -121,7 +121,7 @@
         <app-questions
           [question]="currentQuestionDisplay"
           [displayMode]="data.displayMode"
-          [student]="data.student"
+          [student]="data.studentId"
           [currentUser]="data.currentUser"
           [markMode]="data.markMode"
           (updateStudentResponse)="updateStudentResponse($event)"
@@ -226,8 +226,8 @@
       *ngIf="
         currentQuestionDisplay?.type?.toLowerCase() !== 'section' && 
         (subQuestionIndex() !== 'last' || subQuestionIndex() === '') &&
-        questionIndex() !== 'last' &&
-        parentQuestionIndex() !== 'last'
+        !isLastQuestion() &&
+        !isLastParentQuestion()
     "
     >
       Next <mat-icon>navigate_next</mat-icon>
@@ -245,7 +245,7 @@
       class="button"
       cdkFocusInitial
       (click)="completeExam()"
-      *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+      *ngIf="(isLastQuestion() || isLastParentQuestion()) && data.currentUser?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
       [disabled]="invalidStudentResponses()"
       #tooltip="matTooltip"
       [matTooltip]="invalidStudentResponses() ? 'One or more of your responses are invalid. Please double check before submitting' : ''"
@@ -257,7 +257,7 @@
       class="button"
       cdkFocusInitial
       (click)="submitFeedback()"
-      *ngIf="(questionIndex() === 'last' || parentQuestionIndex() === 'last') && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+      *ngIf="(isLastQuestion() || isLastParentQuestion()) && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
       [disabled]="invalidTeacherFeedback()"
       #tooltip="matTooltip"
       [matTooltip]="invalidTeacherFeedback() ? 'One or more of your feedback responses are invalid. Please double check before submitting' : ''"

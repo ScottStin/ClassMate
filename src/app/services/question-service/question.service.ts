@@ -2,7 +2,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { QuestionList } from 'src/app/components/create-exam-dialog/create-exam-dialog.component';
+import { ExamQuestionDto } from 'src/app/shared/models/question.model';
 import { environment } from 'src/environments/environment';
 
 import { ErrorService } from '../error-message.service/error-message.service';
@@ -12,7 +12,7 @@ import { ErrorService } from '../error-message.service/error-message.service';
 })
 export class QuestionService {
   private readonly baseUrl = `${environment.apiUrl}/questions`;
-  private readonly questionSubject = new BehaviorSubject<QuestionList[]>([]);
+  private readonly questionSubject = new BehaviorSubject<ExamQuestionDto[]>([]);
   questions$ = this.questionSubject.asObservable();
 
   private readonly feedbackSubmittedSubject = new BehaviorSubject<void>(
@@ -25,8 +25,8 @@ export class QuestionService {
     private readonly errorService: ErrorService
   ) {}
 
-  getAll(): Observable<QuestionList[]> {
-    return this.httpClient.get<QuestionList[]>(`${this.baseUrl}`).pipe(
+  getAll(): Observable<ExamQuestionDto[]> {
+    return this.httpClient.get<ExamQuestionDto[]>(`${this.baseUrl}`).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to load questions');
       }),
@@ -36,9 +36,9 @@ export class QuestionService {
     );
   }
 
-  getAllByExamId(examId: string): Observable<QuestionList[]> {
+  getAllByExamId(examId: string): Observable<ExamQuestionDto[]> {
     return this.httpClient
-      .get<QuestionList[]>(`${this.baseUrl}?examId=${examId}`)
+      .get<ExamQuestionDto[]>(`${this.baseUrl}?examId=${examId}`)
       .pipe(
         catchError((error: Error) => {
           this.handleError(error, 'Failed to load questions');
@@ -50,12 +50,12 @@ export class QuestionService {
   }
 
   submitStudentResponse(
-    questions: QuestionList[],
+    questions: ExamQuestionDto[],
     currentUser: string | undefined,
-    examId: string | number | undefined
-  ): Observable<QuestionList[]> {
+    examId: string
+  ): Observable<ExamQuestionDto[]> {
     return this.httpClient
-      .patch<QuestionList[]>(`${this.baseUrl}/submit-exam/${examId!}`, {
+      .patch<ExamQuestionDto[]>(`${this.baseUrl}/submit-exam/${examId}`, {
         currentUser,
         questions,
       })
@@ -67,15 +67,15 @@ export class QuestionService {
   }
 
   submitTeacherFeedback(
-    questions: QuestionList[],
+    questions: ExamQuestionDto[],
     currentUser: string | undefined,
-    examId: string | number | undefined,
+    examId: string,
     student: string | undefined,
     score: string | number | undefined,
     aiMarkingComplete: boolean | undefined
-  ): Observable<QuestionList[]> {
+  ): Observable<ExamQuestionDto[]> {
     return this.httpClient
-      .patch<QuestionList[]>(`${this.baseUrl}/submit-feedback/${examId!}`, {
+      .patch<ExamQuestionDto[]>(`${this.baseUrl}/submit-feedback/${examId}`, {
         currentUser,
         questions,
         student,

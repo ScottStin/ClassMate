@@ -4,9 +4,8 @@ import {
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
-
-import { QuestionList } from '../create-exam-dialog/create-exam-dialog.component';
 
 @Component({
   selector: 'app-preview-exam-question',
@@ -17,7 +16,7 @@ export class PreviewExamQuestionComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
-      question: QuestionList;
+      question: CreateExamQuestionDto;
       placeholderUser: UserDTO;
     },
     private readonly dialogRef: MatDialogRef<PreviewExamQuestionComponent>,

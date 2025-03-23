@@ -12,8 +12,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AudioRecordingService } from 'src/app/services/audio-recording-service/audio-recording.service';
-
-import { QuestionList } from '../../create-exam-dialog/create-exam-dialog.component';
+import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 
 @Component({
   selector: 'app-audio-response-question',
@@ -23,7 +22,7 @@ import { QuestionList } from '../../create-exam-dialog/create-exam-dialog.compon
 export class AudioResponseQuestionComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() question: QuestionList | null;
+  @Input() question: CreateExamQuestionDto | null;
   @Input() currentUser: string | undefined;
   @Input() disableForms: boolean;
   @Output() responseChange = new EventEmitter<any>();

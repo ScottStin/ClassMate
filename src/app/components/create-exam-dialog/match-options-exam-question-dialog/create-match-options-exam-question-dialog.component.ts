@@ -8,9 +8,9 @@ import {
 } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
-import { QuestionList } from '../create-exam-dialog.component';
 
 @Component({
   selector: 'app-create-match-options-exam-question-dialog',
@@ -27,13 +27,13 @@ export class CreateMatchOptionsExamQuestionDialogComponent implements OnInit {
   formChanged = false;
   temporarycurrentQuestionDisplay = JSON.parse(
     JSON.stringify(this.data.currentQuestionDisplay)
-  ) as QuestionList; // used to hold the value of currentQuestionDisplay without modifying the original
+  ) as CreateExamQuestionDto; // used to hold the value of currentQuestionDisplay without modifying the original
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
       title: string;
-      currentQuestionDisplay: QuestionList;
+      currentQuestionDisplay: CreateExamQuestionDto;
     },
     private readonly dialogRef: MatDialogRef<CreateMatchOptionsExamQuestionDialogComponent>,
     public dialog: MatDialog,

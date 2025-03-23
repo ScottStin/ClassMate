@@ -17,8 +17,7 @@ import {
 } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { QuestionService } from 'src/app/services/question-service/question.service';
-
-import { QuestionList } from '../../create-exam-dialog/create-exam-dialog.component';
+import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 
 @Component({
   selector: 'app-written-response-question',
@@ -26,7 +25,7 @@ import { QuestionList } from '../../create-exam-dialog/create-exam-dialog.compon
   styleUrls: ['./written-response-question.component.css'],
 })
 export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
-  @Input() question: QuestionList | null;
+  @Input() question: CreateExamQuestionDto | null;
   @Input() disableForms: boolean;
   @Input() currentUser: string | undefined;
   @Output() responseChange = new EventEmitter<string>();

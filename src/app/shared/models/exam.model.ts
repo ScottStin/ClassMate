@@ -1,5 +1,5 @@
 export interface ExamDTO {
-  _id?: string;
+  _id: string;
   name: string;
   studentsEnrolled: string[];
   // studentsCompleted: string[];

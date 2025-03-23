@@ -23,13 +23,13 @@ import {
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { demoLevels } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
+import {
+  ExamQuestionDto,
+  StudentQuestionReponse,
+} from 'src/app/shared/models/question.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
-import {
-  QuestionList,
-  StudentQuestionReponse,
-} from '../../../components/create-exam-dialog/create-exam-dialog.component';
 
 @UntilDestroy()
 @Component({
@@ -39,8 +39,8 @@ import {
 })
 export class ShowExamDialogComponent implements OnInit {
   error: Error;
-  questionList: QuestionList[] = [];
-  currentQuestionDisplay: QuestionList | null = null;
+  questionList: ExamQuestionDto[] = [];
+  currentQuestionDisplay: ExamQuestionDto | null = null;
   currentQuestionIndex = 0;
   currentSubQuestionIndex = 0;
   examStarted = false;
@@ -64,11 +64,11 @@ export class ShowExamDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     public data: {
       title: string;
-      exam: ExamDTO | undefined;
-      questions?: QuestionList[];
+      exam: ExamDTO;
+      questions?: ExamQuestionDto[];
       displayMode: boolean;
       markMode: boolean;
-      student: string;
+      studentId: string; // todo - replace email with id
       currentUser: UserDTO | null;
     },
     private readonly dialogRef: MatDialogRef<ShowExamDialogComponent>,
@@ -88,9 +88,9 @@ export class ShowExamDialogComponent implements OnInit {
     if (
       this.data.markMode &&
       !(
-        this.data.exam?.aiMarkingComplete
+        this.data.exam.aiMarkingComplete
           ?.map((student) => student.email)
-          .includes(this.data.student) ?? false
+          .includes(this.data.studentId) ?? false
       )
     ) {
       //
@@ -114,8 +114,8 @@ export class ShowExamDialogComponent implements OnInit {
               .submitTeacherFeedback(
                 this.questionList,
                 this.data.currentUser?.email,
-                this.data.exam?._id,
-                this.data.student,
+                this.data.exam._id,
+                this.data.studentId,
                 undefined, // undefined score so the backend knows that the marking is not complete,
                 true // ai marking complete
               )
@@ -152,9 +152,9 @@ export class ShowExamDialogComponent implements OnInit {
     this.currentQuestionDisplay = this.questionList[this.currentQuestionIndex];
   }
 
-  markAiQuestion(question: QuestionList): Observable<void> {
+  markAiQuestion(question: ExamQuestionDto): Observable<void> {
     const studentResponse = question.studentResponse?.find(
-      (response) => response.student === this.data.student
+      (response) => response.student === this.data.studentId
     )?.response;
 
     // --- Early return if no student response:
@@ -243,19 +243,19 @@ export class ShowExamDialogComponent implements OnInit {
             );
 
             this.onMarkSelect(
-              (res.mark as AudioMark).fluencyMark ?? 0,
-              'fluencyMark'
-            );
-            this.onMarkSelect(
               (res.mark as AudioMark).pronunciationMark ?? 0,
               'pronunciationMark'
+            );
+            this.onMarkSelect(
+              (res.mark as AudioMark).fluencyMark ?? 0,
+              'fluencyMark'
             );
           }
 
           // Apply repeat sentence ai marking:
           if (['repeat-sentence', 'read-outloud'].includes(questionType)) {
-            this.feedbackForm.controls.pronunciationMark?.setValue(
-              (res.mark as RepeatSentenceMark).pronunciationMark ?? 0
+            this.feedbackForm.controls.accuracyMark?.setValue(
+              (res.mark as RepeatSentenceMark).accuracyMark ?? 0
             );
 
             this.onMarkSelect(
@@ -273,31 +273,34 @@ export class ShowExamDialogComponent implements OnInit {
   /*
    * Navigate, start and end questions/sections:
    */
-  selectQuestion(question: QuestionList): void {
+  selectQuestion(question: ExamQuestionDto): void {
     this.currentQuestionDisplay = question;
     let index = NaN;
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (question.parent) {
       const parent = this.questionList.find(
-        (obj) => obj['_id'] === question.parent
+        (obj) => obj._id === question.parent
       );
       if (parent?.subQuestions) {
         index = parent.subQuestions.findIndex(
-          (obj) => obj === this.currentQuestionDisplay
+          (obj) => obj._id === this.currentQuestionDisplay?._id
         );
         this.currentSubQuestionIndex = index;
       }
-      const parentIndex = this.questionList.findIndex((obj) => obj === parent);
+      const parentIndex = this.questionList.findIndex(
+        (obj) => obj._id === parent?._id
+      );
       this.currentQuestionIndex = parentIndex;
     } else {
       index = this.questionList.findIndex(
-        (obj) => obj === this.currentQuestionDisplay
+        (obj) => obj._id === this.currentQuestionDisplay?._id
       );
       this.currentQuestionIndex = index;
     }
 
     // update the feedback form:
     if (this.data.markMode) {
+      this.populateFeedbackForm();
       this.updateForm();
     }
   }
@@ -312,7 +315,7 @@ export class ShowExamDialogComponent implements OnInit {
       // if (this.currentQuestionDisplay.subQuestions) {
       this.currentSubQuestionIndex = this.currentSubQuestionIndex + 1;
       const parent = this.questionList.find(
-        (obj) => obj['_id'] === this.currentQuestionDisplay?.parent
+        (obj) => obj._id === this.currentQuestionDisplay?.parent
       );
       if (parent?.subQuestions) {
         this.currentQuestionDisplay =
@@ -322,6 +325,7 @@ export class ShowExamDialogComponent implements OnInit {
 
     // update the feedback form:
     if (this.data.markMode) {
+      this.populateFeedbackForm();
       this.updateForm();
     }
   }
@@ -335,7 +339,7 @@ export class ShowExamDialogComponent implements OnInit {
     } else if (this.currentQuestionDisplay.subQuestions) {
       this.currentSubQuestionIndex = this.currentSubQuestionIndex - 1;
       const parent = this.questionList.find(
-        (obj) => obj['_id'] === this.currentQuestionDisplay?.parent
+        (obj) => obj._id === this.currentQuestionDisplay?.parent
       );
       if (parent?.subQuestions) {
         this.currentQuestionDisplay =
@@ -345,6 +349,7 @@ export class ShowExamDialogComponent implements OnInit {
 
     // update the feedback form:
     if (this.data.markMode) {
+      this.populateFeedbackForm();
       this.updateForm();
     }
   }
@@ -367,12 +372,12 @@ export class ShowExamDialogComponent implements OnInit {
    */
   subQuestionIndex(): string {
     const parent = this.questionList.find(
-      (obj) => obj['_id'] === this.currentQuestionDisplay?.parent
+      (obj) => obj._id === this.currentQuestionDisplay?.parent
     );
     let index = NaN;
     if (parent?.subQuestions) {
       index = parent.subQuestions.findIndex(
-        (obj) => obj === this.currentQuestionDisplay
+        (obj) => obj._id === this.currentQuestionDisplay?._id
       );
       if (index === 0) {
         return 'first';
@@ -387,28 +392,28 @@ export class ShowExamDialogComponent implements OnInit {
   /*
    * Get the index of the current question being displayed:
    */
-  questionIndex(): string {
+  isLastQuestion(): boolean {
     const index = this.questionList.findIndex(
-      (obj) => obj === this.currentQuestionDisplay
+      (obj) => obj._id === this.currentQuestionDisplay?._id
     );
     if (index === this.questionList.length - 1) {
-      return 'last';
+      return true;
     } else {
-      return '';
+      return false;
     }
   }
 
   /*
    * Get the index of the parent (section) of the current sub question:
    */
-  parentQuestionIndex(): string {
+  isLastParentQuestion(): boolean {
     const index = this.questionList.findIndex(
-      (obj) => obj['_id'] === this.currentQuestionDisplay?.parent
+      (obj) => obj._id === this.currentQuestionDisplay?.parent
     );
     if (index === this.questionList.length - 1) {
-      return 'last';
+      return true;
     } else {
-      return '';
+      return false;
     }
   }
 
@@ -417,7 +422,7 @@ export class ShowExamDialogComponent implements OnInit {
    */
   populateFeedbackForm(): void {
     const studentResponse = this.currentQuestionDisplay?.studentResponse?.find(
-      (obj) => obj.student === this.data.student
+      (obj) => obj.student === this.data.studentId
     );
 
     // Initialize FormGroup
@@ -602,8 +607,8 @@ export class ShowExamDialogComponent implements OnInit {
 
     // update the original value of the student's mark in data.exam:
     const totalScaledMark = this.getScaledTotalExamScore();
-    const studentScore = this.data.exam?.studentsCompleted.find(
-      (studentCompleted) => studentCompleted.email === this.data.student
+    const studentScore = this.data.exam.studentsCompleted.find(
+      (studentCompleted) => studentCompleted.email === this.data.studentId
     );
     if (studentScore) {
       studentScore.mark = totalScaledMark;
@@ -640,7 +645,7 @@ export class ShowExamDialogComponent implements OnInit {
     const missingFeedback: string[] = [];
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
-        (obj) => obj.student === this.data.student
+        (obj) => obj.student === this.data.studentId
       );
       if (
         // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -693,8 +698,8 @@ export class ShowExamDialogComponent implements OnInit {
             .submitTeacherFeedback(
               this.questionList,
               this.data.currentUser?.email,
-              this.data.exam?._id,
-              this.data.student,
+              this.data.exam._id,
+              this.data.studentId,
               this.getScaledTotalExamScore().toString(),
               undefined // indicates that Ai marking has not been done on this req
             )
@@ -720,8 +725,8 @@ export class ShowExamDialogComponent implements OnInit {
         .submitTeacherFeedback(
           this.questionList,
           this.data.currentUser?.email,
-          this.data.exam?._id,
-          this.data.student,
+          this.data.exam._id,
+          this.data.studentId,
           this.getScaledTotalExamScore().toString(),
           undefined // indicates that Ai marking has not been done on this req
         )
@@ -829,7 +834,7 @@ export class ShowExamDialogComponent implements OnInit {
           .submitStudentResponse(
             this.questionList,
             this.data.currentUser?.email,
-            this.data.exam?._id
+            this.data.exam._id
           )
           .pipe(
             finalize(() => {
@@ -880,7 +885,7 @@ export class ShowExamDialogComponent implements OnInit {
     let invalid = false;
     for (const question of this.questionList) {
       const teacherFeedback = question.studentResponse?.find(
-        (response) => response.student === this.data.student
+        (response) => response.student === this.data.studentId
       )?.feedback?.text;
 
       if (
@@ -950,7 +955,7 @@ export class ShowExamDialogComponent implements OnInit {
     let studentResponse;
     if (this.currentQuestionDisplay?.studentResponse) {
       studentResponse = this.currentQuestionDisplay.studentResponse.find(
-        (obj) => obj.student === this.data.student
+        (obj) => obj.student === this.data.studentId
       );
     }
     return studentResponse;
@@ -959,18 +964,20 @@ export class ShowExamDialogComponent implements OnInit {
   /*
    * Get the student's mark for the question
    */
-  getStudentMark(question: QuestionList): string | number | null | undefined {
+  getStudentMark(
+    question: ExamQuestionDto
+  ): string | number | null | undefined {
     if (question.type?.toLocaleUpperCase() !== 'section') {
       const studentResponse = question.studentResponse?.find(
-        (obj) => obj.student === this.data.student
+        (obj) => obj.student === this.data.studentId
       );
       return studentResponse?.mark?.totalMark;
     } else {
       const subQuestion = this.questionList.find(
-        (obj) => obj['_id'] === question['_id']
+        (obj) => obj._id === question._id
       );
       const studentResponse = subQuestion?.studentResponse?.find(
-        (obj) => obj.student === this.data.student
+        (obj) => obj.student === this.data.studentId
       );
       return studentResponse?.mark?.totalMark;
     }
@@ -987,7 +994,7 @@ export class ShowExamDialogComponent implements OnInit {
 
     // filter the list for the current student whose exam is being marked/displayed
     const currentStudentResponses = studentResponses.filter(
-      (response) => response?.student === this.data.student
+      (response) => response?.student === this.data.studentId
     );
 
     // get the sum of all the points the student has scored accross all the questions:
@@ -1012,8 +1019,8 @@ export class ShowExamDialogComponent implements OnInit {
       totalMarkUnscaled,
       unscaledMin,
       unscaledMax,
-      this.data.exam?.totalPointsMin ?? 0,
-      this.data.exam?.totalPointsMax ?? 100
+      this.data.exam.totalPointsMin ?? 0,
+      this.data.exam.totalPointsMax ?? 100
     );
     return totalScaledMark;
   }
@@ -1073,21 +1080,20 @@ export class ShowExamDialogComponent implements OnInit {
    * Find the current exam question from the questionList
    * todo - move to seperate reusable service or helper.
    */
-  findCurrentQuestionFromList(): QuestionList | undefined {
+  findCurrentQuestionFromList(): ExamQuestionDto | undefined {
     let foundQuestion;
     if (
       this.currentQuestionDisplay?.parent !== null &&
       this.currentQuestionDisplay !== null
     ) {
       foundQuestion = this.questionList
-        .find((obj) => obj['_id'] === this.currentQuestionDisplay?.parent)
+        .find((obj) => obj._id === this.currentQuestionDisplay?.parent)
         ?.subQuestions?.find(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          (obj) => obj['_id'] === this.currentQuestionDisplay!['_id']
+          (obj) => obj._id === this.currentQuestionDisplay?._id
         );
     } else {
       foundQuestion = this.questionList.find(
-        (obj) => obj === this.currentQuestionDisplay
+        (obj) => obj._id === this.currentQuestionDisplay?._id
       );
     }
     return foundQuestion;

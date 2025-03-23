@@ -255,7 +255,7 @@
                     <mat-list-item role="listitem">
                       <div style="display: flex; align-items: center">
                         <span
-                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          [class]="question.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
                           >{{question.name}}</span
                         >
                         <mat-icon
@@ -267,7 +267,7 @@
                           #tooltip="matTooltip"
                           [matTooltip]="'Edit ' + question.type"
                           (click)="editQuestion(question, null)"
-                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          [class]="question.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
                           >edit</mat-icon
                         >
                         <mat-icon
@@ -275,7 +275,7 @@
                           #tooltip="matTooltip"
                           [matTooltip]="'Delete ' + question.type"
                           (click)="deleteQuestion(question, null)"
-                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          [class]="question.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
                           >delete</mat-icon
                         >
                         <mat-icon
@@ -283,8 +283,8 @@
                           #tooltip="matTooltip"
                           [matTooltip]="'Preview ' + question.type"
                           (click)="previewQuestion()"
-                          *ngIf="question.id === currentQuestionDisplay?.id"
-                          [class]="question.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                          *ngIf="question.tempId === currentQuestionDisplay?.tempId"
+                          [class]="question.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
                           >remove_red_eye</mat-icon
                         >
                         <span
@@ -305,7 +305,7 @@
                       <mat-list-item
                         class="subQuestionList"
                         *ngFor="let subQuestion of question.subQuestions"
-                        [class]="subQuestion.id === currentQuestionDisplay?.id ? 'current-question' : ''"
+                        [class]="subQuestion.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
                       >
                         <span>&#x2022; {{subQuestion.name}}</span>
                         <mat-icon
@@ -331,7 +331,7 @@
                           #tooltip="matTooltip"
                           matTooltip="Preview question"
                           (click)="previewQuestion()"
-                          *ngIf="subQuestion.id === currentQuestionDisplay?.id"
+                          *ngIf="subQuestion.tempId === currentQuestionDisplay?.tempId"
                           >remove_red_eye</mat-icon
                         >
                       </mat-list-item>

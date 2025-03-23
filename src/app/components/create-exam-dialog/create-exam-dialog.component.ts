@@ -21,6 +21,7 @@ import {
 } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
+import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { PreviewExamQuestionComponent } from '../preview-exam-question/preview-exam-question.component';
@@ -43,8 +44,8 @@ export class CreateExamDialogComponent implements OnInit {
     questionStep: QuestionStepForm;
   }>;
 
-  questionList: QuestionList[] = [];
-  currentQuestionDisplay: QuestionList | null = null;
+  questionList: CreateExamQuestionDto[] = [];
+  currentQuestionDisplay: CreateExamQuestionDto | null = null;
   maxWrittenResponseWordLimit = 600;
   maxAudioResponseTimeLimit = 120;
   sectionCounter = 1; // used to assign an id to a new section;
@@ -276,7 +277,7 @@ export class CreateExamDialogComponent implements OnInit {
       name: `New section ${this.sectionCounter}`,
       type: 'section',
       expanded: false,
-      id: `section-${this.sectionCounter}`,
+      tempId: `section-${this.sectionCounter}`,
       subQuestions: [
         {
           name: `New section ${this.sectionCounter}, Q1`,
@@ -297,7 +298,7 @@ export class CreateExamDialogComponent implements OnInit {
     const newQuestion = {
       name: `New question ${this.questionCounter}`,
       type: 'question',
-      id: `question-${this.questionCounter}`,
+      tempId: `question-${this.questionCounter}`,
     };
     this.questionList.push(newQuestion);
     this.currentQuestionDisplay = newQuestion;
@@ -308,20 +309,20 @@ export class CreateExamDialogComponent implements OnInit {
   /*
    * Adds a subquestion to a section:
    */
-  addQuestionToSection(question: QuestionList): void {
+  addQuestionToSection(question: CreateExamQuestionDto): void {
     this.changingQuestions = true;
     const clickedQuestion = this.questionList.find(
-      (obj) => obj.id === question.id
+      (obj) => obj.tempId === question.tempId
     );
     if (clickedQuestion?.subQuestions) {
       this.questionList
 
-        .find((obj) => obj.id === question.id)
+        .find((obj) => obj.tempId === question.tempId)
         ?.subQuestions?.push({
           name: `${clickedQuestion.name} q${
             clickedQuestion.subQuestions.length + 2
           }`,
-          id: `${clickedQuestion.name} q${
+          tempId: `${clickedQuestion.name} q${
             clickedQuestion.subQuestions.length + 2
           }`,
         });
@@ -333,13 +334,16 @@ export class CreateExamDialogComponent implements OnInit {
   /*
    * When the user clicks to edit a question in the question list, make that the current question to display:
    */
-  editQuestion(question: QuestionList, subQuestion: QuestionList | null): void {
+  editQuestion(
+    question: CreateExamQuestionDto,
+    subQuestion: CreateExamQuestionDto | null
+  ): void {
     this.changingQuestions = true;
     if (!subQuestion) {
       this.currentQuestionDisplay = question;
     } else {
       this.currentQuestionDisplay = subQuestion;
-      this.currentQuestionDisplay.parent = question.id as number;
+      this.currentQuestionDisplay.parent = question.tempId;
     }
 
     this.updateForm();
@@ -421,18 +425,18 @@ export class CreateExamDialogComponent implements OnInit {
    * Find the current quesiton being displayed in the questionList:
    * Todo - move to seperate reusable service or helper.
    */
-  findCurrentQuestionFromList(): QuestionList | undefined {
+  findCurrentQuestionFromList(): CreateExamQuestionDto | undefined {
     let foundQuestion;
 
     if (this.currentQuestionDisplay?.parent !== undefined) {
       foundQuestion = this.questionList
-        .find((obj) => obj.id === this.currentQuestionDisplay?.parent)
+        .find((obj) => obj.tempId === this.currentQuestionDisplay?.parent)
         ?.subQuestions?.find(
-          (obj) => obj.id === this.currentQuestionDisplay?.id
+          (obj) => obj.tempId === this.currentQuestionDisplay?.tempId
         );
     } else {
       foundQuestion = this.questionList.find(
-        (obj) => obj.id === this.currentQuestionDisplay?.id
+        (obj) => obj.tempId === this.currentQuestionDisplay?.tempId
       );
     }
 
@@ -545,16 +549,18 @@ export class CreateExamDialogComponent implements OnInit {
    * todo - replace subQuestions/ question logic with findCurrentQuestionFromList
    */
   deleteQuestion(
-    question: QuestionList,
-    subQuestions: QuestionList | null
+    question: CreateExamQuestionDto,
+    subQuestions: CreateExamQuestionDto | null
   ): void {
     if (subQuestions !== null) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.questionList.find(
-        (obj: QuestionList) => obj.id === question.id
+        (obj: CreateExamQuestionDto) => obj.tempId === question.tempId
       )!.subQuestions = this.questionList
-        .find((obj: QuestionList) => obj.id === question.id)
-        ?.subQuestions?.filter((obj: QuestionList) => obj !== subQuestions);
+        .find((obj: CreateExamQuestionDto) => obj.tempId === question.tempId)
+        ?.subQuestions?.filter(
+          (obj: CreateExamQuestionDto) => obj !== subQuestions
+        );
     } else {
       this.questionList = this.questionList.filter((obj) => obj !== question);
     }
@@ -585,9 +591,9 @@ export class CreateExamDialogComponent implements OnInit {
   /*
    * When the user clicks on a seciton in the question list, expand that section to show the sub-questions:
    */
-  expandSection(question: QuestionList): void {
+  expandSection(question: CreateExamQuestionDto): void {
     const clickedQuestion = this.questionList.find(
-      (obj) => obj.id === question.id
+      (obj) => obj.tempId === question.tempId
     );
     if (clickedQuestion?.expanded !== undefined) {
       clickedQuestion.expanded = !clickedQuestion.expanded;
@@ -664,19 +670,21 @@ export class CreateExamDialogComponent implements OnInit {
         currentQuestionDisplay: this.currentQuestionDisplay,
       },
     });
-    dialogRef.afterClosed().subscribe((result: QuestionList | null) => {
-      if (result) {
-        const foundQuestion = this.findCurrentQuestionFromList();
+    dialogRef
+      .afterClosed()
+      .subscribe((result: CreateExamQuestionDto | null) => {
+        if (result) {
+          const foundQuestion = this.findCurrentQuestionFromList();
 
-        // apply results:
-        if (foundQuestion && questionType) {
-          foundQuestion[questionType] = result[questionType];
-          foundQuestion.randomQuestionOrder = result.randomQuestionOrder;
-          foundQuestion.partialMarking = result.partialMarking;
-          foundQuestion.caseSensitive = result.caseSensitive;
+          // apply results:
+          if (foundQuestion && questionType) {
+            foundQuestion[questionType] = result[questionType];
+            foundQuestion.randomQuestionOrder = result.randomQuestionOrder;
+            foundQuestion.partialMarking = result.partialMarking;
+            foundQuestion.caseSensitive = result.caseSensitive;
+          }
         }
-      }
-    });
+      });
   }
 
   /*
@@ -981,57 +989,6 @@ export class CreateExamDialogComponent implements OnInit {
   closeDialog(result: boolean | null): void {
     this.dialogRef.close(result);
   }
-}
-
-export interface QuestionList {
-  // todo = move this to models.
-  name: string;
-  subQuestions?: QuestionList[] | null;
-  writtenPrompt?: string | null;
-  teacherFeedback?: boolean | null;
-  autoMarking?: boolean | null;
-  type?: string;
-  timed?: boolean | null;
-  time?: number | null;
-  randomQuestionOrder?: boolean | null;
-  partialMarking?: boolean | null;
-  caseSensitive?: boolean | null; // for fill-in-blanks question, the student will have to get the case correct to score the points
-  multipleChoiceQuestionList?: { text: string; correct: boolean }[] | null; // todo - seperate
-  reorderSentenceQuestionList?: { text: string }[] | null;
-  fillBlanksQuestionList?:
-    | { text: string; blanks: { text: string }[] }[]
-    | null;
-  matchOptionQuestionList?:
-    | { leftOption: string; rightOption: string }[]
-    | null;
-  totalPointsMin?: number | null;
-  totalPointsMax?: number | null;
-  length?: number | null;
-  prompt1?: { fileString: string; type: string; fileName: string } | null;
-  prompt2?: { fileString: string; type: string; fileName: string } | null;
-  prompt3?: { fileString: string; type: string; fileName: string } | null;
-  expanded?: boolean;
-  id?: number | string;
-  parent?: number | null;
-  [key: string]: unknown;
-  studentResponse?: StudentQuestionReponse[];
-}
-[];
-
-export interface StudentQuestionReponse {
-  student?: string | null;
-  response?: string | null;
-  mark?: {
-    vocabMark?: number | string | null;
-    grammarMark?: number | string | null;
-    contentMark?: number | string | null;
-    fluencyMark?: number | string | null;
-    pronunciationMark?: number | string | null;
-    accuracyMark?: number | string | null;
-    totalMark?: number | string | null;
-    [key: string]: unknown;
-  } | null;
-  feedback?: { text: string; teacher: string } | null;
 }
 
 export type ExamDetailStepForm = FormGroup<{
