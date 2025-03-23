@@ -392,8 +392,8 @@
             <div
               class="question-container"
               [class]="questionList.length>0 && currentQuestionDisplay ? 'col-sm-7 offset-1' : 'col-0'"
+              [class.exam-form-loading-overlay]="changingQuestions"
               *ngIf="questionList.length>0 && currentQuestionDisplay"
-              [style]="scrollThroughQuestionListStyling"
             >
               <!----- Question Name Form: ----->
               <mat-form-field class="form-field" appearance="outline">

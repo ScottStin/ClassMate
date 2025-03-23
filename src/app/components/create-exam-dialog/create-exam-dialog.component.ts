@@ -49,8 +49,8 @@ export class CreateExamDialogComponent implements OnInit {
   maxAudioResponseTimeLimit = 120;
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
-  scrollThroughQuestionListStyling = '';
   createExamLoading = false;
+  changingQuestions = false; // note: users were having trouble seeing if a question had changed because it was happening too fast, so changingQuestions is used to add an affect when the question changes
   readOutloudQuestionPrompt = readOutloudQuestionPrompt;
 
   fileChangedEvent: Event | string = '';
@@ -271,6 +271,7 @@ export class CreateExamDialogComponent implements OnInit {
    * Adds a new section to the exam question list:
    */
   addNewSection(): void {
+    this.changingQuestions = true;
     const newQuestion = {
       name: `New section ${this.sectionCounter}`,
       type: 'section',
@@ -292,6 +293,7 @@ export class CreateExamDialogComponent implements OnInit {
    * Adds a question to the questin list:
    */
   addNewQuestion(): void {
+    this.changingQuestions = true;
     const newQuestion = {
       name: `New question ${this.questionCounter}`,
       type: 'question',
@@ -307,6 +309,7 @@ export class CreateExamDialogComponent implements OnInit {
    * Adds a subquestion to a section:
    */
   addQuestionToSection(question: QuestionList): void {
+    this.changingQuestions = true;
     const clickedQuestion = this.questionList.find(
       (obj) => obj.id === question.id
     );
@@ -331,56 +334,15 @@ export class CreateExamDialogComponent implements OnInit {
    * When the user clicks to edit a question in the question list, make that the current question to display:
    */
   editQuestion(question: QuestionList, subQuestion: QuestionList | null): void {
+    this.changingQuestions = true;
     if (!subQuestion) {
-      //
-      // --- First, let's create a scroll effect, so it looks like we're scrolling up/down through the question list when the user changes questions, rather than just changing immediately:
-      const newQuestionIndex = this.questionList.findIndex(
-        (questionListItem) => question.id === questionListItem.id
-      );
-      const currentQuestionIndex = this.questionList.findIndex(
-        (questionListItem) =>
-          this.currentQuestionDisplay?.id === questionListItem.id
-      );
-
-      // eslint-disable-next-line require-await
-      const delay = async (ms: number): Promise<void> =>
-        new Promise((resolve) => setTimeout(resolve, ms));
-
-      const updateQuestionDisplay = async (): Promise<void> => {
-        if (currentQuestionIndex > newQuestionIndex) {
-          // Loop backward with delay:
-          for (let i = currentQuestionIndex - 1; i >= newQuestionIndex; i--) {
-            this.scrollThroughQuestionListStyling =
-              'transform: translateY(2000px); transition: all 0.05s ease-in-out;';
-            this.currentQuestionDisplay = this.questionList[i];
-            await delay(25);
-            this.scrollThroughQuestionListStyling =
-              'transform: translateY(0px); transition: all 0.05s ease-in-out;';
-            await delay(25);
-            this.updateForm();
-          }
-        } else if (currentQuestionIndex < newQuestionIndex) {
-          // Loop forward with delay:
-          for (let i = currentQuestionIndex + 1; i <= newQuestionIndex; i++) {
-            this.scrollThroughQuestionListStyling =
-              'transform: translateY(-2000px); transition: all 0.05s ease-in-out;';
-            this.currentQuestionDisplay = this.questionList[i];
-            await delay(25);
-            this.scrollThroughQuestionListStyling =
-              'transform: translateY(0px); transition: all 0.05s ease-in-out;';
-            await delay(25);
-            this.updateForm();
-          }
-        }
-      };
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      updateQuestionDisplay();
+      this.currentQuestionDisplay = question;
     } else {
-      // todo - add loop to sub question display as above:
       this.currentQuestionDisplay = subQuestion;
       this.currentQuestionDisplay.parent = question.id as number;
-      this.updateForm();
     }
+
+    this.updateForm();
   }
 
   /*
@@ -449,6 +411,10 @@ export class CreateExamDialogComponent implements OnInit {
       this.fileNamePrompt3 =
         this.currentQuestionDisplay.prompt3?.fileName ?? '';
     }
+
+    setTimeout(() => {
+      this.changingQuestions = false;
+    }, 100);
   }
 
   /*
