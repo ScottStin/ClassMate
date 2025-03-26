@@ -1,0 +1,78 @@
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
+.chat-container {
+  display: flex;
+  height: 100vh;
+}
+
+.chat-sidebar {
+  width: 300px;
+  background: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ddd;
+}
+
+.sidebar-header {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-item {
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chat-item:hover {
+  background: #ddd;
+}
+
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-box {
+  max-width: 60%;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 10px;
+  position: relative;
+  font-size: 14px;
+}
+
+.current-user {
+  align-self: flex-start;
+  background: $primaryColor;
+  color: $secondaryColor;
+}
+
+.other-user {
+  align-self: flex-end;
+  background: #e1e1e1;
+  color: black;
+}
+
+.message-time {
+  display: block;
+  font-size: 10px;
+  text-align: right;
+  margin-top: 5px;
+}

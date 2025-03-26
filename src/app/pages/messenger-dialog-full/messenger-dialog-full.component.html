@@ -1,0 +1,9 @@
+<ng-container>
+  <app-dialog-header
+    dialogTitle="Messages"
+    (closeAction)="closeFormClick()"
+  ></app-dialog-header>
+  <app-messenger-dialog-full-view
+    [messages]="messages$ | async"
+  ></app-messenger-dialog-full-view>
+</ng-container>

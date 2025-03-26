@@ -11,6 +11,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmDialogModule } from 'src/app/components/confirm-dialog/confirm-dialog.module';
+import { MessengerDialogFullModule } from 'src/app/pages/messenger-dialog-full/messenger-dialog-full.module';
 
 import { NotificationsDialogModule } from '../notifications-dialog/notifications-dialog.module';
 import { HeaderCardComponent } from './header-card.component';
@@ -33,6 +34,7 @@ import { HeaderCardComponent } from './header-card.component';
     MatMenuModule,
     MatBadgeModule,
     MatMenuModule,
+    MessengerDialogFullModule,
   ],
   exports: [HeaderCardComponent],
 })

@@ -20,6 +20,7 @@ import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
+import { MessengerDialogFullComponent } from 'src/app/pages/messenger-dialog-full/messenger-dialog-full.component';
 
 @UntilDestroy()
 @Component({
@@ -169,5 +170,19 @@ export class HeaderCardComponent implements OnInit {
     if (this.notificationsMenuTrigger.menuOpen) {
       this.notificationsMenuTrigger.closeMenu();
     }
+  }
+
+  // Messenger:
+
+  openFullMessengerDialog(): void {
+    this.dialog.open(MessengerDialogFullComponent, {
+      data: {
+        currentUser: this.currentUser,
+      },
+      panelClass: 'fullscreen-dialog',
+      autoFocus: false,
+      hasBackdrop: true,
+      disableClose: true,
+    });
   }
 }

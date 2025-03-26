@@ -1,0 +1,57 @@
+<div class="chat-container">
+  <!-- Sidebar -->
+  <div class="chat-sidebar">
+    <!-- Fixed header box -->
+    <div class="sidebar-header">
+      <!-- <h3>Chats</h3> -->
+      <!-- Placeholder for search bar and other controls -->
+      <input type="text" placeholder="Search messages..." />
+    </div>
+
+    <!-- Scrollable chat list -->
+    <div class="chat-list">
+      <mat-tab-group>
+        <mat-tab label="All">
+          <div
+            class="chat-item"
+            *ngFor="let sideMessageList of sideMessageListDisplay"
+            (click)="selectMessage(sideMessageList)"
+          >
+            {{ sideMessageList.title }}
+          </div>
+        </mat-tab>
+        <mat-tab label="Direct"> Show direct messages here only </mat-tab>
+        <mat-tab label="Groups"> Show group messages here only </mat-tab>
+        <mat-tab label="Favourited">
+          Show favourited messages here only
+        </mat-tab>
+        <mat-tab label="Students">
+          Show messages from students here only
+        </mat-tab>
+        <mat-tab label="Teachers">
+          Show messages from teachers here only
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+
+  <!-- Main chat area -->
+  <div class="chat-main">
+    <h2 *ngIf="!selectedMessage">Select a conversation</h2>
+    <h2 *ngIf="selectedMessage">{{ selectedMessage.title }}</h2>
+
+    <div class="chat-messages" *ngIf="selectedMessage">
+      <div
+        *ngFor="let msg of selectedMessage.messages"
+        [class.current-user]="msg.senderId === 'user1'"
+        [class.other-user]="msg.senderId !== 'user1'"
+        class="message-box"
+      >
+        <span class="message-text">{{ msg.messageText }}</span>
+        <span class="message-time"
+          >{{ formatMessageTimestamp(msg.createdAt) }}</span
+        >
+      </div>
+    </div>
+  </div>
+</div>
