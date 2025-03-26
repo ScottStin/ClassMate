@@ -224,7 +224,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
       // todo - fix infinte loop when adding live data using methods below for homework
       exams?.forEach((exam) => {
-        if (exam.assignedTeacher === this.currentUser?.email) {
+        if (exam.assignedTeacherId === this.currentUser?._id) {
           exam.studentsCompleted.forEach((student) => {
             if (student.mark === null) {
               count++;

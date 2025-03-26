@@ -187,10 +187,10 @@ export class CreateExamDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      assignedTeacher: new FormControl(
-        this.data.exam?.assignedTeacher ?? // on edit exam, set the assigned teacher
+      assignedTeacherId: new FormControl(
+        this.data.exam?.assignedTeacherId ?? // on edit exam, set the assigned teacher
           (this.data.currentTeacher.userType.toLowerCase() === 'teacher' // if user creating the exam is not admin, assigned teacher should be current teacher by default
-            ? this.data.currentTeacher.email
+            ? this.data.currentTeacher._id
             : ''),
         {
           validators: [Validators.required],
@@ -999,7 +999,7 @@ export type ExamDetailStepForm = FormGroup<{
   totalPointsMin: FormControl<number>;
   totalPointsMax: FormControl<number>;
   default: FormControl<boolean>;
-  assignedTeacher: FormControl<string>;
+  assignedTeacherId: FormControl<string>;
   defaultExam: FormControl<boolean>;
 }>;
 

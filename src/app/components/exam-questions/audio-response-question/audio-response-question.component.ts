@@ -23,7 +23,7 @@ export class AudioResponseQuestionComponent
   implements OnInit, OnChanges, OnDestroy
 {
   @Input() question: CreateExamQuestionDto | null;
-  @Input() currentUser: string | undefined;
+  @Input() currentUserId: string | undefined;
   @Input() disableForms: boolean;
   @Output() responseChange = new EventEmitter<any>();
 
@@ -75,7 +75,7 @@ export class AudioResponseQuestionComponent
 
   preloadAudio(): void {
     const studentResponse = this.question?.studentResponse?.find(
-      (obj) => obj.student === this.currentUser
+      (obj) => obj.studentId === this.currentUserId
     );
 
     if (studentResponse?.response) {

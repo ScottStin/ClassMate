@@ -2,8 +2,7 @@ export interface ExamDTO {
   _id: string;
   name: string;
   studentsEnrolled: string[];
-  // studentsCompleted: string[];
-  studentsCompleted: { email: string; mark?: string | number | null }[];
+  studentsCompleted: { studentId: string; mark?: string | number | null }[];
   totalPointsMin?: number | null;
   totalPointsMax?: number | null;
   description: string;
@@ -12,7 +11,7 @@ export interface ExamDTO {
   default: boolean;
   questions?: string[] | null;
   createdAt?: Date | null;
-  assignedTeacher: string;
-  aiMarkingComplete?: { email: string }[];
+  assignedTeacherId: string;
+  aiMarkingComplete?: { studentId: string }[];
   schoolId: string | null;
 }

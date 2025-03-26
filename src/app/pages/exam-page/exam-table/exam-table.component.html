@@ -34,7 +34,7 @@
         Price (USD)
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <div *ngIf="!row.studentsEnrolled.includes(currentUser?.email)">
+        <div *ngIf="!row.studentsEnrolled.includes(currentUser?._id)">
           <span *ngIf="row.casualPrice && row.casualPrice !== 0"
             >$ {{ row.casualPrice }}</span
           >
@@ -115,17 +115,19 @@
 
     <!-- assignedTeacher Column -->
     <ng-container
-      matColumnDef="assignedTeacher"
+      matColumnDef="assignedTeacherId"
       [style]="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? '' : 'display: none;'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Assigned Teacher
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <span *ngIf="getUserName(row.assignedTeacher)"
-          >{{getUserName(row.assignedTeacher)}}</span
+        <span *ngIf="getUserNameFromId(row.assignedTeacherId)"
+          >{{getUserNameFromId(row.assignedTeacherId)}}</span
         >
-        <span *ngIf="!getUserName(row.assignedTeacher)" style="opacity: 0.5"
+        <span
+          *ngIf="!getUserNameFromId(row.assignedTeacherId)"
+          style="opacity: 0.5"
           ><i
             >Unassigned (open the menu click 'edit' to assign a teacher)</i
           ></span
@@ -210,7 +212,7 @@
           </mat-menu>
         </div>
         <div
-          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && !row.studentsEnrolled.includes(currentUser?.email)"
+          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && !row.studentsEnrolled.includes(currentUser?._id)"
         >
           <button
             mat-icon-button
@@ -223,7 +225,7 @@
           </button>
         </div>
         <div
-          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && !studentCompleted(row)"
+          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?._id) && !studentCompleted(row)"
         >
           <button
             mat-icon-button
@@ -236,7 +238,7 @@
           </button>
         </div>
         <div
-          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && studentCompleted(row) && !getResult(row)"
+          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?._id) && studentCompleted(row) && !getResult(row)"
         >
           <button
             mat-icon-button
@@ -249,13 +251,13 @@
           </button>
         </div>
         <div
-          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?.email) && getResult(row)"
+          *ngIf="(currentUser?.userType?.toLowerCase() ==='student' || !currentUser) && row.studentsEnrolled.includes(currentUser?._id) && getResult(row)"
         >
           <button
             mat-icon-button
             #tooltip="matTooltip"
             matTooltip="Click here to view your feedback."
-            (click)="displayExam(row, false, true, currentUser?.email)"
+            (click)="displayExam(row, false, true, currentUser?._id)"
             class="icon-button"
           >
             <mat-icon>remove_red_eye</mat-icon>

@@ -38,7 +38,7 @@ export interface ExamQuestionDto extends CreateExamQuestionDto {
 }
 
 export interface StudentQuestionReponse {
-  student?: string | null;
+  studentId?: string | null;
   response?: string | null;
   mark?: {
     vocabMark?: number | string | null;

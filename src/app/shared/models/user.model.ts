@@ -10,8 +10,7 @@ export interface CreateUserDTO {
   unhashedPassword?: string | null;
   profilePicture?: ProfilePictureDTO | null;
   level?: LevelDTO | null;
-  // level?: string | null;
-  schoolId: number | string; // todo = updae to string only
+  schoolId: number | string; // todo = update to string only
   eltComplete: boolean;
   createdAt?: Date | null;
   updatedAt?: Date | null;

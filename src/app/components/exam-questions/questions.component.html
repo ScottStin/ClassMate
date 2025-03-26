@@ -99,7 +99,7 @@
       *ngIf="question.type==='written-response'"
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
-      [currentUser]="student ? student : currentUser?.email"
+      [currentUserId]="studentId ?? currentUser?._id"
       (responseChange)="onResponseChange($event)"
     ></app-written-response-question>
 
@@ -108,7 +108,7 @@
       *ngIf="['audio-response', 'repeat-sentence', 'read-outloud'].includes(question.type ?? '')"
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
-      [currentUser]="student ? student : currentUser?.email"
+      [currentUserId]="studentId ?? currentUser?._id"
       (responseChange)="onResponseChange($event)"
     ></app-audio-response-question>
   </mat-card-content>

@@ -156,10 +156,10 @@
           <div class="row">
             <mat-form-field appearance="outline" class="form-field" class="col">
               <mat-label>Assigned teacher</mat-label>
-              <mat-select formControlName="assignedTeacher">
+              <mat-select formControlName="assignedTeacherId">
                 <mat-option
                   *ngFor="let teacher of data.teachers"
-                  [value]="teacher.email"
+                  [value]="teacher._id"
                   ><img
                     [src]="teacher.profilePicture?.url"
                     alt="teacher image"
@@ -175,7 +175,7 @@
               >
               <mat-error>
                 <app-error-message
-                  [control]="examDetailsStepForm.controls['assignedTeacher'].errors"
+                  [control]="examDetailsStepForm.controls['assignedTeacherId'].errors"
                 ></app-error-message>
               </mat-error>
             </mat-form-field>

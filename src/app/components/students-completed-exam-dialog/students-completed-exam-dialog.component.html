@@ -21,7 +21,9 @@
             >
               <div>
                 <div>{{ student.name }}</div>
-                <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+                <span style="opacity: 0.6"
+                  >ID:<i> {{ student.studentId }}</i></span
+                >
               </div>
               <div
                 style="cursor: pointer"
@@ -51,7 +53,9 @@
             >
               <div>
                 <div>{{ student.name }}</div>
-                <span style="opacity: 0.6"><i>({{ student.email }})</i></span>
+                <span style="opacity: 0.6"
+                  >ID:<i> {{ student.studentId }}</i></span
+                >
                 <div *ngIf="student.marked">
                   Exam Mark: &nbsp;
                   <span style="white-space: nowrap"

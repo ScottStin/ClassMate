@@ -52,7 +52,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     'studentsEnrolled',
     'studentsCompleted',
     'casualPrice',
-    'assignedTeacher',
+    'assignedTeacherId',
     'createdAt',
     'default',
     'actions',
@@ -102,8 +102,8 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
         return data.studentsEnrolled;
       case 'studentsCompleted':
         return data.studentsCompleted;
-      case 'assignedTeacher':
-        return data.assignedTeacher;
+      case 'assignedTeacherId':
+        return data.assignedTeacherId;
       case 'createdAt':
         return data.createdAt;
       case 'default':
@@ -166,7 +166,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
 
   studentCompleted(exam: ExamDTO): boolean {
     const result = exam.studentsCompleted.find(
-      (obj) => obj.email === this.currentUser?.email
+      (obj) => obj.studentId === this.currentUser?._id
     );
     if (result) {
       return true;
@@ -177,7 +177,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
 
   getResult(exam: ExamDTO): string | null | undefined | number {
     const result = exam.studentsCompleted.find(
-      (obj) => obj.email === this.currentUser?.email
+      (obj) => obj.studentId === this.currentUser?._id
     );
     if (result?.mark === null) {
       return null;
@@ -188,45 +188,45 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
 
   getStudentsEnrolledList(studentsEnrolled: string[]): string {
     const studentNameArray = [];
-    for (const studentEmail of studentsEnrolled) {
-      const studentName = this.getUserName(studentEmail);
+    for (const studentId of studentsEnrolled) {
+      const studentName = this.getUserNameFromId(studentId);
       if (studentName !== null) {
-        studentNameArray.push(`${studentName} (${studentEmail})`);
+        studentNameArray.push(studentName);
       } else {
-        studentNameArray.push(`${studentEmail} (user deleted)`);
+        studentNameArray.push(`(User with id ${studentId} not found)`);
       }
     }
     return studentNameArray.join(', ');
   }
 
   getStudentsCompletedList(
-    studentsCompleted: { email: string; mark: boolean }[]
+    studentsCompleted: { studentId: string; mark: boolean }[]
   ): string {
-    const studentEmails = studentsCompleted.map((obj) => obj.email);
+    const studentIds = studentsCompleted.map((obj) => obj.studentId);
     const studentNameArray = [];
-    for (const studentEmail of studentEmails) {
-      const studentName = this.getUserName(studentEmail);
+    for (const studentId of studentIds) {
+      const studentName = this.getUserNameFromId(studentId);
       if (studentName !== null) {
-        studentNameArray.push(`${studentName} (${studentEmail})`);
+        studentNameArray.push(studentName);
       } else {
-        studentNameArray.push(`${studentEmail} (user deleted)`);
+        studentNameArray.push(`(User with id ${studentId} not found)`);
       }
     }
     return studentNameArray.join(', ');
   }
 
   getMarkPendingCompletedList(
-    studentsCompleted: { email: string; mark: boolean }[]
+    studentsCompleted: { studentId: string; mark: boolean }[]
   ): string | null {
     const studentNames = studentsCompleted
       .filter((obj) => !obj.mark)
-      .map((obj) => obj.email);
+      .map((obj) => obj.studentId);
     return studentNames.join(', ');
   }
 
-  getUserName(userEmail: string): string | null {
+  getUserNameFromId(studentId: string): string | null {
     // TODO = replace with service or directive
-    const foundUser = this.users?.find((obj) => obj.email === userEmail);
+    const foundUser = this.users?.find((obj) => obj._id === studentId);
     if (foundUser) {
       return foundUser.name;
     } else {
@@ -243,9 +243,11 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     );
     studentsCompletedDialogRef
       .afterClosed()
-      .subscribe((result: { email: string } | null) => {
+      .subscribe((result: { studentId: string } | null) => {
         if (result) {
-          this.displayExam(exam, false, true, result.email);
+          console.log('THIS COULD FAIL:');
+          console.log(result);
+          this.displayExam(exam, false, true, result.studentId);
         }
       });
   }

@@ -163,7 +163,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
           return this.exams$.pipe(
             first(),
             map((res) =>
-              res.filter((obj) => obj.assignedTeacher === currentUser.email)
+              res.filter((obj) => obj.assignedTeacherId === currentUser._id)
             )
           );
         } else if (
@@ -175,7 +175,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
             first(),
             map((res) =>
               res.filter((obj) =>
-                obj.studentsEnrolled.includes(currentUser.email)
+                obj.studentsEnrolled.includes(currentUser._id)
               )
             )
           );
@@ -236,7 +236,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
               questions,
               displayMode,
               markMode,
-              studentId, // todo - replace studentEmail with student id
+              studentId,
               currentUser,
             },
             panelClass: 'fullscreen-dialog',

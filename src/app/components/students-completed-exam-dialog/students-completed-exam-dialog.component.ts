@@ -18,13 +18,13 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
 
   studentNames: {
     name: string | undefined;
-    email: string | undefined;
+    studentId: string | undefined;
     marked?: string | number | null;
   }[] = [];
 
   studentNamesAwaitingMark: {
     name: string | undefined;
-    email: string | undefined;
+    studentId: string | undefined;
     marked?: string | number | null;
   }[] = [];
 
@@ -49,8 +49,8 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
         for (const student of this.exam.studentsCompleted) {
           const marked = student.mark;
           this.studentNames.push({
-            name: res.find((obj) => obj.email === student.email)?.name,
-            email: res.find((obj) => obj.email === student.email)?.email,
+            name: res.find((obj) => obj._id === student.studentId)?.name,
+            studentId: res.find((obj) => obj._id === student.studentId)?._id,
             marked,
           });
 
@@ -81,7 +81,7 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
 
   markExam(student: {
     name: string | undefined;
-    email: string | undefined;
+    studentId: string | undefined;
     marked?: string | number | null;
   }): void {
     this.dialogRef.close(student);
@@ -93,14 +93,6 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
     ).length;
     return awaiaitng;
   }
-
-  // getStudentName(userEmail: string): string { //todo: fix race issues
-  //   let studentName: string | undefined = '';
-  //   this.users$.pipe(first()).subscribe((res) => {
-  //     studentName = res.find((obj) => obj.email === userEmail)?.name;
-  //   });
-  //   return studentName;
-  // }
 
   closeDialog(): void {
     this.dialogRef.close();

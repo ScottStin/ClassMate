@@ -51,12 +51,12 @@ export class QuestionService {
 
   submitStudentResponse(
     questions: ExamQuestionDto[],
-    currentUser: string | undefined,
+    currentUserId: string | undefined,
     examId: string
   ): Observable<ExamQuestionDto[]> {
     return this.httpClient
       .patch<ExamQuestionDto[]>(`${this.baseUrl}/submit-exam/${examId}`, {
-        currentUser,
+        currentUserId,
         questions,
       })
       .pipe(
@@ -68,17 +68,17 @@ export class QuestionService {
 
   submitTeacherFeedback(
     questions: ExamQuestionDto[],
-    currentUser: string | undefined,
+    currentUserId: string | undefined,
     examId: string,
-    student: string | undefined,
+    studentId: string | undefined,
     score: string | number | undefined,
     aiMarkingComplete: boolean | undefined
   ): Observable<ExamQuestionDto[]> {
     return this.httpClient
       .patch<ExamQuestionDto[]>(`${this.baseUrl}/submit-feedback/${examId}`, {
-        currentUser,
+        currentUserId,
         questions,
-        student,
+        studentId,
         score,
         aiMarkingComplete,
       })

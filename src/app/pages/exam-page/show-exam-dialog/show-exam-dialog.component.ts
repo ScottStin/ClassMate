@@ -68,7 +68,7 @@ export class ShowExamDialogComponent implements OnInit {
       questions?: ExamQuestionDto[];
       displayMode: boolean;
       markMode: boolean;
-      studentId: string; // todo - replace email with id
+      studentId: string;
       currentUser: UserDTO | null;
     },
     private readonly dialogRef: MatDialogRef<ShowExamDialogComponent>,
@@ -89,7 +89,7 @@ export class ShowExamDialogComponent implements OnInit {
       this.data.markMode &&
       !(
         this.data.exam.aiMarkingComplete
-          ?.map((student) => student.email)
+          ?.map((student) => student.studentId)
           .includes(this.data.studentId) ?? false
       )
     ) {
@@ -113,7 +113,7 @@ export class ShowExamDialogComponent implements OnInit {
             this.questionService
               .submitTeacherFeedback(
                 this.questionList,
-                this.data.currentUser?.email,
+                this.data.currentUser?._id,
                 this.data.exam._id,
                 this.data.studentId,
                 undefined, // undefined score so the backend knows that the marking is not complete,
@@ -154,7 +154,7 @@ export class ShowExamDialogComponent implements OnInit {
 
   markAiQuestion(question: ExamQuestionDto): Observable<void> {
     const studentResponse = question.studentResponse?.find(
-      (response) => response.student === this.data.studentId
+      (response) => response.studentId === this.data.studentId
     )?.response;
 
     // --- Early return if no student response:
@@ -422,7 +422,7 @@ export class ShowExamDialogComponent implements OnInit {
    */
   populateFeedbackForm(): void {
     const studentResponse = this.currentQuestionDisplay?.studentResponse?.find(
-      (obj) => obj.student === this.data.studentId
+      (obj) => obj.studentId === this.data.studentId
     );
 
     // Initialize FormGroup
@@ -528,12 +528,12 @@ export class ShowExamDialogComponent implements OnInit {
       }
 
       const studentResponse = foundQuestion.studentResponse.find(
-        (obj) => obj.student === this.data.currentUser?.email
+        (obj) => obj.studentId === this.data.currentUser?._id
       );
       if (!studentResponse) {
         foundQuestion.studentResponse.push({
           response,
-          student: this.data.currentUser?.email,
+          studentId: this.data.currentUser?._id,
         });
       } else {
         studentResponse.response = response;
@@ -549,7 +549,7 @@ export class ShowExamDialogComponent implements OnInit {
     studentResponse.feedback = {
       text,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      teacher: this.data.currentUser!.email,
+      teacher: this.data.currentUser!._id,
     };
   }
 
@@ -608,7 +608,7 @@ export class ShowExamDialogComponent implements OnInit {
     // update the original value of the student's mark in data.exam:
     const totalScaledMark = this.getScaledTotalExamScore();
     const studentScore = this.data.exam.studentsCompleted.find(
-      (studentCompleted) => studentCompleted.email === this.data.studentId
+      (studentCompleted) => studentCompleted.studentId === this.data.studentId
     );
     if (studentScore) {
       studentScore.mark = totalScaledMark;
@@ -645,7 +645,7 @@ export class ShowExamDialogComponent implements OnInit {
     const missingFeedback: string[] = [];
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
-        (obj) => obj.student === this.data.studentId
+        (obj) => obj.studentId === this.data.studentId
       );
       if (
         // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -662,7 +662,7 @@ export class ShowExamDialogComponent implements OnInit {
       ) {
         for (const subQuestion of question.subQuestions) {
           const studentResponseSubQuestion = subQuestion.studentResponse?.find(
-            (obj) => obj.student === this.data.currentUser?.email
+            (obj) => obj.studentId === this.data.currentUser?._id
           );
           if (
             // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -697,7 +697,7 @@ export class ShowExamDialogComponent implements OnInit {
           this.questionService
             .submitTeacherFeedback(
               this.questionList,
-              this.data.currentUser?.email,
+              this.data.currentUser?._id,
               this.data.exam._id,
               this.data.studentId,
               this.getScaledTotalExamScore().toString(),
@@ -724,7 +724,7 @@ export class ShowExamDialogComponent implements OnInit {
       this.questionService
         .submitTeacherFeedback(
           this.questionList,
-          this.data.currentUser?.email,
+          this.data.currentUser?._id,
           this.data.exam._id,
           this.data.studentId,
           this.getScaledTotalExamScore().toString(),
@@ -755,7 +755,7 @@ export class ShowExamDialogComponent implements OnInit {
     // check to see if there are missing answers before completing the exam:
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
-        (obj) => obj.student === this.data.currentUser?.email
+        (obj) => obj.studentId === this.data.currentUser?._id
       );
       if (
         (studentResponse?.response === undefined ||
@@ -772,7 +772,7 @@ export class ShowExamDialogComponent implements OnInit {
       ) {
         for (const subQuestion of question.subQuestions) {
           const studentResponseSubQuestion = subQuestion.studentResponse?.find(
-            (obj) => obj.student === this.data.currentUser?.email
+            (obj) => obj.studentId === this.data.currentUser?._id
           );
           if (
             studentResponseSubQuestion?.response === undefined ||
@@ -833,7 +833,7 @@ export class ShowExamDialogComponent implements OnInit {
         this.questionService
           .submitStudentResponse(
             this.questionList,
-            this.data.currentUser?.email,
+            this.data.currentUser?._id,
             this.data.exam._id
           )
           .pipe(
@@ -863,7 +863,7 @@ export class ShowExamDialogComponent implements OnInit {
     let invalid = false;
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
-        (response) => response.student === this.data.currentUser?.email
+        (response) => response.studentId === this.data.currentUser?._id
       );
 
       // if written response exceeds word limit:
@@ -885,7 +885,7 @@ export class ShowExamDialogComponent implements OnInit {
     let invalid = false;
     for (const question of this.questionList) {
       const teacherFeedback = question.studentResponse?.find(
-        (response) => response.student === this.data.studentId
+        (response) => response.studentId === this.data.studentId
       )?.feedback?.text;
 
       if (
@@ -955,7 +955,7 @@ export class ShowExamDialogComponent implements OnInit {
     let studentResponse;
     if (this.currentQuestionDisplay?.studentResponse) {
       studentResponse = this.currentQuestionDisplay.studentResponse.find(
-        (obj) => obj.student === this.data.studentId
+        (obj) => obj.studentId === this.data.studentId
       );
     }
     return studentResponse;
@@ -969,7 +969,7 @@ export class ShowExamDialogComponent implements OnInit {
   ): string | number | null | undefined {
     if (question.type?.toLocaleUpperCase() !== 'section') {
       const studentResponse = question.studentResponse?.find(
-        (obj) => obj.student === this.data.studentId
+        (obj) => obj.studentId === this.data.studentId
       );
       return studentResponse?.mark?.totalMark;
     } else {
@@ -977,7 +977,7 @@ export class ShowExamDialogComponent implements OnInit {
         (obj) => obj._id === question._id
       );
       const studentResponse = subQuestion?.studentResponse?.find(
-        (obj) => obj.student === this.data.studentId
+        (obj) => obj.studentId === this.data.studentId
       );
       return studentResponse?.mark?.totalMark;
     }
@@ -994,7 +994,7 @@ export class ShowExamDialogComponent implements OnInit {
 
     // filter the list for the current student whose exam is being marked/displayed
     const currentStudentResponses = studentResponses.filter(
-      (response) => response?.student === this.data.studentId
+      (response) => response?.studentId === this.data.studentId
     );
 
     // get the sum of all the points the student has scored accross all the questions:

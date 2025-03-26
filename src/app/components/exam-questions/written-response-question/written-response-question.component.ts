@@ -27,7 +27,7 @@ import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
   @Input() question: CreateExamQuestionDto | null;
   @Input() disableForms: boolean;
-  @Input() currentUser: string | undefined;
+  @Input() currentUserId: string | undefined;
   @Output() responseChange = new EventEmitter<string>();
   wordCount: number;
   loading = true;
@@ -52,7 +52,7 @@ export class WrittenResponseQuestionComponent implements OnInit, OnChanges {
 
   populateQuestionForm(): void {
     const studentResponse = this.question?.studentResponse?.find(
-      (obj) => obj.student === this.currentUser
+      (obj) => obj.studentId === this.currentUserId
     );
     this.questionForm = new FormGroup({
       writtenResponse: new FormControl(
