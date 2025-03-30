@@ -1,6 +1,10 @@
 .profile-picture {
-    border-radius: 50%;
-    padding:5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: auto;
 }
 
 .mat-cell {

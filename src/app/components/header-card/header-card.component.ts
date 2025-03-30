@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { finalize, Observable } from 'rxjs';
+import { MessengerDialogFullComponent } from 'src/app/pages/messenger-dialog-full/messenger-dialog-full.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -20,7 +21,6 @@ import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { MenuItemDTO, menuItems } from '../side-nav/side-nav.component';
-import { MessengerDialogFullComponent } from 'src/app/pages/messenger-dialog-full/messenger-dialog-full.component';
 
 @UntilDestroy()
 @Component({
