@@ -271,6 +271,8 @@ export class UserPageComponent implements OnInit, OnDestroy {
             currentSchool?._id !== null &&
             currentSchool?._id !== undefined
           ) {
+            this.userPageLoading = true;
+
             this.userService
               .create({
                 ...result,
@@ -280,6 +282,11 @@ export class UserPageComponent implements OnInit, OnDestroy {
                     : 'teacher',
                 schoolId: currentSchool._id,
               })
+              .pipe(
+                finalize(() => {
+                  this.userPageLoading = false;
+                })
+              )
               .subscribe({
                 next: () => {
                   this.snackbarService.open(
