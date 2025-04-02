@@ -33,7 +33,6 @@ import { HeaderCardComponent } from './header-card.component';
     NotificationsDialogModule,
     MatMenuModule,
     MatBadgeModule,
-    MatMenuModule,
     MessengerDialogFullModule,
   ],
   exports: [HeaderCardComponent],

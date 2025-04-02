@@ -1,11 +1,22 @@
 <div class="chat-container">
   <!-- Sidebar -->
-  <div class="chat-sidebar">
-    <!-- Fixed header box -->
+  <mat-card class="chat-sidebar mat-elevation-z4">
     <div class="sidebar-header">
-      <!-- <h3>Chats</h3> -->
-      <!-- Placeholder for search bar and other controls -->
-      <input type="text" placeholder="Search messages..." />
+      <mat-form-field class="form-field" appearance="outline" id="filter-field">
+        <input #filter matInput placeholder="Search Messages..." />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <button
+        mat-icon-button
+        matTooltip="New message"
+        matTooltipPosition="after"
+      >
+        <mat-icon>add_comment</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="New group" matTooltipPosition="after">
+        <mat-icon>group_add</mat-icon>
+      </button>
     </div>
 
     <!-- Scrollable chat list -->
@@ -33,7 +44,7 @@
         </mat-tab>
       </mat-tab-group>
     </div>
-  </div>
+  </mat-card>
 
   <!-- Main chat area -->
   <div class="chat-main">
@@ -45,13 +56,40 @@
         *ngFor="let msg of selectedMessage.messages"
         [class.current-user]="msg.senderId === 'user1'"
         [class.other-user]="msg.senderId !== 'user1'"
-        class="message-box"
+        class="message-box card"
       >
         <span class="message-text">{{ msg.messageText }}</span>
         <span class="message-time"
           >{{ formatMessageTimestamp(msg.createdAt) }}</span
         >
+
+        <!-- Message actions (conditionally positioned left or right) -->
+        <div
+          class="message-actions"
+          [class.right]="msg.senderId === 'user1'"
+          [class.left]="msg.senderId !== 'user1'"
+        >
+          <mat-icon *ngIf="msg.senderId === 'user1'" matTooltip="Edit message"
+            >edit</mat-icon
+          >
+          <mat-icon *ngIf="msg.senderId === 'user1'" matTooltip="Delete message"
+            >delete</mat-icon
+          >
+          <mat-icon matTooltip="Save message to favourites">favorite</mat-icon>
+          <mat-icon matTooltip="Reply to message in thread">reply</mat-icon>
+          <mat-icon matTooltip="Message info">info</mat-icon>
+        </div>
       </div>
+    </div>
+
+    <div class="chat-input-container" *ngIf="selectedMessage">
+      <mat-form-field class="chat-input" appearance="outline">
+        <span class="suffix-icons-send-input">
+          <input matInput placeholder="Type a message..." />
+          <mat-icon matSuffix>add</mat-icon>
+          <mat-icon matSuffix>send</mat-icon>
+        </span>
+      </mat-form-field>
     </div>
   </div>
 </div>

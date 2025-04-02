@@ -3,20 +3,40 @@ $secondaryColor: var(--secondaryColor);
 
 .chat-container {
   display: flex;
-  height: 100vh;
+  height: 90%;
+}
+
+.form-field {
+  width: 100%;
+  margin: 0;
+}
+
+.form-field mat-icon {
+  color: $primaryColor;
 }
 
 .chat-sidebar {
-  width: 300px;
-  background: #f4f4f4;
+  width: 35%;
+  // background: #f4f4f4;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #ddd;
+  // border-right: 1px solid #ddd;
 }
 
 .sidebar-header {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Adds spacing between elements */
+}
+
+.sidebar-header mat-form-field {
+  flex-grow: 1; /* Makes the search field take up available space */
+  margin-bottom: 0; /* Prevents extra spacing */
+}
+
+.sidebar-header button {
+  flex-shrink: 0; /* Prevents buttons from resizing */
+  color: $primaryColor;
 }
 
 .chat-list {
@@ -31,7 +51,7 @@ $secondaryColor: var(--secondaryColor);
 }
 
 .chat-item:hover {
-  background: #ddd;
+  background: whitesmoke;
 }
 
 .chat-main {
@@ -40,6 +60,7 @@ $secondaryColor: var(--secondaryColor);
   flex-direction: column;
   padding: 20px;
   overflow-y: auto;
+  height: 100%;
 }
 
 .chat-messages {
@@ -47,6 +68,7 @@ $secondaryColor: var(--secondaryColor);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  padding-right:20px;
 }
 
 .message-box {
@@ -75,4 +97,54 @@ $secondaryColor: var(--secondaryColor);
   font-size: 10px;
   text-align: right;
   margin-top: 5px;
+}
+
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid;
+}
+
+.chat-input {
+  flex-grow: 1;
+}
+
+.suffix-icons-send-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* Action buttons */
+.message-actions {
+  position: absolute;
+  top: 50%;
+  transform: translateY(0%);
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.message-actions mat-icon {
+  cursor: pointer;
+}
+
+/* Right (for current user) */
+.right {
+  right: -160px;
+  color: $primaryColor !important;
+}
+
+/* Left (for other users) */
+.left {
+  left: -100px;
+}
+
+/* Show actions on hover */
+.message-box:hover .message-actions {
+  opacity: 1;
+  transform: translateY(-50%);
 }
