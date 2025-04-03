@@ -1,5 +1,9 @@
 <div class="chat-container">
-  <!-- Sidebar -->
+  <!------------------------>
+  <!------ Side chat ------->
+  <!------------------------>
+
+  <!-- Side chat Header: -->
   <mat-card class="chat-sidebar mat-elevation-z4">
     <div class="sidebar-header">
       <mat-form-field class="form-field" appearance="outline" id="filter-field">
@@ -11,6 +15,7 @@
         mat-icon-button
         matTooltip="New message"
         matTooltipPosition="after"
+        (click)="startNewDirectConvoMode = true; selectedMessage = undefined"
       >
         <mat-icon>add_comment</mat-icon>
       </button>
@@ -19,7 +24,7 @@
       </button>
     </div>
 
-    <!-- Scrollable chat list -->
+    <!-- Side chat list: -->
     <div class="chat-list">
       <mat-tab-group>
         <mat-tab label="All">
@@ -27,6 +32,7 @@
             class="chat-item"
             *ngFor="let sideMessageList of sideMessageListDisplay"
             (click)="selectMessage(sideMessageList)"
+            [class.active-chat-item]="selectedMessage === sideMessageList"
           >
             {{ sideMessageList.title }}
           </div>
@@ -46,16 +52,83 @@
     </div>
   </mat-card>
 
-  <!-- Main chat area -->
+  <!------------------------>
+  <!---- Main chat area ---->
+  <!------------------------>
+
   <div class="chat-main">
+    <!-- main char area header -->
     <h2 *ngIf="!selectedMessage">Select a conversation</h2>
     <h2 *ngIf="selectedMessage">{{ selectedMessage.title }}</h2>
+    <div *ngIf="startNewDirectConvoMode" [formGroup]="addUserToDirectConvoForm">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Add users to chat</mat-label>
+        <mat-chip-list #chipList>
+          <!-- <mat-chip
+            *ngFor="let user of usersToAddList"
+            [removable]="true"
+            (removed)="removeUserFromNewDirectConvo(user)"
+          > -->
+          <mat-chip
+            *ngFor="let user of usersToAddList"
+            [removable]="true"
+            (removed)="removeUserFromNewDirectConvo(user)"
+          >
+            <img
+              *ngIf="user.profilePicture?.url"
+              [src]="user.profilePicture?.url"
+              alt="user image"
+              class="thumbnail-image"
+            />
+            {{ user.name }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <input
+          #addUserToNewDirectConvo
+          matInput
+          formControlName="addUserToNewDirectConvo"
+          id="addUserToNewDirectConvo"
+          type="text"
+          [matAutocomplete]="auto"
+          (keyup)="filterUsersToAddToNewDirectConvo(addUserToNewDirectConvo.value)"
+          placeholder="Enter name of email of user to add to chat..."
+        />
+        <mat-autocomplete #auto="matAutocomplete">
+          <div *ngIf="addUserToNewDirectConvo.value">
+            <mat-option
+              *ngFor="let filteredUser of filteredUsersToAdd"
+              [value]="filteredUser"
+              (click)="updateUsersAddingToDirectConvo(filteredUser)"
+            >
+              <span
+                ><img
+                  [src]="filteredUser.profilePicture?.url"
+                  alt="user image"
+                  class="thumbnail-image"
+                />{{filteredUser.name}} ({{filteredUser.email}})</span
+              >
+            </mat-option>
+          </div>
+        </mat-autocomplete>
+        <!-- <mat-hint
+          style="color: red"
+          *ngIf="studentsList.length === 0 && (this.homeworkForm.get('studentsInput')?.dirty || this.homeworkForm.get('studentsInput')?.touched)"
+          >Required</mat-hint
+        > -->
+      </mat-form-field>
+    </div>
+
+    <!-- Message box -->
+    <div *ngIf="startNewDirectConvoMode && !selectedMessage">
+      Type the first message below to start a new conversation!
+    </div>
 
     <div class="chat-messages" *ngIf="selectedMessage">
       <div
         *ngFor="let msg of selectedMessage.messages"
-        [class.current-user]="msg.senderId === 'user1'"
-        [class.other-user]="msg.senderId !== 'user1'"
+        [class.current-user]="msg.senderId === demoCurrentUserId"
+        [class.other-user]="msg.senderId !== demoCurrentUserId"
         class="message-box card"
       >
         <span class="message-text">{{ msg.messageText }}</span>
@@ -63,16 +136,20 @@
           >{{ formatMessageTimestamp(msg.createdAt) }}</span
         >
 
-        <!-- Message actions (conditionally positioned left or right) -->
+        <!-- Message box actions -->
         <div
           class="message-actions"
-          [class.right]="msg.senderId === 'user1'"
-          [class.left]="msg.senderId !== 'user1'"
+          [class.right]="msg.senderId === demoCurrentUserId"
+          [class.left]="msg.senderId !== demoCurrentUserId"
         >
-          <mat-icon *ngIf="msg.senderId === 'user1'" matTooltip="Edit message"
+          <mat-icon
+            *ngIf="msg.senderId === demoCurrentUserId"
+            matTooltip="Edit message"
             >edit</mat-icon
           >
-          <mat-icon *ngIf="msg.senderId === 'user1'" matTooltip="Delete message"
+          <mat-icon
+            *ngIf="msg.senderId === demoCurrentUserId"
+            matTooltip="Delete message"
             >delete</mat-icon
           >
           <mat-icon matTooltip="Save message to favourites">favorite</mat-icon>
@@ -82,6 +159,7 @@
       </div>
     </div>
 
+    <!-- Type message bar: -->
     <div class="chat-input-container" *ngIf="selectedMessage">
       <mat-form-field class="chat-input" appearance="outline">
         <span class="suffix-icons-send-input">

@@ -178,6 +178,7 @@ export class HeaderCardComponent implements OnInit {
     this.dialog.open(MessengerDialogFullComponent, {
       data: {
         currentUser: this.currentUser,
+        users: this.users,
       },
       panelClass: 'fullscreen-dialog',
       autoFocus: false,

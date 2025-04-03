@@ -6,7 +6,10 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { Subject } from 'rxjs';
 import { MessageDto } from 'src/app/services/messenger-service/messenger.service';
+import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-messenger-dialog-full-view',
@@ -15,10 +18,22 @@ import { MessageDto } from 'src/app/services/messenger-service/messenger.service
 })
 export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
   @Input() messages: MessageDto[] | null;
+  @Input() users: UserDTO[] | null;
+
   sideMessageListDisplay: SideMessageType[] = [];
   selectedMessage?: SideMessageType;
+  startNewDirectConvoMode = false;
+  usersToAddList: UserDTO[] = [];
+  filteredUsersToAdd: UserDTO[];
+  demoCurrentUserId = '67e5223431c4f5a6cca2880f';
+
+  addUserToDirectConvoForm: FormGroup<{
+    addUserToNewDirectConvo: FormControl<string>;
+  }>;
+  formPopulated = new Subject<boolean>();
 
   ngOnInit(): void {
+    this.populateForm();
     this.getMessageList();
   }
 
@@ -33,6 +48,21 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
       // get message list for side menu:
       this.getMessageList();
     }
+
+    if ('users' in changes && this.users) {
+      this.filteredUsersToAdd = [...this.users];
+    }
+  }
+
+  populateForm(): void {
+    this.addUserToDirectConvoForm = new FormGroup({
+      addUserToNewDirectConvo: new FormControl('', {
+        validators: [],
+        nonNullable: true,
+      }),
+    });
+
+    this.formPopulated.next(true);
   }
 
   getMessageList(): void {
@@ -42,7 +72,12 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
 
     const groupedMessages = new Map<
       string,
-      { title: string; messages: MessageDto[]; chatGroupId?: string }
+      {
+        title: string;
+        messages: MessageDto[];
+        chatGroupId?: string;
+        participantIds?: string[]; // Add participant IDs
+      }
     >();
 
     for (const msg of this.messages) {
@@ -53,22 +88,52 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
             title: msg.chatGroupId,
             messages: [],
             chatGroupId: msg.chatGroupId,
+            participantIds: [], // Initialize array
           });
         }
         groupedMessages.get(msg.chatGroupId)?.messages.push(msg);
+
+        // Add unique participant IDs
+        const participantIds = new Set(
+          groupedMessages.get(msg.chatGroupId)?.participantIds
+        );
+        if (msg.sender?._id) {
+          participantIds.add(msg.sender._id);
+        }
+        msg.recipients?.forEach(
+          (r) => r.user?._id && participantIds.add(r.user._id)
+        );
+        groupedMessages.get(msg.chatGroupId)!.participantIds =
+          Array.from(participantIds);
       } else {
         // Direct messages
         const participants = [
-          msg.senderId,
-          ...(msg.recipients?.map((r) => r.userId) || []),
+          { id: msg.sender?._id, name: msg.sender?.name ?? 'Unknown user' },
+          ...(msg.recipients?.map((r) => ({
+            id: r.user?._id,
+            name: r.user?.name ?? 'Unknown user',
+          })) || []),
         ];
-        const uniqueParticipants = Array.from(new Set(participants)).sort(); // Sort for consistency
+
+        // Extract unique participant names & IDs
+        const uniqueParticipants = Array.from(
+          new Set(participants.map((p) => p.name))
+        ).sort();
+        const uniqueParticipantIds = Array.from(
+          new Set(
+            participants.map((p) => p.id).filter((id): id is string => !!id)
+          )
+        );
+
         const key = uniqueParticipants.join(',');
 
         if (!groupedMessages.has(key)) {
           groupedMessages.set(key, {
-            title: uniqueParticipants.filter((id) => id !== 'user1').join(', '), // Exclude current user
+            title: uniqueParticipants
+              .filter((name) => name !== this.demoCurrentUserId)
+              .join(', '), // Exclude current user from title
             messages: [],
+            participantIds: uniqueParticipantIds, // Store IDs
           });
         }
         groupedMessages.get(key)?.messages.push(msg);
@@ -103,9 +168,60 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
       return formatDate(messageDate, 'MMM d, yyyy h:mm a', 'en-US');
     }
   }
+
+  /**
+   * =================
+   * Start new direct conversation:
+   * ================
+   */
+  startNewDirectConversation(): void {
+    this.startNewDirectConvoMode = true;
+  }
+
+  filterUsersToAddToNewDirectConvo(search: string): void {
+    this.filteredUsersToAdd =
+      this.users?.filter(
+        (obj: UserDTO) =>
+          obj.name.toLowerCase().includes(search.toLowerCase()) &&
+          !this.usersToAddList.includes(obj)
+      ) ?? [];
+  }
+
+  updateUsersAddingToDirectConvo(user: UserDTO): void {
+    this.usersToAddList.push(user);
+    this.usersToAddList.sort((a: UserDTO, b: UserDTO) =>
+      a.name.localeCompare(b.name)
+    );
+    this.addUserToDirectConvoForm.get('addUserToNewDirectConvo')?.setValue('');
+
+    // --- see if newly created direct message already exists:
+    const userToAddListIds = this.usersToAddList.map(
+      (userToAdd) => userToAdd._id
+    );
+
+    const matchingSideListItem = this.sideMessageListDisplay.find(
+      (item) =>
+        item.participantIds?.length === userToAddListIds.length &&
+        new Set(item.participantIds).size === new Set(userToAddListIds).size &&
+        item.participantIds.every((id) => userToAddListIds.includes(id))
+    );
+
+    if (matchingSideListItem) {
+      this.selectedMessage = matchingSideListItem;
+    } else {
+      this.selectedMessage = undefined;
+    }
+  }
+
+  removeUserFromNewDirectConvo(removedUser: UserDTO): void {
+    this.usersToAddList = this.usersToAddList.filter(
+      (user) => user !== removedUser
+    );
+  }
 }
 
 export interface SideMessageType {
   title: string;
   messages: MessageDto[];
+  participantIds?: string[];
 }

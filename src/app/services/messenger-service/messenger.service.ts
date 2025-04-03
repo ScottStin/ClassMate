@@ -1,9 +1,18 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  combineLatest,
+  map,
+  Observable,
+  tap,
+} from 'rxjs';
+import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { ErrorService } from '../error-message.service/error-message.service';
+import { UserService } from '../user-service/user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,31 +30,62 @@ export class MessengerService {
 
   constructor(
     private readonly httpClient: HttpClient,
-    private readonly errorService: ErrorService
+    private readonly errorService: ErrorService,
+    private readonly userService: UserService
   ) {}
 
   getAllMessages(): Observable<MessageDto[]> {
-    return this.httpClient.get<MessageDto[]>(this.baseUrl).pipe(
+    return combineLatest([
+      this.userService.users$,
+      this.httpClient.get<MessageDto[]>(this.baseUrl),
+    ]).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to load messages');
       }),
-      tap((messages) => {
-        this.messageSubject.next(messages);
+      map(([users, messages]) => {
+        const userMap = new Map(users.map((user) => [user._id, user]));
+
+        return messages.map((message) => ({
+          ...message,
+          sender: userMap.get(message.senderId) ?? undefined, // Use null instead of 'Unknown'
+          recipients: message.recipients?.map((recipient) => ({
+            ...recipient,
+            user: userMap.get(recipient.userId) ?? undefined,
+          })),
+        }));
+      }),
+      tap((updatedMessages) => {
+        this.messageSubject.next(updatedMessages);
       })
     );
   }
 
   getMessagesByUser(userId: string): Observable<MessageDto[]> {
-    return this.httpClient
-      .get<MessageDto[]>(`${this.baseUrl}?currentUserId=${userId}`)
-      .pipe(
-        catchError((error: Error) => {
-          this.handleError(error, 'Failed to load messages');
-        }),
-        tap((messages) => {
-          this.messageSubject.next(messages);
-        })
-      );
+    return combineLatest([
+      this.userService.users$,
+      this.httpClient.get<MessageDto[]>(
+        `${this.baseUrl}?currentUserId=${userId}`
+      ),
+    ]).pipe(
+      catchError((error: Error) => {
+        this.handleError(error, 'Failed to load messages');
+      }),
+      map(([users, messages]) => {
+        const userMap = new Map(users.map((user) => [user._id, user]));
+
+        return messages.map((message) => ({
+          ...message,
+          sender: userMap.get(message.senderId) ?? undefined, // Use null instead of 'Unknown'
+          recipients: message.recipients?.map((recipient) => ({
+            ...recipient,
+            user: userMap.get(recipient.userId) ?? undefined,
+          })),
+        }));
+      }),
+      tap((updatedMessages) => {
+        this.messageSubject.next(updatedMessages);
+      })
+    );
   }
 
   getAllMessageGroups(): Observable<MessageGroupDto[]> {
@@ -86,7 +126,8 @@ export class MessengerService {
 export interface CreateMessageDto {
   messageText: string;
   senderId: string;
-  recipients?: { userId: string; seenAt?: string }[]; // can be to an individual or a several recepients, hence the array. 'Seen' property will be the date the receiver has seen it, and undefined if unseen. Undefined if part of a chat group convo, as the recipients will come from the group
+  sender?: UserDTO;
+  recipients?: { userId: string; seenAt?: string; user?: UserDTO }[]; // can be to an individual or a several recepients, hence the array. 'Seen' property will be the date the receiver has seen it, and undefined if unseen. Undefined if part of a chat group convo, as the recipients will come from the group
   deleted: boolean;
   edited: boolean;
   attachment: { url: string; fileName: string } | null;

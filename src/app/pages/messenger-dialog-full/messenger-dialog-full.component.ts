@@ -21,6 +21,7 @@ export class MessengerDialogFullComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     public data: {
       currentUser: UserDTO;
+      users: UserDTO[];
     },
     public dialogRef: MatDialogRef<MessengerDialogFullComponent>,
     private readonly messengerService: MessengerService
@@ -34,8 +35,8 @@ export class MessengerDialogFullComponent implements OnInit {
     this.messages$ = this.messengerService.messages$;
     this.messageGroups$ = this.messengerService.messageGroups$;
     forkJoin([
-      this.messengerService.getMessagesByUser('user1'),
-      this.messengerService.getGroupsByUser('user1'),
+      this.messengerService.getMessagesByUser('67e5223431c4f5a6cca2880f'),
+      this.messengerService.getGroupsByUser('67e5223431c4f5a6cca2880f'),
     ]).subscribe();
   }
 
