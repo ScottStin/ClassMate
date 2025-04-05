@@ -143,34 +143,58 @@
     >
       <div
         *ngFor="let msg of selectedMessageGroup.messages"
-        [class.current-user]="msg.senderId === currentUser._id"
-        [class.other-user]="msg.senderId !== currentUser._id"
-        class="message-box card"
+        class="message-wrapper"
+        [ngClass]="{
+          'align-left': msg.senderId !== currentUser._id,
+          'align-right': msg.senderId === currentUser._id
+        }"
       >
-        <span class="message-text">{{ msg.messageText }}</span>
-        <span class="message-time"
-          >{{ formatMessageTimestamp(msg.createdAt) }}</span
-        >
+        <!-- Thumbnail -->
+        <img
+          class="thumbnail-image"
+          [src]="msg?.sender?.profilePicture?.url"
+          alt="User Image"
+        />
 
-        <!-- Message box actions -->
+        <!-- Message card -->
         <div
-          class="message-actions"
-          [class.right]="msg.senderId === currentUser._id"
-          [class.left]="msg.senderId !== currentUser._id"
+          [class.current-user]="msg.senderId === currentUser._id"
+          [class.other-user]="msg.senderId !== currentUser._id"
+          class="message-box card"
         >
-          <mat-icon
-            *ngIf="msg.senderId === currentUser._id"
-            matTooltip="Edit message"
-            >edit</mat-icon
+          <!-- Sender Name -->
+          <strong class="message-sender-name"
+            >{{ msg.sender?.name || 'Unknown' }}</strong
           >
-          <mat-icon
-            *ngIf="msg.senderId === currentUser._id"
-            matTooltip="Delete message"
-            >delete</mat-icon
+
+          <!-- Message Content -->
+          <span class="message-text">{{ msg.messageText }}</span>
+          <span class="message-time"
+            >{{ formatMessageTimestamp(msg.createdAt) }}</span
           >
-          <mat-icon matTooltip="Save message to favourites">favorite</mat-icon>
-          <mat-icon matTooltip="Reply to message in thread">reply</mat-icon>
-          <mat-icon matTooltip="Message info">info</mat-icon>
+
+          <!-- Message Actions -->
+          <div
+            class="message-actions"
+            [class.left]="msg.senderId === currentUser._id"
+            [class.right]="msg.senderId !== currentUser._id"
+          >
+            <mat-icon
+              *ngIf="msg.senderId === currentUser._id"
+              matTooltip="Edit message"
+              >edit</mat-icon
+            >
+            <mat-icon
+              *ngIf="msg.senderId === currentUser._id"
+              matTooltip="Delete message"
+              >delete</mat-icon
+            >
+            <mat-icon matTooltip="Save message to favourites"
+              >favorite</mat-icon
+            >
+            <mat-icon matTooltip="Reply to message in thread">reply</mat-icon>
+            <mat-icon matTooltip="Message info">info</mat-icon>
+          </div>
         </div>
       </div>
     </div>
