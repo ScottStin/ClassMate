@@ -69,7 +69,7 @@ $secondaryColor: var(--secondaryColor);
   height: 100%;
 }
 
-.chat-messages {
+.chat-messages-container {
   flex: 1;
   overflow-y: auto;
   display: flex;
@@ -80,7 +80,7 @@ $secondaryColor: var(--secondaryColor);
 .message-box {
   max-width: 60%;
   padding: 10px;
-  margin: 5px 0;
+  margin: 15px;
   border-radius: 10px;
   position: relative;
   font-size: 14px;
@@ -160,4 +160,39 @@ $secondaryColor: var(--secondaryColor);
   object-fit: cover;
   border-radius: 50%;
   padding: 10px;
+}
+
+.new-convo-message-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  color: gray;
+  text-align: center;
+}
+
+.remove-user-icon {
+  color: $primaryColor !important;
+}
+
+.message-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.align-left {
+  flex-direction: row;
+}
+
+.align-right {
+  flex-direction: row-reverse;
+}
+
+.message-sender-name {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 5px;
 }

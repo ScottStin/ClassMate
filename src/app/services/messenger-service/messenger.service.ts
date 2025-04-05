@@ -5,8 +5,11 @@ import {
   catchError,
   combineLatest,
   map,
+  merge,
   Observable,
+  scan,
   tap,
+  withLatestFrom,
 } from 'rxjs';
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
@@ -21,6 +24,15 @@ export class MessengerService {
   private readonly baseUrl = `${environment.apiUrl}/messages`;
 
   private readonly messageSubject = new BehaviorSubject<MessageDto[]>([]);
+
+  // newMessages$: Observable<MessageDto> = this.createMessage(...);
+  // messages$: Observable<MessageDto[]> = merge(
+  //   this.getMessagesByUser('67e5223431c4f5a6cca2880f'), // Initial messages
+  //   this.newMessages$ // Newly created messages
+  // ).pipe(
+  //   scan((acc, curr) => [...acc, curr], []) // Accumulate messages over time
+  // );
+
   messages$ = this.messageSubject.asObservable();
 
   private readonly messageGroupSubject = new BehaviorSubject<MessageGroupDto[]>(
@@ -110,6 +122,37 @@ export class MessengerService {
         }),
         tap((groups) => {
           this.messageGroupSubject.next(groups);
+        })
+      );
+  }
+
+  createMessage(message: CreateMessageDto): Observable<MessageDto> {
+    return this.httpClient
+      .post<MessageDto>(`${this.baseUrl}/new-message`, message)
+      .pipe(
+        withLatestFrom(this.userService.users$),
+        tap(([newMessage, users]) => {
+          const currentMessages = this.messageSubject.getValue();
+
+          // Find sender
+          const sender = users.find((user) => user._id === newMessage.senderId);
+          newMessage.sender = sender;
+
+          // Find recipients
+          newMessage.recipients = newMessage.recipients?.map((recipient) => ({
+            ...recipient,
+            user: users.find((user) => user._id === recipient.userId),
+          }));
+
+          console.log('HIITT');
+          console.log(newMessage);
+          console.log(currentMessages);
+          // Update the message subject
+          this.messageSubject.next([...currentMessages, newMessage]);
+        }),
+        map(([newMessage]) => newMessage),
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to send new message');
         })
       );
   }

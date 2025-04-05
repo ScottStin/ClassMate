@@ -1,10 +1,15 @@
 import { formatDate } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
+  ElementRef,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -16,16 +21,25 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './messenger-dialog-full-view.component.html',
   styleUrls: ['./messenger-dialog-full-view.component.scss'],
 })
-export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
+export class MessengerDialogFullViewComponent
+  implements OnInit, OnChanges, AfterViewInit
+{
+  @ViewChild('chatMessagesContainer') chatMessagesContainer: ElementRef;
+
   @Input() messages: MessageDto[] | null;
   @Input() users: UserDTO[] | null;
+  @Input() currentUser: UserDTO;
+  @Output() sendMessage = new EventEmitter<{
+    messageText: string;
+    recipientIds: string[];
+  }>();
 
   sideMessageListDisplay: SideMessageType[] = [];
-  selectedMessage?: SideMessageType;
+  selectedMessageGroup?: SideMessageType;
   startNewDirectConvoMode = false;
   usersToAddList: UserDTO[] = [];
   filteredUsersToAdd: UserDTO[];
-  demoCurrentUserId = '67e5223431c4f5a6cca2880f';
+  messageTextToSend = '';
 
   addUserToDirectConvoForm: FormGroup<{
     addUserToNewDirectConvo: FormControl<string>;
@@ -35,6 +49,10 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.populateForm();
     this.getMessageList();
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollToChatBottom();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -63,6 +81,13 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
     });
 
     this.formPopulated.next(true);
+  }
+
+  scrollToChatBottom(): void {
+    if (this.chatMessagesContainer) {
+      this.chatMessagesContainer.nativeElement.scrollTop =
+        this.chatMessagesContainer.nativeElement.scrollHeight;
+    }
   }
 
   getMessageList(): void {
@@ -128,10 +153,20 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
         const key = uniqueParticipants.join(',');
 
         if (!groupedMessages.has(key)) {
+          // If only the current user is in the chat, set the title to 'Yourself'
+          let title = uniqueParticipants
+            .filter((name) => name !== this.currentUser.name)
+            .join(', '); // Exclude current user from title
+
+          if (
+            uniqueParticipants.length === 1 &&
+            uniqueParticipants.includes(this.currentUser.name)
+          ) {
+            title = `${this.currentUser.name} (private chat with yourself)`; // Single participant - set title as "Yourself"
+          }
+
           groupedMessages.set(key, {
-            title: uniqueParticipants
-              .filter((name) => name !== this.demoCurrentUserId)
-              .join(', '), // Exclude current user from title
+            title,
             messages: [],
             participantIds: uniqueParticipantIds, // Store IDs
           });
@@ -148,10 +183,41 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
     );
 
     console.log(this.sideMessageListDisplay);
+
+    // If user hasn't started a direct convo with themselves, add it to the top of the list:
+    if (
+      this.sideMessageListDisplay.filter(
+        (messageGroup) =>
+          !messageGroup.participantIds?.includes(this.currentUser._id)
+      )
+    ) {
+      this.sideMessageListDisplay.push({
+        title: `${this.currentUser.name} (private chat with yourself)`,
+        messages: [],
+        participantIds: [this.currentUser._id],
+      });
+    }
+
+    // If there is already a selectedMessageGroup, update the messages in it:
+    if (this.selectedMessageGroup) {
+      this.selectedMessageGroup = this.sideMessageListDisplay.find(
+        (messageGroup) =>
+          messageGroup.title === this.selectedMessageGroup?.title
+      );
+      setTimeout(() => {
+        this.scrollToChatBottom();
+      });
+    }
   }
 
   selectMessage(sideMessage: SideMessageType): void {
-    this.selectedMessage = sideMessage;
+    this.selectedMessageGroup = sideMessage;
+    this.removeAllUsersFromNewDirectConvo();
+    this.startNewDirectConvoMode = false;
+
+    setTimeout(() => {
+      this.scrollToChatBottom();
+    });
   }
 
   formatMessageTimestamp(timestamp: string): string {
@@ -170,9 +236,9 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
   }
 
   /**
-   * =================
+   * ===========================
    * Start new direct conversation:
-   * ================
+   * ============================
    */
   startNewDirectConversation(): void {
     this.startNewDirectConvoMode = true;
@@ -193,23 +259,31 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
       a.name.localeCompare(b.name)
     );
     this.addUserToDirectConvoForm.get('addUserToNewDirectConvo')?.setValue('');
+    this.checkExistingDirectConversation();
+  }
 
-    // --- see if newly created direct message already exists:
+  // --- see if direct message conversation we're creating already exists:
+  checkExistingDirectConversation(): void {
     const userToAddListIds = this.usersToAddList.map(
       (userToAdd) => userToAdd._id
     );
 
     const matchingSideListItem = this.sideMessageListDisplay.find(
       (item) =>
-        item.participantIds?.length === userToAddListIds.length &&
-        new Set(item.participantIds).size === new Set(userToAddListIds).size &&
-        item.participantIds.every((id) => userToAddListIds.includes(id))
+        item.participantIds?.filter((id) => id !== this.currentUser._id)
+          .length === userToAddListIds.length &&
+        new Set(item.participantIds.filter((id) => id !== this.currentUser._id))
+          .size === new Set(userToAddListIds).size &&
+        item.participantIds
+          .filter((id) => id !== this.currentUser._id)
+          .every((id) => userToAddListIds.includes(id))
     );
 
+    // --- If newly creted direct conversation already exists, open the existing chat:
     if (matchingSideListItem) {
-      this.selectedMessage = matchingSideListItem;
+      this.selectedMessageGroup = matchingSideListItem;
     } else {
-      this.selectedMessage = undefined;
+      this.selectedMessageGroup = undefined;
     }
   }
 
@@ -217,6 +291,26 @@ export class MessengerDialogFullViewComponent implements OnInit, OnChanges {
     this.usersToAddList = this.usersToAddList.filter(
       (user) => user !== removedUser
     );
+
+    this.checkExistingDirectConversation();
+  }
+
+  removeAllUsersFromNewDirectConvo(): void {
+    this.usersToAddList = [];
+  }
+
+  /**
+   * ===========================
+   * Send message:
+   * ============================
+   */
+  sendMessageClick(): void {
+    this.sendMessage.emit({
+      messageText: this.messageTextToSend,
+      recipientIds:
+        this.selectedMessageGroup?.participantIds ??
+        this.usersToAddList.map((user) => user._id),
+    });
   }
 }
 

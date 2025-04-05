@@ -6,5 +6,7 @@
   <app-messenger-dialog-full-view
     [messages]="messages$ | async"
     [users]="data.users"
+    [currentUser]="data.currentUser"
+    (sendMessage)="sendMessage($event)"
   ></app-messenger-dialog-full-view>
 </ng-container>
