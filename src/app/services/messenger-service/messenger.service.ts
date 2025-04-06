@@ -1,5 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Socket } from 'ngx-socket-io';
 import {
   BehaviorSubject,
   catchError,
@@ -8,6 +10,7 @@ import {
   merge,
   Observable,
   scan,
+  take,
   tap,
   withLatestFrom,
 } from 'rxjs';
@@ -17,6 +20,7 @@ import { environment } from 'src/environments/environment';
 import { ErrorService } from '../error-message.service/error-message.service';
 import { UserService } from '../user-service/user.service';
 
+@UntilDestroy()
 @Injectable({
   providedIn: 'root',
 })
@@ -43,8 +47,24 @@ export class MessengerService {
   constructor(
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService,
-    private readonly userService: UserService
-  ) {}
+    private readonly userService: UserService,
+    private readonly socket: Socket
+  ) {
+    const currentUserString = localStorage.getItem('current_user');
+
+    if (currentUserString !== null) {
+      const currentUser = JSON.parse(currentUserString) as UserDTO | undefined;
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (currentUser?._id) {
+        this.socket.on(
+          `messageSent-${currentUser._id}`,
+          (newMessage: MessageDto) => {
+            this.refreshMessages(newMessage);
+          }
+        );
+      }
+    }
+  }
 
   getAllMessages(): Observable<MessageDto[]> {
     return combineLatest([
@@ -134,27 +154,41 @@ export class MessengerService {
         tap(([newMessage, users]) => {
           const currentMessages = this.messageSubject.getValue();
 
-          // Find sender
-          const sender = users.find((user) => user._id === newMessage.senderId);
-          newMessage.sender = sender;
+          const modifiedNewMessage = this.modifyNewMessage(newMessage, users);
+          // // Find sender
+          // const sender = users.find((user) => user._id === newMessage.senderId);
+          // newMessage.sender = sender;
 
-          // Find recipients
-          newMessage.recipients = newMessage.recipients?.map((recipient) => ({
-            ...recipient,
-            user: users.find((user) => user._id === recipient.userId),
-          }));
+          // // Find recipients
+          // newMessage.recipients = newMessage.recipients?.map((recipient) => ({
+          //   ...recipient,
+          //   user: users.find((user) => user._id === recipient.userId),
+          // }));
 
-          console.log('HIITT');
-          console.log(newMessage);
-          console.log(currentMessages);
           // Update the message subject
-          this.messageSubject.next([...currentMessages, newMessage]);
+          this.messageSubject.next([...currentMessages, modifiedNewMessage]);
         }),
-        map(([newMessage]) => newMessage),
+        map(([modifiedNewMessage]) => modifiedNewMessage),
         catchError((error: Error) => {
           this.handleError(error, 'Failed to send new message');
         })
       );
+  }
+
+  /**
+   * Tis function gets the full user details from message sender/recipient ids and adds it to the message
+   */
+  private modifyNewMessage(message: MessageDto, users: UserDTO[]): MessageDto {
+    const enrichedMessage: MessageDto = {
+      ...message,
+      sender: users.find((user) => user._id === message.senderId),
+      recipients: message.recipients?.map((recipient) => ({
+        ...recipient,
+        user: users.find((user) => user._id === recipient.userId),
+      })),
+    };
+
+    return enrichedMessage;
   }
 
   private handleError(error: Error, message: string): never {
@@ -163,6 +197,17 @@ export class MessengerService {
     }
 
     throw this.errorService.handleGenericError(error, message);
+  }
+
+  // --- Socket functions:
+  private refreshMessages(newMessage: MessageDto): void {
+    this.userService.users$
+      .pipe(take(1), untilDestroyed(this))
+      .subscribe((users) => {
+        const modifiedNewMessage = this.modifyNewMessage(newMessage, users);
+        const currentMessages = this.messageSubject.getValue();
+        this.messageSubject.next([...currentMessages, modifiedNewMessage]);
+      });
   }
 }
 

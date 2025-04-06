@@ -151,7 +151,7 @@
       >
         <!-- Thumbnail -->
         <img
-          class="thumbnail-image"
+          class="thumbnail-image-large"
           [src]="msg?.sender?.profilePicture?.url"
           alt="User Image"
         />
@@ -187,6 +187,7 @@
             <mat-icon
               *ngIf="msg.senderId === currentUser._id"
               matTooltip="Delete message"
+              (click)="deleteMessage()"
               >delete</mat-icon
             >
             <mat-icon matTooltip="Save message to favourites"
