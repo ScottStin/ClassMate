@@ -161,6 +161,7 @@
           [class.current-user]="msg.senderId === currentUser._id"
           [class.other-user]="msg.senderId !== currentUser._id"
           class="message-box card"
+          *ngIf="msg.deleted === false"
         >
           <!-- Sender Name -->
           <strong class="message-sender-name"
@@ -168,9 +169,46 @@
           >
 
           <!-- Message Content -->
-          <span class="message-text">{{ msg.messageText }}</span>
+          <span class="message-text" *ngIf="currentEditMessage !== msg._id"
+            >{{ msg.messageText }}</span
+          >
+          <div
+            *ngIf="currentEditMessage === msg._id"
+            class="edit-message-container"
+          >
+            <textarea
+              matInput
+              id="editMessageText"
+              #editMessageText
+              type="text"
+              placeholder="Edit message"
+              [value]="msg.messageText"
+              class="edit-message-box"
+            ></textarea>
+
+            <div class="edit-action-buttons">
+              <mat-icon
+                matSuffix
+                style="cursor: pointer"
+                class="send-edit-btn"
+                matTooltip="Cancel edit"
+                (click)="currentEditMessage = undefined"
+                >close</mat-icon
+              >
+              <mat-icon
+                matSuffix
+                style="cursor: pointer"
+                matTooltip="Submit edited message"
+                (click)="editMessageClick(msg, editMessageText.value)"
+                >done</mat-icon
+              >
+            </div>
+          </div>
           <span class="message-time"
             >{{ formatMessageTimestamp(msg.createdAt) }}</span
+          >
+          <span *ngIf="msg.edited" class="message-time"
+            >Edited: {{ formatMessageTimestamp(msg.edited) }}</span
           >
 
           <!-- Message Actions -->
@@ -182,12 +220,13 @@
             <mat-icon
               *ngIf="msg.senderId === currentUser._id"
               matTooltip="Edit message"
+              (click)="currentEditMessage = msg._id"
               >edit</mat-icon
             >
             <mat-icon
               *ngIf="msg.senderId === currentUser._id"
               matTooltip="Delete message"
-              (click)="deleteMessage()"
+              (click)="deleteMessageClick(msg)"
               >delete</mat-icon
             >
             <mat-icon matTooltip="Save message to favourites"
@@ -196,6 +235,15 @@
             <mat-icon matTooltip="Reply to message in thread">reply</mat-icon>
             <mat-icon matTooltip="Message info">info</mat-icon>
           </div>
+        </div>
+
+        <div *ngIf="msg.deleted === true" class="deleted-message-text">
+          <span *ngIf="msg.senderId !== currentUser._id"
+            >{{msg.sender?.name ?? ''}} deleted a message.</span
+          >
+          <span *ngIf="msg.senderId === currentUser._id"
+            >You deleted this message.</span
+          >
         </div>
       </div>
     </div>

@@ -12,7 +12,9 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
+import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { MessageDto } from 'src/app/services/messenger-service/messenger.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -33,6 +35,8 @@ export class MessengerDialogFullViewComponent
     messageText: string;
     recipientIds: string[];
   }>();
+  @Output() editMessage = new EventEmitter<MessageDto>();
+  @Output() deleteMessage = new EventEmitter<string>();
 
   sideMessageListDisplay: SideMessageType[] = [];
   selectedMessageGroup?: SideMessageType;
@@ -40,11 +44,14 @@ export class MessengerDialogFullViewComponent
   usersToAddList: UserDTO[] = [];
   filteredUsersToAdd: UserDTO[];
   messageTextToSend = '';
+  currentEditMessage?: string; // id of mesage currently being editted
 
   addUserToDirectConvoForm: FormGroup<{
     addUserToNewDirectConvo: FormControl<string>;
   }>;
   formPopulated = new Subject<boolean>();
+
+  constructor(public dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.populateForm();
@@ -182,8 +189,6 @@ export class MessengerDialogFullViewComponent
         new Date(a.messages[a.messages.length - 1].createdAt).getTime()
     );
 
-    console.log(this.sideMessageListDisplay);
-
     // If user hasn't started a direct convo with themselves, add it to the top of the list:
     if (
       this.sideMessageListDisplay.filter(
@@ -301,7 +306,7 @@ export class MessengerDialogFullViewComponent
 
   /**
    * ===========================
-   * Send message:
+   * Message CRUD Clicks:
    * ============================
    */
   sendMessageClick(): void {
@@ -310,6 +315,28 @@ export class MessengerDialogFullViewComponent
       recipientIds:
         this.selectedMessageGroup?.participantIds ??
         this.usersToAddList.map((user) => user._id),
+    });
+  }
+
+  editMessageClick(message: MessageDto, editedText: string): void {
+    message.messageText = editedText;
+    this.editMessage.emit(message);
+  }
+
+  deleteMessageClick(message: MessageDto): void {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: `Delete message?`,
+        message: `The following message will be deleted: <br><br> &nbsp; &nbsp; <i>${message.messageText}</i> <br><br> Once deleted, other chat participants will be able to see that you've sent a message, but they won't be able to see the message content.`,
+        okLabel: `Delete`,
+        cancelLabel: `Cancel`,
+        routerLink: '',
+      },
+    });
+    confirmDialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.deleteMessage.emit(message._id);
+      }
     });
   }
 }

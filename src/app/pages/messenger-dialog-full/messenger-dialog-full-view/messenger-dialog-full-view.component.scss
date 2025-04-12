@@ -202,3 +202,31 @@ $secondaryColor: var(--secondaryColor);
   font-weight: 600;
   margin-bottom: 4px;
 }
+
+.edit-message-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.edit-message-box {
+  border: 2px solid $secondaryColor;
+  border-radius: 5px;
+  padding: 10px;
+  width: 300px !important;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 200px;
+}
+
+.edit-action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.deleted-message-text {
+  margin-bottom: 20px !important;
+  padding:5px;
+}

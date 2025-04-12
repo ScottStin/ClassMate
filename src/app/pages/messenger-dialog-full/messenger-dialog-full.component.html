@@ -8,5 +8,7 @@
     [users]="data.users"
     [currentUser]="data.currentUser"
     (sendMessage)="sendMessage($event)"
+    (deleteMessage)="deleteMessage($event)"
+    (editMessage)="editMessage($event)"
   ></app-messenger-dialog-full-view>
 </ng-container>

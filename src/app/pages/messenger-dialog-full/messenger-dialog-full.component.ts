@@ -52,7 +52,6 @@ export class MessengerDialogFullComponent implements OnInit {
   }
 
   sendMessage(message: { messageText: string; recipientIds: string[] }): void {
-    console.log(message);
     this.messengerService
       .createMessage({
         messageText: message.messageText,
@@ -64,7 +63,7 @@ export class MessengerDialogFullComponent implements OnInit {
             seenAt: undefined,
           })),
         deleted: false,
-        edited: false,
+        edited: undefined,
         attachment: null,
       })
       .pipe(untilDestroyed(this))
@@ -77,6 +76,29 @@ export class MessengerDialogFullComponent implements OnInit {
         },
         error: (error: Error) => {
           this.snackbarService.openPermanent('error', error.message);
+        },
+      });
+  }
+
+  editMessage(message: MessageDto): void {
+    this.messengerService
+      .editMessage(message)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: () => {
+          this.snackbarService.open('info', 'Message successfully updated');
+          this.messengerDialogFullViewComponent.currentEditMessage = undefined;
+        },
+      });
+  }
+
+  deleteMessage(messageId: string): void {
+    this.messengerService
+      .deleteMessage(messageId)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: () => {
+          this.snackbarService.open('info', 'Message successfully deleted');
         },
       });
   }

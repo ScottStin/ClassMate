@@ -57,9 +57,17 @@ export class MessengerService {
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (currentUser?._id) {
         this.socket.on(
-          `messageSent-${currentUser._id}`,
-          (newMessage: MessageDto) => {
-            this.refreshMessages(newMessage);
+          `messageEvent-${currentUser._id}`,
+          (event: { data: MessageDto; action: string }) => {
+            if (event.action === 'messageSent') {
+              this.newMessageReceieved(event.data);
+            }
+            if (event.action === 'messageUpdated') {
+              this.updateMessages(event.data);
+            }
+            if (event.action === 'messageDeleted') {
+              this.updateMessages(event.data);
+            }
           }
         );
       }
@@ -155,22 +163,31 @@ export class MessengerService {
           const currentMessages = this.messageSubject.getValue();
 
           const modifiedNewMessage = this.modifyNewMessage(newMessage, users);
-          // // Find sender
-          // const sender = users.find((user) => user._id === newMessage.senderId);
-          // newMessage.sender = sender;
-
-          // // Find recipients
-          // newMessage.recipients = newMessage.recipients?.map((recipient) => ({
-          //   ...recipient,
-          //   user: users.find((user) => user._id === recipient.userId),
-          // }));
-
-          // Update the message subject
           this.messageSubject.next([...currentMessages, modifiedNewMessage]);
         }),
         map(([modifiedNewMessage]) => modifiedNewMessage),
         catchError((error: Error) => {
           this.handleError(error, 'Failed to send new message');
+        })
+      );
+  }
+
+  editMessage(message: MessageDto): Observable<MessageDto> {
+    return this.httpClient
+      .patch<MessageDto>(`${this.baseUrl}/${message._id}`, message)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to edit message');
+        })
+      );
+  }
+
+  deleteMessage(messageId: string): Observable<MessageDto> {
+    return this.httpClient
+      .delete<MessageDto>(`${this.baseUrl}/${messageId}`)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to delete message');
         })
       );
   }
@@ -199,14 +216,30 @@ export class MessengerService {
     throw this.errorService.handleGenericError(error, message);
   }
 
-  // --- Socket functions:
-  private refreshMessages(newMessage: MessageDto): void {
+  /**
+   * Socket IO Funcitons:
+   */
+  private newMessageReceieved(newMessage: MessageDto): void {
     this.userService.users$
       .pipe(take(1), untilDestroyed(this))
       .subscribe((users) => {
         const modifiedNewMessage = this.modifyNewMessage(newMessage, users);
         const currentMessages = this.messageSubject.getValue();
         this.messageSubject.next([...currentMessages, modifiedNewMessage]);
+      });
+  }
+
+  private updateMessages(updatedMessage: MessageDto): void {
+    this.userService.users$
+      .pipe(take(1), untilDestroyed(this))
+      .subscribe((users) => {
+        const modifiedNewMessage = this.modifyNewMessage(updatedMessage, users);
+        const currentMessages = this.messageSubject.getValue();
+        const updatedMessageList = currentMessages.map((message) =>
+          message._id === modifiedNewMessage._id ? modifiedNewMessage : message
+        );
+
+        this.messageSubject.next(updatedMessageList);
       });
   }
 }
@@ -217,7 +250,7 @@ export interface CreateMessageDto {
   sender?: UserDTO;
   recipients?: { userId: string; seenAt?: string; user?: UserDTO }[]; // can be to an individual or a several recepients, hence the array. 'Seen' property will be the date the receiver has seen it, and undefined if unseen. Undefined if part of a chat group convo, as the recipients will come from the group
   deleted: boolean;
-  edited: boolean;
+  edited?: string;
   attachment: { url: string; fileName: string } | null;
   chatGroupId?: string; // id of chat group. Undefined if not part of a created group convo
   replies?: CreateMessageDto[];
