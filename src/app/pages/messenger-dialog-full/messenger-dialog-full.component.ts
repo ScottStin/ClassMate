@@ -103,6 +103,16 @@ export class MessengerDialogFullComponent implements OnInit {
       });
   }
 
+  markAsSeen(messagesToMarkIds: string[]): void {
+    this.messengerService
+      .markAsSeen({
+        messagesToMarkIds,
+        currentUserId: this.data.currentUser._id,
+      })
+      .pipe(untilDestroyed(this))
+      .subscribe();
+  }
+
   closeFormClick(): void {
     this.dialogRef.close();
   }

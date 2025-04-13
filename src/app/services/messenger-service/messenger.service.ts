@@ -182,6 +182,19 @@ export class MessengerService {
       );
   }
 
+  markAsSeen(data: {
+    messagesToMarkIds: string[];
+    currentUserId: string;
+  }): Observable<MessageDto[]> {
+    return this.httpClient
+      .patch<MessageDto[]>(`${this.baseUrl}/mark-as-seen`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to mark messages as seen');
+        })
+      );
+  }
+
   deleteMessage(messageId: string): Observable<MessageDto> {
     return this.httpClient
       .delete<MessageDto>(`${this.baseUrl}/${messageId}`)

@@ -33,8 +33,13 @@
             *ngFor="let sideMessageList of sideMessageListDisplay"
             (click)="selectMessage(sideMessageList)"
             [class.active-chat-item]="selectedMessageGroup === sideMessageList"
+            [style.font-weight]="sideMessageList.hasUnseenMessagesForCurrentUser ? 'bold' : 'normal'"
           >
-            {{ sideMessageList.title }}
+            <span>{{ sideMessageList.title }}</span> <br />
+
+            <span style="opacity: 0.5; font-size: medium"
+              >{{getLatestMessagefromSideList(sideMessageList)}}</span
+            >
           </div>
         </mat-tab>
         <mat-tab label="Direct"> Show direct messages here only </mat-tab>

@@ -37,6 +37,7 @@ export class MessengerDialogFullViewComponent
   }>();
   @Output() editMessage = new EventEmitter<MessageDto>();
   @Output() deleteMessage = new EventEmitter<string>();
+  @Output() markAsSeen = new EventEmitter<string[]>();
 
   sideMessageListDisplay: SideMessageType[] = [];
   selectedMessageGroup?: SideMessageType;
@@ -72,6 +73,9 @@ export class MessengerDialogFullViewComponent
 
       // get message list for side menu:
       this.getMessageList();
+
+      // check if there are any unseen mesages:
+      this.checkUnseenMessagesInMessageGroup();
     }
 
     if ('users' in changes && this.users) {
@@ -109,6 +113,7 @@ export class MessengerDialogFullViewComponent
         messages: MessageDto[];
         chatGroupId?: string;
         participantIds?: string[]; // Add participant IDs
+        hasUnseenMessagesForCurrentUser: false;
       }
     >();
 
@@ -121,6 +126,7 @@ export class MessengerDialogFullViewComponent
             messages: [],
             chatGroupId: msg.chatGroupId,
             participantIds: [], // Initialize array
+            hasUnseenMessagesForCurrentUser: false,
           });
         }
         groupedMessages.get(msg.chatGroupId)?.messages.push(msg);
@@ -176,6 +182,7 @@ export class MessengerDialogFullViewComponent
             title,
             messages: [],
             participantIds: uniqueParticipantIds, // Store IDs
+            hasUnseenMessagesForCurrentUser: false,
           });
         }
         groupedMessages.get(key)?.messages.push(msg);
@@ -200,6 +207,7 @@ export class MessengerDialogFullViewComponent
         title: `${this.currentUser.name} (private chat with yourself)`,
         messages: [],
         participantIds: [this.currentUser._id],
+        hasUnseenMessagesForCurrentUser: false,
       });
     }
 
@@ -223,6 +231,23 @@ export class MessengerDialogFullViewComponent
     setTimeout(() => {
       this.scrollToChatBottom();
     });
+
+    // Mark all as seen:
+    const unseenMessages = this.selectedMessageGroup.messages
+      .filter(
+        (message) =>
+          message.recipients?.some(
+            (recipient) =>
+              recipient.userId === this.currentUser._id &&
+              recipient.seenAt === undefined
+          )
+      )
+      .map((unseenMessge) => unseenMessge._id);
+
+    if (unseenMessages.length > 0) {
+      this.markAsSeen.emit(unseenMessages);
+    }
+    this.selectedMessageGroup.hasUnseenMessagesForCurrentUser = false;
   }
 
   formatMessageTimestamp(timestamp: string): string {
@@ -238,6 +263,46 @@ export class MessengerDialogFullViewComponent
     } else {
       return formatDate(messageDate, 'MMM d, yyyy h:mm a', 'en-US');
     }
+  }
+
+  checkUnseenMessagesInMessageGroup(): void {
+    const currentUserId = this.currentUser._id;
+
+    this.sideMessageListDisplay.forEach((group) => {
+      const hasUnseenMessage = group.messages.some(
+        (message) =>
+          message.recipients?.some(
+            (recipient) =>
+              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+              recipient.userId === currentUserId && !recipient.seenAt
+          )
+      );
+
+      group.hasUnseenMessagesForCurrentUser = hasUnseenMessage;
+    });
+  }
+
+  getLatestMessagefromSideList(messageListItem?: SideMessageType): string {
+    console.log(messageListItem);
+    if (messageListItem) {
+      const latestMessage =
+        messageListItem.messages[messageListItem.messages.length - 1];
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
+      if (latestMessage) {
+        let senderName = 'Latest messsage';
+        if (
+          messageListItem.participantIds &&
+          messageListItem.participantIds.length > 2
+        ) {
+          senderName =
+            (latestMessage.sender?._id === this.currentUser._id
+              ? 'You'
+              : latestMessage.sender?.name) ?? 'Latest messsage';
+        }
+        return `${senderName}: ${latestMessage.messageText}`;
+      }
+    }
+    return '';
   }
 
   /**
@@ -345,4 +410,5 @@ export interface SideMessageType {
   title: string;
   messages: MessageDto[];
   participantIds?: string[];
+  hasUnseenMessagesForCurrentUser: boolean;
 }
