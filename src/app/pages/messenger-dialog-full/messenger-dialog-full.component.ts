@@ -1,7 +1,12 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, of, switchMap } from 'rxjs';
+import {
+  ConversationDto,
+  ConversationService,
+  CreateConversationDto,
+} from 'src/app/services/conversation-service/conversation.service';
 import {
   MessageDto,
   MessageGroupDto,
@@ -24,6 +29,7 @@ export class MessengerDialogFullComponent implements OnInit {
 
   messages$: Observable<MessageDto[] | null>;
   messageGroups$: Observable<MessageGroupDto[] | null>;
+  conversations$: Observable<ConversationDto[] | null>;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -33,6 +39,7 @@ export class MessengerDialogFullComponent implements OnInit {
     },
     public dialogRef: MatDialogRef<MessengerDialogFullComponent>,
     private readonly messengerService: MessengerService,
+    private readonly conversatonService: ConversationService,
     private readonly snackbarService: SnackbarService
   ) {}
 
@@ -43,33 +50,77 @@ export class MessengerDialogFullComponent implements OnInit {
   loadPageData(): void {
     this.messages$ = this.messengerService.messages$;
     this.messageGroups$ = this.messengerService.messageGroups$;
+    this.conversations$ = this.conversatonService.conversations$;
+
     forkJoin([
-      this.messengerService.getMessagesByUser(this.data.currentUser._id),
+      // this.messengerService.getMessagesByUser(this.data.currentUser._id, true),
       this.messengerService.getGroupsByUser(this.data.currentUser._id),
+      this.conversatonService.getConversationsByUser(this.data.currentUser._id),
     ])
       .pipe(untilDestroyed(this))
-      .subscribe();
+      .subscribe({
+        error: (error: Error) => {
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
   }
 
-  sendMessage(message: { messageText: string; recipientIds: string[] }): void {
+  selectMessageGroup(conversation: ConversationDto): void {
     this.messengerService
-      .createMessage({
-        messageText: message.messageText,
-        senderId: this.data.currentUser._id,
-        recipients: message.recipientIds
-          .filter((recipient) => recipient !== this.data.currentUser._id)
-          .map((userId) => ({
-            userId,
-            seenAt: undefined,
-          })),
-        deleted: false,
-        edited: undefined,
-        attachment: null,
-      })
+      .getMessagesByUser(this.data.currentUser._id, false, conversation._id)
       .pipe(untilDestroyed(this))
       .subscribe({
         next: () => {
-          // clear message from input after successfully sent:
+          // mark the conversation as loaded so we don't load the data again:
+          const selectedConvo =
+            this.messengerDialogFullViewComponent.sideMessageListDisplay.find(
+              (listItem) => listItem._id === conversation._id
+            );
+          if (selectedConvo) {
+            selectedConvo.loaded = true;
+          }
+        },
+        error: (error: Error) => {
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
+  }
+
+  sendMessage(message: {
+    messageText: string;
+    conversation: CreateConversationDto | ConversationDto;
+    recipientIds: string[];
+  }): void {
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    const conversation$ = (message.conversation as ConversationDto)._id
+      ? of(message.conversation) // wrap existing conversation in an observable
+      : this.conversatonService.createConversation(message.conversation);
+
+    conversation$
+      .pipe(
+        switchMap((conversation) => {
+          this.messengerDialogFullViewComponent.selectedMessageGroup =
+            conversation as ConversationDto;
+
+          return this.messengerService.createMessage({
+            messageText: message.messageText,
+            senderId: this.data.currentUser._id,
+            recipients: message.recipientIds
+              .filter((recipient) => recipient !== this.data.currentUser._id)
+              .map((userId) => ({
+                userId,
+                seenAt: undefined,
+              })),
+            deleted: false,
+            edited: undefined,
+            attachment: null,
+            conversationId: (conversation as ConversationDto)._id,
+          });
+        }),
+        untilDestroyed(this)
+      )
+      .subscribe({
+        next: () => {
           this.messengerDialogFullViewComponent.messageTextToSend = '';
           this.messengerDialogFullViewComponent.scrollToChatBottom();
           this.messengerDialogFullViewComponent.startNewDirectConvoMode = false;

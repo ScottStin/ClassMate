@@ -7,9 +7,9 @@ import {
   catchError,
   combineLatest,
   map,
-  merge,
+  // merge,
   Observable,
-  scan,
+  // scan,
   take,
   tap,
   withLatestFrom,
@@ -17,6 +17,7 @@ import {
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
+import { ConversationService } from '../conversation-service/conversation.service';
 import { ErrorService } from '../error-message.service/error-message.service';
 import { UserService } from '../user-service/user.service';
 
@@ -48,7 +49,8 @@ export class MessengerService {
     private readonly httpClient: HttpClient,
     private readonly errorService: ErrorService,
     private readonly userService: UserService,
-    private readonly socket: Socket
+    private readonly socket: Socket,
+    private readonly conversationService: ConversationService
   ) {
     const currentUserString = localStorage.getItem('current_user');
 
@@ -100,11 +102,16 @@ export class MessengerService {
     );
   }
 
-  getMessagesByUser(userId: string): Observable<MessageDto[]> {
+  getMessagesByUser(
+    userId: string,
+    unreadOnly: boolean,
+    conversationId?: string
+  ): Observable<MessageDto[]> {
     return combineLatest([
       this.userService.users$,
       this.httpClient.get<MessageDto[]>(
-        `${this.baseUrl}?currentUserId=${userId}`
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `${this.baseUrl}?currentUserId=${userId}&unreadOnly=${unreadOnly}&conversationId=${conversationId}`
       ),
     ]).pipe(
       catchError((error: Error) => {
@@ -123,7 +130,14 @@ export class MessengerService {
         }));
       }),
       tap((updatedMessages) => {
-        this.messageSubject.next(updatedMessages);
+        const currentMessages = this.messageSubject.getValue();
+        const mergedMessages = [
+          ...currentMessages.filter(
+            (msg) => !updatedMessages.some((updated) => updated._id === msg._id)
+          ),
+          ...updatedMessages,
+        ];
+        this.messageSubject.next(mergedMessages);
       })
     );
   }
@@ -164,6 +178,11 @@ export class MessengerService {
 
           const modifiedNewMessage = this.modifyNewMessage(newMessage, users);
           this.messageSubject.next([...currentMessages, modifiedNewMessage]);
+
+          // Update conversations:
+          this.conversationService.updateMostRecentConversationMessage(
+            modifiedNewMessage
+          );
         }),
         map(([modifiedNewMessage]) => modifiedNewMessage),
         catchError((error: Error) => {
@@ -206,7 +225,7 @@ export class MessengerService {
   }
 
   /**
-   * Tis function gets the full user details from message sender/recipient ids and adds it to the message
+   * This function gets the full user details from message sender/recipient ids and adds it to the message
    */
   private modifyNewMessage(message: MessageDto, users: UserDTO[]): MessageDto {
     const enrichedMessage: MessageDto = {
@@ -239,6 +258,11 @@ export class MessengerService {
         const modifiedNewMessage = this.modifyNewMessage(newMessage, users);
         const currentMessages = this.messageSubject.getValue();
         this.messageSubject.next([...currentMessages, modifiedNewMessage]);
+
+        // Update conversations:
+        this.conversationService.updateMostRecentConversationMessage(
+          modifiedNewMessage
+        );
       });
   }
 
@@ -248,6 +272,7 @@ export class MessengerService {
       .subscribe((users) => {
         const modifiedNewMessage = this.modifyNewMessage(updatedMessage, users);
         const currentMessages = this.messageSubject.getValue();
+        // eslint-disable-next-line no-confusing-arrow
         const updatedMessageList = currentMessages.map((message) =>
           message._id === modifiedNewMessage._id ? modifiedNewMessage : message
         );
@@ -269,6 +294,7 @@ export interface CreateMessageDto {
   replies?: CreateMessageDto[];
   parentMessageId?: string;
   savedByIds?: string[]; // array of users who have saved this message as favourtes
+  conversationId: string | undefined;
 }
 
 export interface MessageDto extends CreateMessageDto {

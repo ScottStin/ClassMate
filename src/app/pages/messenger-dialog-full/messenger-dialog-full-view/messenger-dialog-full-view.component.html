@@ -31,14 +31,21 @@
           <div
             class="chat-item"
             *ngFor="let sideMessageList of sideMessageListDisplay"
-            (click)="selectMessage(sideMessageList)"
+            (click)="selectMessageGroupClick(sideMessageList)"
             [class.active-chat-item]="selectedMessageGroup === sideMessageList"
-            [style.font-weight]="sideMessageList.hasUnseenMessagesForCurrentUser ? 'bold' : 'normal'"
+            [style.font-weight]="sideMessageList.unreadMessageForCurrentUser ? 'bold' : 'normal'"
           >
-            <span>{{ sideMessageList.title }}</span> <br />
+            <span>{{ getConversationTitle(sideMessageList) }}</span> <br />
 
-            <span style="opacity: 0.5; font-size: medium"
-              >{{getLatestMessagefromSideList(sideMessageList)}}</span
+            <span style="opacity: 0.5; font-size: medium">
+              <span
+                *ngIf="sideMessageList.mostRecentMessage?.senderId !== currentUser._id"
+                >{{sideMessageList.mostRecentMessage?.senderName}}:</span
+              >
+              <span
+                *ngIf="sideMessageList.mostRecentMessage?.senderId === currentUser._id"
+                >You: </span
+              >{{sideMessageList.mostRecentMessage?.messageText}}</span
             >
           </div>
         </mat-tab>
@@ -64,7 +71,9 @@
   <div class="chat-main">
     <!-- main char area header -->
     <h2 *ngIf="!selectedMessageGroup">Select a conversation</h2>
-    <h2 *ngIf="selectedMessageGroup">{{ selectedMessageGroup.title }}</h2>
+    <h2 *ngIf="selectedMessageGroup">
+      {{ getConversationTitle(selectedMessageGroup) }}
+    </h2>
     <div *ngIf="startNewDirectConvoMode" [formGroup]="addUserToDirectConvoForm">
       <mat-form-field class="form-field" appearance="outline">
         <mat-label>Add users to chat</mat-label>

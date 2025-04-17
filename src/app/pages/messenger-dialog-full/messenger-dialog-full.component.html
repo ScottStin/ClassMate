@@ -5,11 +5,13 @@
   ></app-dialog-header>
   <app-messenger-dialog-full-view
     [messages]="messages$ | async"
+    [conversations]="conversations$ | async"
     [users]="data.users"
     [currentUser]="data.currentUser"
     (sendMessage)="sendMessage($event)"
     (deleteMessage)="deleteMessage($event)"
     (editMessage)="editMessage($event)"
+    (selectMessageGroup)="selectMessageGroup($event)"
     (markAsSeen)="markAsSeen($event)"
   ></app-messenger-dialog-full-view>
 </ng-container>

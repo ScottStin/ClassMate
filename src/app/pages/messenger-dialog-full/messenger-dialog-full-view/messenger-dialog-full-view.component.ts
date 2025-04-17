@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { formatDate } from '@angular/common';
 import {
   AfterViewInit,
@@ -15,6 +16,10 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import {
+  ConversationDto,
+  CreateConversationDto,
+} from 'src/app/services/conversation-service/conversation.service';
 import { MessageDto } from 'src/app/services/messenger-service/messenger.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -26,21 +31,24 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 export class MessengerDialogFullViewComponent
   implements OnInit, OnChanges, AfterViewInit
 {
-  @ViewChild('chatMessagesContainer') chatMessagesContainer: ElementRef;
+  @ViewChild('chatMessagesContainer') chatMessagesContainer?: ElementRef;
 
   @Input() messages: MessageDto[] | null;
+  @Input() conversations: ConversationDto[] | null;
   @Input() users: UserDTO[] | null;
   @Input() currentUser: UserDTO;
   @Output() sendMessage = new EventEmitter<{
     messageText: string;
     recipientIds: string[];
+    conversation: CreateConversationDto | ConversationDto;
   }>();
   @Output() editMessage = new EventEmitter<MessageDto>();
   @Output() deleteMessage = new EventEmitter<string>();
+  @Output() selectMessageGroup = new EventEmitter<ConversationDto>();
   @Output() markAsSeen = new EventEmitter<string[]>();
 
-  sideMessageListDisplay: SideMessageType[] = [];
-  selectedMessageGroup?: SideMessageType;
+  sideMessageListDisplay: ConversationDto[] = []; // SideMessageType[] = [];
+  selectedMessageGroup?: ConversationDto;
   startNewDirectConvoMode = false;
   usersToAddList: UserDTO[] = [];
   filteredUsersToAdd: UserDTO[];
@@ -79,10 +87,23 @@ export class MessengerDialogFullViewComponent
     }
 
     if ('users' in changes && this.users) {
-      this.filteredUsersToAdd = [...this.users];
+      this.filteredUsersToAdd = [
+        ...this.users.filter((user) => user._id !== this.currentUser._id),
+      ];
+    }
+
+    if (
+      'conversations' in changes &&
+      this.conversations &&
+      this.conversations.length > 0
+    ) {
+      this.getMessageList();
     }
   }
 
+  /*
+   * Initiate mat autofill form used for creating new convo:
+   */
   populateForm(): void {
     this.addUserToDirectConvoForm = new FormGroup({
       addUserToNewDirectConvo: new FormControl('', {
@@ -94,147 +115,82 @@ export class MessengerDialogFullViewComponent
     this.formPopulated.next(true);
   }
 
+  /*
+   * When a new message is receieved or new chat is open, ensure we are scrolled to the bottom of the chat window:
+   */
   scrollToChatBottom(): void {
     if (this.chatMessagesContainer) {
-      this.chatMessagesContainer.nativeElement.scrollTop =
-        this.chatMessagesContainer.nativeElement.scrollHeight;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, prettier/prettier
+      this.chatMessagesContainer.nativeElement.scrollTop = this.chatMessagesContainer.nativeElement.scrollHeight;
     }
   }
 
+  /*
+   * Get the conversation/group lists on the left side of the messenger page, Get the messages for a selected group, and sort messages
+   */
   getMessageList(): void {
-    if (!this.messages) {
-      return;
+    // Display conversation on left-side list:
+    if (this.conversations) {
+      this.sideMessageListDisplay = this.conversations; // todo - add groups to this as well.
     }
 
-    const groupedMessages = new Map<
-      string,
-      {
-        title: string;
-        messages: MessageDto[];
-        chatGroupId?: string;
-        participantIds?: string[]; // Add participant IDs
-        hasUnseenMessagesForCurrentUser: false;
-      }
-    >();
-
-    for (const msg of this.messages) {
-      if (msg.chatGroupId) {
-        // Group chat messages
-        if (!groupedMessages.has(msg.chatGroupId)) {
-          groupedMessages.set(msg.chatGroupId, {
-            title: msg.chatGroupId,
-            messages: [],
-            chatGroupId: msg.chatGroupId,
-            participantIds: [], // Initialize array
-            hasUnseenMessagesForCurrentUser: false,
-          });
-        }
-        groupedMessages.get(msg.chatGroupId)?.messages.push(msg);
-
-        // Add unique participant IDs
-        const participantIds = new Set(
-          groupedMessages.get(msg.chatGroupId)?.participantIds
-        );
-        if (msg.sender?._id) {
-          participantIds.add(msg.sender._id);
-        }
-        msg.recipients?.forEach(
-          (r) => r.user?._id && participantIds.add(r.user._id)
-        );
-        groupedMessages.get(msg.chatGroupId)!.participantIds =
-          Array.from(participantIds);
-      } else {
-        // Direct messages
-        const participants = [
-          { id: msg.sender?._id, name: msg.sender?.name ?? 'Unknown user' },
-          ...(msg.recipients?.map((r) => ({
-            id: r.user?._id,
-            name: r.user?.name ?? 'Unknown user',
-          })) || []),
-        ];
-
-        // Extract unique participant names & IDs
-        const uniqueParticipants = Array.from(
-          new Set(participants.map((p) => p.name))
-        ).sort();
-        const uniqueParticipantIds = Array.from(
-          new Set(
-            participants.map((p) => p.id).filter((id): id is string => !!id)
-          )
-        );
-
-        const key = uniqueParticipants.join(',');
-
-        if (!groupedMessages.has(key)) {
-          // If only the current user is in the chat, set the title to 'Yourself'
-          let title = uniqueParticipants
-            .filter((name) => name !== this.currentUser.name)
-            .join(', '); // Exclude current user from title
-
-          if (
-            uniqueParticipants.length === 1 &&
-            uniqueParticipants.includes(this.currentUser.name)
-          ) {
-            title = `${this.currentUser.name} (private chat with yourself)`; // Single participant - set title as "Yourself"
-          }
-
-          groupedMessages.set(key, {
-            title,
-            messages: [],
-            participantIds: uniqueParticipantIds, // Store IDs
-            hasUnseenMessagesForCurrentUser: false,
-          });
-        }
-        groupedMessages.get(key)?.messages.push(msg);
-      }
-    }
-
-    // Convert to array and sort by most recent message timestamp
-    this.sideMessageListDisplay = Array.from(groupedMessages.values()).sort(
-      (a, b) =>
-        new Date(b.messages[b.messages.length - 1].createdAt).getTime() -
-        new Date(a.messages[a.messages.length - 1].createdAt).getTime()
-    );
-
-    // If user hasn't started a direct convo with themselves, add it to the top of the list:
-    if (
-      this.sideMessageListDisplay.filter(
-        (messageGroup) =>
-          !messageGroup.participantIds?.includes(this.currentUser._id)
-      )
-    ) {
-      this.sideMessageListDisplay.push({
-        title: `${this.currentUser.name} (private chat with yourself)`,
-        messages: [],
-        participantIds: [this.currentUser._id],
-        hasUnseenMessagesForCurrentUser: false,
-      });
-    }
-
-    // If there is already a selectedMessageGroup, update the messages in it:
+    // If message is selected: display messages on right-side message list:
     if (this.selectedMessageGroup) {
-      this.selectedMessageGroup = this.sideMessageListDisplay.find(
-        (messageGroup) =>
-          messageGroup.title === this.selectedMessageGroup?.title
+      this.selectedMessageGroup.messages = this.messages?.filter(
+        (message) => message.conversationId === this.selectedMessageGroup?._id
       );
-      setTimeout(() => {
-        this.scrollToChatBottom();
-      });
     }
+
+    // Sort left-side conversation list by most recent message timestamp:
+    this.sideMessageListDisplay = this.sideMessageListDisplay.sort((a, b) => {
+      const dateA = a.mostRecentMessage?.createdAt
+        ? new Date(a.mostRecentMessage.createdAt).getTime()
+        : 0;
+      const dateB = b.mostRecentMessage?.createdAt
+        ? new Date(b.mostRecentMessage.createdAt).getTime()
+        : 0;
+      return dateB - dateA; // newest date first
+    });
+
+    // // Add current user's personal convo to conversation list:
+    // this.sideMessageListDisplay.push({
+    //   _id: this.currentUser._id,
+    //   messages: [],
+    //   participantIds: [this.currentUser._id],
+    //   unreadMessageForCurrentUser: false,
+    //   userTyping: undefined,
+    // });
+
+    setTimeout(() => {
+      this.scrollToChatBottom();
+    });
   }
 
-  selectMessage(sideMessage: SideMessageType): void {
+  /*
+   * When a user clicks on a message group/conversation
+   */
+  selectMessageGroupClick(sideMessage: ConversationDto): void {
     this.selectedMessageGroup = sideMessage;
     this.removeAllUsersFromNewDirectConvo();
     this.startNewDirectConvoMode = false;
+    this.messageTextToSend = '';
+
+    // if this is the first time opening this message group/convo, load the messages:
+    if (!this.selectedMessageGroup.loaded) {
+      this.selectMessageGroup.emit(sideMessage);
+    }
+
+    this.selectedMessageGroup.messages = this.messages?.filter(
+      (message) => message.conversationId === this.selectedMessageGroup?._id
+    );
 
     setTimeout(() => {
       this.scrollToChatBottom();
     });
 
-    // Mark all as seen:
+    // --- Mark all as seen:
     const unseenMessages = this.selectedMessageGroup.messages
-      .filter(
+      ?.filter(
         (message) =>
           message.recipients?.some(
             (recipient) =>
@@ -244,12 +200,32 @@ export class MessengerDialogFullViewComponent
       )
       .map((unseenMessge) => unseenMessge._id);
 
-    if (unseenMessages.length > 0) {
+    if (unseenMessages && unseenMessages.length > 0) {
       this.markAsSeen.emit(unseenMessages);
     }
-    this.selectedMessageGroup.hasUnseenMessagesForCurrentUser = false;
+    this.selectedMessageGroup.unreadMessageForCurrentUser = false;
   }
 
+  /*
+   * Get title for conversation groups:
+   */
+  getConversationTitle(sideMessageGroup: ConversationDto): string {
+    // if (sideMessageGroup._id === this.currentUser._id) {
+    //   return 'Private conversation with yourself';
+    // }
+
+    return sideMessageGroup.participantIds
+      .filter((participantId) => participantId !== this.currentUser._id)
+      .map((participantId) => {
+        const user = this.users?.find((u) => u._id === participantId);
+        return user ? user.name : 'Unknown';
+      })
+      .join(', ');
+  }
+
+  /*
+   * Get timestamp for message:
+   */
   formatMessageTimestamp(timestamp: string): string {
     const messageDate = new Date(timestamp);
     const today = new Date();
@@ -265,44 +241,39 @@ export class MessengerDialogFullViewComponent
     }
   }
 
+  /*
+   * When a new message is receieved, check if a conversation of message group has unseen messages:
+   */
   checkUnseenMessagesInMessageGroup(): void {
     const currentUserId = this.currentUser._id;
-
     this.sideMessageListDisplay.forEach((group) => {
-      const hasUnseenMessage = group.messages.some(
+      const messagesForGroup = this.messages?.filter(
+        (message) => message.conversationId === group._id
+      );
+      const hasUnseenMessage = messagesForGroup?.some(
         (message) =>
           message.recipients?.some(
             (recipient) =>
-              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               recipient.userId === currentUserId && !recipient.seenAt
           )
       );
-
-      group.hasUnseenMessagesForCurrentUser = hasUnseenMessage;
-    });
-  }
-
-  getLatestMessagefromSideList(messageListItem?: SideMessageType): string {
-    console.log(messageListItem);
-    if (messageListItem) {
-      const latestMessage =
-        messageListItem.messages[messageListItem.messages.length - 1];
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
-      if (latestMessage) {
-        let senderName = 'Latest messsage';
-        if (
-          messageListItem.participantIds &&
-          messageListItem.participantIds.length > 2
-        ) {
-          senderName =
-            (latestMessage.sender?._id === this.currentUser._id
-              ? 'You'
-              : latestMessage.sender?.name) ?? 'Latest messsage';
-        }
-        return `${senderName}: ${latestMessage.messageText}`;
+      // Only mark group with unseen messages if the group isn't currently open
+      if (group !== this.selectedMessageGroup) {
+        group.unreadMessageForCurrentUser = hasUnseenMessage;
+      } else {
+        // if group is currently open, mark the new messages as read:
+        const unseenMessages = messagesForGroup?.filter(
+          (message) =>
+            message.recipients?.some(
+              (recipient) =>
+                recipient.userId === currentUserId && !recipient.seenAt
+            )
+        );
+        this.markAsSeen.emit(
+          unseenMessages?.map((unseenMessage) => unseenMessage._id)
+        );
       }
-    }
-    return '';
+    });
   }
 
   /**
@@ -317,9 +288,10 @@ export class MessengerDialogFullViewComponent
   filterUsersToAddToNewDirectConvo(search: string): void {
     this.filteredUsersToAdd =
       this.users?.filter(
-        (obj: UserDTO) =>
-          obj.name.toLowerCase().includes(search.toLowerCase()) &&
-          !this.usersToAddList.includes(obj)
+        (user: UserDTO) =>
+          user.name.toLowerCase().includes(search.toLowerCase()) &&
+          !this.usersToAddList.includes(user) &&
+          user._id !== this.currentUser._id
       ) ?? [];
   }
 
@@ -340,7 +312,7 @@ export class MessengerDialogFullViewComponent
 
     const matchingSideListItem = this.sideMessageListDisplay.find(
       (item) =>
-        item.participantIds?.filter((id) => id !== this.currentUser._id)
+        item.participantIds.filter((id) => id !== this.currentUser._id)
           .length === userToAddListIds.length &&
         new Set(item.participantIds.filter((id) => id !== this.currentUser._id))
           .size === new Set(userToAddListIds).size &&
@@ -352,6 +324,10 @@ export class MessengerDialogFullViewComponent
     // --- If newly creted direct conversation already exists, open the existing chat:
     if (matchingSideListItem) {
       this.selectedMessageGroup = matchingSideListItem;
+      this.selectMessageGroup.emit(matchingSideListItem);
+      this.selectedMessageGroup.messages = this.messages?.filter(
+        (message) => message.conversationId === this.selectedMessageGroup?._id
+      );
     } else {
       this.selectedMessageGroup = undefined;
     }
@@ -375,12 +351,28 @@ export class MessengerDialogFullViewComponent
    * ============================
    */
   sendMessageClick(): void {
-    this.sendMessage.emit({
-      messageText: this.messageTextToSend,
-      recipientIds:
-        this.selectedMessageGroup?.participantIds ??
-        this.usersToAddList.map((user) => user._id),
-    });
+    let conversation: CreateConversationDto | undefined;
+    if (this.startNewDirectConvoMode) {
+      conversation = {
+        participantIds: [
+          ...this.usersToAddList.map((user) => user._id),
+          this.currentUser._id,
+        ],
+        unreadMessageForCurrentUser: true,
+        userTyping: undefined,
+      };
+    } else {
+      conversation = this.selectedMessageGroup;
+    }
+    if (conversation) {
+      this.sendMessage.emit({
+        messageText: this.messageTextToSend,
+        conversation,
+        recipientIds:
+          this.selectedMessageGroup?.participantIds ??
+          this.usersToAddList.map((user) => user._id),
+      });
+    }
   }
 
   editMessageClick(message: MessageDto, editedText: string): void {
