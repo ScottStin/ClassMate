@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { forkJoin, Observable, of, switchMap } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 import {
   ConversationDto,
   ConversationService,
@@ -9,7 +10,6 @@ import {
 } from 'src/app/services/conversation-service/conversation.service';
 import {
   MessageDto,
-  MessageGroupDto,
   MessengerService,
 } from 'src/app/services/messenger-service/messenger.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -28,7 +28,6 @@ export class MessengerDialogFullComponent implements OnInit {
   messengerDialogFullViewComponent: MessengerDialogFullViewComponent;
 
   messages$: Observable<MessageDto[] | null>;
-  messageGroups$: Observable<MessageGroupDto[] | null>;
   conversations$: Observable<ConversationDto[] | null>;
 
   constructor(
@@ -49,14 +48,9 @@ export class MessengerDialogFullComponent implements OnInit {
 
   loadPageData(): void {
     this.messages$ = this.messengerService.messages$;
-    this.messageGroups$ = this.messengerService.messageGroups$;
     this.conversations$ = this.conversatonService.conversations$;
-
-    forkJoin([
-      // this.messengerService.getMessagesByUser(this.data.currentUser._id, true),
-      this.messengerService.getGroupsByUser(this.data.currentUser._id),
-      this.conversatonService.getConversationsByUser(this.data.currentUser._id),
-    ])
+    this.conversatonService
+      .getConversationsByUser(this.data.currentUser._id)
       .pipe(untilDestroyed(this))
       .subscribe({
         error: (error: Error) => {
@@ -65,9 +59,14 @@ export class MessengerDialogFullComponent implements OnInit {
       });
   }
 
+  // When a user clicks on a new chat conversation:
   selectChat(chat: ConversationDto): void {
     this.messengerService
-      .getMessagesByUser(this.data.currentUser._id, false, chat._id)
+      .getMessagesByUser({
+        userId: this.data.currentUser._id,
+        unreadOnly: false,
+        conversationId: chat._id,
+      })
       .pipe(untilDestroyed(this))
       .subscribe({
         next: () => {

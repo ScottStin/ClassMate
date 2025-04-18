@@ -19,7 +19,12 @@
       >
         <mat-icon>add_comment</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="New group" matTooltipPosition="after">
+      <button
+        mat-icon-button
+        matTooltip="New group"
+        matTooltipPosition="after"
+        (click)="addNewGroupClick()"
+      >
         <mat-icon>group_add</mat-icon>
       </button>
     </div>
@@ -35,18 +40,26 @@
             [class.active-chat-item]="selectedMessageChat === sideChatListItem"
             [style.font-weight]="sideChatListItem.unreadMessageForCurrentUser ? 'bold' : 'normal'"
           >
-            <span>{{ getConversationTitle(sideChatListItem) }}</span> <br />
+            <img
+              *ngIf="getGroupImage(sideChatListItem)"
+              [src]="getGroupImage(sideChatListItem)"
+              alt="group image"
+              class="thumbnail-image-large"
+            />
 
-            <span style="opacity: 0.5; font-size: medium">
-              <span
-                *ngIf="sideChatListItem.mostRecentMessage?.senderId !== currentUser._id"
-                >{{sideChatListItem.mostRecentMessage?.senderName}}:</span
-              >
-              <span
-                *ngIf="sideChatListItem.mostRecentMessage?.senderId === currentUser._id"
-                >You: </span
-              >{{sideChatListItem.mostRecentMessage?.messageText}}</span
-            >
+            <div style="margin-left: 10px">
+              <span>{{ getChatTitle(sideChatListItem) }}</span><br />
+              <span style="opacity: 0.5; font-size: medium">
+                <span
+                  *ngIf="sideChatListItem.mostRecentMessage?.senderId !== currentUser._id"
+                  >{{ sideChatListItem.mostRecentMessage?.senderName }}:</span
+                >
+                <span
+                  *ngIf="sideChatListItem.mostRecentMessage?.senderId === currentUser._id"
+                  >You: </span
+                >{{ sideChatListItem.mostRecentMessage?.messageText }}
+              </span>
+            </div>
           </div>
         </mat-tab>
         <mat-tab label="Direct"> Show direct messages here only </mat-tab>
@@ -71,9 +84,7 @@
   <div class="chat-main">
     <!-- main char area header -->
     <h2 *ngIf="!selectedMessageChat">Select a conversation</h2>
-    <h2 *ngIf="selectedMessageChat">
-      {{ getConversationTitle(selectedMessageChat) }}
-    </h2>
+    <h2 *ngIf="selectedMessageChat">{{ getChatTitle(selectedMessageChat) }}</h2>
     <div *ngIf="startNewDirectConvoMode" [formGroup]="addUserToDirectConvoForm">
       <mat-form-field class="form-field" appearance="outline">
         <mat-label>Add users to chat</mat-label>

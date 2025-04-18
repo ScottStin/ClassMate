@@ -1,0 +1,173 @@
+<ng-container>
+  <app-dialog-header
+    [dialogTitle]="data.title"
+    (closeAction)="closeDialog(false)"
+  ></app-dialog-header>
+  <mat-dialog-content>
+    <div [formGroup]="messageGroupForm">
+      <!-- NAME -->
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          id="groupName"
+          formControlName="groupName"
+          type="text"
+          placeholder="Enter the name of the chat group"
+          required
+        />
+        <mat-error>
+          <app-error-message
+            [control]="messageGroupForm.controls['groupName'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <!-- ADD USERS -->
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label><span>Users</span>:</mat-label>
+        <input
+          matInput
+          #usersInput
+          id="usersInput"
+          formControlName="usersInput"
+          type="text"
+          [matAutocomplete]="auto"
+          [required]="usersList.length === 0"
+          (keyup)="filterUsers(usersInput.value)"
+        />
+        <mat-checkbox
+          *ngIf="(data.users.length + 1) > usersList.length && !this.messageGroupForm.getRawValue().usersInput"
+          matSuffix
+          (click)="selectAllUsers(data.users)"
+          >Select All</mat-checkbox
+        >
+        <mat-checkbox
+          *ngIf="(data.users.length + 1) === usersList?.length && !this.messageGroupForm.getRawValue().usersInput"
+          matSuffix
+          (click)="unselectAllUsers()"
+          >Unselect All</mat-checkbox
+        >
+        <mat-autocomplete #auto="matAutocomplete">
+          <div *ngIf="usersInput.value">
+            <mat-option
+              *ngIf="filteredUsers.length > 1"
+              (click)="selectAllUsers(filteredUsers)"
+            >
+              <mat-checkbox>Select All</mat-checkbox>
+            </mat-option>
+            <mat-option
+              *ngFor="let filteredUser of filteredUsers"
+              [value]="filteredUser"
+              (click)="updateUsers(filteredUser)"
+            >
+              <span
+                ><img
+                  [src]="filteredUser.profilePicture?.url"
+                  alt="user image"
+                  class="thumbnail-image"
+                />{{filteredUser.name}} ({{filteredUser.email}})</span
+              >
+            </mat-option>
+          </div>
+        </mat-autocomplete>
+        <mat-hint
+          style="color: red"
+          *ngIf="usersList.length < 2 && (this.messageGroupForm.get('usersInput')?.dirty || this.messageGroupForm.get('usersInput')?.touched)"
+          >A group must have at least 2 members.</mat-hint
+        >
+      </mat-form-field>
+
+      <!-- ADDED USERS LIST -->
+      <div class="row" *ngIf="usersList.length">
+        <mat-list>
+          <div mat-subheader>
+            <span *ngIf="usersList.length===0">There are no users</span>
+            <span *ngIf="usersList.length===1">There is 1 user</span>
+            <span *ngIf="usersList.length>1"
+              >There are {{usersList.length}} users</span
+            >
+            &nbsp;added to this group.
+          </div>
+          <mat-divider></mat-divider>
+          <mat-list-item *ngFor="let user of usersList; let i = index">
+            <div
+              style="display: flex; justify-content: space-between; width: 95%"
+            >
+              <div matListItemTitle>
+                <span
+                  ><img
+                    [src]="user.profilePicture?.url"
+                    alt="user image"
+                    class="thumbnail-image"
+                  />{{user.name}}
+                  <span *ngIf="user._id !== data.currentUser._id"
+                    >({{user.email}})</span
+                  >
+                  <span *ngIf="user._id === data.currentUser._id">(You)</span>
+                </span>
+              </div>
+              <div
+                matListItemMeta
+                class="remove-button"
+                *ngIf="user._id !== data.currentUser._id"
+              >
+                <button
+                  mat-icon-button
+                  color="warn"
+                  matTooltip="Remove user"
+                  matTooltipPosition="after"
+                  (click)="removeUser(user)"
+                >
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+      <!-- Image Cropper: -->
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Image (Optional)</mat-label>
+        <input
+          #photoInput
+          type="file"
+          hidden="true"
+          (change)="fileChangeEvent($event)"
+          accept="image/png, image/jpeg, image/gif, image/tiff"
+        />
+        <input
+          (click)="photoInput.click()"
+          matInput
+          readonly
+          [placeholder]="photoName || 'No file chosen'"
+        />
+        <mat-icon matSuffix style="cursor: pointer" (click)="photoInput.click()"
+          >add_photo_alternate</mat-icon
+        >
+      </mat-form-field>
+
+      <div *ngIf="data.existingGroup?.image && !photoName">
+        <img [src]=" data.existingGroup?.image?.url" alt="User Photo" />
+      </div>
+      <image-cropper
+        format="png"
+        [imageChangedEvent]="imageChangedEvent"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="4 / 3"
+        [resizeToWidth]="215"
+        (imageCropped)="imageCropped($event)"
+        (imageLoaded)="imageLoaded()"
+        (cropperReady)="cropperReady()"
+        (loadImageFailed)="loadImageFailed()"
+      ></image-cropper>
+    </div>
+  </mat-dialog-content>
+
+  <app-dialog-actions
+    (cancelAction)="closeDialog()"
+    (saveAction)="closeDialog(true)"
+    [disabled]="this.messageGroupForm.invalid || usersList.length < 2"
+  ></app-dialog-actions>
+</ng-container>

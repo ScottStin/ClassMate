@@ -18,11 +18,13 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import { CreateMessagegroupDialogComponent } from 'src/app/components/create-messagegroup-dialog/create-messagegroup-dialog.component';
 import {
   ConversationDto,
   CreateConversationDto,
 } from 'src/app/services/conversation-service/conversation.service';
 import { MessageDto } from 'src/app/services/messenger-service/messenger.service';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -54,7 +56,7 @@ export class MessengerDialogFullViewComponent
     currentUserId: string;
   }>();
 
-  sideMessageChatList: ConversationDto[] = []; // todo - add groups
+  sideMessageChatList: ConversationDto[] = [];
   selectedMessageChat?: ConversationDto;
   startNewDirectConvoMode = false;
   usersToAddList: UserDTO[] = [];
@@ -63,19 +65,15 @@ export class MessengerDialogFullViewComponent
   currentEditMessage?: string; // id of mesage currently being editted
   currentUserTyping = false;
 
-  // ======== NAMING =========
-  //  - group = a created group
-  //  - conversation = a direct convo with two or more members
-  //  - chat = a group or convo, displayed as a list on the left side of the chat page
-  //  - message = a message from a chat (group or convo)
-  // =========================
-
   addUserToDirectConvoForm: FormGroup<{
     addUserToNewDirectConvo: FormControl<string>;
   }>;
   formPopulated = new Subject<boolean>();
 
-  constructor(public dialog: MatDialog) {}
+  constructor(
+    public dialog: MatDialog,
+    private readonly snackbarService: SnackbarService
+  ) {}
 
   ngOnInit(): void {
     this.populateForm();
@@ -141,12 +139,12 @@ export class MessengerDialogFullViewComponent
   }
 
   /*
-   * Get the conversation/group lists on the left side of the messenger page, Get the messages for a selected group, and sort messages
+   * Get the conversation lists on the left side of the messenger pag
    */
   getMessageList(): void {
     // Display conversation on left-side list:
     if (this.conversations) {
-      this.sideMessageChatList = this.conversations; // todo - add groups to this as well.
+      this.sideMessageChatList = this.conversations;
     }
 
     // If message is selected: display messages on right-side message list:
@@ -178,7 +176,7 @@ export class MessengerDialogFullViewComponent
   }
 
   /*
-   * When a user clicks on a message group/conversation
+   * When a user clicks on a message conversation
    */
   selectChatClick(chatListItem: ConversationDto): void {
     this.messageTextToSend = '';
@@ -191,7 +189,7 @@ export class MessengerDialogFullViewComponent
     this.removeAllUsersFromNewDirectConvo();
     this.startNewDirectConvoMode = false;
 
-    // if this is the first time opening this message group/convo, load the messages:
+    // if this is the first time opening this message convo, load the messages:
     if (!this.selectedMessageChat.loaded) {
       this.selectChat.emit(chatListItem);
     }
@@ -223,16 +221,32 @@ export class MessengerDialogFullViewComponent
   }
 
   /*
-   * Get title for conversation groups:
+   * Get title for conversation:
    */
-  getConversationTitle(chatItem: ConversationDto): string {
-    return chatItem.participantIds
+  getChatTitle(conversation: ConversationDto): string {
+    // If group, return gorup title:
+    const groupName = conversation.groupName;
+    if (groupName) {
+      return groupName;
+    }
+
+    // if conversation, use particpant names for title:
+    return conversation.participantIds
       .filter((participantId) => participantId !== this.currentUser._id)
       .map((participantId) => {
         const user = this.users?.find((u) => u._id === participantId);
         return user ? user.name : 'Unknown';
       })
       .join(', ');
+  }
+
+  getGroupImage(conversation: ConversationDto): string | undefined {
+    const groupImage = conversation.image?.url;
+    if (groupImage) {
+      return groupImage;
+    } else {
+      return undefined;
+    }
   }
 
   /*
@@ -254,7 +268,7 @@ export class MessengerDialogFullViewComponent
   }
 
   /*
-   * When a new message is receieved, check if a conversation of message group has unseen messages:
+   * When a new message is receieved, check if a conversation of message conversation has unseen messages:
    */
   checkUnseenMessagesInMessageGroup(): void {
     const currentUserId = this.currentUser._id;
@@ -289,8 +303,12 @@ export class MessengerDialogFullViewComponent
   }
 
   /**
-   * Get a list of users who are currenlying typing in the selected convo
+   * ===========================
+   * Users Typing:
+   * ============================
    */
+
+  // --- Get a list of users who are currenlying typing in the selected convo
   getUsersTyping(): UserDTO[] {
     if (!this.selectedMessageChat || !this.users) {
       return [];
@@ -301,6 +319,32 @@ export class MessengerDialogFullViewComponent
         this.selectedMessageChat?.usersTyping?.includes(user._id) &&
         user._id !== this.currentUser._id
     );
+  }
+
+  // --- emit that the current user is typing
+  onMessageInputChange(): void {
+    const emit = (): void => {
+      if (this.selectedMessageChat) {
+        this.changeCurrentUserTypingStatus.emit({
+          isCurrentUserTyping: this.currentUserTyping,
+          conversationId: this.selectedMessageChat._id,
+          currentUserId: this.currentUser._id,
+        });
+      }
+    };
+
+    if (
+      this.messageTextToSend &&
+      this.messageTextToSend.trim().length > 0 &&
+      !this.currentUserTyping
+    ) {
+      this.currentUserTyping = true;
+      emit();
+    }
+    if (this.messageTextToSend.trim().length === 0 && this.currentUserTyping) {
+      this.currentUserTyping = false;
+      emit();
+    }
   }
 
   /**
@@ -374,6 +418,30 @@ export class MessengerDialogFullViewComponent
 
   /**
    * ===========================
+   * Message Groups:
+   * ============================
+   */
+
+  addNewGroupClick(): void {
+    const dialogRef = this.dialog.open(CreateMessagegroupDialogComponent, {
+      data: {
+        title: `Create New Group`,
+        currentUser: this.currentUser,
+        users: this.users?.filter((user) => user._id !== this.currentUser._id),
+      },
+    });
+    dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
+      if (result) {
+        this.snackbarService.open(
+          'info',
+          'Group successfully created',
+          'dismiss'
+        );
+      }
+    });
+  }
+  /**
+   * ===========================
    * Message CRUD Clicks:
    * ============================
    */
@@ -422,34 +490,6 @@ export class MessengerDialogFullViewComponent
         this.deleteMessage.emit(message._id);
       }
     });
-  }
-
-  /**
-   * Current User Typing:
-   */
-  onMessageInputChange(): void {
-    const emit = (): void => {
-      if (this.selectedMessageChat) {
-        this.changeCurrentUserTypingStatus.emit({
-          isCurrentUserTyping: this.currentUserTyping,
-          conversationId: this.selectedMessageChat._id,
-          currentUserId: this.currentUser._id,
-        });
-      }
-    };
-
-    if (
-      this.messageTextToSend &&
-      this.messageTextToSend.trim().length > 0 &&
-      !this.currentUserTyping
-    ) {
-      this.currentUserTyping = true;
-      emit();
-    }
-    if (this.messageTextToSend.trim().length === 0 && this.currentUserTyping) {
-      this.currentUserTyping = false;
-      emit();
-    }
   }
 
   ngOnDestroy(): void {

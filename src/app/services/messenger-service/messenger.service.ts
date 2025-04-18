@@ -29,6 +29,7 @@ export class MessengerService {
   private readonly baseUrl = `${environment.apiUrl}/messages`;
 
   private readonly messageSubject = new BehaviorSubject<MessageDto[]>([]);
+  messages$ = this.messageSubject.asObservable();
 
   // newMessages$: Observable<MessageDto> = this.createMessage(...);
   // messages$: Observable<MessageDto[]> = merge(
@@ -37,13 +38,6 @@ export class MessengerService {
   // ).pipe(
   //   scan((acc, curr) => [...acc, curr], []) // Accumulate messages over time
   // );
-
-  messages$ = this.messageSubject.asObservable();
-
-  private readonly messageGroupSubject = new BehaviorSubject<MessageGroupDto[]>(
-    []
-  );
-  messageGroups$ = this.messageGroupSubject.asObservable();
 
   constructor(
     private readonly httpClient: HttpClient,
@@ -102,16 +96,16 @@ export class MessengerService {
     );
   }
 
-  getMessagesByUser(
-    userId: string,
-    unreadOnly: boolean,
-    conversationId?: string
-  ): Observable<MessageDto[]> {
+  getMessagesByUser(data: {
+    userId: string;
+    unreadOnly: boolean;
+    conversationId?: string;
+  }): Observable<MessageDto[]> {
     return combineLatest([
       this.userService.users$,
       this.httpClient.get<MessageDto[]>(
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `${this.baseUrl}?currentUserId=${userId}&unreadOnly=${unreadOnly}&conversationId=${conversationId}`
+        `${this.baseUrl}?currentUserId=${data.userId}&unreadOnly=${data.unreadOnly}&conversationId=${data.conversationId}`
       ),
     ]).pipe(
       catchError((error: Error) => {
@@ -140,32 +134,6 @@ export class MessengerService {
         this.messageSubject.next(mergedMessages);
       })
     );
-  }
-
-  getAllMessageGroups(): Observable<MessageGroupDto[]> {
-    return this.httpClient
-      .get<MessageGroupDto[]>(`${this.baseUrl}/groups`)
-      .pipe(
-        catchError((error: Error) => {
-          this.handleError(error, 'Failed to load message groups');
-        }),
-        tap((groups) => {
-          this.messageGroupSubject.next(groups);
-        })
-      );
-  }
-
-  getGroupsByUser(userId: string): Observable<MessageGroupDto[]> {
-    return this.httpClient
-      .get<MessageGroupDto[]>(`${this.baseUrl}/groups?currentUserId=${userId}`)
-      .pipe(
-        catchError((error: Error) => {
-          this.handleError(error, 'Failed to load message groups');
-        }),
-        tap((groups) => {
-          this.messageGroupSubject.next(groups);
-        })
-      );
   }
 
   createMessage(message: CreateMessageDto): Observable<MessageDto> {
@@ -301,13 +269,4 @@ export interface MessageDto extends CreateMessageDto {
   _id: string; // after a message is created, it will have an id. When creating, it will not have an id
   createdAt: string;
   replies: CreateMessageDto[];
-}
-
-export interface CreateMessageGroupDto {
-  groupName: string;
-  memberIds: { userId: string; lastSeen?: string }[]; // user ids of group memebers. lastSeen will be the most recent date they opened the chat group. THis will determine if they've seen the most recent message sent in this group
-}
-
-export interface MessageGroupDto {
-  _id: string;
 }

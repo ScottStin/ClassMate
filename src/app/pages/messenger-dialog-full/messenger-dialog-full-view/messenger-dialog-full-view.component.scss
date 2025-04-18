@@ -45,6 +45,8 @@ $secondaryColor: var(--secondaryColor);
 }
 
 .chat-item {
+  display: flex;
+  align-items: center; /* Vertically centers items */
   padding: 10px;
   cursor: pointer;
   transition: background 0.2s;

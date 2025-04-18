@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CreateMessagegroupDialogModule } from 'src/app/components/create-messagegroup-dialog/create-messagegroup-dialog.module';
 
 import { MessengerDialogFullViewComponent } from './messenger-dialog-full-view.component';
 
@@ -30,6 +31,7 @@ import { MessengerDialogFullViewComponent } from './messenger-dialog-full-view.c
     MatChipsModule,
     ReactiveFormsModule,
     FormsModule,
+    CreateMessagegroupDialogModule,
   ],
   exports: [MessengerDialogFullViewComponent],
 })

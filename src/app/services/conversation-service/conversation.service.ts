@@ -11,7 +11,7 @@ import {
   Observable,
   tap,
 } from 'rxjs';
-import { UserDTO } from 'src/app/shared/models/user.model';
+import { ProfilePictureDTO, UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
 import { ErrorService } from '../error-message.service/error-message.service';
@@ -203,6 +203,13 @@ export interface CreateConversationDto {
   };
   messages?: MessageDto[];
   loaded?: boolean; // this will eventually be replaced with the number/date range of messages loaded to prevent loading all messages at once
+
+  // properties for creating groups:
+  groupName?: string;
+  image?: ProfilePictureDTO | null;
+  schoolId?: string;
+  groupAdminId?: string; // id of person who created group
+  groupAdminName?: string; // name of person who created group
 }
 
 export interface ConversationDto extends CreateConversationDto {
