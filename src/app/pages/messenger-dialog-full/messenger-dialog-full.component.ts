@@ -65,19 +65,19 @@ export class MessengerDialogFullComponent implements OnInit {
       });
   }
 
-  selectMessageGroup(conversation: ConversationDto): void {
+  selectChat(chat: ConversationDto): void {
     this.messengerService
-      .getMessagesByUser(this.data.currentUser._id, false, conversation._id)
+      .getMessagesByUser(this.data.currentUser._id, false, chat._id)
       .pipe(untilDestroyed(this))
       .subscribe({
         next: () => {
-          // mark the conversation as loaded so we don't load the data again:
-          const selectedConvo =
-            this.messengerDialogFullViewComponent.sideMessageListDisplay.find(
-              (listItem) => listItem._id === conversation._id
+          // mark the chat as loaded so we don't load the data again:
+          const selectedChat =
+            this.messengerDialogFullViewComponent.sideMessageChatList.find(
+              (chatItem) => chatItem._id === chat._id
             );
-          if (selectedConvo) {
-            selectedConvo.loaded = true;
+          if (selectedChat) {
+            selectedChat.loaded = true;
           }
         },
         error: (error: Error) => {
@@ -99,7 +99,7 @@ export class MessengerDialogFullComponent implements OnInit {
     conversation$
       .pipe(
         switchMap((conversation) => {
-          this.messengerDialogFullViewComponent.selectedMessageGroup =
+          this.messengerDialogFullViewComponent.selectedMessageChat =
             conversation as ConversationDto;
 
           return this.messengerService.createMessage({
@@ -125,8 +125,10 @@ export class MessengerDialogFullComponent implements OnInit {
           this.messengerDialogFullViewComponent.startNewDirectConvoMode = false;
 
           // clear the message input form and remove user typing status after successfult send:
-          this.messengerDialogFullViewComponent.messageTextToSend = '';
-          this.messengerDialogFullViewComponent.onMessageInputChange();
+          setTimeout(() => {
+            this.messengerDialogFullViewComponent.messageTextToSend = '';
+            this.messengerDialogFullViewComponent.onMessageInputChange();
+          });
         },
         error: (error: Error) => {
           this.snackbarService.openPermanent('error', error.message);
