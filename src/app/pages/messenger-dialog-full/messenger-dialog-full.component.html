@@ -8,11 +8,13 @@
     [conversations]="conversations$ | async"
     [users]="data.users"
     [currentUser]="data.currentUser"
+    [miniDilaogMode]="data.miniDilaogMode"
     (sendMessage)="sendMessage($event)"
     (deleteMessage)="deleteMessage($event)"
     (editMessage)="editMessage($event)"
     (selectChat)="selectChat($event)"
     (markAsSeen)="markAsSeen($event)"
+    (openFullMessenger)="openFullMessenger()"
     (changeCurrentUserTypingStatus)="changeCurrentUserTypingStatus($event)"
   ></app-messenger-dialog-full-view>
 </ng-container>

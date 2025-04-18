@@ -4,8 +4,11 @@
   <!------------------------>
 
   <!-- Side chat Header: -->
-  <mat-card class="chat-sidebar mat-elevation-z4">
-    <div class="sidebar-header">
+  <mat-card
+    [class]="miniDilaogMode ? 'chat-sidebar-full' : 'chat-sidebar'"
+    [class.mat-elevation-z4]="!miniDilaogMode"
+  >
+    <div class="sidebar-header" *ngIf="!miniDilaogMode">
       <mat-form-field class="form-field" appearance="outline" id="filter-field">
         <input #filter matInput placeholder="Search Messages..." />
         <mat-icon matSuffix>search</mat-icon>
@@ -29,39 +32,73 @@
       </button>
     </div>
 
-    <!-- Chat message list: -->
+    <!-- Side Chat message list: -->
     <div class="chat-list">
-      <mat-tab-group>
-        <mat-tab label="All">
-          <div
-            class="chat-item"
-            *ngFor="let sideChatListItem of sideMessageChatList"
-            (click)="selectChatClick(sideChatListItem)"
-            [class.active-chat-item]="selectedMessageChat === sideChatListItem"
-            [style.font-weight]="sideChatListItem.unreadMessageForCurrentUser ? 'bold' : 'normal'"
-          >
-            <img
-              *ngIf="getGroupImage(sideChatListItem)"
-              [src]="getGroupImage(sideChatListItem)"
-              alt="group image"
-              class="thumbnail-image-large"
-            />
+      <!-- <mat-tab-group>
+        <mat-tab label="All"> -->
+      <div
+        class="chat-item"
+        *ngFor="let sideChatListItem of sideMessageChatList"
+        (click)="selectChatClick(sideChatListItem)"
+        [class.active-chat-item]="selectedMessageChat === sideChatListItem"
+        [style.font-weight]="sideChatListItem.unreadMessageForCurrentUser ? 'bold' : 'normal'"
+      >
+        <img
+          *ngIf="getGroupImage(sideChatListItem)"
+          [src]="getGroupImage(sideChatListItem)"
+          alt="group image"
+          class="thumbnail-image-large"
+        />
 
-            <div style="margin-left: 10px">
-              <span>{{ getChatTitle(sideChatListItem) }}</span><br />
-              <span style="opacity: 0.5; font-size: medium">
-                <span
-                  *ngIf="sideChatListItem.mostRecentMessage?.senderId !== currentUser._id"
-                  >{{ sideChatListItem.mostRecentMessage?.senderName }}:</span
-                >
-                <span
-                  *ngIf="sideChatListItem.mostRecentMessage?.senderId === currentUser._id"
-                  >You: </span
-                >{{ sideChatListItem.mostRecentMessage?.messageText }}
-              </span>
-            </div>
+        <div style="margin-left: 10px; flex: 1">
+          <!-- Row: Chat Title + Dot -->
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>{{ getChatTitle(sideChatListItem) }}</span>
+            <b
+              class="unseen-icon"
+              *ngIf="sideChatListItem.unreadMessageForCurrentUser"
+              >•</b
+            >
           </div>
-        </mat-tab>
+
+          <!-- Row: Message preview + time -->
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span style="opacity: 0.5; font-size: medium">
+              <span
+                *ngIf="sideChatListItem.mostRecentMessage?.senderId !== currentUser._id"
+              >
+                {{ sideChatListItem.mostRecentMessage?.senderName }}:
+              </span>
+              <span
+                *ngIf="sideChatListItem.mostRecentMessage?.senderId === currentUser._id"
+              >
+                You:
+              </span>
+              {{ (sideChatListItem.mostRecentMessage?.messageText?.length ?? 0)
+              > 10 ? (sideChatListItem.mostRecentMessage?.messageText |
+              slice:0:10) + '...' :
+              sideChatListItem.mostRecentMessage?.messageText }}
+            </span>
+
+            <span style="opacity: 0.5; font-size: small; white-space: nowrap"
+              >{{getMessageTime(sideChatListItem.mostRecentMessage?.createdAt)}}</span
+            >
+          </div>
+        </div>
+      </div>
+      <!-- </mat-tab>
         <mat-tab label="Direct"> Show direct messages here only </mat-tab>
         <mat-tab label="Groups"> Show group messages here only </mat-tab>
         <mat-tab label="Favourited">
@@ -73,7 +110,13 @@
         <mat-tab label="Teachers">
           Show messages from teachers here only
         </mat-tab>
-      </mat-tab-group>
+      </mat-tab-group> -->
+    </div>
+
+    <div class="see-more-container" *ngIf="miniDilaogMode">
+      <span class="see-more-button" (click)="openFullMessengerClick()"
+        >SEE ALL IN MESSENGER</span
+      >
     </div>
   </mat-card>
 
@@ -81,7 +124,7 @@
   <!---- Main chat area ---->
   <!------------------------>
 
-  <div class="chat-main">
+  <div class="chat-main" *ngIf="!miniDilaogMode">
     <!-- main char area header -->
     <h2 *ngIf="!selectedMessageChat">Select a conversation</h2>
     <h2 *ngIf="selectedMessageChat">{{ getChatTitle(selectedMessageChat) }}</h2>

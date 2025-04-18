@@ -35,6 +35,7 @@ export class MessengerDialogFullComponent implements OnInit {
     public data: {
       currentUser: UserDTO;
       users: UserDTO[];
+      miniDilaogMode: boolean;
     },
     public dialogRef: MatDialogRef<MessengerDialogFullComponent>,
     private readonly messengerService: MessengerService,
@@ -177,6 +178,10 @@ export class MessengerDialogFullComponent implements OnInit {
       .updateCurrentUserTypingStatus(data)
       .pipe(untilDestroyed(this))
       .subscribe();
+  }
+
+  openFullMessenger(): void {
+    this.dialogRef.close(true);
   }
 
   closeFormClick(): void {

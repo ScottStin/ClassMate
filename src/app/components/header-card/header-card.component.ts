@@ -51,6 +51,7 @@ export class HeaderCardComponent implements OnInit {
   unseenNotificationsCount = 0;
   notifiationsLoading = false;
   notificationAnimation = '';
+  messengerDialogOpen = false;
 
   // --- screen sizes:
   largeScreen = false;
@@ -175,15 +176,54 @@ export class HeaderCardComponent implements OnInit {
   // Messenger:
 
   openFullMessengerDialog(): void {
-    this.dialog.open(MessengerDialogFullComponent, {
-      data: {
-        currentUser: this.currentUser,
-        users: this.users,
-      },
-      panelClass: 'fullscreen-dialog',
-      autoFocus: false,
-      hasBackdrop: true,
-      disableClose: true,
-    });
+    if (!this.messengerDialogOpen) {
+      const dialogRef = this.dialog.open(MessengerDialogFullComponent, {
+        data: {
+          currentUser: this.currentUser,
+          users: this.users,
+          miniDilaogMode: true,
+        },
+        width: '500px',
+        height: '750px',
+        position: {
+          top: '50px',
+          right: '0',
+        },
+        autoFocus: false,
+        hasBackdrop: false,
+        disableClose: false,
+        panelClass: 'messenger-dialog-mini',
+      });
+      this.messengerDialogOpen = true;
+
+      dialogRef.afterClosed().subscribe((result: boolean) => {
+        this.messengerDialogOpen = false;
+        if (result) {
+          this.dialog.open(MessengerDialogFullComponent, {
+            data: {
+              currentUser: this.currentUser,
+              users: this.users,
+              miniDilaogMode: false,
+            },
+            panelClass: 'fullscreen-dialog',
+            autoFocus: false,
+            hasBackdrop: true,
+            disableClose: true,
+          });
+        }
+      });
+
+      setTimeout(() => {
+        const clickListener = (event: MouseEvent): void => {
+          const dialogEl = document.querySelector('.messenger-dialog-mini');
+          if (dialogEl && !dialogEl.contains(event.target as Node)) {
+            dialogRef.close();
+            this.messengerDialogOpen = false;
+            document.removeEventListener('click', clickListener);
+          }
+        };
+        document.addEventListener('click', clickListener);
+      });
+    }
   }
 }

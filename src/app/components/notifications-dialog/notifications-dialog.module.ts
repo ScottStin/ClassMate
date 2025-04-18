@@ -8,6 +8,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { NotificationsDialogComponent } from './notifications-dialog.component';
 
 @NgModule({
@@ -22,6 +23,7 @@ import { NotificationsDialogComponent } from './notifications-dialog.component';
     MatDividerModule,
     MatCardModule,
     MatTooltipModule,
+    DialogHeaderModule,
   ],
   exports: [NotificationsDialogComponent],
 })

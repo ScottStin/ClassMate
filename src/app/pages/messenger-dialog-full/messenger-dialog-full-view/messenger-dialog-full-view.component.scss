@@ -23,20 +23,33 @@ $secondaryColor: var(--secondaryColor);
   // border-right: 1px solid #ddd;
 }
 
+.chat-sidebar-full {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-card.chat-sidebar {
+  overflow: hidden;
+}
+
 .sidebar-header {
   display: flex;
   align-items: center;
-  gap: 10px; /* Adds spacing between elements */
-}
+  gap: 10px;
+  min-width: 0; 
 
-.sidebar-header mat-form-field {
-  flex-grow: 1; /* Makes the search field take up available space */
-  margin-bottom: 0; /* Prevents extra spacing */
-}
+  mat-form-field {
+    flex-grow: 1;
+    flex-shrink: 1; 
+    min-width: 0; 
+    margin-bottom: 0;
+  }
 
-.sidebar-header button {
-  flex-shrink: 0; /* Prevents buttons from resizing */
-  color: $primaryColor;
+  button {
+    flex-shrink: 0; 
+    color: $primaryColor;
+  }
 }
 
 .chat-list {
@@ -275,4 +288,21 @@ $secondaryColor: var(--secondaryColor);
     transform: scale(1.2);
     opacity: 1;
   }
+}
+
+.see-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.see-more-button {
+  color: $primaryColor;
+  cursor: pointer;
+}
+
+.unseen-icon {
+  font-size: 20px;
+  color: $primaryColor;
+  line-height: 0.5;
 }
