@@ -1,3 +1,5 @@
+/* eslint-disable no-confusing-arrow */
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
@@ -45,6 +47,9 @@ export class ConversationService {
             if (event.action === 'newConversation') {
               this.newConvoInitiated(event.data);
             }
+            if (event.action === 'userTyping') {
+              this.userTypingChange(event.data);
+            }
           }
         );
       }
@@ -64,9 +69,9 @@ export class ConversationService {
       map(([users, conversations]) => {
         const userMap = new Map(users.map((user) => [user._id, user]));
 
+        // Add most recent message to convo
         return conversations.map((conversation) => {
           const senderId = conversation.mostRecentMessage?.senderId;
-          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
           const senderName = senderId ? userMap.get(senderId)?.name : undefined;
 
           return {
@@ -103,6 +108,26 @@ export class ConversationService {
       );
   }
 
+  updateCurrentUserTypingStatus(data: {
+    isCurrentUserTyping: boolean;
+    conversationId: string;
+    currentUserId: string;
+  }): Observable<ConversationDto> {
+    return this.httpClient
+      .patch<ConversationDto>(
+        `${this.baseUrl}/user-typing/${data.conversationId}`,
+        data
+      )
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to updating conversaiton typing status'
+          );
+        })
+      );
+  }
+
   updateMostRecentConversationMessage(message: MessageDto): void {
     const currentConversations = this.conversationSubject.getValue();
     const conversationToUpdate = currentConversations.find(
@@ -117,7 +142,6 @@ export class ConversationService {
         senderName: message.sender?.name,
       };
 
-      // eslint-disable-next-line no-confusing-arrow
       const updatedConversationList = currentConversations.map((convo) =>
         convo._id === conversationToUpdate._id ? conversationToUpdate : convo
       );
@@ -135,19 +159,42 @@ export class ConversationService {
   }
 
   /**
+   *  ===================
    * Socket IO Funcitons:
+   *  ===================
    */
+
   private newConvoInitiated(newConvo: ConversationDto): void {
     const currentConversations = this.conversationSubject.getValue();
     this.conversationSubject.next([...currentConversations, newConvo]);
   }
+
+  private userTypingChange(modifiedConvo: ConversationDto): void {
+    // Get list of current convos:
+    const currentConversations = this.conversationSubject.getValue();
+
+    // add most recent message to modified convo:
+    const convoToBeReplaced = currentConversations.find(
+      (convo) => convo._id === modifiedConvo._id
+    );
+    modifiedConvo.mostRecentMessage = convoToBeReplaced?.mostRecentMessage;
+
+    // create new convo list with original convos and modified convo:
+    const updatedConvoList = currentConversations.map((currentConvo) =>
+      currentConvo._id === modifiedConvo._id ? modifiedConvo : currentConvo
+    );
+
+    // update obseravbles:
+    this.conversationSubject.next(updatedConvoList);
+  }
 }
 
+// todo - move to entity folder
 export interface CreateConversationDto {
   participantIds: string[];
   // title: string;
   unreadMessageForCurrentUser?: boolean;
-  userTyping: string | undefined; // id of typing user
+  usersTyping?: string[]; // id of typing user
   mostRecentMessage?: {
     senderId?: string;
     messageText?: string;

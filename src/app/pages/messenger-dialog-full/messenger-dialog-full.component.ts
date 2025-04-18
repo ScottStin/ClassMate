@@ -121,9 +121,12 @@ export class MessengerDialogFullComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.messengerDialogFullViewComponent.messageTextToSend = '';
           this.messengerDialogFullViewComponent.scrollToChatBottom();
           this.messengerDialogFullViewComponent.startNewDirectConvoMode = false;
+
+          // clear the message input form and remove user typing status after successfult send:
+          this.messengerDialogFullViewComponent.messageTextToSend = '';
+          this.messengerDialogFullViewComponent.onMessageInputChange();
         },
         error: (error: Error) => {
           this.snackbarService.openPermanent('error', error.message);
@@ -160,6 +163,17 @@ export class MessengerDialogFullComponent implements OnInit {
         messagesToMarkIds,
         currentUserId: this.data.currentUser._id,
       })
+      .pipe(untilDestroyed(this))
+      .subscribe();
+  }
+
+  changeCurrentUserTypingStatus(data: {
+    isCurrentUserTyping: boolean;
+    conversationId: string;
+    currentUserId: string;
+  }): void {
+    this.conversatonService
+      .updateCurrentUserTypingStatus(data)
       .pipe(untilDestroyed(this))
       .subscribe();
   }

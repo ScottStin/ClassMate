@@ -262,6 +262,27 @@
       </div>
     </div>
 
+    <div
+      class="message-wrapper align-left"
+      *ngFor="let userTyping of getUsersTyping()"
+    >
+      <img
+        class="thumbnail-image-large"
+        [src]="userTyping?.profilePicture?.url"
+        alt="User Image"
+      />
+      <div
+        class="message-box card other-user"
+        [matTooltip]="userTyping.name + ' is currently typing.'"
+      >
+        <div class="user-typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
     <!-- Type message bar: -->
     <div
       class="chat-input-container"
@@ -276,6 +297,7 @@
             matInput
             placeholder="Type a message..."
             [(ngModel)]="messageTextToSend"
+            (input)="onMessageInputChange()"
           />
           <mat-icon matSuffix>add</mat-icon>
           <mat-icon

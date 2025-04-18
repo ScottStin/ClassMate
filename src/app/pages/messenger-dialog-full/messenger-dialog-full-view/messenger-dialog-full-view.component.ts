@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { formatDate } from '@angular/common';
 import {
@@ -7,6 +8,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
@@ -29,7 +31,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   styleUrls: ['./messenger-dialog-full-view.component.scss'],
 })
 export class MessengerDialogFullViewComponent
-  implements OnInit, OnChanges, AfterViewInit
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy
 {
   @ViewChild('chatMessagesContainer') chatMessagesContainer?: ElementRef;
 
@@ -46,6 +48,11 @@ export class MessengerDialogFullViewComponent
   @Output() deleteMessage = new EventEmitter<string>();
   @Output() selectMessageGroup = new EventEmitter<ConversationDto>();
   @Output() markAsSeen = new EventEmitter<string[]>();
+  @Output() changeCurrentUserTypingStatus = new EventEmitter<{
+    isCurrentUserTyping: boolean;
+    conversationId: string;
+    currentUserId: string;
+  }>();
 
   sideMessageListDisplay: ConversationDto[] = []; // SideMessageType[] = [];
   selectedMessageGroup?: ConversationDto;
@@ -54,6 +61,7 @@ export class MessengerDialogFullViewComponent
   filteredUsersToAdd: UserDTO[];
   messageTextToSend = '';
   currentEditMessage?: string; // id of mesage currently being editted
+  currentUserTyping = false;
 
   addUserToDirectConvoForm: FormGroup<{
     addUserToNewDirectConvo: FormControl<string>;
@@ -136,6 +144,11 @@ export class MessengerDialogFullViewComponent
 
     // If message is selected: display messages on right-side message list:
     if (this.selectedMessageGroup) {
+      this.selectedMessageGroup =
+        this.sideMessageListDisplay.find(
+          (sideMessage) => sideMessage._id === this.selectedMessageGroup?._id
+        ) ?? this.selectedMessageGroup;
+
       this.selectedMessageGroup.messages = this.messages?.filter(
         (message) => message.conversationId === this.selectedMessageGroup?._id
       );
@@ -170,10 +183,15 @@ export class MessengerDialogFullViewComponent
    * When a user clicks on a message group/conversation
    */
   selectMessageGroupClick(sideMessage: ConversationDto): void {
+    this.messageTextToSend = '';
+
+    // Change current user typing status to false:
+    this.onMessageInputChange();
+
+    // select new convo:
     this.selectedMessageGroup = sideMessage;
     this.removeAllUsersFromNewDirectConvo();
     this.startNewDirectConvoMode = false;
-    this.messageTextToSend = '';
 
     // if this is the first time opening this message group/convo, load the messages:
     if (!this.selectedMessageGroup.loaded) {
@@ -277,6 +295,21 @@ export class MessengerDialogFullViewComponent
   }
 
   /**
+   * Get a list of users who are currenlying typing in the selected convo
+   */
+  getUsersTyping(): UserDTO[] {
+    if (!this.selectedMessageGroup || !this.users) {
+      return [];
+    }
+
+    return this.users.filter(
+      (user) =>
+        this.selectedMessageGroup?.usersTyping?.includes(user._id) &&
+        user._id !== this.currentUser._id
+    );
+  }
+
+  /**
    * ===========================
    * Start new direct conversation:
    * ============================
@@ -359,7 +392,7 @@ export class MessengerDialogFullViewComponent
           this.currentUser._id,
         ],
         unreadMessageForCurrentUser: true,
-        userTyping: undefined,
+        usersTyping: undefined,
       };
     } else {
       conversation = this.selectedMessageGroup;
@@ -395,6 +428,40 @@ export class MessengerDialogFullViewComponent
         this.deleteMessage.emit(message._id);
       }
     });
+  }
+
+  /**
+   * Current User Typing:
+   */
+  onMessageInputChange(): void {
+    const emit = (): void => {
+      if (this.selectedMessageGroup) {
+        this.changeCurrentUserTypingStatus.emit({
+          isCurrentUserTyping: this.currentUserTyping,
+          conversationId: this.selectedMessageGroup._id,
+          currentUserId: this.currentUser._id,
+        });
+      }
+    };
+
+    if (
+      this.messageTextToSend &&
+      this.messageTextToSend.trim().length > 0 &&
+      !this.currentUserTyping
+    ) {
+      this.currentUserTyping = true;
+      emit();
+    }
+    if (this.messageTextToSend.trim().length === 0 && this.currentUserTyping) {
+      this.currentUserTyping = false;
+      emit();
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Change current user typing status to false:
+    this.messageTextToSend = '';
+    this.onMessageInputChange();
   }
 }
 
