@@ -53,6 +53,9 @@ export class ConversationService {
             if (event.action === 'updateGroup') {
               this.updateConvo(event.data, currentUser._id);
             }
+            if (event.action === 'deleteGroup') {
+              this.deleteConvo(event.data);
+            }
           }
         );
       }
@@ -101,13 +104,6 @@ export class ConversationService {
         catchError((error: Error) => {
           this.handleError(error, 'Failed to create new conversation');
         })
-        // tap((newConversation) => {
-        //   const currentConversations = this.conversationSubject.getValue();
-        //   this.conversationSubject.next([
-        //     ...currentConversations,
-        //     newConversation,
-        //   ]);
-        // })
       );
   }
 
@@ -164,6 +160,16 @@ export class ConversationService {
 
       this.conversationSubject.next(updatedConversationList);
     }
+  }
+
+  deleteGroup(conversationId: string): Observable<ConversationDto> {
+    return this.httpClient
+      .delete<ConversationDto>(`${this.baseUrl}/delete-group/${conversationId}`)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to delete group');
+        })
+      );
   }
 
   private handleError(error: Error, message: string): never {
@@ -244,6 +250,19 @@ export class ConversationService {
 
     // update obseravbles:
     this.conversationSubject.next(updatedConvoList);
+  }
+
+  private deleteConvo(deletedConvo: ConversationDto): void {
+    // Get list of current convos:
+    let currentConversations = this.conversationSubject.getValue();
+
+    // remove delete convo:
+    currentConversations = currentConversations.filter(
+      (convo) => convo._id !== deletedConvo._id
+    );
+
+    // update obseravbles:
+    this.conversationSubject.next(currentConversations);
   }
 }
 

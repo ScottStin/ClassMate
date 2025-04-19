@@ -52,6 +52,7 @@ export class MessengerDialogFullViewComponent
   @Output() deleteMessage = new EventEmitter<string>();
   @Output() selectChat = new EventEmitter<ConversationDto>();
   @Output() markAsSeen = new EventEmitter<string[]>();
+  @Output() deleteGroup = new EventEmitter<string>();
   @Output() changeCurrentUserTypingStatus = new EventEmitter<{
     isCurrentUserTyping: boolean;
     conversationId: string;
@@ -522,6 +523,32 @@ export class MessengerDialogFullViewComponent
           'Group successfully updated',
           'dismiss'
         );
+      }
+    });
+  }
+
+  deleteGroupClick(): void {
+    if (!this.selectedMessageChat?.groupName) {
+      this.snackbarService.open(
+        'info',
+        'Error deleting group, please try again.',
+        'dismiss'
+      );
+      return;
+    }
+
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: `Delete group?`,
+        message: `The following message will be deleted: <br><br> &nbsp; &nbsp; <i>${this.selectedMessageChat.groupName}</i> <br><br> All messages for this group will also be deleted. This cannot be undone.`,
+        okLabel: `Delete`,
+        cancelLabel: `Cancel`,
+        routerLink: '',
+      },
+    });
+    confirmDialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.deleteGroup.emit(this.selectedMessageChat?._id ?? '');
       }
     });
   }

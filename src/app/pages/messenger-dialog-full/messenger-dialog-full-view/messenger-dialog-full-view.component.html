@@ -154,7 +154,7 @@
         <mat-icon>edit</mat-icon>
         <span>Edit group</span>
       </button>
-      <button mat-menu-item>
+      <button mat-menu-item (click)="deleteGroupClick()">
         <mat-icon>delete</mat-icon>
         <span>Delete group</span>
       </button>
@@ -316,6 +316,7 @@
             class="message-actions"
             [class.left]="msg.senderId === currentUser._id"
             [class.right]="msg.senderId !== currentUser._id"
+            *ngIf="!msg.adminMessage"
           >
             <mat-icon
               *ngIf="msg.senderId === currentUser._id"

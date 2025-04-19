@@ -263,6 +263,7 @@ export interface CreateMessageDto {
   parentMessageId?: string;
   savedByIds?: string[]; // array of users who have saved this message as favourtes
   conversationId: string | undefined;
+  adminMessage?: boolean; // note admin messages are things like 'John started a new group' or 'John invited you to join a group'. These cannot be deleted or edited.
 }
 
 export interface MessageDto extends CreateMessageDto {

@@ -159,6 +159,17 @@ export class MessengerDialogFullComponent implements OnInit {
       });
   }
 
+  deleteGroup(groupId: string): void {
+    this.conversatonService
+      .deleteGroup(groupId)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: () => {
+          this.snackbarService.open('info', 'Group successfully deleted');
+        },
+      });
+  }
+
   markAsSeen(messagesToMarkIds: string[]): void {
     this.messengerService
       .markAsSeen({
