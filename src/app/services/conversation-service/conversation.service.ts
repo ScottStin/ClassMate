@@ -48,7 +48,10 @@ export class ConversationService {
               this.newConvoInitiated(event.data);
             }
             if (event.action === 'userTyping') {
-              this.userTypingChange(event.data);
+              this.updateUserTyping(event.data);
+            }
+            if (event.action === 'updateGroup') {
+              this.updateConvo(event.data, currentUser._id);
             }
           }
         );
@@ -105,6 +108,19 @@ export class ConversationService {
         //     newConversation,
         //   ]);
         // })
+      );
+  }
+
+  updateGroup(conversation: ConversationDto): Observable<ConversationDto> {
+    return this.httpClient
+      .patch<ConversationDto>(
+        `${this.baseUrl}/update-group/${conversation._id}`,
+        conversation
+      )
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to update conversation');
+        })
       );
   }
 
@@ -169,7 +185,49 @@ export class ConversationService {
     this.conversationSubject.next([...currentConversations, newConvo]);
   }
 
-  private userTypingChange(modifiedConvo: ConversationDto): void {
+  private updateConvo(
+    modifiedConvo: ConversationDto,
+    currentUserId: string
+  ): void {
+    // Get list of current convos:
+    const currentConversations = this.conversationSubject.getValue();
+
+    // add user anme to most recent message:
+    const users = this.userService.userSubject.getValue();
+    if (modifiedConvo.mostRecentMessage) {
+      modifiedConvo.mostRecentMessage.senderName = users.find(
+        (user) => user._id === modifiedConvo.mostRecentMessage?.senderId
+      )?.name;
+    }
+
+    // create new convo list with original convos and modified convo:
+    let updatedConvoList = currentConversations.map((currentConvo) =>
+      currentConvo._id === modifiedConvo._id ? modifiedConvo : currentConvo
+    );
+
+    // if user has been added to a convo, handle accordingly:
+    if (
+      modifiedConvo.participantIds.includes(currentUserId) &&
+      !updatedConvoList.map((convo) => convo._id).includes(modifiedConvo._id)
+    ) {
+      updatedConvoList.push(modifiedConvo);
+    }
+
+    // if user has been removed from a convo, handle accordingly:
+    if (
+      !modifiedConvo.participantIds.includes(currentUserId) &&
+      updatedConvoList.map((convo) => convo._id).includes(modifiedConvo._id)
+    ) {
+      updatedConvoList = updatedConvoList.filter(
+        (convo) => convo._id !== modifiedConvo._id
+      );
+    }
+
+    // update obseravbles:
+    this.conversationSubject.next(updatedConvoList);
+  }
+
+  private updateUserTyping(modifiedConvo: ConversationDto): void {
     // Get list of current convos:
     const currentConversations = this.conversationSubject.getValue();
 

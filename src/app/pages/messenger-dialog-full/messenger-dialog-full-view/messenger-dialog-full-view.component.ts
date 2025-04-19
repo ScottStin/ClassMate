@@ -159,6 +159,15 @@ export class MessengerDialogFullViewComponent
       this.selectedMessageChat.messages = this.messages?.filter(
         (message) => message.conversationId === this.selectedMessageChat?._id
       );
+
+      // If user was removed from a conversation:
+      if (
+        !this.conversations
+          ?.map((convo) => convo._id)
+          .includes(this.selectedMessageChat._id)
+      ) {
+        this.selectedMessageChat = undefined;
+      }
     }
 
     // Sort left-side conversation list by most recent message timestamp:
@@ -242,7 +251,11 @@ export class MessengerDialogFullViewComponent
       .join(', ');
   }
 
-  getGroupImage(conversation: ConversationDto): string | undefined {
+  getGroupImage(conversation?: ConversationDto): string | undefined {
+    if (!conversation) {
+      return undefined;
+    }
+
     const groupImage = conversation.image?.url;
     if (groupImage) {
       return groupImage;
@@ -490,6 +503,29 @@ export class MessengerDialogFullViewComponent
       }
     });
   }
+
+  editGroup(): void {
+    const existingGroup = this.selectedMessageChat;
+
+    const dialogRef = this.dialog.open(CreateMessagegroupDialogComponent, {
+      data: {
+        title: `Edit Group ${existingGroup?.groupName ?? ''}`,
+        currentUser: this.currentUser,
+        users: this.users?.filter((user) => user._id !== this.currentUser._id),
+        existingGroup,
+      },
+    });
+    dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
+      if (result) {
+        this.snackbarService.open(
+          'info',
+          'Group successfully updated',
+          'dismiss'
+        );
+      }
+    });
+  }
+
   /**
    * ===========================
    * Message CRUD Clicks:

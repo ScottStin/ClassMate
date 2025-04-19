@@ -13,7 +13,7 @@ import { ErrorService } from '../error-message.service/error-message.service';
 })
 export class UserService implements OnDestroy {
   private readonly baseUrl = `${environment.apiUrl}/users`;
-  private readonly userSubject = new BehaviorSubject<UserDTO[]>([]);
+  readonly userSubject = new BehaviorSubject<UserDTO[]>([]);
   users$ = this.userSubject.asObservable();
   currentUser: UserDTO | undefined;
 

@@ -126,8 +126,40 @@
 
   <div class="chat-main" *ngIf="!miniDilaogMode">
     <!-- main char area header -->
-    <h2 *ngIf="!selectedMessageChat">Select a conversation</h2>
-    <h2 *ngIf="selectedMessageChat">{{ getChatTitle(selectedMessageChat) }}</h2>
+    <div class="chat-header">
+      <img
+        *ngIf="selectedMessageChat?.image?.url && getGroupImage(selectedMessageChat)"
+        [src]="getGroupImage(selectedMessageChat)"
+        alt="group image"
+        class="thumbnail-image-large"
+      />
+
+      <div class="chat-title-row">
+        <h2 *ngIf="!selectedMessageChat">Select a conversation</h2>
+        <ng-container *ngIf="selectedMessageChat">
+          <h2>{{ getChatTitle(selectedMessageChat) }}</h2>
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="chatMenu"
+            *ngIf="currentUser._id === selectedMessageChat.groupAdminId"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
+    <mat-menu #chatMenu="matMenu">
+      <button mat-menu-item (click)="editGroup()">
+        <mat-icon>edit</mat-icon>
+        <span>Edit group</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>delete</mat-icon>
+        <span>Delete group</span>
+      </button>
+    </mat-menu>
+
     <div *ngIf="startNewDirectConvoMode" [formGroup]="addUserToDirectConvoForm">
       <mat-form-field class="form-field" appearance="outline">
         <mat-label>Add users to chat</mat-label>

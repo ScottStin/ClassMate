@@ -306,3 +306,31 @@ mat-card.chat-sidebar {
   color: $primaryColor;
   line-height: 0.5;
 }
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 20px;
+}
+
+.chat-title h2 {
+  margin: 0;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chat-title-row {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-title-row h2 {
+  margin: 0;
+}

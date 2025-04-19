@@ -60,6 +60,13 @@ export class CreateMessagegroupDialogComponent implements OnInit {
   }
 
   populateForm(): void {
+    if (this.data.existingGroup) {
+      const existingGroupUsers = this.data.users.filter(
+        (users) => this.data.existingGroup?.participantIds.includes(users._id)
+      );
+      this.usersList = existingGroupUsers;
+    }
+
     this.messageGroupForm = new FormGroup({
       groupName: new FormControl(this.data.existingGroup?.groupName ?? '', {
         validators: [],
@@ -198,28 +205,59 @@ export class CreateMessagegroupDialogComponent implements OnInit {
   closeDialog(save?: boolean): void {
     if (save === false || save === undefined) {
       this.dialogRef.close();
+    } else if (this.data.existingGroup) {
+      this.updateGroup();
     } else {
-      const messageGroupForm = this.messageGroupForm.getRawValue();
-
-      const group: CreateConversationDto = {
-        ...messageGroupForm,
-        participantIds: this.usersList.map((user) => user._id),
-        schoolId: this.data.currentUser.schoolId as string,
-        groupAdminId: this.data.currentUser._id,
-        groupAdminName: this.data.currentUser.name,
-      };
-
-      this.conversationService
-        .createConversation(group)
-        .pipe(untilDestroyed(this))
-        .subscribe({
-          next: (newgroup) => {
-            this.dialogRef.close(newgroup);
-          },
-          error: (error: Error) => {
-            this.snackbarService.openPermanent('error', error.message);
-          },
-        });
+      this.createNewGroup();
     }
+  }
+
+  createNewGroup(): void {
+    const messageGroupForm = this.messageGroupForm.getRawValue();
+
+    const group: CreateConversationDto = {
+      ...messageGroupForm,
+      participantIds: this.usersList.map((user) => user._id),
+      schoolId: this.data.currentUser.schoolId as string,
+      groupAdminId: this.data.currentUser._id,
+      groupAdminName: this.data.currentUser.name,
+    };
+
+    this.conversationService
+      .createConversation(group)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (newgroup) => {
+          this.dialogRef.close(newgroup);
+        },
+        error: (error: Error) => {
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
+  }
+
+  updateGroup(): void {
+    const messageGroupForm = this.messageGroupForm.getRawValue();
+
+    const group: ConversationDto = {
+      ...messageGroupForm,
+      participantIds: this.usersList.map((user) => user._id),
+      schoolId: this.data.currentUser.schoolId as string,
+      groupAdminId: this.data.currentUser._id,
+      groupAdminName: this.data.currentUser.name,
+      _id: this.data.existingGroup?._id ?? '',
+    };
+
+    this.conversationService
+      .updateGroup(group)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (newgroup) => {
+          this.dialogRef.close(newgroup);
+        },
+        error: (error: Error) => {
+          this.snackbarService.openPermanent('error', error.message);
+        },
+      });
   }
 }

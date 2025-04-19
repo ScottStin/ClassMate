@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreateMessagegroupDialogModule } from 'src/app/components/create-messagegroup-dialog/create-messagegroup-dialog.module';
@@ -34,6 +35,7 @@ import { MessengerDialogFullViewComponent } from './messenger-dialog-full-view.c
     FormsModule,
     CreateMessagegroupDialogModule,
     MatDividerModule,
+    MatMenuModule,
   ],
   exports: [MessengerDialogFullViewComponent],
 })
