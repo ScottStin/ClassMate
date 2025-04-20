@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { formatDate } from '@angular/common';
@@ -60,6 +61,7 @@ export class MessengerDialogFullViewComponent
   }>();
 
   sideMessageChatList: ConversationDto[] = [];
+  sideMessageChatListFiltered: ConversationDto[] = []; // used for search. todo - replace with message search
   selectedMessageChat?: ConversationDto;
   startNewDirectConvoMode = false;
   usersToAddList: UserDTO[] = [];
@@ -185,6 +187,34 @@ export class MessengerDialogFullViewComponent
     setTimeout(() => {
       this.scrollToChatBottom();
     });
+
+    // Initiate sideMessageChatListFiltered, which is used for search
+    this.sideMessageChatListFiltered = [...this.sideMessageChatList];
+  }
+
+  /*
+   * Search convos
+   * todo - currently this only searches convos by sender/name/latest messafe. It should search by all messages too
+   */
+  searchConvoInput(searchText: string): void {
+    const flatText = searchText.toLowerCase().trim();
+    this.sideMessageChatListFiltered = this.sideMessageChatList.filter(
+      (convo) => {
+        const convoParticipantNames = this.users
+          ?.filter((user) => convo.participantIds.includes(user._id))
+          .map((user) => user.name.toLowerCase().trim())
+          .join();
+
+        return (
+          convo.groupName?.toLowerCase().trim().includes(flatText) ||
+          convo.mostRecentMessage?.messageText
+            ?.toLowerCase()
+            .trim()
+            .includes(flatText) ||
+          convoParticipantNames?.includes(flatText)
+        );
+      }
+    );
   }
 
   /*

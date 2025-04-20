@@ -2,13 +2,16 @@
   <button mat-button (click)="onCancelBtnClick()">
     {{cancelButtonName ? cancelButtonName : 'Cancel'}}
   </button>
-  <button
-    *ngIf="!hideSaveButton"
-    [disabled]="disabled"
-    mat-button
-    (click)="onSaveBtnClick() "
-    class="dialog-action-save-button"
-  >
-    {{saveButtonName ? saveButtonName : 'Save'}}
-  </button>
+  <ng-container *ngIf="!hideSaveButton">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button
+      *ngIf="!loading"
+      [disabled]="disabled"
+      mat-button
+      (click)="onSaveBtnClick()"
+      class="dialog-action-save-button"
+    >
+      {{ saveButtonName ? saveButtonName : 'Save' }}
+    </button>
+  </ng-container>
 </mat-dialog-actions>

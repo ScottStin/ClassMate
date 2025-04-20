@@ -10,7 +10,12 @@
   >
     <div class="sidebar-header" *ngIf="!miniDilaogMode">
       <mat-form-field class="form-field" appearance="outline" id="filter-field">
-        <input #filter matInput placeholder="Search Messages..." />
+        <input
+          #filter
+          matInput
+          placeholder="Search Conversations..."
+          (keyup)="searchConvoInput(filter.value)"
+        />
         <mat-icon matSuffix>search</mat-icon>
       </mat-form-field>
 
@@ -38,7 +43,7 @@
         <mat-tab label="All"> -->
       <div
         class="chat-item"
-        *ngFor="let sideChatListItem of sideMessageChatList"
+        *ngFor="let sideChatListItem of sideMessageChatListFiltered"
         (click)="selectChatClick(sideChatListItem)"
         [class.active-chat-item]="selectedMessageChat === sideChatListItem"
         [style.font-weight]="sideChatListItem.unreadMessageForCurrentUser ? 'bold' : 'normal'"
@@ -385,12 +390,19 @@
             placeholder="Type a message..."
             [(ngModel)]="messageTextToSend"
             (input)="onMessageInputChange()"
+            maxlength="1000"
           />
-          <mat-icon matSuffix>add</mat-icon>
+          <mat-icon
+            matSuffix
+            matTooltip="Attach an image or file"
+            style="cursor: pointer"
+            >add</mat-icon
+          >
           <mat-icon
             matSuffix
             (click)="sendMessageClick()"
             style="cursor: pointer"
+            matTooltip="Send message"
             >send</mat-icon
           >
         </span>

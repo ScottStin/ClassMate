@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, Inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
   FormGroup,
   ValidatorFn,
+  Validators,
 } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
+import { finalize } from 'rxjs';
 import {
   ConversationDto,
   ConversationService,
@@ -34,6 +37,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
 
   filteredUsers: UserDTO[];
   usersList: UserDTO[] = [];
+  loading = false;
 
   imageChangedEvent: Event | string = '';
   imageCropper: ImageCropperComponent;
@@ -69,7 +73,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
 
     this.messageGroupForm = new FormGroup({
       groupName: new FormControl(this.data.existingGroup?.groupName ?? '', {
-        validators: [],
+        validators: [Validators.maxLength(100)],
         nonNullable: true,
       }),
 
@@ -213,6 +217,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
   }
 
   createNewGroup(): void {
+    this.loading = true;
     const messageGroupForm = this.messageGroupForm.getRawValue();
 
     const group: CreateConversationDto = {
@@ -225,7 +230,12 @@ export class CreateMessagegroupDialogComponent implements OnInit {
 
     this.conversationService
       .createConversation(group)
-      .pipe(untilDestroyed(this))
+      .pipe(
+        untilDestroyed(this),
+        finalize(() => {
+          this.loading = false;
+        })
+      )
       .subscribe({
         next: (newgroup) => {
           this.dialogRef.close(newgroup);
@@ -237,6 +247,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
   }
 
   updateGroup(): void {
+    this.loading = true;
     const messageGroupForm = this.messageGroupForm.getRawValue();
 
     const group: ConversationDto = {
@@ -250,7 +261,12 @@ export class CreateMessagegroupDialogComponent implements OnInit {
 
     this.conversationService
       .updateGroup(group)
-      .pipe(untilDestroyed(this))
+      .pipe(
+        untilDestroyed(this),
+        finalize(() => {
+          this.loading = false;
+        })
+      )
       .subscribe({
         next: (newgroup) => {
           this.dialogRef.close(newgroup);

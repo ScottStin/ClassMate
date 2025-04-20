@@ -10,6 +10,7 @@ export class DialogActionsComponent {
   @Input() saveButtonName?: string | undefined;
   @Input() cancelButtonName?: string | undefined;
   @Input() hideSaveButton: boolean | undefined;
+  @Input() loading: boolean | undefined;
   @Output() saveAction = new EventEmitter<boolean>();
   @Output() cancelAction = new EventEmitter<boolean>();
 
