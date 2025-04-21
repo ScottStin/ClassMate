@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -31,6 +32,9 @@ export class MessengerService {
   private readonly messageSubject = new BehaviorSubject<MessageDto[]>([]);
   messages$ = this.messageSubject.asObservable();
 
+  private readonly unseenMessageSubject = new BehaviorSubject<MessageDto[]>([]);
+  unseenMessages$ = this.unseenMessageSubject.asObservable();
+
   // newMessages$: Observable<MessageDto> = this.createMessage(...);
   // messages$: Observable<MessageDto[]> = merge(
   //   this.getMessagesByUser('67e5223431c4f5a6cca2880f'), // Initial messages
@@ -56,7 +60,7 @@ export class MessengerService {
           `messageEvent-${currentUser._id}`,
           (event: { data: MessageDto; action: string }) => {
             if (event.action === 'messageSent') {
-              this.newMessageReceieved(event.data);
+              this.newMessageReceieved(event.data, currentUser._id);
             }
             if (event.action === 'messageUpdated') {
               this.updateMessages(event.data);
@@ -136,6 +140,42 @@ export class MessengerService {
     );
   }
 
+  getUnseenForConvos(userId: string): Observable<MessageDto[]> {
+    return combineLatest([
+      this.userService.users$,
+      this.httpClient.get<MessageDto[]>(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `${this.baseUrl}/get-unread-for-all-conversations?currentUserId=${userId}`
+      ),
+    ]).pipe(
+      catchError((error: Error) => {
+        this.handleError(error, 'Failed to load unseen messages');
+      }),
+      map(([users, messages]) => {
+        const userMap = new Map(users.map((user) => [user._id, user]));
+
+        return messages.map((message) => ({
+          ...message,
+          sender: userMap.get(message.senderId) ?? undefined, // Use null instead of 'Unknown'
+          recipients: message.recipients?.map((recipient) => ({
+            ...recipient,
+            user: userMap.get(recipient.userId) ?? undefined,
+          })),
+        }));
+      }),
+      tap((updatedMessages) => {
+        const currentMessages = this.unseenMessageSubject.getValue();
+        const mergedMessages = [
+          ...currentMessages.filter(
+            (msg) => !updatedMessages.some((updated) => updated._id === msg._id)
+          ),
+          ...updatedMessages,
+        ];
+        this.unseenMessageSubject.next(mergedMessages);
+      })
+    );
+  }
+
   createMessage(message: CreateMessageDto): Observable<MessageDto> {
     return this.httpClient
       .post<MessageDto>(`${this.baseUrl}/new-message`, message)
@@ -176,6 +216,18 @@ export class MessengerService {
     return this.httpClient
       .patch<MessageDto[]>(`${this.baseUrl}/mark-as-seen`, data)
       .pipe(
+        tap((messages) => {
+          // remove seen messages from current unseen messages:
+          const messagesToMarkAsSeenIds = messages.map(
+            (message) => message._id
+          );
+          let currentUnseenMessages = this.unseenMessageSubject.getValue();
+          currentUnseenMessages = currentUnseenMessages.filter(
+            (unseenMessage) =>
+              !messagesToMarkAsSeenIds.includes(unseenMessage._id)
+          );
+          this.unseenMessageSubject.next(currentUnseenMessages);
+        }),
         catchError((error: Error) => {
           this.handleError(error, 'Failed to mark messages as seen');
         })
@@ -219,7 +271,10 @@ export class MessengerService {
   /**
    * Socket IO Funcitons:
    */
-  private newMessageReceieved(newMessage: MessageDto): void {
+  private newMessageReceieved(
+    newMessage: MessageDto,
+    currentUserId: string
+  ): void {
     this.userService.users$
       .pipe(take(1), untilDestroyed(this))
       .subscribe((users) => {
@@ -231,6 +286,19 @@ export class MessengerService {
         this.conversationService.updateMostRecentConversationMessage(
           modifiedNewMessage
         );
+
+        // update unseen message list:
+        const isMessageUnseen =
+          !newMessage.recipients?.find(
+            (recipient) => recipient.userId === currentUserId
+          )?.seenAt && newMessage.senderId !== currentUserId;
+        if (isMessageUnseen) {
+          const currentUnseenMessages = this.unseenMessageSubject.getValue();
+          this.unseenMessageSubject.next([
+            ...currentUnseenMessages,
+            modifiedNewMessage,
+          ]);
+        }
       });
   }
 

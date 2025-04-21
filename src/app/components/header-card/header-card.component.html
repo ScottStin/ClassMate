@@ -47,10 +47,17 @@
   <button
     mat-icon-button
     class="button header-bar-button"
-    *ngIf="currentUser"
+    [ngClass]="notificationAnimation"
+    *ngIf="currentUser && !notifiationsLoading"
     (click)="openFullMessengerDialog()"
+    [disabled]="notifiationsLoading"
   >
-    <mat-icon>messages</mat-icon>
+    <mat-icon
+      [matBadge]="((unseenMessages$ | async)?.length ?? 0) > 0 ? (unseenMessages$ | async)?.length : ''"
+      matBadgeOverlap="true"
+      matBadgeColor="warn"
+      >messages</mat-icon
+    >
   </button>
 
   <button

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import {
   Component,
   EventEmitter,
@@ -10,9 +11,13 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { finalize, Observable } from 'rxjs';
+import { combineLatest, finalize, forkJoin, Observable } from 'rxjs';
 import { MessengerDialogFullComponent } from 'src/app/pages/messenger-dialog-full/messenger-dialog-full.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import {
+  MessageDto,
+  MessengerService,
+} from 'src/app/services/messenger-service/messenger.service';
 import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
@@ -48,6 +53,7 @@ export class HeaderCardComponent implements OnInit {
   headerButtonFunction: string | undefined = '';
   menuItems: MenuItemDTO[] = menuItems;
   notifications$: Observable<NotificationDTO[]>;
+  unseenMessages$: Observable<MessageDto[]>;
   unseenNotificationsCount = 0;
   notifiationsLoading = false;
   notificationAnimation = '';
@@ -66,6 +72,7 @@ export class HeaderCardComponent implements OnInit {
   constructor(
     public readonly authStoreService: AuthStoreService,
     public readonly notificationService: NotificationService,
+    public readonly messengerService: MessengerService,
     public dialog: MatDialog,
     public snackbarService: SnackbarService
   ) {}
@@ -73,12 +80,16 @@ export class HeaderCardComponent implements OnInit {
   ngOnInit(): void {
     this.getScreenSizes();
     this.notifiationsLoading = true;
+    this.getNotificationsAndMessages();
     this.notifications$ = this.notificationService.notifications$;
-    this.getNotifications();
+    this.unseenMessages$ = this.messengerService.unseenMessages$;
 
-    this.notificationService.notifications$
+    combineLatest([
+      this.notificationService.notifications$,
+      this.messengerService.unseenMessages$,
+    ])
       .pipe(untilDestroyed(this))
-      .subscribe((notifications) => {
+      .subscribe(([notifications]) => {
         this.unseenNotificationsCount = notifications.filter(
           (notification) =>
             !notification.seenBy.includes(this.currentUser?._id ?? '')
@@ -116,16 +127,27 @@ export class HeaderCardComponent implements OnInit {
       window.innerWidth < parseInt(screenSizeBreakpoints.small, 10);
   }
 
-  getNotifications(): void {
-    this.notificationService
-      .getAllByUserId(this.currentUser?._id ?? '')
+  getNotificationsAndMessages(): void {
+    if (!this.currentUser?._id) {
+      this.snackbarService.open(
+        'error',
+        'Error loading current user in header bar',
+        'dismiss'
+      );
+      return;
+    }
+
+    forkJoin([
+      this.notificationService.getAllByUserId(this.currentUser._id),
+      this.messengerService.getUnseenForConvos(this.currentUser._id),
+    ])
       .pipe(
         finalize(() => {
           this.notifiationsLoading = false;
         }),
         untilDestroyed(this)
       )
-      .subscribe((notifications) => {
+      .subscribe(([notifications]) => {
         this.unseenNotificationsCount = notifications.filter(
           (notification) =>
             !notification.seenBy.includes(this.currentUser?._id ?? '')

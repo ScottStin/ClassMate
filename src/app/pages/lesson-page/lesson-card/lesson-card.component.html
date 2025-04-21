@@ -1,4 +1,7 @@
-<mat-card class="card" *ngIf="lesson && filterLessonUsers(lesson)">
+<mat-card
+  class="card mat-elevation-z4"
+  *ngIf="lesson && filterLessonUsers(lesson)"
+>
   <div class="row">
     <!--------------------------------->
     <!----- Teacher Photo Column: ----->
@@ -47,21 +50,21 @@
                 </tr> -->
                 <tr>
                   <td class="title-row">
-                    <mat-icon>category</mat-icon>
+                    <!-- <mat-icon>category</mat-icon> -->
                     <b> &nbsp;&nbsp;Lesson Type:</b>
                   </td>
                   <td>{{lesson.type.name}}</td>
                 </tr>
                 <tr>
                   <td class="title-row">
-                    <mat-icon>hotel_class</mat-icon>
+                    <!-- <mat-icon>hotel_class</mat-icon> -->
                     <b> &nbsp;&nbsp;Level:</b>
                   </td>
                   <td>{{getLevels()}}</td>
                 </tr>
                 <tr>
                   <td class="title-row">
-                    <mat-icon>calendar_today</mat-icon>
+                    <!-- <mat-icon>calendar_today</mat-icon> -->
                     <b> &nbsp;&nbsp;Start Date/Time:</b>
                   </td>
                   <td>
