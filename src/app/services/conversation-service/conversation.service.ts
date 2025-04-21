@@ -198,7 +198,7 @@ export class ConversationService {
     // Get list of current convos:
     const currentConversations = this.conversationSubject.getValue();
 
-    // add user anme to most recent message:
+    // add user name to most recent message:
     const users = this.userService.userSubject.getValue();
     if (modifiedConvo.mostRecentMessage) {
       modifiedConvo.mostRecentMessage.senderName = users.find(

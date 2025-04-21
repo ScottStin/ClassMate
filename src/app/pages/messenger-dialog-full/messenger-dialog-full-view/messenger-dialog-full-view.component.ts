@@ -39,6 +39,7 @@ export class MessengerDialogFullViewComponent
   @ViewChild('chatMessagesContainer') chatMessagesContainer?: ElementRef;
 
   @Input() messages: MessageDto[] | null;
+  @Input() unseenMessages: MessageDto[] | null;
   @Input() conversations: ConversationDto[] | null;
   @Input() users: UserDTO[] | null;
   @Input() currentUser: UserDTO;
@@ -361,35 +362,21 @@ export class MessengerDialogFullViewComponent
    * When a new message is receieved, check if a conversation of message conversation has unseen messages:
    */
   checkUnseenMessagesInMessageGroup(): void {
-    const currentUserId = this.currentUser._id;
-    this.sideMessageChatList.forEach((group) => {
-      const messagesForGroup = this.messages?.filter(
-        (message) => message.conversationId === group._id
-      );
-      const hasUnseenMessage = messagesForGroup?.some(
-        (message) =>
-          message.recipients?.some(
-            (recipient) =>
-              recipient.userId === currentUserId && !recipient.seenAt
-          )
-      );
-      // Only mark group with unseen messages if the group isn't currently open
-      if (group !== this.selectedMessageChat) {
-        group.unreadMessageForCurrentUser = hasUnseenMessage;
-      } else {
-        // if group is currently open, mark the new messages as read:
-        const unseenMessages = messagesForGroup?.filter(
-          (message) =>
-            message.recipients?.some(
-              (recipient) =>
-                recipient.userId === currentUserId && !recipient.seenAt
-            )
-        );
-        this.markAsSeen.emit(
-          unseenMessages?.map((unseenMessage) => unseenMessage._id)
-        );
+    setTimeout(() => {
+      if (!this.unseenMessages) {
+        return;
       }
-    });
+      for (const unseenMessage of this.unseenMessages) {
+        const foundConvo = this.sideMessageChatList.find(
+          (convo) => convo._id === unseenMessage.conversationId
+        );
+        if (foundConvo && foundConvo._id !== this.selectedMessageChat?._id) {
+          foundConvo.unreadMessageForCurrentUser = true;
+        } else {
+          this.markAsSeen.emit([unseenMessage._id]);
+        }
+      }
+    }, 150);
   }
 
   openFullMessengerClick(): void {

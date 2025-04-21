@@ -5,6 +5,7 @@
   ></app-dialog-header>
   <app-messenger-dialog-full-view
     [messages]="messages$ | async"
+    [unseenMessages]="unseenMessages$ | async"
     [conversations]="conversations$ | async"
     [users]="data.users"
     [currentUser]="data.currentUser"

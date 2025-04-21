@@ -28,6 +28,7 @@ export class MessengerDialogFullComponent implements OnInit {
   messengerDialogFullViewComponent: MessengerDialogFullViewComponent;
 
   messages$: Observable<MessageDto[] | null>;
+  unseenMessages$: Observable<MessageDto[] | null>;
   conversations$: Observable<ConversationDto[] | null>;
 
   constructor(
@@ -49,6 +50,7 @@ export class MessengerDialogFullComponent implements OnInit {
 
   loadPageData(): void {
     this.messages$ = this.messengerService.messages$;
+    this.unseenMessages$ = this.messengerService.unseenMessages$;
     this.conversations$ = this.conversatonService.conversations$;
     this.conversatonService
       .getConversationsByUser(this.data.currentUser._id)
