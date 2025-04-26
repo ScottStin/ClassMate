@@ -390,7 +390,7 @@
             <!----- ---------------------- ----->
 
             <div
-              class="question-container"
+              class="question-container mat-elevation-z4"
               [class]="questionList.length>0 && currentQuestionDisplay ? 'col-sm-7 offset-1' : 'col-0'"
               [class.exam-form-loading-overlay]="changingQuestions"
               *ngIf="questionList.length>0 && currentQuestionDisplay"
@@ -836,7 +836,10 @@
               <form
                 [formGroup]="questionStepForm"
                 class="form-field"
-                *ngIf="!['section','information-page'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '')"
+                *ngIf="
+                  !['section','information-page'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '') &&
+                  currentQuestionDisplay.type !== 'multiple-choice-single'
+                  "
               >
                 <mat-slide-toggle
                   formControlName="autoMarking"
@@ -856,7 +859,36 @@
                   <mat-icon
                     style="font-size: 20px"
                     #tooltip="matTooltip"
-                    [matTooltip]="currentQuestionDisplay?.teacherFeedback ? 'When turned on, this question will automatically be marked by our marking software and the student will be given a score and feedback. When turned off, the teacher must provide the student with a score/feedback.' : 'When turned on, this question will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher must provide the student with a score.'"
+                    [matTooltip]="currentQuestionDisplay?.teacherFeedback ? 'When turned on, this question will automatically be marked by our ai marking software and the student will be given a score and feedback. When turned off, the teacher must provide the student with a score/feedback.' : 'When turned on, this question will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher must provide the student with a score.'"
+                    >info_outlined</mat-icon
+                  >
+                </mat-slide-toggle>
+              </form>
+
+              <!----- Auto Feedback Toggle (for multichoice-single answer quesitons only): ----->
+              <form
+                [formGroup]="questionStepForm"
+                class="form-field"
+                *ngIf="
+                  !['section','information-page'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '') &&
+                  currentQuestionDisplay.type === 'multiple-choice-single' &&
+                  currentQuestionDisplay?.teacherFeedback
+                  "
+              >
+                <mat-slide-toggle
+                  formControlName="autoMarking"
+                  id="autoMarking"
+                  name="autoMarking"
+                  #autoMarking
+                  (change)="formChange(autoMarking.checked, 'autoMarking')"
+                  [checked]="currentQuestionDisplay?.autoMarking"
+                >
+                  <span>Auto feedback?</span>
+
+                  <mat-icon
+                    style="font-size: 20px"
+                    #tooltip="matTooltip"
+                    matTooltip="When turned on, this question will automatically be marked by our ai marking software and the student will be given feedback. When turned off, the teacher must provide the student with feedback."
                     >info_outlined</mat-icon
                   >
                 </mat-slide-toggle>

@@ -16,15 +16,18 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { finalize, forkJoin, map, Observable, of, Subject, tap } from 'rxjs';
 import {
+  AiExamQuestionFeedbackService,
   AudioMark,
-  QuestionService,
   RepeatSentenceMark,
-} from 'src/app/services/question-service/question.service';
+  WrittenMark,
+} from 'src/app/services/ai-exam-question-feedback-service/ai-exam-question-feedback.service';
+import { QuestionService } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { demoLevels } from 'src/app/shared/demo-data';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import {
   ExamQuestionDto,
+  ExamQuestionTypes,
   StudentQuestionReponse,
 } from 'src/app/shared/models/question.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -73,6 +76,7 @@ export class ShowExamDialogComponent implements OnInit {
     },
     private readonly dialogRef: MatDialogRef<ShowExamDialogComponent>,
     private readonly questionService: QuestionService,
+    private readonly aiExamQuestionFeedbackService: AiExamQuestionFeedbackService,
     private readonly snackbarService: SnackbarService,
     public dialog: MatDialog
   ) {}
@@ -145,11 +149,29 @@ export class ShowExamDialogComponent implements OnInit {
         });
       }
     }
+
+    this.randomizeMultiChoiceQuestionOrder();
   }
 
   startExam(): void {
     this.examStarted = true;
     this.currentQuestionDisplay = this.questionList[this.currentQuestionIndex];
+  }
+
+  randomizeMultiChoiceQuestionOrder(): void {
+    if (!this.data.questions) {
+      return;
+    }
+
+    for (const question of this.data.questions) {
+      if (question.multipleChoiceQuestionList && question.randomQuestionOrder) {
+        const shuffled = question.multipleChoiceQuestionList;
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+      }
+    }
   }
 
   markAiQuestion(question: ExamQuestionDto): Observable<void> {
@@ -164,24 +186,24 @@ export class ShowExamDialogComponent implements OnInit {
 
     // --- Get question type:
     const questionType = question.type?.toLowerCase() as
-      | 'written-response'
-      | 'audio-response'
-      | 'repeat-sentence'
-      | 'read-outloud';
+      | ExamQuestionTypes
+      | undefined;
 
     if (
+      !questionType ||
       ![
         'written-response',
         'audio-response',
         'repeat-sentence',
         'read-outloud',
+        'multiple-choice-single',
       ].includes(questionType)
     ) {
       return of();
     }
 
     // --- Generate Ai Feedback:
-    return this.questionService
+    return this.aiExamQuestionFeedbackService
       .generateAiFeedbackExamQuestion({
         text: studentResponse,
         audioUrl: studentResponse,
@@ -199,6 +221,7 @@ export class ShowExamDialogComponent implements OnInit {
           type: question.prompt3?.type ?? '',
         },
         questionType,
+        multiChoiceOptions: question.multipleChoiceQuestionList,
       })
       .pipe(
         tap((res) => {
@@ -212,21 +235,30 @@ export class ShowExamDialogComponent implements OnInit {
             this.feedbackTextChange(res.feedback ?? '');
           }
 
-          // Apply AI for audi and written response marking:
+          // Apply AI for audio and written response marking:
           if (['audio-response', 'written-response'].includes(questionType)) {
             this.feedbackForm.controls.vocabMark?.setValue(
-              res.mark.vocabMark ?? 0
+              (res.mark as WrittenMark).vocabMark ?? 0
             );
             this.feedbackForm.controls.grammarMark?.setValue(
-              res.mark.grammarMark ?? 0
+              (res.mark as WrittenMark).grammarMark ?? 0
             );
             this.feedbackForm.controls.contentMark?.setValue(
-              res.mark.contentMark ?? 0
+              (res.mark as WrittenMark).contentMark ?? 0
             );
 
-            this.onMarkSelect(res.mark.vocabMark ?? 0, 'vocabMark');
-            this.onMarkSelect(res.mark.grammarMark ?? 0, 'grammarMark');
-            this.onMarkSelect(res.mark.contentMark ?? 0, 'contentMark');
+            this.onMarkSelect(
+              (res.mark as WrittenMark).vocabMark ?? 0,
+              'vocabMark'
+            );
+            this.onMarkSelect(
+              (res.mark as WrittenMark).grammarMark ?? 0,
+              'grammarMark'
+            );
+            this.onMarkSelect(
+              (res.mark as WrittenMark).contentMark ?? 0,
+              'contentMark'
+            );
           }
 
           // Apply audio specific ai marking:
@@ -969,7 +1001,7 @@ export class ShowExamDialogComponent implements OnInit {
   ): string | number | null | undefined {
     if (question.type?.toLocaleUpperCase() !== 'section') {
       const studentResponse = question.studentResponse?.find(
-        (obj) => obj.studentId === this.data.studentId
+        (response) => response.studentId === this.data.studentId
       );
       return studentResponse?.mark?.totalMark;
     } else {

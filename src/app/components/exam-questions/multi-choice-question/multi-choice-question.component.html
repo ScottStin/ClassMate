@@ -1,0 +1,43 @@
+<div class="multiple-choice-page-container">
+  <p>(Note: Only one answer is correct.)</p>
+
+  <div [formGroup]="questionForm" *ngIf="!loading">
+    <mat-radio-group
+      *ngIf="question"
+      class="multi-choice-radio-group"
+      id="selectedOptionId"
+      #selectedOptionId
+      formControlName="selectedOptionId"
+    >
+      <mat-radio-button
+        *ngFor="let option of question.multipleChoiceQuestionList"
+        [value]="option._id"
+        class="multi-choice-radio-button"
+        (change)="onAnswerSelect($event.value)"
+      >
+        {{option.text}}
+
+        <!-- If the option is correct and the user selected it: -->
+        <mat-icon
+          class="correct-multichoice"
+          *ngIf="(markMode === true || displayMode === true) && (option.correct === true && questionForm.getRawValue().selectedOptionId === option._id)"
+          >check_circle</mat-icon
+        >
+
+        <!-- If the option is correct and the user didn't select it: -->
+        <mat-icon
+          class="corrected-multichoice"
+          *ngIf="(markMode === true || displayMode === true) && (option.correct === true && questionForm.getRawValue().selectedOptionId !== option._id)"
+          >check_circle</mat-icon
+        >
+
+        <!-- If the option is incorrect and the user selected it: -->
+        <mat-icon
+          class="incorrect-multichoice"
+          *ngIf="(markMode === true || displayMode === true) && (option.correct === false && questionForm.getRawValue().selectedOptionId === option._id)"
+          >cancel</mat-icon
+        >
+      </mat-radio-button>
+    </mat-radio-group>
+  </div>
+</div>

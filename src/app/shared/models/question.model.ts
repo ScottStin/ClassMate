@@ -5,13 +5,13 @@ export interface CreateExamQuestionDto {
   writtenPrompt?: string | null;
   teacherFeedback?: boolean | null;
   autoMarking?: boolean | null;
-  type?: string;
+  type?: ExamQuestionTypes;
   timed?: boolean | null;
   time?: number | null;
   randomQuestionOrder?: boolean | null;
   partialMarking?: boolean | null;
   caseSensitive?: boolean | null; // for fill-in-blanks question, the student will have to get the case correct to score the points
-  multipleChoiceQuestionList?: { text: string; correct: boolean }[] | null; // todo - seperate
+  multipleChoiceQuestionList?: MultiChoiceQuestionDto[];
   reorderSentenceQuestionList?: { text: string }[] | null;
   fillBlanksQuestionList?:
     | { text: string; blanks: { text: string }[] }[]
@@ -29,6 +29,27 @@ export interface CreateExamQuestionDto {
   parent?: string | null;
   [key: string]: unknown;
   studentResponse?: StudentQuestionReponse[];
+}
+
+export type ExamQuestionTypes =
+  | 'written-response'
+  | 'audio-response'
+  | 'repeat-sentence'
+  | 'read-outloud'
+  | 'multiple-choice-single'
+  | 'multiple-choice-multi'
+  | 'reorder-sentence'
+  | 'match-options'
+  | 'fill-in-the-blanks'
+  | 'essay'
+  | 'information-page'
+  | 'section'
+  | 'question';
+
+export interface MultiChoiceQuestionDto {
+  text: string;
+  correct: boolean;
+  _id?: string;
 }
 
 export interface ExamQuestionDto extends CreateExamQuestionDto {

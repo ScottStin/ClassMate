@@ -111,5 +111,16 @@
       [currentUserId]="studentId ?? currentUser?._id"
       (responseChange)="onResponseChange($event)"
     ></app-audio-response-question>
+
+    <!-- audio response -->
+    <app-multi-choice-question
+      *ngIf="['multiple-choice-single'].includes(question.type ?? '')"
+      [question]="question"
+      [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
+      [currentUserId]="studentId ?? currentUser?._id"
+      [markMode]="markMode"
+      [displayMode]="displayMode"
+      (responseChange)="onResponseChange($event)"
+    ></app-multi-choice-question>
   </mat-card-content>
 </mat-card>

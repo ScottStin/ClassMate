@@ -21,14 +21,17 @@ import {
 } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
-import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
+import {
+  CreateExamQuestionDto,
+  ExamQuestionTypes,
+} from 'src/app/shared/models/question.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { PreviewExamQuestionComponent } from '../preview-exam-question/preview-exam-question.component';
 import { CreateFillBlanksExamQuestionDialogComponent } from './create-fill-blanks-exam-question-dialog/create-fill-blanks-exam-question-dialog.component';
+import { CreateMatchOptionsExamQuestionDialogComponent } from './create-match-options-exam-question-dialog/create-match-options-exam-question-dialog.component';
 import { CreateMultipleChoiceExamQuestionDialogComponent } from './create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.component';
 import { CreateReorderSentenceExamQuestionDialogComponent } from './create-reorder-sentence-exam-question-dialog/create-reorder-sentence-exam-question-dialog.component';
-import { CreateMatchOptionsExamQuestionDialogComponent } from './match-options-exam-question-dialog/create-match-options-exam-question-dialog.component';
 
 @Component({
   selector: 'app-create-exam-dialog',
@@ -62,7 +65,11 @@ export class CreateExamDialogComponent implements OnInit {
   fileLinkPrompt3: string | null | undefined;
   fileNamePrompt3 = '';
 
-  questionTypes: { type: string; description: string; label: string }[] = [
+  questionTypes: {
+    type: ExamQuestionTypes;
+    description: string;
+    label: string;
+  }[] = [
     {
       type: 'written-response',
       description:
@@ -273,7 +280,7 @@ export class CreateExamDialogComponent implements OnInit {
    */
   addNewSection(): void {
     this.changingQuestions = true;
-    const newQuestion = {
+    const newQuestion: CreateExamQuestionDto = {
       name: `New section ${this.sectionCounter}`,
       type: 'section',
       expanded: false,
@@ -295,7 +302,7 @@ export class CreateExamDialogComponent implements OnInit {
    */
   addNewQuestion(): void {
     this.changingQuestions = true;
-    const newQuestion = {
+    const newQuestion: CreateExamQuestionDto = {
       name: `New question ${this.questionCounter}`,
       type: 'question',
       tempId: `question-${this.questionCounter}`,
@@ -467,7 +474,7 @@ export class CreateExamDialogComponent implements OnInit {
           this.currentQuestionDisplay.matchOptionQuestionList = null;
         }
         if (this.currentQuestionDisplay.multipleChoiceQuestionList) {
-          this.currentQuestionDisplay.multipleChoiceQuestionList = null;
+          this.currentQuestionDisplay.multipleChoiceQuestionList = undefined;
         }
         if (this.currentQuestionDisplay.reorderSentenceQuestionList) {
           this.currentQuestionDisplay.reorderSentenceQuestionList = null;
