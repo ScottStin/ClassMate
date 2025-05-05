@@ -101,7 +101,9 @@ export class AiExamQuestionFeedbackService {
       });
     }
 
-    if (questionType === 'multiple-choice-single') {
+    if (
+      ['multiple-choice-single', 'multiple-choice-multi'].includes(questionType)
+    ) {
       if (!text || !multiChoiceOptions) {
         throw new Error(
           'Answer and question options are required for multiple choice question type'

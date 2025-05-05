@@ -7,7 +7,6 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
 
 @Component({
@@ -23,45 +22,57 @@ export class MultiChoiceQuestionComponent implements OnInit, OnChanges {
   @Input() currentUserId: string | undefined;
   @Output() responseChange = new EventEmitter<string>();
 
-  questionForm: FormGroup<{
-    selectedOptionId: FormControl<string>;
-  }>;
   loading = true;
+  isSingleResponseType = false;
+  selectedOptions: string[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('question' in changes && this.question) {
-      this.populateQuestionForm();
+      this.loadPageData();
     }
   }
 
   ngOnInit(): void {
-    this.populateQuestionForm();
+    this.loadPageData();
   }
 
-  populateQuestionForm(): void {
+  loadPageData(): void {
     if (!this.question) {
       return;
     }
 
+    this.isSingleResponseType =
+      this.question.type?.toLowerCase() === 'multiple-choice-single';
+
     const studentResponse = this.question.studentResponse?.find(
       (obj) => obj.studentId === this.currentUserId
     );
-    this.questionForm = new FormGroup({
-      selectedOptionId: new FormControl(
-        {
-          value: studentResponse?.response ?? '',
-          disabled: this.disableForms,
-        },
-        {
-          validators: [Validators.required],
-          nonNullable: true,
-        }
-      ),
-    });
-    this.loading = false;
+    this.selectedOptions = studentResponse?.response?.split(',') ?? [];
   }
 
-  onAnswerSelect(answer: string): void {
-    this.responseChange.emit(answer);
+  changeMultiChoice(optionId: string, checked: boolean): void {
+    if (!this.question?.type) {
+      return;
+    }
+
+    if (this.isSingleResponseType) {
+      if (checked) {
+        this.selectedOptions = [optionId];
+      } else {
+        this.selectedOptions = [];
+      }
+    } else {
+      if (checked && !this.selectedOptions.includes(optionId)) {
+        this.selectedOptions.push(optionId);
+      }
+
+      if (!checked) {
+        this.selectedOptions = this.selectedOptions.filter(
+          (id) => id !== optionId
+        );
+      }
+    }
+
+    this.responseChange.emit(this.selectedOptions.join(','));
   }
 }

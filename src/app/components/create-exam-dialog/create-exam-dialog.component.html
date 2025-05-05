@@ -838,7 +838,7 @@
                 class="form-field"
                 *ngIf="
                   !['section','information-page'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '') &&
-                  currentQuestionDisplay.type !== 'multiple-choice-single'
+                  !['multiple-choice-single', 'multiple-choice-multi'].includes(currentQuestionDisplay.type ?? '')
                   "
               >
                 <mat-slide-toggle
@@ -865,13 +865,13 @@
                 </mat-slide-toggle>
               </form>
 
-              <!----- Auto Feedback Toggle (for multichoice-single answer quesitons only): ----->
+              <!----- Auto Feedback Toggle (for multichoice answer quesitons only): ----->
               <form
                 [formGroup]="questionStepForm"
                 class="form-field"
                 *ngIf="
                   !['section','information-page'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '') &&
-                  currentQuestionDisplay.type === 'multiple-choice-single' &&
+                  ['multiple-choice-single', 'multiple-choice-multi'].includes(currentQuestionDisplay.type ?? '') &&
                   currentQuestionDisplay?.teacherFeedback
                   "
               >

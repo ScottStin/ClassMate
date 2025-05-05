@@ -1,7 +1,45 @@
 <div class="multiple-choice-page-container">
-  <p>(Note: Only one answer is correct.)</p>
+  <p *ngIf="isSingleResponseType">(Note: Only one answer is correct.)</p>
+  <p *ngIf="!isSingleResponseType">
+    (Note: More than one answer may be correct.)
+  </p>
 
-  <div [formGroup]="questionForm" *ngIf="!loading">
+  <mat-list role="list">
+    <div
+      *ngFor="let multiChoiceOption of question?.multipleChoiceQuestionList; let i = index"
+    >
+      <mat-checkbox
+        [value]="multiChoiceOption._id ?? ''"
+        [checked]="selectedOptions.includes(multiChoiceOption._id ?? '')"
+        (change)="changeMultiChoice(multiChoiceOption._id ?? '', $event.checked)"
+        [class]="isSingleResponseType ? 'multi-choice-single-button' : ''"
+        [disabled]="disableForms"
+      >
+        {{multiChoiceOption.text}}
+
+        <mat-icon
+          class="correct-multichoice"
+          *ngIf="(markMode === true || displayMode === true) && (multiChoiceOption.correct === true && selectedOptions.includes(multiChoiceOption._id ?? ''))"
+          >check_circle</mat-icon
+        >
+
+        <mat-icon
+          class="corrected-multichoice"
+          *ngIf="(markMode === true || displayMode === true) && (multiChoiceOption.correct === true && !selectedOptions.includes(multiChoiceOption._id ?? ''))"
+          >check_circle</mat-icon
+        >
+
+        <mat-icon
+          class="incorrect-multichoice"
+          *ngIf="(markMode === true || displayMode === true) && (multiChoiceOption.correct === false && selectedOptions.includes(multiChoiceOption._id ?? ''))"
+          >cancel</mat-icon
+        >
+      </mat-checkbox>
+    </div>
+  </mat-list>
+</div>
+
+<!-- <div [formGroup]="questionForm" *ngIf="!loading">
     <mat-radio-group
       *ngIf="question"
       class="multi-choice-radio-group"
@@ -17,21 +55,18 @@
       >
         {{option.text}}
 
-        <!-- If the option is correct and the user selected it: -->
         <mat-icon
           class="correct-multichoice"
           *ngIf="(markMode === true || displayMode === true) && (option.correct === true && questionForm.getRawValue().selectedOptionId === option._id)"
           >check_circle</mat-icon
         >
 
-        <!-- If the option is correct and the user didn't select it: -->
         <mat-icon
           class="corrected-multichoice"
           *ngIf="(markMode === true || displayMode === true) && (option.correct === true && questionForm.getRawValue().selectedOptionId !== option._id)"
           >check_circle</mat-icon
         >
 
-        <!-- If the option is incorrect and the user selected it: -->
         <mat-icon
           class="incorrect-multichoice"
           *ngIf="(markMode === true || displayMode === true) && (option.correct === false && questionForm.getRawValue().selectedOptionId === option._id)"
@@ -39,5 +74,4 @@
         >
       </mat-radio-button>
     </mat-radio-group>
-  </div>
-</div>
+  </div> -->

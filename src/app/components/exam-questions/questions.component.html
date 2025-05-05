@@ -114,7 +114,7 @@
 
     <!-- audio response -->
     <app-multi-choice-question
-      *ngIf="['multiple-choice-single'].includes(question.type ?? '')"
+      *ngIf="['multiple-choice-single', 'multiple-choice-multi'].includes(question.type ?? '')"
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
       [currentUserId]="studentId ?? currentUser?._id"

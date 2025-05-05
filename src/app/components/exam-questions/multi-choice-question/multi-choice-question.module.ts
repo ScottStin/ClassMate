@@ -1,23 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { MatRadioModule } from '@angular/material/radio';
+import { MatListModule } from '@angular/material/list';
 
 import { MultiChoiceQuestionComponent } from './multi-choice-question.component';
 
 @NgModule({
   declarations: [MultiChoiceQuestionComponent],
-  imports: [
-    CommonModule,
-    MatRadioModule,
-    FormsModule,
-    MatFormFieldModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatIconModule,
-  ],
+  imports: [CommonModule, MatIconModule, MatListModule, MatCheckboxModule],
   exports: [MultiChoiceQuestionComponent],
 })
 export class MultiChoiceQuestionModule {}

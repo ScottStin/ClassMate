@@ -197,6 +197,7 @@ export class ShowExamDialogComponent implements OnInit {
         'repeat-sentence',
         'read-outloud',
         'multiple-choice-single',
+        'multiple-choice-multi',
       ].includes(questionType)
     ) {
       return of();
