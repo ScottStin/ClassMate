@@ -1,0 +1,38 @@
+<div class="multiple-choice-page-container">
+  <div
+    cdkDropList
+    class="reorder-list"
+    (cdkDropListDropped)="drop($event)"
+    [cdkDropListSortingDisabled]="disableDragForm"
+    style="flex: 1"
+  >
+    <div
+      class="reorder-box"
+      *ngFor="let option of questionOptions; let i = index"
+      cdkDrag
+    >
+      {{option}}
+    </div>
+  </div>
+
+  <div
+    class="correct-order-list"
+    style="flex: 1"
+    *ngIf="studentResponse && (markMode || displayMode)"
+  >
+    <div
+      class="reorder-box disabled"
+      *ngFor="let correct of correctOrder; let j = index"
+    >
+      {{ j + 1 }}. {{ correct }}
+      <mat-icon class="correct-sentence" *ngIf="correct === questionOptions[j]"
+        >check_circle</mat-icon
+      >
+      <mat-icon
+        class="incorrect-sentence"
+        *ngIf="correct !== questionOptions[j]"
+        >cancel</mat-icon
+      >
+    </div>
+  </div>
+</div>

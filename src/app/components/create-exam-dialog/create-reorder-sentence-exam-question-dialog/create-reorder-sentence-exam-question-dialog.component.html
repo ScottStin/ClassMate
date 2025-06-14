@@ -29,7 +29,7 @@
           <textarea
             type="text"
             [value]="sentence.text"
-            placeholder="Type sentence/paragraph here"
+            placeholder="Type word/sentence/paragraph here"
             id="reorderSentenceInput"
             #reorderSentenceInput
             (keyup)="changeReorderSentenceText(i, reorderSentenceInput.value)"
@@ -43,9 +43,32 @@
       >
     </div>
 
-    <i style="margin-top: 10px"
-      >Note: The options will appear to the student in a random order</i
-    >
+    <div class="toggle-container">
+      <form
+        [formGroup]="questionForm"
+        class="form-field"
+        style="margin-bottom: 20px !important"
+      >
+        <i>Note: The options will appear to the student in a random order</i>
+      </form>
+
+      <form [formGroup]="questionForm" class="form-field">
+        <mat-slide-toggle
+          id="partialMarking"
+          name="partialMarking"
+          #partialMarking
+          (change)="togglePartialMarking(partialMarking.checked)"
+          [checked]="temporarycurrentQuestionDisplay?.partialMarking"
+          >Partial Marking?
+          <mat-icon
+            style="font-size: 20px"
+            #tooltip="matTooltip"
+            matTooltip="When turned on, the student will be rewarded partial marking for getting some of the options in the correct order. When turned off, the student must get the whole question correct to be awarded the marks."
+            >info_outlined</mat-icon
+          >
+        </mat-slide-toggle>
+      </form>
+    </div>
   </div>
   <app-dialog-actions
     [matTooltip]="!temporarycurrentQuestionDisplay.reorderSentenceQuestionList || (temporarycurrentQuestionDisplay.reorderSentenceQuestionList ?? [null,null]).length < 2 ? 'Please add at least two options before saving' : ''"

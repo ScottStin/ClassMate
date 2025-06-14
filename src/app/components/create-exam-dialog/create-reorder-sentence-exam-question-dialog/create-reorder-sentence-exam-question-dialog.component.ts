@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -15,7 +16,9 @@ import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.comp
   templateUrl: './create-reorder-sentence-exam-question-dialog.component.html',
   styleUrls: ['./create-reorder-sentence-exam-question-dialog.component.css'],
 })
-export class CreateReorderSentenceExamQuestionDialogComponent {
+export class CreateReorderSentenceExamQuestionDialogComponent
+  implements OnInit
+{
   positions = [
     'first',
     'second',
@@ -29,6 +32,9 @@ export class CreateReorderSentenceExamQuestionDialogComponent {
     'tenth',
   ]; // used for the order of the options;
 
+  questionForm: FormGroup<{
+    randomQuestionOrder: FormControl<boolean | null>; // for multiple choice question, the questions will be in random order
+  }>;
   formChanged = false;
   temporarycurrentQuestionDisplay = JSON.parse(
     JSON.stringify(this.data.currentQuestionDisplay)
@@ -44,6 +50,21 @@ export class CreateReorderSentenceExamQuestionDialogComponent {
     public dialog: MatDialog,
     private readonly snackbarService: SnackbarService
   ) {}
+
+  ngOnInit(): void {
+    this.populateQuestionForm();
+  }
+
+  populateQuestionForm(): void {
+    this.questionForm = new FormGroup({
+      randomQuestionOrder: new FormControl(
+        this.data.currentQuestionDisplay.randomQuestionOrder ?? false,
+        {
+          nonNullable: false,
+        }
+      ),
+    });
+  }
 
   changeReorderSentenceText(index: number, text: string): void {
     if (this.temporarycurrentQuestionDisplay.reorderSentenceQuestionList) {
@@ -85,8 +106,8 @@ export class CreateReorderSentenceExamQuestionDialogComponent {
     this.formChanged = true;
   }
 
-  toggleRnadomQuestionOrder(toggle: boolean): void {
-    this.temporarycurrentQuestionDisplay.randomQuestionOrder = toggle;
+  togglePartialMarking(toggle: boolean): void {
+    this.temporarycurrentQuestionDisplay.partialMarking = toggle;
     this.formChanged = true;
   }
 

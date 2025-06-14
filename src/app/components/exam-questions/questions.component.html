@@ -96,7 +96,7 @@
   >
     <!-- written response -->
     <app-written-response-question
-      *ngIf="question.type==='written-response'"
+      *ngIf="question.type === 'written-response'"
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
       [currentUserId]="studentId ?? currentUser?._id"
@@ -112,7 +112,7 @@
       (responseChange)="onResponseChange($event)"
     ></app-audio-response-question>
 
-    <!-- audio response -->
+    <!-- multi choice response -->
     <app-multi-choice-question
       *ngIf="['multiple-choice-single', 'multiple-choice-multi'].includes(question.type ?? '')"
       [question]="question"
@@ -122,5 +122,16 @@
       [displayMode]="displayMode"
       (responseChange)="onResponseChange($event)"
     ></app-multi-choice-question>
+
+    <!-- reorder sentence response -->
+    <app-reorder-sentence-question
+      *ngIf="'reorder-sentence' === question.type"
+      [question]="question"
+      [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
+      [currentUserId]="studentId ?? currentUser?._id"
+      [markMode]="markMode"
+      [displayMode]="displayMode"
+      (responseChange)="onResponseChange($event)"
+    ></app-reorder-sentence-question>
   </mat-card-content>
 </mat-card>

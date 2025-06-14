@@ -198,6 +198,7 @@ export class ShowExamDialogComponent implements OnInit {
         'read-outloud',
         'multiple-choice-single',
         'multiple-choice-multi',
+        'reorder-sentence',
       ].includes(questionType)
     ) {
       return of();
@@ -223,6 +224,10 @@ export class ShowExamDialogComponent implements OnInit {
         },
         questionType,
         multiChoiceOptions: question.multipleChoiceQuestionList,
+        reorderSentenceQuestionList:
+          question.reorderSentenceQuestionList as unknown as
+            | { text: string }[]
+            | undefined,
       })
       .pipe(
         tap((res) => {

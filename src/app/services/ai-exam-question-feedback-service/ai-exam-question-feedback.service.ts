@@ -45,6 +45,7 @@ export class AiExamQuestionFeedbackService {
       type: string;
     };
     multiChoiceOptions?: MultiChoiceQuestionDto[];
+    reorderSentenceQuestionList?: { text: string }[];
   }): Observable<{
     feedback?: string;
     mark: WrittenMark | AudioMark | number;
@@ -58,6 +59,7 @@ export class AiExamQuestionFeedbackService {
       mediaPrompt2,
       mediaPrompt3,
       multiChoiceOptions,
+      reorderSentenceQuestionList,
     } = data;
 
     if (questionType === 'written-response') {
@@ -116,6 +118,22 @@ export class AiExamQuestionFeedbackService {
         mediaPrompt2,
         mediaPrompt3,
         multiChoiceOptions,
+      });
+    }
+
+    if (questionType === 'reorder-sentence') {
+      if (!text || !reorderSentenceQuestionList) {
+        throw new Error(
+          'Answer and question options are required for reorder-sentence question type'
+        );
+      }
+      return this.generateAiFeedbackReorderSentence({
+        text,
+        prompt,
+        mediaPrompt1,
+        mediaPrompt2,
+        mediaPrompt3,
+        reorderSentenceQuestionList,
       });
     }
 
@@ -278,6 +296,41 @@ export class AiExamQuestionFeedbackService {
           this.handleError(
             error,
             'Failed to generate AI Feedback for multi-choice exam question'
+          );
+        })
+      );
+  }
+
+  generateAiFeedbackReorderSentence(data: {
+    text: string;
+    prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt3?: {
+      url: string;
+      type: string;
+    };
+    reorderSentenceQuestionList: { text: string }[];
+  }): Observable<{
+    feedback?: string;
+    mark: number;
+  }> {
+    return this.httpClient
+      .post<{
+        feedback: string;
+        mark: number;
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/reorder-sentence`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for reorder-sentence exam question'
           );
         })
       );
