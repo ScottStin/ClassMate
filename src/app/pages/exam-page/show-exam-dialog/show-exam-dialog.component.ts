@@ -199,6 +199,7 @@ export class ShowExamDialogComponent implements OnInit {
         'multiple-choice-single',
         'multiple-choice-multi',
         'reorder-sentence',
+        'match-options',
       ].includes(questionType)
     ) {
       return of();
@@ -228,6 +229,7 @@ export class ShowExamDialogComponent implements OnInit {
           question.reorderSentenceQuestionList as unknown as
             | { text: string }[]
             | undefined,
+        matchOptionQuestionList: question.matchOptionQuestionList,
       })
       .pipe(
         tap((res) => {

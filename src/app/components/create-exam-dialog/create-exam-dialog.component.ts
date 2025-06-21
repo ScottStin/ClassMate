@@ -471,7 +471,7 @@ export class CreateExamDialogComponent implements OnInit {
           this.examForm.controls.questionStep.controls.length.setValue(NaN);
         }
         if (this.currentQuestionDisplay.matchOptionQuestionList) {
-          this.currentQuestionDisplay.matchOptionQuestionList = null;
+          this.currentQuestionDisplay.matchOptionQuestionList = undefined;
         }
         if (this.currentQuestionDisplay.multipleChoiceQuestionList) {
           this.currentQuestionDisplay.multipleChoiceQuestionList = undefined;

@@ -16,9 +16,7 @@ export interface CreateExamQuestionDto {
   fillBlanksQuestionList?:
     | { text: string; blanks: { text: string }[] }[]
     | null;
-  matchOptionQuestionList?:
-    | { leftOption: string; rightOption: string }[]
-    | null;
+  matchOptionQuestionList?: MatchOptionQuestionDto[];
   totalPointsMin?: number | null;
   totalPointsMax?: number | null;
   length?: number | null;
@@ -49,6 +47,12 @@ export type ExamQuestionTypes =
 export interface MultiChoiceQuestionDto {
   text: string;
   correct: boolean;
+  _id?: string;
+}
+
+export interface MatchOptionQuestionDto {
+  leftOption: string;
+  rightOption: string;
   _id?: string;
 }
 

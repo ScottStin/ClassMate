@@ -1,1 +1,7 @@
-{}
+{
+    "eslint.workingDirectories": [
+        "frontend",
+    ],
+    "html.format.wrapLineLength": 300,
+    "prettier.printWidth":300,
+}

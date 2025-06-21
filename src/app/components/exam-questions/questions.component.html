@@ -133,5 +133,16 @@
       [displayMode]="displayMode"
       (responseChange)="onResponseChange($event)"
     ></app-reorder-sentence-question>
+
+    <!-- reorder sentence response -->
+    <app-match-option-question
+      *ngIf="'match-options' === question.type"
+      [question]="question"
+      [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
+      [currentUserId]="studentId ?? currentUser?._id"
+      [markMode]="markMode"
+      [displayMode]="displayMode"
+      (responseChange)="onResponseChange($event)"
+    ></app-match-option-question>
   </mat-card-content>
 </mat-card>

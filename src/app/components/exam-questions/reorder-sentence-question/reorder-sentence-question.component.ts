@@ -30,8 +30,6 @@ export class ReorderSentenceQuestionComponent implements OnInit, OnChanges {
   disableDragForm = false;
   delimiter = '\u241E';
 
-  // constructor() {}
-
   ngOnInit(): void {
     this.getQuestionOptions();
   }
@@ -54,8 +52,6 @@ export class ReorderSentenceQuestionComponent implements OnInit, OnChanges {
       this.question?.studentResponse?.find(
         (response) => response.studentId === this.currentUserId
       )?.response ?? undefined;
-
-    console.log(this.studentResponse);
 
     // shuffle array options if student hasn't completed question:
     if (!this.studentResponse || this.studentResponse.length === 0) {
@@ -90,7 +86,6 @@ export class ReorderSentenceQuestionComponent implements OnInit, OnChanges {
 
     // convert the student's answer to a numbered string and emit the result:
     const studentResultString = this.questionOptions.join(this.delimiter);
-
     this.responseChange.emit(studentResultString);
   }
 }

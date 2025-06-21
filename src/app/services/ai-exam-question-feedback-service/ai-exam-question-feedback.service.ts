@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 import {
   ExamQuestionTypes,
+  MatchOptionQuestionDto,
   MultiChoiceQuestionDto,
 } from 'src/app/shared/models/question.model';
 import { environment } from 'src/environments/environment';
@@ -46,6 +47,7 @@ export class AiExamQuestionFeedbackService {
     };
     multiChoiceOptions?: MultiChoiceQuestionDto[];
     reorderSentenceQuestionList?: { text: string }[];
+    matchOptionQuestionList?: MatchOptionQuestionDto[];
   }): Observable<{
     feedback?: string;
     mark: WrittenMark | AudioMark | number;
@@ -60,6 +62,7 @@ export class AiExamQuestionFeedbackService {
       mediaPrompt3,
       multiChoiceOptions,
       reorderSentenceQuestionList,
+      matchOptionQuestionList,
     } = data;
 
     if (questionType === 'written-response') {
@@ -134,6 +137,22 @@ export class AiExamQuestionFeedbackService {
         mediaPrompt2,
         mediaPrompt3,
         reorderSentenceQuestionList,
+      });
+    }
+
+    if (questionType === 'match-options') {
+      if (!text || !matchOptionQuestionList) {
+        throw new Error(
+          'Answer and question options are required for match option question type'
+        );
+      }
+      return this.generateAiFeedbackMatchOption({
+        text,
+        prompt,
+        mediaPrompt1,
+        mediaPrompt2,
+        mediaPrompt3,
+        matchOptionQuestionList,
       });
     }
 
@@ -331,6 +350,41 @@ export class AiExamQuestionFeedbackService {
           this.handleError(
             error,
             'Failed to generate AI Feedback for reorder-sentence exam question'
+          );
+        })
+      );
+  }
+
+  generateAiFeedbackMatchOption(data: {
+    text: string;
+    prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt3?: {
+      url: string;
+      type: string;
+    };
+    matchOptionQuestionList: MatchOptionQuestionDto[];
+  }): Observable<{
+    feedback?: string;
+    mark: number;
+  }> {
+    return this.httpClient
+      .post<{
+        feedback: string;
+        mark: number;
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/match-options`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for match-option exam question'
           );
         })
       );
