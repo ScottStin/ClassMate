@@ -28,7 +28,6 @@ export class ReorderSentenceQuestionComponent implements OnInit, OnChanges {
   correctOrder: string[] = [];
   studentResponse?: string;
   disableDragForm = false;
-  delimiter = '\u241E';
 
   ngOnInit(): void {
     this.getQuestionOptions();
@@ -63,7 +62,7 @@ export class ReorderSentenceQuestionComponent implements OnInit, OnChanges {
       }
     } else {
       // if student has responded to the question, get their response:
-      this.questionOptions = this.studentResponse.split(this.delimiter);
+      this.questionOptions = JSON.parse(this.studentResponse) as string[];
     }
 
     if (this.markMode || this.displayMode) {
@@ -85,7 +84,7 @@ export class ReorderSentenceQuestionComponent implements OnInit, OnChanges {
     );
 
     // convert the student's answer to a numbered string and emit the result:
-    const studentResultString = this.questionOptions.join(this.delimiter);
+    const studentResultString = JSON.stringify(this.questionOptions);
     this.responseChange.emit(studentResultString);
   }
 }

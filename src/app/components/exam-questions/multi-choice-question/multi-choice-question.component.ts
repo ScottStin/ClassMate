@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import {
   Component,
   EventEmitter,
@@ -47,7 +48,10 @@ export class MultiChoiceQuestionComponent implements OnInit, OnChanges {
     const studentResponse = this.question.studentResponse?.find(
       (obj) => obj.studentId === this.currentUserId
     );
-    this.selectedOptions = studentResponse?.response?.split(',') ?? [];
+
+    if (studentResponse?.response) {
+      this.selectedOptions = JSON.parse(studentResponse.response) as string[];
+    }
   }
 
   changeMultiChoice(optionId: string, checked: boolean): void {
@@ -73,6 +77,6 @@ export class MultiChoiceQuestionComponent implements OnInit, OnChanges {
       }
     }
 
-    this.responseChange.emit(this.selectedOptions.join(','));
+    this.responseChange.emit(JSON.stringify(this.selectedOptions));
   }
 }
