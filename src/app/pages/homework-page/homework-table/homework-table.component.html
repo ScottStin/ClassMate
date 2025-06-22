@@ -12,7 +12,7 @@
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
         <span *ngIf="row.createdAt"
-          >{{ row.createdAt | date:'dd MMM yyyy h:mm a z'}}</span
+          >{{ row.createdAt | date:'dd MMM yyyy'}}</span
         >
       </mat-cell>
     </ng-container>

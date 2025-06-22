@@ -2,8 +2,8 @@
   <mat-table
     matSort
     aria-label="Exams"
-    matSortActive="id"
-    matSortDirection="asc"
+    matSortActive="default"
+    matSortDirection="desc"
   >
     <!-- Name Column -->
     <ng-container matColumnDef="name">
@@ -11,7 +11,14 @@
         Name
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <span>{{ row.name }}</span>
+        <div>
+          {{ row.name }}
+          <b
+            *ngIf="row.default && currentUser?.userType?.toLowerCase() !== 'student'"
+          >
+            (Default Exam)
+          </b>
+        </div>
       </mat-cell>
     </ng-container>
 
@@ -20,8 +27,12 @@
       <mat-header-cell *matHeaderCellDef mat-sort-header>
         Description
       </mat-header-cell>
-      <mat-cell *matCellDef="let row">
-        <span>{{ row.description }}</span>
+      <mat-cell
+        *matCellDef="let row; let i = index"
+        [matTooltip]="row.description.length > maxCellCharLength ? row.description : ''"
+        [attr.data-testid]="'tableRowMessage' + (i + 1)"
+        >{{ row.description | slice: 0 : maxCellCharLength }}{{
+        row.description.length > maxCellCharLength ? '...' : '' }}
       </mat-cell>
     </ng-container>
 
@@ -43,50 +54,41 @@
       </mat-cell>
     </ng-container>
 
-    <!-- Marking Column -->
-    <!-- <ng-container
-      matColumnDef="autoMarking"
-      *ngIf="currentUser?.userType?.toLowerCase() ==='student' || !this.currentUser"
-    >
-      <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Marking Type
-        <mat-icon
-          style="font-size: 15px"
-          #tooltip="matTooltip"
-          matTooltip="'Auto Marking' indicates that your exam will be marked by AI. 'Teacher Feedback' indicates that your exam will be marked by a teacher and you will receive teacher feedback"
-          >info</mat-icon
-        >
-      </mat-header-cell>
-      <mat-cell *matCellDef="let row">
-        <span *ngIf="row.autoMarking">Auto Marking</span>
-        <span *ngIf="!row.autoMarking">Teacher Feedback</span>
-      </mat-cell>
-    </ng-container> -->
-
     <!-- studentsEnrolled Column -->
     <ng-container
       matColumnDef="studentsEnrolled"
       [style]="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? '' : 'display: none;'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Students Enrolled
+        Students
+        <mat-icon
+          style="font-size: 15px"
+          #tooltip="matTooltip"
+          matTooltip="A bold number indicated that there are exams to be marked."
+          >info</mat-icon
+        >
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
         <span
           #tooltip="matTooltip"
           [matTooltip]="getStudentsEnrolledList(row.studentsEnrolled)"
+          (click)="openStudentsCompletedList(row)"
+          style="cursor: pointer"
+          [ngStyle]="{
+            'font-weight': row.studentsCompleted.length > 0 && getMarkPendingCompletedList(row.studentsCompleted) ? 'bold' : 'normal'
+          }"
           >{{row.studentsEnrolled.length}}</span
         >
       </mat-cell>
     </ng-container>
 
     <!-- studentsCompleted Column -->
-    <ng-container
+    <!-- <ng-container
       matColumnDef="studentsCompleted"
       [style]="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? '' : 'display: none;'"
     >
       <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Students Completed
+        Students
         <mat-icon
           style="font-size: 15px"
           #tooltip="matTooltip"
@@ -111,7 +113,7 @@
           >
         </span>
       </mat-cell>
-    </ng-container>
+    </ng-container> -->
 
     <!-- assignedTeacher Column -->
     <ng-container
@@ -145,27 +147,8 @@
       </mat-header-cell>
       <mat-cell *matCellDef="let row">
         <span *ngIf="row.createdAt"
-          >{{ row.createdAt | date:'dd MMM yyyy h:mm a z'}}</span
+          >{{ row.createdAt | date:'dd MMM yyyy'}}</span
         >
-      </mat-cell>
-    </ng-container>
-
-    <!-- default Column -->
-    <ng-container
-      matColumnDef="default"
-      [style]="currentUser?.userType?.toLowerCase() ==='teacher' || currentUser?.userType?.toLowerCase() ==='school' ? '' : 'display: none;'"
-    >
-      <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Default Exam?
-        <mat-icon
-          style="font-size: 15px"
-          #tooltip="matTooltip"
-          matTooltip="This will be default level test that is automatically assigned to a student when they first sign up."
-          >info</mat-icon
-        >
-      </mat-header-cell>
-      <mat-cell *matCellDef="let row">
-        <span *ngIf="row.default">{{row.default}}</span>
       </mat-cell>
     </ng-container>
 

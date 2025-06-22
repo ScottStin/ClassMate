@@ -50,13 +50,12 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
     'name',
     'description',
     'studentsEnrolled',
-    'studentsCompleted',
     'casualPrice',
     'assignedTeacherId',
     'createdAt',
-    'default',
     'actions',
   ];
+  readonly maxCellCharLength = 100; // Table description with over 50 characters will be replaced with an ellipsis
 
   constructor(public dialog: MatDialog) {}
 
@@ -100,14 +99,10 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
         return data.casualPrice;
       case 'studentsEnrolled':
         return data.studentsEnrolled;
-      case 'studentsCompleted':
-        return data.studentsCompleted;
       case 'assignedTeacherId':
         return data.assignedTeacherId;
       case 'createdAt':
         return data.createdAt;
-      case 'default':
-        return data.default;
       default:
         return data._id;
     }
@@ -245,7 +240,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
       .afterClosed()
       .subscribe((result: { studentId: string } | null) => {
         if (result) {
-          console.log('THIS COULD FAIL:');
+          console.log('THIS COULD FAIL:'); // TODO - invesitgate
           console.log(result);
           this.displayExam(exam, false, true, result.studentId);
         }

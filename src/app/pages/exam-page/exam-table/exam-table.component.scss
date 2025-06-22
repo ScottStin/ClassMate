@@ -7,6 +7,18 @@ $secondaryColor: var(--secondaryColor);
 
 .mat-table {
     width: 100%;
+
+    // Add spacing between table columns
+    ::ng-deep mat-header-cell,
+    ::ng-deep mat-cell {
+      padding-right: 20px;
+    }
+
+    // Remove extra padding from last column
+    ::ng-deep mat-header-cell:last-child,
+    ::ng-deep mat-cell:last-child {
+      padding-right: 0;
+    }
   
     // material table columns named "actions"
     th.mat-column-actions,
@@ -55,6 +67,10 @@ $secondaryColor: var(--secondaryColor);
         display: table-cell;
       }
     }
+  }
+
+  mat-cell.mat-column-studentsEnrolled {
+    padding-left: 25px;
   }
 
   .icon-button { // todo - move button colors to global format

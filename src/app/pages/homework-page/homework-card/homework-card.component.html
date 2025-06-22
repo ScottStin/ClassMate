@@ -51,9 +51,7 @@
                     <mat-icon>edit_calendar</mat-icon>
                     <b> &nbsp;&nbsp;Created:</b>
                   </td>
-                  <td>
-                    {{homeworkItem.createdAt | date:'dd MMM yyyy h:mm a z' }}
-                  </td>
+                  <td>{{homeworkItem.createdAt | date:'dd MMM yyyy' }}</td>
                 </tr>
                 <tr *ngIf="homeworkItem.dueDate">
                   <td class="title-row">

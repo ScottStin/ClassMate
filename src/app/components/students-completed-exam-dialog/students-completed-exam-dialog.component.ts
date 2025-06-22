@@ -16,17 +16,9 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
   usersLoading: boolean;
   users$: Observable<UserDTO[]>;
 
-  studentNames: {
-    name: string | undefined;
-    studentId: string | undefined;
-    marked?: string | number | null;
-  }[] = [];
-
-  studentNamesAwaitingMark: {
-    name: string | undefined;
-    studentId: string | undefined;
-    marked?: string | number | null;
-  }[] = [];
+  studentsCompleted: ExamStudentList[] = [];
+  studentsEnrolled: ExamStudentList[] = [];
+  studentNamesAwaitingMark: ExamStudentList[] = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { exam: ExamDTO },
@@ -38,27 +30,35 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getUsers();
+    this.getStudentList();
   }
 
-  getUsers(): void {
+  getStudentList(): void {
     this.usersLoading = true;
     this.users$ = this.userService.users$;
     this.userService.getAll().subscribe({
       next: (res) => {
         for (const student of this.exam.studentsCompleted) {
           const marked = student.mark;
-          this.studentNames.push({
+          this.studentsCompleted.push({
             name: res.find((obj) => obj._id === student.studentId)?.name,
             studentId: res.find((obj) => obj._id === student.studentId)?._id,
             marked,
           });
 
-          this.studentNamesAwaitingMark = this.studentNames.filter(
+          this.studentNamesAwaitingMark = this.studentsCompleted.filter(
             // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
             (studentName) => !studentName.marked
           );
         }
+
+        for (const student of this.exam.studentsEnrolled) {
+          this.studentsEnrolled.push({
+            name: res.find((obj) => obj._id === student)?.name,
+            studentId: res.find((obj) => obj._id === student)?._id,
+          });
+        }
+
         this.usersLoading = false;
       },
       error: (error: Error) => {
@@ -73,22 +73,18 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
           .onAction()
           .pipe(first())
           .subscribe(() => {
-            this.getUsers();
+            this.getStudentList();
           });
       },
     });
   }
 
-  markExam(student: {
-    name: string | undefined;
-    studentId: string | undefined;
-    marked?: string | number | null;
-  }): void {
+  markExam(student: ExamStudentList): void {
     this.dialogRef.close(student);
   }
 
   studentsAwaitingMarkCount(): number {
-    const awaiaitng = this.studentNames.filter(
+    const awaiaitng = this.studentsCompleted.filter(
       (obj) => obj.marked === null || obj.marked === undefined
     ).length;
     return awaiaitng;
@@ -97,4 +93,10 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
   closeDialog(): void {
     this.dialogRef.close();
   }
+}
+
+export class ExamStudentList {
+  name: string | undefined;
+  studentId: string | undefined;
+  marked?: string | number | null;
 }
