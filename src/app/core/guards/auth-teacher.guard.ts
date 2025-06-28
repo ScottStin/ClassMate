@@ -19,7 +19,7 @@ export class AuthTeacherGuard implements CanActivate {
   ) {}
 
   private handleAccessDenied(): UrlTree {
-    this.snackbarService.openPermanent(
+    this.snackbarService.queueBar(
       'warn',
       'You must be a teacher to access this page.'
     );

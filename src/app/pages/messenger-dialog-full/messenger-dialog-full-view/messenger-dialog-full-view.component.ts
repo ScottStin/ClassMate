@@ -513,11 +513,7 @@ export class MessengerDialogFullViewComponent
     });
     dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
       if (result) {
-        this.snackbarService.open(
-          'info',
-          'Group successfully created',
-          'dismiss'
-        );
+        this.snackbarService.queueBar('info', 'Group successfully created.');
       }
     });
   }
@@ -535,21 +531,16 @@ export class MessengerDialogFullViewComponent
     });
     dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
       if (result) {
-        this.snackbarService.open(
-          'info',
-          'Group successfully updated',
-          'dismiss'
-        );
+        this.snackbarService.queueBar('info', 'Group successfully updated.');
       }
     });
   }
 
   deleteGroupClick(): void {
     if (!this.selectedMessageChat?.groupName) {
-      this.snackbarService.open(
+      this.snackbarService.queueBar(
         'info',
-        'Error deleting group, please try again.',
-        'dismiss'
+        'Error deleting group, please try again.'
       );
       return;
     }

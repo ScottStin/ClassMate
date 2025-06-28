@@ -1,92 +1,69 @@
 import { Injectable } from '@angular/core';
-import {
-  MatSnackBar,
-  MatSnackBarConfig,
-  MatSnackBarRef,
-  TextOnlySnackBar,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { first, Observable } from 'rxjs';
+import { SnackbarComponent } from 'src/app/components/snackbar/snackbar.component';
+
+const SNACKBAR_CONFIG: MatSnackBarConfig = {
+  horizontalPosition: 'center',
+  verticalPosition: 'bottom',
+  panelClass: `nlt-snackbar-default`,
+};
+
+const DEFAULT_DURATION = 2500;
+const LONG_DURATION = 10000;
 
 @Injectable({
   providedIn: 'root',
 })
 export class SnackbarService {
-  defaultConfigs: MatSnackBarConfig;
+  private readonly snackbarQueue: QueuedSnackbar[] = [];
+  private snackbarCurrentlyOpened = false;
 
-  constructor(private readonly snackbar: MatSnackBar) {
-    this.defaultConfigs = {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom',
-    };
+  constructor(private readonly snackbar: MatSnackBar) {}
+
+  queueBar(type: SnackbarType, message: string, action?: SnackbarAction): void {
+    this.snackbarQueue.push({ type, message, action });
+    this.processQueue();
   }
 
-  /**
-   * Opens the snackbar.
-   * Will override any snackbar that is currently opened.
-   *
-   * @param type - The type of snackbar
-   * @param message - The mesage to display
-   * @param buttonText - The text for the button
-   * @param configs - Additional configs for the snack bar
-   *
-   * @returns A reference of the snackbar that opened
-   */
-  open(
-    type: SnackbarType,
-    message: string,
-    buttonText = 'dismiss',
-    configs: MatSnackBarConfig = {}
-  ): MatSnackBarRef<TextOnlySnackBar> {
-    const config = {
-      ...this.defaultConfigs,
-      ...configs,
-    };
-    let button = buttonText;
-
-    // Add snackbar css class if it's not default
-    if (type !== 'default') {
-      config.panelClass = `snackbar-${type}`;
+  private processQueue(): void {
+    if (this.snackbarCurrentlyOpened) {
+      return;
     }
 
-    // Change text to uppercase for button
-    if (button) {
-      button = button.toLocaleUpperCase();
+    const nextSnackbar = this.snackbarQueue.shift();
+    if (!nextSnackbar) {
+      return;
     }
 
-    return this.snackbar.open(message, button, config);
-  }
+    this.snackbarCurrentlyOpened = true;
+    const snackbarRef = this.snackbar.openFromComponent(SnackbarComponent, {
+      ...SNACKBAR_CONFIG,
+      duration: ['error', 'warn'].includes(nextSnackbar.type)
+        ? LONG_DURATION
+        : DEFAULT_DURATION,
+      data: nextSnackbar,
+    });
 
-  /**
-   * Opens a permanent snackbar.
-   * Will override any snackbar that is currently opened.
-   *
-   * @param type - The type of snackbar
-   * @param message - The mesage to display
-   * @param buttonText - The text for the button
-   * @param configs - Additional configs for the snack bar
-   *
-   * @returns A reference of the snackbar that opened
-   */
-  openPermanent(
-    type: SnackbarType,
-    message: string,
-    buttonText = 'dismiss',
-    configs: MatSnackBarConfig = {}
-  ): MatSnackBarRef<TextOnlySnackBar> {
-    const config = {
-      ...this.defaultConfigs,
-      ...configs,
-      duration: undefined,
-    };
-    return this.open(type, message, buttonText, config);
-  }
+    snackbarRef.afterDismissed().subscribe(() => {
+      this.snackbarCurrentlyOpened = false;
+      this.processQueue();
+    });
 
-  /**
-   * Closes all snackbars
-   */
-  close(): void {
-    this.snackbar.dismiss();
+    if (nextSnackbar.action) {
+      nextSnackbar.action.registerAction(snackbarRef.onAction().pipe(first()));
+    }
   }
 }
 
-export type SnackbarType = 'default' | 'info' | 'success' | 'warn' | 'error';
+export type SnackbarType = 'info' | 'success' | 'warn' | 'error';
+export interface SnackbarAction {
+  label: string;
+  registerAction: (onAction: Observable<void>) => void;
+}
+
+export interface QueuedSnackbar {
+  type: SnackbarType;
+  message: string;
+  action?: SnackbarAction;
+}

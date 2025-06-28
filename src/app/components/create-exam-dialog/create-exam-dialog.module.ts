@@ -26,9 +26,9 @@ import { ErrorMessageModule } from '../error-message/error-message.module';
 import { PreviewExamQuestionModule } from '../preview-exam-question/preview-exam-question.module';
 import { CreateExamDialogComponent } from './create-exam-dialog.component';
 import { CreateFillBlanksExamQuestionDialogModule } from './create-fill-blanks-exam-question-dialog/create-fill-blanks-exam-question-dialog.module';
+import { CreateMatchOptionsExamQuestionDialogModule } from './create-match-options-exam-question-dialog/create-match-options-exam-question-dialog.module';
 import { CreateMultipleChoiceExamQuestionDialogModule } from './create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.module';
 import { CreateReorderSentenceExamQuestionDialogModule } from './create-reorder-sentence-exam-question-dialog/create-reorder-sentence-exam-question-dialog.module';
-import { CreateMatchOptionsExamQuestionDialogModule } from './create-match-options-exam-question-dialog/create-match-options-exam-question-dialog.module';
 
 @NgModule({
   declarations: [CreateExamDialogComponent],

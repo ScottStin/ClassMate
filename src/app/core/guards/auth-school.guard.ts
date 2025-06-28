@@ -19,7 +19,7 @@ export class AuthSchoolGuard implements CanActivate {
   ) {}
 
   private handleAccessDenied(): UrlTree {
-    this.snackbarService.openPermanent(
+    this.snackbarService.queueBar(
       'warn',
       'You must be an admin user to access this page.'
     );

@@ -699,33 +699,27 @@ export class AdminViewComponent implements OnInit, OnChanges {
   cropperReady(): void {}
 
   loadImageFailed(): void {
-    this.snackbarService.openPermanent(
-      'error',
-      'image failed to load',
-      'dismiss'
-    );
+    this.snackbarService.queueBar('error', 'Image failed to load.');
   }
 
   validateImage(image: File): boolean {
     const types = ['image/png', 'image/gif', 'image/tiff', 'image/jpeg'];
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const maxSize = 1000 * 1024; // 1000 KB
+
     if (!types.includes(image.type)) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'error',
-        'Picture must be .png/.gif/.tif/.jpg type',
-        'dismiss'
+        'Picture must be .png/.gif/.tif/.jpg type.'
       );
       return false;
     }
+
     if (image.size > maxSize) {
-      this.snackbarService.openPermanent(
-        'error',
-        'File must be 1-1000 kb in size',
-        'dismiss'
-      );
+      this.snackbarService.queueBar('error', 'File must be 1-1000 kb in size.');
       return false;
     }
+
     return true;
   }
 
@@ -736,49 +730,40 @@ export class AdminViewComponent implements OnInit, OnChanges {
   addLessonType(name: string, shortName: string): void {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     if (this.lessonTypesModified.length >= 5) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'warn',
-        'Sorry, you can only have a maximum of 5 class types.',
-        'dismiss'
+        'Sorry, you can only have a maximum of 5 class types.'
       );
     } else if (!name || !shortName) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'warn',
-        'Please enter a name and abbreviated name for your lesson',
-        'dismiss'
+        'Please enter a name and abbreviated name for your lesson'
       );
     } else if (name.length > 35) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'warn',
-        'Your long lesson name cannot be more than 35 characters.',
-        'dismiss'
+        'Your long lesson name cannot be more than 35 characters.'
       );
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     } else if (shortName.length > 10) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'warn',
-        'Your abbreviated lesson name cannot be more than 10 characters.',
-        'dismiss'
+        'Your abbreviated lesson name cannot be more than 10 characters.'
       );
     } else if (
       this.lessonTypesModified
         .map((lesson) => lesson.name.toLocaleLowerCase())
         .includes(name.toLocaleLowerCase())
     ) {
-      this.snackbarService.openPermanent(
-        'warn',
-        'Lesson name must be unique',
-        'dismiss'
-      );
+      this.snackbarService.queueBar('warn', 'Lesson name must be unique.');
     } else if (
       this.lessonTypesModified
         .map((lesson) => lesson.shortName.toLocaleLowerCase())
         .includes(shortName.toLocaleLowerCase())
     ) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'warn',
-        'Abbreviated lesson name must be unique',
-        'dismiss'
+        'Abbreviated lesson name must be unique.'
       );
     } else {
       this.lessonTypesModified.push({ name, shortName });
@@ -792,10 +777,9 @@ export class AdminViewComponent implements OnInit, OnChanges {
         lesson.type.name.toLocaleLowerCase()
       );
       if (upcomingLessonTypes.includes(name.toLocaleLowerCase())) {
-        this.snackbarService.openPermanent(
+        this.snackbarService.queueBar(
           'warn',
-          'Unable to delete lesson type: There is an upcoming scheduled lesson that uses this lesson type. In order to delete this lesson type, you must wait for the lesson to finish, or delete all upcoming lessons that use this type.',
-          'dismiss'
+          'Unable to delete lesson type: There is an upcoming scheduled lesson that uses this lesson type. In order to delete this lesson type, you must wait for the lesson to finish, or delete all upcoming lessons that use this type.'
         );
       } else {
         this.lessonTypesModified = this.lessonTypesModified.filter(

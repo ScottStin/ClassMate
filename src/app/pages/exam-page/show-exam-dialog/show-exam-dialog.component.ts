@@ -131,20 +131,20 @@ export class ShowExamDialogComponent implements OnInit {
               )
               .subscribe({
                 next: () => {
-                  this.snackbarService.openPermanent(
-                    'info',
+                  this.snackbarService.queueBar(
+                    'warn',
                     "Ai marking and feedback for this student's exam has been saved. Please review the marking/feedback carefully, as the Ai is not perfect and can sometimes make mistakes."
                   );
                 },
                 error: (error: Error) => {
                   this.error = error;
-                  this.snackbarService.openPermanent('error', error.message);
+                  this.snackbarService.queueBar('error', error.message);
                 },
               });
           },
           error: (error: Error) => {
             this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
       }
@@ -745,7 +745,7 @@ export class ShowExamDialogComponent implements OnInit {
             )
             .subscribe({
               next: () => {
-                this.snackbarService.open(
+                this.snackbarService.queueBar(
                   'info',
                   'Your feedback has been submitted. Thank you.'
                 );
@@ -753,7 +753,7 @@ export class ShowExamDialogComponent implements OnInit {
               },
               error: (error: Error) => {
                 this.error = error;
-                this.snackbarService.openPermanent('error', error.message);
+                this.snackbarService.queueBar('error', error.message);
               },
             });
         }
@@ -772,7 +772,7 @@ export class ShowExamDialogComponent implements OnInit {
         )
         .subscribe({
           next: () => {
-            this.snackbarService.open(
+            this.snackbarService.queueBar(
               'info',
               'Your feedback has been submitted. Thank you.'
             );
@@ -780,7 +780,7 @@ export class ShowExamDialogComponent implements OnInit {
           },
           error: (error: Error) => {
             this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
     }
@@ -884,12 +884,15 @@ export class ShowExamDialogComponent implements OnInit {
           )
           .subscribe({
             next: () => {
-              this.snackbarService.open('info', 'Exam completed! Well done.');
+              this.snackbarService.queueBar(
+                'info',
+                'Exam completed! Well done.'
+              );
               this.dialogRef.close(true);
             },
             error: (error: Error) => {
               this.error = error;
-              this.snackbarService.openPermanent('error', error.message);
+              this.snackbarService.queueBar('error', error.message);
             },
           });
       }

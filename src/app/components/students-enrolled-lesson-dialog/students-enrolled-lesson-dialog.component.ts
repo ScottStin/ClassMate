@@ -77,7 +77,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
         if (user && this.lesson) {
           this.lessonService.cancelLesson(this.lesson, user).subscribe({
             next: () => {
-              this.snackbarService.open(
+              this.snackbarService.queueBar(
                 'info',
                 'Student has been removed from lesson and notified.'
               );
@@ -104,7 +104,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
             },
             error: (error: Error) => {
               this.error = error;
-              this.snackbarService.openPermanent('error', error.message);
+              this.snackbarService.queueBar('error', error.message);
             },
           });
         }
@@ -136,7 +136,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
             .joinLessonMultipleStudents(this.lesson, result)
             .subscribe({
               next: () => {
-                this.snackbarService.open(
+                this.snackbarService.queueBar(
                   'info',
                   'Students have been added to this lesson and notified.' // todo: this should include 'removed' if some students were removed from the lesson as well.
                 );
@@ -209,7 +209,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
               },
               error: (error: Error) => {
                 this.error = error;
-                this.snackbarService.openPermanent('error', error.message);
+                this.snackbarService.queueBar('error', error.message);
               },
             });
         }

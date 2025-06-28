@@ -107,17 +107,17 @@ export class HomePageComponent implements OnInit, OnDestroy {
             )
             .subscribe({
               error: (error: Error) => {
-                const snackbar = this.snackbarService.openPermanent(
+                this.snackbarService.queueBar(
                   'error',
                   `Error: Failed to load page: ${error.message}`,
-                  'retry'
+                  {
+                    label: `retry`,
+                    registerAction: (onAction: Observable<void>) =>
+                      onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                        this.loadPageData();
+                      }),
+                  }
                 );
-                snackbar
-                  .onAction()
-                  .pipe(first())
-                  .subscribe(() => {
-                    this.loadPageData();
-                  });
               },
             });
         }
@@ -191,7 +191,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
           if (result && joinClass) {
             this.lessonService.joinLesson(lesson, currentUser).subscribe({
               next: () => {
-                this.snackbarService.open(
+                this.snackbarService.queueBar(
                   'info',
                   "A seat for you in this lesson has been reserved. You will be able to enter the lesson 5 minutes before the start time. Go to 'My Classes' to view all your lessons. "
                 );
@@ -214,7 +214,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
               },
               error: (error: Error) => {
                 this.error = error;
-                this.snackbarService.openPermanent('error', error.message);
+                this.snackbarService.queueBar('error', error.message);
               },
             });
           }
@@ -244,7 +244,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
             if (result) {
               this.lessonService.cancelLesson(lesson, currentUser).subscribe({
                 next: () => {
-                  this.snackbarService.open(
+                  this.snackbarService.queueBar(
                     'info',
                     'You have successfully cancelled your place in this lesson.'
                   );
@@ -267,7 +267,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
                 },
                 error: (error: Error) => {
                   this.error = error;
-                  this.snackbarService.openPermanent('error', error.message);
+                  this.snackbarService.queueBar('error', error.message);
                 },
               });
             }
@@ -295,7 +295,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
       if (result) {
         this.lessonService.startLesson(lesson).subscribe({
           next: () => {
-            this.snackbarService.open(
+            this.snackbarService.queueBar(
               'info',
               "Lesson started. You will now be redirected to the video call page in a new tab. If the redirect doesn't immediately happen, you can click the 'Enter Lesson' button on the lesson card."
             );
@@ -306,7 +306,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
           },
           error: (error: Error) => {
             this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
       }

@@ -24,7 +24,7 @@ export class AuthLoggedInGuard implements CanActivate {
 
   private handleAccessDenied(): Observable<UrlTree> {
     this.currentSchool$ = this.schoolService.currentSchool$;
-    this.snackbarService.openPermanent(
+    this.snackbarService.queueBar(
       'warn',
       'You must be logged in to access this page.'
     );

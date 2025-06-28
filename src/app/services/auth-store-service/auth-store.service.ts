@@ -90,11 +90,7 @@ export class AuthStoreService {
         }),
         shareReplay(),
         catchError((error: HttpErrorResponse) => {
-          this.snackbarService.open(
-            'error',
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
-            `${error.error.error}`
-          );
+          this.snackbarService.queueBar('error', error.message);
           this.handleError(error, 'Failed to login');
         })
       );

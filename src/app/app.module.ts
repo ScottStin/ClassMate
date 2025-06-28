@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { SnackbarModule } from './components/snackbar/snackbar.module';
 
 const config: SocketIoConfig = { url: environment.apiUrl, options: {} }; // todo, replace url with .env prod and dev mode data
 
@@ -21,6 +22,7 @@ const config: SocketIoConfig = { url: environment.apiUrl, options: {} }; // todo
     HttpClientModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    SnackbarModule,
     SocketIoModule.forRoot(config),
   ],
   providers: [],

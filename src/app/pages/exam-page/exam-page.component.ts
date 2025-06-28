@@ -108,17 +108,17 @@ export class ExamPageComponent implements OnInit, OnDestroy {
           this.teachers$ = of(teachers);
         },
         error: (error: Error) => {
-          const snackbar = this.snackbarService.openPermanent(
+          this.snackbarService.queueBar(
             'error',
             `Error: Failed to load page: ${error.message}`,
-            'retry'
+            {
+              label: `retry`,
+              registerAction: (onAction: Observable<void>) =>
+                onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                  this.loadPageData();
+                }),
+            }
           );
-          snackbar
-            .onAction()
-            .pipe(first())
-            .subscribe(() => {
-              this.loadPageData();
-            });
         },
       });
   }
@@ -203,12 +203,12 @@ export class ExamPageComponent implements OnInit, OnDestroy {
       if (result) {
         this.examService.delete(exam).subscribe({
           next: () => {
-            this.snackbarService.open('info', 'Exam successfully deleted');
+            this.snackbarService.queueBar('info', 'Exam successfully deleted.');
             this.loadPageData();
           },
           error: (error: Error) => {
             this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
       }
@@ -252,10 +252,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
             }
           });
         } else {
-          this.snackbarService.openPermanent(
-            'error',
-            'This exam has no questions'
-          );
+          this.snackbarService.queueBar('error', 'This exam has no questions.');
         }
       });
   }
@@ -274,16 +271,16 @@ export class ExamPageComponent implements OnInit, OnDestroy {
         if (currentUser) {
           this.examService.registerForExam(exam, currentUser).subscribe({
             next: () => {
-              this.snackbarService.open(
+              this.snackbarService.queueBar(
                 'info',
-                "This exam has been added to your exam list in 'My Exams;'"
+                "This exam has been added to your exam list in 'My Exams'."
               );
               this.changeTabs();
               this.loadPageData();
             },
             error: (error: Error) => {
               this.error = error;
-              this.snackbarService.openPermanent('error', error.message);
+              this.snackbarService.queueBar('error', error.message);
             },
           });
         }

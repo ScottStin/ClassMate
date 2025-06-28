@@ -102,17 +102,17 @@ export class HomeworkPageComponent implements OnInit {
                 this.students$ = of(students);
               },
               error: (error: Error) => {
-                const snackbar = this.snackbarService.openPermanent(
+                this.snackbarService.queueBar(
                   'error',
                   `Error: Failed to load page: ${error.message}`,
-                  'retry'
+                  {
+                    label: `retry`,
+                    registerAction: (onAction: Observable<void>) =>
+                      onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                        this.loadPageData();
+                      }),
+                  }
                 );
-                snackbar
-                  .onAction()
-                  .pipe(first())
-                  .subscribe(() => {
-                    this.loadPageData();
-                  });
               },
             });
         }
@@ -141,7 +141,7 @@ export class HomeworkPageComponent implements OnInit {
               .create({ ...result, schoolId: currentSchool._id })
               .subscribe({
                 next: () => {
-                  this.snackbarService.open(
+                  this.snackbarService.queueBar(
                     'info',
                     'Homework exercise successfully created. Assigned students have been notified.'
                   );
@@ -176,7 +176,7 @@ export class HomeworkPageComponent implements OnInit {
                     });
                 },
                 error: (error: Error) => {
-                  this.snackbarService.openPermanent('error', error.message);
+                  this.snackbarService.queueBar('error', error.message);
                 },
               });
           }
@@ -207,14 +207,14 @@ export class HomeworkPageComponent implements OnInit {
               .update({ ...result, schoolId: currentSchool._id })
               .subscribe({
                 next: () => {
-                  this.snackbarService.open(
+                  this.snackbarService.queueBar(
                     'info',
                     'Homework exercise successfully modified. Assigned students have been notified.'
                   );
                   this.loadPageData();
                 },
                 error: (error: Error) => {
-                  this.snackbarService.openPermanent('error', error.message);
+                  this.snackbarService.queueBar('error', error.message);
                 },
               });
           }
@@ -235,11 +235,14 @@ export class HomeworkPageComponent implements OnInit {
       if (result) {
         this.homeworkService.delete(homework).subscribe({
           next: () => {
-            this.snackbarService.open('info', 'Homework successfully deleted');
+            this.snackbarService.queueBar(
+              'info',
+              'Homework successfully deleted.'
+            );
             this.loadPageData();
           },
           error: (error: Error) => {
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
       }
@@ -276,7 +279,7 @@ export class HomeworkPageComponent implements OnInit {
     if (feedback.update !== true) {
       this.homeworkService.addComment(feedback).subscribe({
         next: () => {
-          this.snackbarService.open('info', message);
+          this.snackbarService.queueBar('info', message);
           this.loadPageData();
 
           // --- create notificaiton:
@@ -317,17 +320,17 @@ export class HomeworkPageComponent implements OnInit {
             });
         },
         error: (error: Error) => {
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
     } else {
       this.homeworkService.editComment(feedback).subscribe({
         next: () => {
-          this.snackbarService.open('info', message);
+          this.snackbarService.queueBar('info', message);
           this.loadPageData();
         },
         error: (error: Error) => {
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
     }
@@ -355,14 +358,14 @@ export class HomeworkPageComponent implements OnInit {
           })
           .subscribe({
             next: () => {
-              this.snackbarService.open(
+              this.snackbarService.queueBar(
                 'info',
-                `Homework ${commentType} successfully deleted`
+                `Homework ${commentType} successfully deleted.`
               );
               this.loadPageData();
             },
             error: (error: Error) => {
-              this.snackbarService.openPermanent('error', error.message);
+              this.snackbarService.queueBar('error', error.message);
             },
           });
       }

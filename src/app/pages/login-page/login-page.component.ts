@@ -186,17 +186,17 @@ export class LoginPageComponent implements OnInit {
       .subscribe({
         error: (error: Error) => {
           this.pageLoading = false;
-          const snackbar = this.snackbarService.openPermanent(
+          this.snackbarService.queueBar(
             'error',
             `Error: Failed to load page: ${error.message}`,
-            'retry'
+            {
+              label: `retry`,
+              registerAction: (onAction: Observable<void>) =>
+                onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                  this.loadPageData();
+                }),
+            }
           );
-          snackbar
-            .onAction()
-            .pipe(first())
-            .subscribe(() => {
-              this.loadPageData();
-            });
         },
       });
   }
@@ -214,12 +214,12 @@ export class LoginPageComponent implements OnInit {
         message = `Thank you for joining, ${res.name}. Click the 'My Classes' tab to schedule your first lesson`;
         this.login(user, message, true);
       } else {
-        this.snackbarService.openPermanent('error', 'unable to sign up');
+        this.snackbarService.queueBar('error', 'Unable to sign up.');
         this.pageLoading = false;
       }
     } catch (error) {
       this.pageLoading = false;
-      this.snackbarService.openPermanent('error', 'unable to sign up');
+      this.snackbarService.queueBar('error', 'Unable to sign up.');
     }
   }
 
@@ -241,7 +241,7 @@ export class LoginPageComponent implements OnInit {
       // const urlPath = `${school.name.replace(/ /gu, '-').toLowerCase()}/home`;
       // await this.router.navigateByUrl('test-new-school-6/home');
     } catch (error) {
-      this.snackbarService.openPermanent('error', 'unable to sign up');
+      this.snackbarService.queueBar('error', 'unable to sign up.');
       this.pageLoading = false;
     }
   }
@@ -280,12 +280,12 @@ export class LoginPageComponent implements OnInit {
                       if (currentUser) {
                         const firstName = currentUser.name.split(' ')[0]; // todo - move firstname generator to auth.store.service
                         if (!(signup ?? false)) {
-                          this.snackbarService.open(
+                          this.snackbarService.queueBar(
                             'info',
                             `Welcome back, ${firstName}!`
                           );
                         } else {
-                          this.snackbarService.open('info', message);
+                          this.snackbarService.queueBar('info', message);
                         }
                       }
                     });
@@ -300,9 +300,9 @@ export class LoginPageComponent implements OnInit {
       (error) => {
         // eslint-disable-next-line no-console
         console.log(error);
-        this.snackbarService.openPermanent(
+        this.snackbarService.queueBar(
           'error',
-          'Username or Password Incorrect'
+          'Username or Password Incorrect.'
         );
       }
     );
@@ -338,12 +338,12 @@ export class LoginPageComponent implements OnInit {
                     .subscribe((currentUser) => {
                       if (currentUser) {
                         if (!(signup ?? false)) {
-                          this.snackbarService.open(
+                          this.snackbarService.queueBar(
                             'info',
                             `Welcome back, ${currentSchool.name}!`
                           );
                         } else {
-                          this.snackbarService.open('info', message);
+                          this.snackbarService.queueBar('info', message);
                         }
                       }
                     });
@@ -358,9 +358,9 @@ export class LoginPageComponent implements OnInit {
       (error) => {
         // eslint-disable-next-line no-console
         console.log(error);
-        this.snackbarService.openPermanent(
+        this.snackbarService.queueBar(
           'error',
-          'Username or Password Incorrect'
+          'Username or Password Incorrect.'
         );
       }
     );
@@ -381,11 +381,11 @@ export class LoginPageComponent implements OnInit {
     if (id !== undefined && id !== null) {
       this.schoolService.delete(id).subscribe({
         next: () => {
-          this.snackbarService.open('info', 'School successfully deleted');
+          this.snackbarService.queueBar('info', 'School successfully deleted.');
         },
         error: (error: Error) => {
           this.error = error;
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
     }
@@ -395,11 +395,11 @@ export class LoginPageComponent implements OnInit {
     if (id !== undefined && id !== null) {
       this.userService.delete(id).subscribe({
         next: () => {
-          this.snackbarService.open('info', 'School successfully deleted');
+          this.snackbarService.queueBar('info', 'School successfully deleted.');
         },
         error: (error: Error) => {
           this.error = error;
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
     }

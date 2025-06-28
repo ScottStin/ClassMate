@@ -1,11 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { first, Observable } from 'rxjs';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Observable } from 'rxjs';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+@UntilDestroy()
 @Component({
   selector: 'app-students-completed-exam-dialog',
   templateUrl: './students-completed-exam-dialog.component.html',
@@ -61,20 +63,14 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
 
         this.usersLoading = false;
       },
-      error: (error: Error) => {
-        const snackbar = this.snackbarService.openPermanent(
-          'error',
-          'Error: Failed to load users.',
-          'retry'
-        );
-        // eslint-disable-next-line no-console
-        console.log(error);
-        snackbar
-          .onAction()
-          .pipe(first())
-          .subscribe(() => {
-            this.getStudentList();
-          });
+      error: () => {
+        this.snackbarService.queueBar('error', 'Error: Failed to load users.', {
+          label: `retry`,
+          registerAction: (onAction: Observable<void>) =>
+            onAction.pipe(untilDestroyed(this)).subscribe(() => {
+              this.getStudentList();
+            }),
+        });
       },
     });
   }

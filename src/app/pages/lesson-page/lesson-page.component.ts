@@ -129,17 +129,17 @@ export class LessonPageComponent implements OnInit, OnDestroy {
                 this.teachers$ = of(teachers);
               },
               error: (error: Error) => {
-                const snackbar = this.snackbarService.openPermanent(
+                this.snackbarService.queueBar(
                   'error',
                   `Error: Failed to load page: ${error.message}`,
-                  'retry'
+                  {
+                    label: `retry`,
+                    registerAction: (onAction: Observable<void>) =>
+                      onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                        this.loadPageData();
+                      }),
+                  }
                 );
-                snackbar
-                  .onAction()
-                  .pipe(first())
-                  .subscribe(() => {
-                    this.loadPageData();
-                  });
               },
             });
         }
@@ -184,15 +184,15 @@ export class LessonPageComponent implements OnInit, OnDestroy {
               if (result) {
                 this.lessonService.create(result).subscribe({
                   next: () => {
-                    this.snackbarService.open(
+                    this.snackbarService.queueBar(
                       'info',
-                      'Lessons successfully created'
+                      'Lessons successfully created.'
                     );
                     this.loadPageData();
                   },
                   error: (error: Error) => {
                     this.error = error;
-                    this.snackbarService.openPermanent('error', error.message);
+                    this.snackbarService.queueBar('error', error.message);
                   },
                 });
               }
@@ -215,7 +215,10 @@ export class LessonPageComponent implements OnInit, OnDestroy {
       if (result) {
         this.lessonService.delete(lesson).subscribe({
           next: () => {
-            this.snackbarService.open('info', 'Lesson successfully deleted');
+            this.snackbarService.queueBar(
+              'info',
+              'Lesson successfully deleted.'
+            );
             this.loadPageData();
 
             // --- create notificaiton:
@@ -242,7 +245,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
           },
           error: (error: Error) => {
             this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
       }
@@ -266,7 +269,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
             if (result) {
               this.lessonService.cancelLesson(lesson, currentUser).subscribe({
                 next: () => {
-                  this.snackbarService.open(
+                  this.snackbarService.queueBar(
                     'info',
                     'You have successfully cancelled your place in this lesson.'
                   );
@@ -289,7 +292,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
                 },
                 error: (error: Error) => {
                   this.error = error;
-                  this.snackbarService.openPermanent('error', error.message);
+                  this.snackbarService.queueBar('error', error.message);
                 },
               });
             }
@@ -317,7 +320,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
       if (result) {
         this.lessonService.startLesson(lesson).subscribe({
           next: () => {
-            this.snackbarService.open(
+            this.snackbarService.queueBar(
               'info',
               "Lesson started. You will now be redirected to the video call page in a new tab. If the redirect doesn't immediately happen, you can click the 'Enter Lesson' button on the lesson card."
             );
@@ -344,7 +347,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
           },
           error: (error: Error) => {
             this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
       }

@@ -95,10 +95,9 @@ export class CreateHomeworkDialogComponent implements OnInit {
 
       this.dialogRef.close(homework);
     } else {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'error',
-        'Error creating homework exercise. Please try again.',
-        'dismiss'
+        'Error creating homework exercise. Please try again.'
       );
     }
   }
@@ -343,19 +342,14 @@ export class CreateHomeworkDialogComponent implements OnInit {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const maxSize = 1000 * 1024; // 1000 KB
     if (!types.includes(file.type)) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'error',
-        'File must be an either a png, gif, tiff, jpeg, pdf, or ms-word doc type',
-        'dismiss'
+        'File must be an either a png, gif, tiff, jpeg, pdf, or ms-word doc type.'
       );
       return false;
     }
     if (file.size > maxSize) {
-      this.snackbarService.openPermanent(
-        'error',
-        'File must be 1-1000 kb in size',
-        'dismiss'
-      );
+      this.snackbarService.queueBar('error', 'File must be 1-1000 kb in size.');
       return false;
     }
 

@@ -93,9 +93,9 @@ export class AddStudentToLessonDialogComponent implements OnInit {
       this.lesson &&
       this.enrolledStudents.length >= this.lesson.maxStudents
     ) {
-      this.snackbarService.open(
+      this.snackbarService.queueBar(
         'warn',
-        'Lesson is now full. Remove a student by unchecking them before you can add more students'
+        'Lesson is now full. Remove a student by unchecking them before you can add more students.'
       );
     }
   }

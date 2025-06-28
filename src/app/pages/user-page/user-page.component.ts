@@ -151,17 +151,17 @@ export class UserPageComponent implements OnInit, OnDestroy {
               this.filteredUsers$ = of(students);
             },
             error: (error: Error) => {
-              const snackbar = this.snackbarService.openPermanent(
+              this.snackbarService.queueBar(
                 'error',
                 `Error: Failed to load page: ${error.message}`,
-                'retry'
+                {
+                  label: `retry`,
+                  registerAction: (onAction: Observable<void>) =>
+                    onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                      this.getUsers();
+                    }),
+                }
               );
-              snackbar
-                .onAction()
-                .pipe(first())
-                .subscribe(() => {
-                  this.getUsers();
-                });
             },
           });
       }
@@ -192,7 +192,10 @@ export class UserPageComponent implements OnInit, OnDestroy {
             )
             .subscribe({
               next: () => {
-                this.snackbarService.open('info', 'User successfully updated');
+                this.snackbarService.queueBar(
+                  'info',
+                  'User successfully updated.'
+                );
                 if (result.level?.shortName !== data.user.level?.shortName) {
                   this.notificationService
                     .create({
@@ -216,7 +219,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
               },
               error: (error: Error) => {
                 this.error = error;
-                this.snackbarService.openPermanent('error', error.message);
+                this.snackbarService.queueBar('error', error.message);
               },
             });
         }
@@ -237,12 +240,12 @@ export class UserPageComponent implements OnInit, OnDestroy {
       if (result) {
         this.userService.delete(user._id).subscribe({
           next: () => {
-            this.snackbarService.open('info', 'User successfully deleted');
+            this.snackbarService.queueBar('info', 'User successfully deleted.');
             this.getUsers();
           },
           error: (error: Error) => {
             this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
       }
@@ -289,7 +292,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
               )
               .subscribe({
                 next: () => {
-                  this.snackbarService.open(
+                  this.snackbarService.queueBar(
                     'info',
                     'User successfully created'
                   );
@@ -297,7 +300,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
                 },
                 error: (error: Error) => {
                   this.error = error;
-                  this.snackbarService.openPermanent('error', error.message);
+                  this.snackbarService.queueBar('error', error.message);
                 },
               });
           }

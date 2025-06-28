@@ -82,9 +82,9 @@ export class VideoLessonViewComponent implements OnInit, OnChanges {
       ) {
         await this.initializeCall();
       } else {
-        this.snackbarService.openPermanent(
+        this.snackbarService.queueBar(
           'error',
-          `Error: Your must be enrolled in this lesson to join. Please click the 'join' button on the lesson card and try again`
+          `Error: Your must be enrolled in this lesson to join. Please click the 'join' button on the lesson card and try again.`
         );
         if (this.currentSchool) {
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion

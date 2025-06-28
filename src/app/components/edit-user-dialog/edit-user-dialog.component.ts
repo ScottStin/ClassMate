@@ -189,11 +189,7 @@ export class EditUserDialogComponent implements OnInit {
   cropperReady(): void {}
 
   loadImageFailed(): void {
-    this.snackbarService.openPermanent(
-      'error',
-      'image failed to load',
-      'dismiss'
-    );
+    this.snackbarService.queueBar('error', 'image failed to load.');
   }
 
   validateImage(image: File): boolean {
@@ -201,19 +197,14 @@ export class EditUserDialogComponent implements OnInit {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const maxSize = 1000 * 1024; // 1000 KB
     if (!types.includes(image.type)) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'error',
-        'Picture must be .png/.gif/.tif/.jpg type',
-        'dismiss'
+        'Picture must be .png/.gif/.tif/.jpg type.'
       );
       return false;
     }
     if (image.size > maxSize) {
-      this.snackbarService.openPermanent(
-        'error',
-        'File must be 1-1000 kb in size',
-        'dismiss'
-      );
+      this.snackbarService.queueBar('error', 'File must be 1-1000 kb in size.');
       return false;
     }
 

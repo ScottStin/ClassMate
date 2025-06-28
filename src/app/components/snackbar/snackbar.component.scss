@@ -1,0 +1,42 @@
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
+.bar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: $secondaryColor !important;
+  color: $primaryColor !important;
+}
+
+.bar-icon-message {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-right: 2em;
+}
+
+::ng-deep .mat-snack-bar-container {
+  background-color: $secondaryColor;
+  border: $primaryColor solid;
+}
+
+.bar-action-label {
+  text-transform: uppercase;
+}
+
+.bar-close-button {
+  min-width: 1%;
+}
+
+// .color-error {
+//   // color: $alertColor;
+// }
+
+// .color-success {
+//   // color: $successColor;
+// }
+
+// .color-warn {
+//   // color: $neutralOrange;
+// }

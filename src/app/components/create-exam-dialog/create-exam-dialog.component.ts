@@ -544,8 +544,8 @@ export class CreateExamDialogComponent implements OnInit {
     }
 
     if (field === 'autoMarking' && text === true) {
-      this.snackbarService.openPermanent(
-        'info',
+      this.snackbarService.queueBar(
+        'warn',
         'Please note that you will be charged 5 cents per question that uses our automarking software. For example, if you have an exam that has 10 auto marked questions, you will be charged 50 cents per student who completes that exam (assuming that they complete all auto marked questions).'
       );
     }
@@ -870,18 +870,16 @@ export class CreateExamDialogComponent implements OnInit {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const maxSize = 1000 * 1024 * 10; // 10,000 KB
     if (!types.includes(file.type)) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'error',
-        'File must be an either a png, gif, tiff, jpeg, mpeg, wav, or ogg type',
-        'dismiss'
+        'File must be an either a png, gif, tiff, jpeg, mpeg, wav, or ogg type.'
       );
       return false;
     }
     if (file.size > maxSize) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'error',
-        'File must be 1-10,000 kb in size',
-        'dismiss'
+        'File must be 1-10,000 kb in size.'
       );
       return false;
     }
@@ -983,12 +981,12 @@ export class CreateExamDialogComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.snackbarService.open('info', 'Exam successfully created');
+          this.snackbarService.queueBar('info', 'Exam successfully created');
           this.closeDialog(true);
         },
         error: (error: Error) => {
           this.error = error;
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
   }

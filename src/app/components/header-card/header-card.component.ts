@@ -129,10 +129,9 @@ export class HeaderCardComponent implements OnInit {
 
   getNotificationsAndMessages(): void {
     if (!this.currentUser?._id) {
-      this.snackbarService.open(
+      this.snackbarService.queueBar(
         'error',
-        'Error loading current user in header bar',
-        'dismiss'
+        'Error loading current user in header bar.'
       );
       return;
     }

@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { finalize, first, Observable, of, Subscription } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { LessonService } from 'src/app/services/lesson-service/lesson.service';
@@ -21,6 +22,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { AdminViewComponent } from './admin-view/admin-view.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-admin-page',
   templateUrl: './admin-page.component.html',
@@ -135,17 +137,17 @@ export class AdminPageComponent implements OnInit, OnDestroy {
                   this.lessons$ = of(filterdLessons);
                 },
                 error: (error: Error) => {
-                  const snackbar = this.snackbarService.openPermanent(
+                  this.snackbarService.queueBar(
                     'error',
                     `Error: Failed to load page: ${error.message}`,
-                    'retry'
+                    {
+                      label: `retry`,
+                      registerAction: (onAction: Observable<void>) =>
+                        onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                          this.getCurrentSchoolDetails();
+                        }),
+                    }
                   );
-                  snackbar
-                    .onAction()
-                    .pipe(first())
-                    .subscribe(() => {
-                      this.getCurrentSchoolDetails();
-                    });
                 },
               });
           }
@@ -165,9 +167,9 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     if (currentSchoolId !== undefined && currentSchoolId !== null) {
       this.schoolService.update(updatedData, currentSchoolId).subscribe({
         next: (result: { school: SchoolDTO; user: UserDTO }) => {
-          this.snackbarService.open(
+          this.snackbarService.queueBar(
             'info',
-            'School details successfully updated'
+            'School details successfully updated.'
           );
           this.schoolService.updateCurrentSchool(result.school);
           this.authStoreService.updateCurrentUser(result.user);
@@ -177,7 +179,7 @@ export class AdminPageComponent implements OnInit, OnDestroy {
           }, 0);
         },
         error: (error: Error) => {
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
     }

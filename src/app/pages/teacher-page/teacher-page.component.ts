@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { finalize, first, Observable, Subscription, tap } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { SchoolService } from 'src/app/services/school-service/school.service';
@@ -14,6 +15,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   templateUrl: './teacher-page.component.html',
   styleUrls: ['./teacher-page.component.css'],
 })
+@UntilDestroy()
 export class TeacherPageComponent implements OnInit, OnDestroy {
   error: Error;
   teacherPageLoading = false;
@@ -55,17 +57,17 @@ export class TeacherPageComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         error: (error: Error) => {
-          const snackbar = this.snackbarService.openPermanent(
+          this.snackbarService.queueBar(
             'error',
             `Error: Failed to load page: ${error.message}`,
-            'retry'
+            {
+              label: `retry`,
+              registerAction: (onAction: Observable<void>) =>
+                onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                  this.getUsers();
+                }),
+            }
           );
-          snackbar
-            .onAction()
-            .pipe(first())
-            .subscribe(() => {
-              this.getUsers();
-            });
         },
       });
   }
@@ -87,12 +89,12 @@ export class TeacherPageComponent implements OnInit, OnDestroy {
       if (result) {
         this.userService.delete(user._id).subscribe({
           next: () => {
-            this.snackbarService.open('info', 'User successfully deleted');
+            this.snackbarService.queueBar('info', 'User successfully deleted');
             this.getUsers();
           },
           error: (error: Error) => {
             this.error = error;
-            this.snackbarService.openPermanent('error', error.message);
+            this.snackbarService.queueBar('error', error.message);
           },
         });
       }

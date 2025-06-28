@@ -201,14 +201,14 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
           )
           .subscribe({
             next: () => {
-              this.snackbarService.open(
+              this.snackbarService.queueBar(
                 'info',
-                'Your profile has successfully been updated'
+                'Your profile has successfully been updated.'
               );
             },
             error: (error: Error) => {
               this.error = error;
-              this.snackbarService.openPermanent('error', error.message);
+              this.snackbarService.queueBar('error', error.message);
             },
           });
       }
@@ -319,7 +319,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
         if (this.currentUser) {
           firstName = this.currentUser.name.split(' ')[0];
         }
-        this.snackbarService.open('info', `Goodbye, ${firstName}!`);
+        this.snackbarService.queueBar('info', `Goodbye, ${firstName}!`);
         this.authStoreService.logout();
       }
     });

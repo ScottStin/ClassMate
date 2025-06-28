@@ -89,9 +89,9 @@ export class CreateMatchOptionsExamQuestionDialogComponent implements OnInit {
       }
       this.formChanged = true;
     } else {
-      this.snackbarService.open(
+      this.snackbarService.queueBar(
         'warn',
-        'Maximum number of question options reached. Please delete some options before adding more'
+        'Maximum number of question options reached. Please delete some options before adding more.'
       );
     }
   }

@@ -91,9 +91,9 @@ export class CreateReorderSentenceExamQuestionDialogComponent
         });
       }
     } else {
-      this.snackbarService.open(
+      this.snackbarService.queueBar(
         'warn',
-        'Maximum number of options reached. Please delete some options before adding more'
+        'Maximum number of options reached. Please delete some options before adding more.'
       );
     }
   }

@@ -40,19 +40,11 @@ export class SchoolLoginRedirectorComponent implements OnInit {
         const schoolName = foundSchool.name.replace(/ /gu, '-').toLowerCase();
         await this.router.navigateByUrl(`${schoolName}/school/login`);
       } else {
-        this.snackbarService.openPermanent(
-          'error',
-          'Image failed to load',
-          'dismiss'
-        );
+        this.snackbarService.queueBar('error', 'Image failed to load.');
       }
       this.dialogRef.close(true);
     } else {
-      this.snackbarService.openPermanent(
-        'error',
-        'Error loading schools',
-        'dismiss'
-      );
+      this.snackbarService.queueBar('error', 'Error loading schools.');
     }
   }
 

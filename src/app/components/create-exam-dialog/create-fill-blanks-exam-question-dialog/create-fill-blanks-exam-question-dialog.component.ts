@@ -75,7 +75,7 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
 
       // Check if the total length of text (including spaces) exceeds 2000 characters
       if (currentText.length >= 2000) {
-        this.snackbarService.open(
+        this.snackbarService.queueBar(
           'warn',
           'The maximum text length of 2000 characters has been reached. Cannot add more blanks.'
         );
@@ -117,9 +117,9 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
 
       this.formChanged = true;
     } else {
-      this.snackbarService.open(
+      this.snackbarService.queueBar(
         'warn',
-        'Maximum number of blanks for this question have been reached. Please delete some blanks before adding more'
+        'Maximum number of blanks for this question have been reached. Please delete some blanks before adding more.'
       );
     }
   }
@@ -336,9 +336,9 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
       }
       this.formChanged = true;
     } else {
-      this.snackbarService.open(
+      this.snackbarService.queueBar(
         'warn',
-        'Maximum number of questions reached. Please delete some options before adding more'
+        'Maximum number of questions reached. Please delete some options before adding more.'
       );
     }
   }

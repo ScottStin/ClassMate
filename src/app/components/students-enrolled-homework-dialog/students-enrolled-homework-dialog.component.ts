@@ -4,7 +4,8 @@ import {
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { first, Observable } from 'rxjs';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Observable } from 'rxjs';
 import { HomeworkService } from 'src/app/services/homework-service/homework.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserService } from 'src/app/services/user-service/user.service';
@@ -13,6 +14,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
+@UntilDestroy()
 @Component({
   selector: 'app-students-enrolled-homework-dialog',
   templateUrl: './students-enrolled-homework-dialog.component.html',
@@ -74,20 +76,14 @@ export class StudentsEnrolledHomeworkDialogComponent implements OnInit {
 
         this.usersLoading = false;
       },
-      error: (error: Error) => {
-        const snackbar = this.snackbarService.openPermanent(
-          'error',
-          'Error: Failed to load users.',
-          'retry'
-        );
-        // eslint-disable-next-line no-console
-        console.log(error);
-        snackbar
-          .onAction()
-          .pipe(first())
-          .subscribe(() => {
-            this.getUsers();
-          });
+      error: () => {
+        this.snackbarService.queueBar('error', 'Error: Failed to load users.', {
+          label: `retry`,
+          registerAction: (onAction: Observable<void>) =>
+            onAction.pipe(untilDestroyed(this)).subscribe(() => {
+              this.getUsers();
+            }),
+        });
       },
     });
   }
@@ -125,7 +121,7 @@ export class StudentsEnrolledHomeworkDialogComponent implements OnInit {
           })
           .subscribe({
             next: () => {
-              this.snackbarService.open(
+              this.snackbarService.queueBar(
                 'info',
                 'Student sucessfully removed from homework item.'
               );
@@ -136,7 +132,7 @@ export class StudentsEnrolledHomeworkDialogComponent implements OnInit {
               );
             },
             error: (error: Error) => {
-              this.snackbarService.openPermanent('error', error.message);
+              this.snackbarService.queueBar('error', error.message);
             },
           });
       }

@@ -97,17 +97,13 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        const snackbar = this.snackbarService.openPermanent(
-          'error',
-          'Error: Failed to load site.',
-          'retry'
-        );
-        snackbar
-          .onAction()
-          .pipe(first())
-          .subscribe(() => {
-            this.getSchools(schoolUrlName);
-          });
+        this.snackbarService.queueBar('error', 'Error: Failed to load site.', {
+          label: 'retry',
+          registerAction: (onAction: Observable<void>) =>
+            onAction.pipe(untilDestroyed(this)).subscribe(() => {
+              this.getSchools(schoolUrlName);
+            }),
+        });
       },
     });
   }

@@ -343,7 +343,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
           ...this.selectedBackgroundImage,
           type: this.backgroundImageType,
         });
-        this.snackbarService.openPermanent(
+        this.snackbarService.queueBar(
           'info',
           "Can't decide on a good background image? Don't worry, you can always change it later!"
         );
@@ -353,10 +353,9 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
 
   changePrimaryButtonBackgroundColor(color: string): void {
     this.primaryButtonBackgroundColor = color;
-    this.snackbarService.openPermanent(
+    this.snackbarService.queueBar(
       'info',
-      'Hint: try to avoid using oranges and reds for your main button background color, as these are used for alert and warning buttons',
-      'dismiss'
+      'Hint: try to avoid using oranges and reds for your main button background color, as these are used for alert and warning buttons.'
     );
   }
 
@@ -375,29 +374,25 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   addLessonType(name: string, shortName: string): void {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     if (this.lessonTypes.length >= 5) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'error',
-        'Sorry, you can only have a maximum of 5 class types.',
-        'dismiss'
+        'Sorry, you can only have a maximum of 5 class types.'
       );
     } else if (!name || !shortName) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'warn',
-        'Please enter a name and abbreviated name for your lesson',
-        'dismiss'
+        'Please enter a name and abbreviated name for your lesson.'
       );
     } else if (name.length > 35) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'warn',
-        'Your long lesson name cannot be more than 35 characters.',
-        'dismiss'
+        'Your long lesson name cannot be more than 35 characters.'
       );
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     } else if (shortName.length > 10) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'warn',
-        'Your abbreviated lesson name cannot be more than 10 characters.',
-        'dismiss'
+        'Your abbreviated lesson name cannot be more than 10 characters.'
       );
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     } else {
@@ -615,11 +610,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
   cropperReady(): void {}
 
   loadImageFailed(): void {
-    this.snackbarService.openPermanent(
-      'error',
-      'image failed to load',
-      'dismiss'
-    );
+    this.snackbarService.queueBar('error', 'image failed to load.');
   }
 
   validateImage(image: File): boolean {
@@ -627,19 +618,14 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const maxSize = 1000 * 1024; // 1000 KB
     if (!types.includes(image.type)) {
-      this.snackbarService.openPermanent(
+      this.snackbarService.queueBar(
         'error',
-        'Picture must be .png/.gif/.tif/.jpg type',
-        'dismiss'
+        'Picture must be .png/.gif/.tif/.jpg type.'
       );
       return false;
     }
     if (image.size > maxSize) {
-      this.snackbarService.openPermanent(
-        'error',
-        'File must be 1-1000 kb in size',
-        'dismiss'
-      );
+      this.snackbarService.queueBar('error', 'File must be 1-1000 kb in size.');
       return false;
     }
 

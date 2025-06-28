@@ -1,0 +1,34 @@
+<div class="bar-content">
+  <div class="bar-icon-message">
+    <ng-container>
+      <mat-icon *ngIf="data.type === 'info'">info</mat-icon>
+      <mat-icon *ngIf="data.type === 'warn'">warning</mat-icon>
+      <mat-icon *ngIf="data.type === 'error'">error</mat-icon>
+      <mat-icon *ngIf="data.type === 'success'">check_circle</mat-icon>
+    </ng-container>
+    <div>{{ data.message }}</div>
+  </div>
+  <div>
+    <button
+      *ngIf="data.action"
+      mat-button
+      type="button"
+      color="primary"
+      data-testid="dismissWithActionSnackbarButton"
+      (click)="dismissWithAction()"
+    >
+      <span class="bar-action-label">{{ data.action?.label }}</span>
+    </button>
+
+    <button
+      mat-button
+      type="button"
+      color="primary"
+      class="bar-close-button"
+      data-testid="dismissSnackbarButton"
+      (click)="dismiss()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>

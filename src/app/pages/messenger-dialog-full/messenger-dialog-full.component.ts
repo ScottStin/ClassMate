@@ -57,7 +57,7 @@ export class MessengerDialogFullComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe({
         error: (error: Error) => {
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
   }
@@ -83,7 +83,7 @@ export class MessengerDialogFullComponent implements OnInit {
           }
         },
         error: (error: Error) => {
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
   }
@@ -133,7 +133,7 @@ export class MessengerDialogFullComponent implements OnInit {
           });
         },
         error: (error: Error) => {
-          this.snackbarService.openPermanent('error', error.message);
+          this.snackbarService.queueBar('error', error.message);
         },
       });
   }
@@ -144,7 +144,10 @@ export class MessengerDialogFullComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe({
         next: () => {
-          this.snackbarService.open('info', 'Message successfully updated');
+          this.snackbarService.queueBar(
+            'info',
+            'Message successfully updated.'
+          );
           this.messengerDialogFullViewComponent.currentEditMessage = undefined;
         },
       });
@@ -156,7 +159,10 @@ export class MessengerDialogFullComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe({
         next: () => {
-          this.snackbarService.open('info', 'Message successfully deleted');
+          this.snackbarService.queueBar(
+            'info',
+            'Message successfully deleted.'
+          );
         },
       });
   }
@@ -167,7 +173,7 @@ export class MessengerDialogFullComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe({
         next: () => {
-          this.snackbarService.open('info', 'Group successfully deleted');
+          this.snackbarService.queueBar('info', 'Group successfully deleted.');
         },
       });
   }
