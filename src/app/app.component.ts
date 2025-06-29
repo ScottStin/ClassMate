@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { first, Observable, Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { schools } from './app-routing.module';
 import { AuthStoreService } from './services/auth-store-service/auth-store.service';

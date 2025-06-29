@@ -38,7 +38,6 @@ $secondaryColor: var(--secondaryColor);
 }
 
 .logIn-header {
-    /* color:purple; */
     font-weight: 600;
     letter-spacing: 1px;
     font-size: 25px; 
@@ -46,14 +45,14 @@ $secondaryColor: var(--secondaryColor);
 }
 
 .not-hovered {
-    filter: grayscale(200%);
-    transform: scale(0.7);
+    filter: grayscale(125%);
+    transform: scale(0.9);
 }
 
 .container:hover > .logIn-planels:hover {
     filter:contrast(100%) brightness(100%);
     cursor: pointer;  
-    transform:scale(1.02) translateY(-3em);
+    transform:scale(1.01) translateY(-2em);
     box-shadow: 0 5em 5em -5em;
 }
   
