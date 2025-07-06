@@ -136,7 +136,7 @@
           type="file"
           hidden="true"
           (change)="fileChangeEvent($event)"
-          accept="image/png, image/jpeg, image/gif, image/tiff"
+          accept="imageService.acceptedImageTypes"
         />
         <input
           (click)="photoInput.click()"
@@ -156,12 +156,12 @@
         format="png"
         [imageChangedEvent]="imageChangedEvent"
         [maintainAspectRatio]="true"
-        [aspectRatio]="4 / 3"
-        [resizeToWidth]="215"
+        [aspectRatio]="imageService.primaryImageAspectRation"
+        [resizeToWidth]="imageService.resizeWidthLarge"
         (imageCropped)="imageCropped($event)"
-        (imageLoaded)="imageLoaded()"
-        (cropperReady)="cropperReady()"
-        (loadImageFailed)="loadImageFailed()"
+        (imageLoaded)="imageService.imageLoaded()"
+        (cropperReady)="imageService.cropperReady()"
+        (loadImageFailed)="imageService.loadImageFailed()"
       ></image-cropper>
     </div>
   </mat-dialog-content>

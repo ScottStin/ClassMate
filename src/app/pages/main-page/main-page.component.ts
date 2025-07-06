@@ -45,6 +45,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
     primaryButtonBackgroundColor:
       this.defaultStyles.primaryButtonBackgroundColor,
     primaryButtonTextColor: this.defaultStyles.primaryButtonTextColor,
+    warnColor: this.defaultStyles.warnColor,
+    errorColor: this.defaultStyles.errorColor,
   };
   backgroundImages = backgroundImages;
   selectedBackgroundImage: BackgroundImageDTO | null = this.backgroundImages[0];
@@ -120,7 +122,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
             | BackgroundImageDTO
             | undefined;
 
-          if (backgroundImage !== undefined) {
+          if (backgroundImage) {
             this.selectedBackgroundImage = currentSchool.backgroundImage;
             this.setGlobalRootStyle(
               'backgroundImage',
@@ -132,7 +134,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
           const primaryButtonBackgroundColor =
             currentSchool.primaryButtonBackgroundColor as string | undefined;
 
-          if (primaryButtonBackgroundColor !== undefined) {
+          if (primaryButtonBackgroundColor) {
             this.styles.primaryButtonBackgroundColor =
               primaryButtonBackgroundColor;
 
@@ -146,10 +148,28 @@ export class MainPageComponent implements OnInit, OnDestroy {
           const primaryButtonTextColor =
             currentSchool.primaryButtonTextColor as string | undefined;
 
-          if (primaryButtonTextColor !== undefined) {
+          if (primaryButtonTextColor) {
             this.styles.primaryButtonTextColor = primaryButtonTextColor;
 
             this.setGlobalRootStyle('secondaryColor', primaryButtonTextColor);
+          }
+
+          // --- get warnColor color:
+          const warnColor = currentSchool.warnColor as string | undefined;
+
+          if (warnColor) {
+            this.styles.warnColor = warnColor;
+
+            this.setGlobalRootStyle('warnColor', warnColor);
+          }
+
+          // --- get errorColor color:
+          const errorColor = currentSchool.errorColor as string | undefined;
+
+          if (errorColor) {
+            this.styles.errorColor = errorColor;
+
+            this.setGlobalRootStyle('errorColor', errorColor);
           }
         }
       }

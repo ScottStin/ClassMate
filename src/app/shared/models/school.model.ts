@@ -1,26 +1,33 @@
-/* eslint-disable prettier/prettier *//* eslint-disable linebreak-style */
+import { ImageType } from 'src/app/services/image-service/image.service';
+
 import { BackgroundImageDTO } from '../background-images';
 
-export interface SchoolDTO {
-  _id?: string | null;
+export interface CreateSchoolDTO {
   name: string;
   email: string;
-  phone?: string | null;
-  address?: string | null;
+  phone?: string;
+  address?: string;
   nationality: string;
   description: string;
-  hasedPassword?: string | null;
-  unhashedPassword?: string | null;
-  logo?: {
-    url: string;
-    filename: string;
-  } | null;
+  unhashedPassword: string;
+  logoPrimary: ImageType;
+  logoSecondary: ImageType;
   backgroundImage: BackgroundImageDTO;
   primaryButtonBackgroundColor: string;
   primaryButtonTextColor: string;
+  warnColor: string;
+  errorColor: string;
   lessonTypes: { name: string; shortName: string }[];
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
 }
 
-export type SchoolLoginDTO = Pick<SchoolDTO, 'email' | 'unhashedPassword'>;
+export type SchoolDTO = Omit<CreateSchoolDTO, 'unhashedPassword'> & {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  hasedPassword?: string;
+};
+
+export type SchoolLoginDto = Pick<
+  CreateSchoolDTO,
+  'email' | 'unhashedPassword'
+>;

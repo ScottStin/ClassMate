@@ -122,9 +122,14 @@
                     <mat-option value="other">Select country...</mat-option>
                     <mat-option
                       *ngFor="let country of countryList"
-                      [value]="country"
+                      [value]="country.name"
                     >
-                      {{ country }}
+                      <img
+                        [src]="'https://flagcdn.com/w20/' + country.isoCode.toLowerCase() + '.png'"
+                        alt="{{ country.name }} flag"
+                        class="country-flag"
+                      />
+                      {{ country.name }}
                     </mat-option>
                     <mat-option value="other">OTHER</mat-option>
                   </mat-select>
@@ -211,19 +216,22 @@
                   <!------ PHOTO UPLOADER ------->
                   <!-- -- --- --- ----- --- -- -->
 
-                  <div *ngIf="row.formType === 'image'">
+                  <!-- Primary Photo -->
+                  <div
+                    *ngIf="row.formType === 'image' && row.dataRef.toLowerCase() === 'schoollogoprimary'"
+                  >
                     <input
                       #schoolLogo
                       type="file"
                       hidden="true"
-                      (change)="fileChangeEvent($event)"
-                      accept="image/png, image/jpeg, image/gif, image/tiff"
+                      (change)="fileChangeEvent($event, 'primary')"
+                      [accept]="imageService.acceptedImageTypes"
                     />
                     <input
                       (click)="schoolLogo.click()"
                       matInput
                       readonly
-                      [placeholder]="photoName || 'No file chosen'"
+                      [placeholder]="primaryPhoto.photoName || 'No file chosen'"
                     />
                     <mat-icon
                       matSuffix
@@ -231,19 +239,68 @@
                       (click)="schoolLogo.click()"
                       >add_photo_alternate</mat-icon
                     >
-                    <div *ngIf="currentSchool?.logo && !photoName">
-                      <img [src]="currentSchool?.logo?.url" alt="School logo" />
+                    <div
+                      *ngIf="currentSchool?.logoPrimary && !primaryPhoto.photoName"
+                    >
+                      <img
+                        [src]="currentSchool?.logoPrimary?.url"
+                        alt="School logo"
+                      />
                     </div>
                     <image-cropper
                       format="png"
-                      [imageChangedEvent]="imageChangedEvent"
+                      [imageChangedEvent]="primaryPhoto.imageChangedEvent"
                       [maintainAspectRatio]="true"
-                      [aspectRatio]="4 / 3"
-                      [resizeToWidth]="215"
-                      (imageCropped)="imageCropped($event); changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
-                      (imageLoaded)="imageLoaded()"
-                      (cropperReady)="cropperReady()"
-                      (loadImageFailed)="loadImageFailed()"
+                      [aspectRatio]="imageService.primaryImageAspectRation"
+                      [resizeToWidth]="imageService.resizeWidth"
+                      (imageCropped)="imageCropped($event, 'primary'); changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
+                      (imageLoaded)="imageService.imageLoaded()"
+                      (cropperReady)="imageService.cropperReady()"
+                      (loadImageFailed)="imageService.loadImageFailed()"
+                    ></image-cropper>
+                  </div>
+
+                  <!-- Secondary Photo -->
+                  <div
+                    *ngIf="row.formType === 'image' && row.dataRef.toLowerCase() === 'schoollogosecondary'"
+                  >
+                    <input
+                      #schoolLogoSecondary
+                      type="file"
+                      hidden="true"
+                      (change)="fileChangeEvent($event, 'secondary')"
+                      [accept]="imageService.acceptedImageTypes"
+                    />
+                    <input
+                      (click)="schoolLogoSecondary.click()"
+                      matInput
+                      readonly
+                      [placeholder]="secondaryPhoto.photoName || 'No file chosen'"
+                    />
+                    <mat-icon
+                      matSuffix
+                      style="cursor: pointer"
+                      (click)="schoolLogoSecondary.click()"
+                      >add_photo_alternate</mat-icon
+                    >
+                    <div
+                      *ngIf="currentSchool?.logoSecondary && !secondaryPhoto.photoName"
+                    >
+                      <img
+                        [src]="currentSchool?.logoSecondary?.url"
+                        alt="School logo"
+                      />
+                    </div>
+                    <image-cropper
+                      format="png"
+                      [imageChangedEvent]="secondaryPhoto.imageChangedEvent"
+                      [maintainAspectRatio]="true"
+                      [aspectRatio]="imageService.secondaryImageAspectRation"
+                      [resizeToWidth]="imageService.resizeWidth"
+                      (imageCropped)="imageCropped($event, 'secondary'); changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
+                      (imageLoaded)="imageService.imageLoaded()"
+                      (cropperReady)="imageService.cropperReady()"
+                      (loadImageFailed)="imageService.loadImageFailed()"
                     ></image-cropper>
                   </div>
                 </mat-form-field>

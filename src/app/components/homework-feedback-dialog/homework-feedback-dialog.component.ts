@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
+import { ImageService } from 'src/app/services/image-service/image.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { CommentDTO, HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -40,7 +41,8 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
       currentUser: UserDTO | null;
     },
     public dialogRef: MatDialogRef<CreateHomeworkDialogComponent>,
-    private readonly snackbarService: SnackbarService
+    private readonly snackbarService: SnackbarService,
+    readonly imageService: ImageService
   ) {}
 
   ngOnInit(): void {
@@ -81,50 +83,25 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
     this.formPopulated.next(true);
   }
 
-  fileChangeEvent(event: Event): void {
+  async fileChangeEvent(event: Event): Promise<void> {
     this.fileChangedEvent = event;
     const input = event.target as HTMLInputElement;
-    if (input.files) {
-      if (this.validateFile(input.files[0])) {
-        this.fileName = input.files[0].name;
-        this.convertFileToBase64(input.files[0]);
-      }
+
+    const file = input.files?.[0];
+    if (!file || !this.imageService.validateFile(file, 'doc', 1000 * 1024)) {
+      return;
     }
-  }
 
-  convertFileToBase64(file: File): void {
-    const reader = new FileReader();
-    reader.onload = (): void => {
-      this.fileLink = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
+    this.fileName = file.name;
 
-  validateFile(file: File): boolean {
-    // todo = move to shared service or directive
-    const types = [
-      'image/png',
-      'image/gif',
-      'image/tiff',
-      'image/jpeg',
-      'application/pdf',
-      'application/msword',
-    ];
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    const maxSize = 1000 * 1024; // 1000 KB
-    if (!types.includes(file.type)) {
+    try {
+      this.fileLink = await this.imageService.convertToBase64(file);
+    } catch (error) {
       this.snackbarService.queueBar(
         'error',
-        'File must be an either a png, gif, tiff, jpeg, pdf, or ms-word doc type.'
+        'Error reading file. Please try again.'
       );
-      return false;
     }
-    if (file.size > maxSize) {
-      this.snackbarService.queueBar('error', 'File must be 1-1000 kb in size');
-      return false;
-    }
-
-    return true;
   }
 
   closeDialog(save?: boolean): void {

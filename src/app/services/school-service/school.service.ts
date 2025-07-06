@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { SchoolDTO } from 'src/app/shared/models/school.model';
+import { CreateSchoolDTO, SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 import { environment } from 'src/environments/environment';
 
@@ -55,7 +55,7 @@ export class SchoolService {
     );
   }
 
-  create(data: SchoolDTO): Observable<SchoolDTO> {
+  create(data: CreateSchoolDTO): Observable<SchoolDTO> {
     return this.httpClient.post<SchoolDTO>(`${this.baseUrl}`, data).pipe(
       catchError((error: Error) => {
         this.handleError(error, 'Failed to create new school');

@@ -1,9 +1,28 @@
+<div
+  class="secondary-image-container"
+  *ngIf="photoSrcSecondary && title === 'signup'"
+>
+  <img
+    *ngIf="!secondaryPhoto.photoName"
+    mat-card-image
+    [src]="photoSrcSecondary"
+    alt="Secondary Photo"
+  />
+  <image-cropper
+    format="png"
+    [imageChangedEvent]="secondaryPhoto.imageChangedEvent"
+    [maintainAspectRatio]="true"
+    [aspectRatio]="imageService.secondaryImageAspectRation"
+    [resizeToWidth]="imageService.resizeWidth"
+    (imageCropped)="imageCropped($event, 'secondary')"
+    (imageLoaded)="imageService.imageLoaded()"
+    (cropperReady)="imageService.cropperReady()"
+    (loadImageFailed)="imageService.loadImageFailed()"
+  ></image-cropper>
+</div>
+
 <div class="scene scene--card" style="height: 250vh">
-  <div
-    class="card"
-    [class.is-flipped]="isFlipped"
-    [style]="'box-shadow: 0 40px 60px ' + selectedBackgroundImage?.shadow"
-  >
+  <div class="card" [class.is-flipped]="isFlipped">
     <mat-card
       [class]="title === 'signup' ? 'card__face card__face--front' : 'card__face card__face--back'"
     >
@@ -21,21 +40,21 @@
 
       <div class="image-container">
         <img
-          *ngIf="!photoName"
+          *ngIf="!primaryPhoto.photoName"
           mat-card-image
-          [src]="photoSrc"
+          [src]="photoSrcPrimary"
           alt="Login Photo"
         />
         <image-cropper
           format="png"
-          [imageChangedEvent]="imageChangedEvent"
+          [imageChangedEvent]="primaryPhoto.imageChangedEvent"
           [maintainAspectRatio]="true"
-          [aspectRatio]="5 / 3"
-          [resizeToWidth]="128"
-          (imageCropped)="imageCropped($event)"
-          (imageLoaded)="imageLoaded()"
-          (cropperReady)="cropperReady()"
-          (loadImageFailed)="loadImageFailed()"
+          [aspectRatio]="imageService.primaryImageAspectRation"
+          [resizeToWidth]="imageService.resizeWidth"
+          (imageCropped)="imageCropped($event, 'primary')"
+          (imageLoaded)="imageService.imageLoaded()"
+          (cropperReady)="imageService.cropperReady()"
+          (loadImageFailed)="imageService.loadImageFailed()"
         ></image-cropper>
       </div>
 
@@ -122,9 +141,14 @@
                     <mat-option value="other">Select country...</mat-option>
                     <mat-option
                       *ngFor="let country of countryList"
-                      [value]="country"
+                      [value]="country.name"
                     >
-                      {{ country }}
+                      <img
+                        [src]="'https://flagcdn.com/w20/' + country.isoCode.toLowerCase() + '.png'"
+                        alt="{{ country.name }} flag"
+                        class="country-flag"
+                      />
+                      {{ country.name }}
                     </mat-option>
                     <mat-option value="other">OTHER</mat-option>
                   </mat-select>
@@ -498,19 +522,19 @@
                   class="form-field"
                   appearance="outline"
                 >
-                  <mat-label>School Logo (Optional)</mat-label>
+                  <mat-label>School Logo (Primary)</mat-label>
                   <input
                     #photoInput
                     type="file"
                     hidden="true"
-                    (change)="fileChangeEvent($event)"
-                    accept="image/png, image/jpeg, image/gif, image/tiff"
+                    (change)="fileChangeEvent($event, 'primary')"
+                    [accept]="imageService.acceptedImageTypes"
                   />
                   <input
                     (click)="photoInput.click()"
                     matInput
                     readonly
-                    [placeholder]="photoName || 'No file chosen'"
+                    [placeholder]="primaryPhoto.photoName || 'No file chosen'"
                   />
                   <mat-icon
                     matSuffix
@@ -532,8 +556,67 @@
                       '--primaryButtonTextColor': primaryButtonTextColor
                     }"
                   >
-                    <span *ngIf="photoName">Next</span>
-                    <span class="skip-button" *ngIf="!photoName"
+                    <span *ngIf="primaryPhoto.photoName">Next</span>
+                    <span class="skip-button" *ngIf="!primaryPhoto.photoName"
+                      >Skip this step <mat-icon>skip_next</mat-icon></span
+                    >
+                  </button>
+                </div>
+              </div>
+            </mat-step>
+
+            <mat-step
+              *ngIf="title === 'signup'"
+              label="Logo (secondary)"
+              [editable]="true"
+            >
+              <div class="step-container">
+                <!-- -- --- --- --- --- -- -->
+                <!-- SCHOOL LOGO (Secondary)-->
+                <!-- -- --- --- --- --- -- -->
+
+                <!-- Image Cropper: -->
+                <mat-form-field
+                  *ngIf="title === 'signup' && userType === 'school'"
+                  class="form-field"
+                  appearance="outline"
+                >
+                  <mat-label>School Logo (Secondary)</mat-label>
+                  <input
+                    #photoInputSecondary
+                    type="file"
+                    hidden="true"
+                    (change)="fileChangeEvent($event, 'secondary')"
+                    [accept]="imageService.acceptedImageTypes"
+                  />
+                  <input
+                    (click)="photoInputSecondary.click()"
+                    matInput
+                    readonly
+                    [placeholder]="secondaryPhoto.photoName || 'No file chosen'"
+                  />
+                  <mat-icon
+                    matSuffix
+                    style="cursor: pointer"
+                    (click)="photoInputSecondary.click()"
+                    >add_photo_alternate</mat-icon
+                  >
+                </mat-form-field>
+
+                <div class="stepper-navigation">
+                  <button mat-button matStepperPrevious>Back</button>
+                  <button
+                    mat-button
+                    matStepperNext
+                    [disabled]="false"
+                    class="stepper-next-button"
+                    [ngStyle]="{
+                      '--primaryButtonBackgroundColor': primaryButtonBackgroundColor,
+                      '--primaryButtonTextColor': primaryButtonTextColor
+                    }"
+                  >
+                    <span *ngIf="secondaryPhoto.photoName">Next</span>
+                    <span class="skip-button" *ngIf="!secondaryPhoto.photoName"
                       >Skip this step <mat-icon>skip_next</mat-icon></span
                     >
                   </button>
@@ -656,5 +739,9 @@
         </h6>
       </div>
     </mat-card>
+    <mat-progress-bar
+      [style]="{ visibility: pageLoading ? 'visible' : 'hidden' }"
+      mode="query"
+    ></mat-progress-bar>
   </div>
 </div>

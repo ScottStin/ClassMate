@@ -117,7 +117,7 @@
           type="file"
           hidden="true"
           (change)="fileChangeEvent($event)"
-          accept="image/png, image/jpeg, image/gif, image/tiff, application/pdf, application/msword"
+          [accept]="imageService.acceptedDocTypes"
         />
         <input
           (click)="attachment.click()"

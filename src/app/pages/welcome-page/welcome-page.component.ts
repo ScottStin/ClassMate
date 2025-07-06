@@ -47,10 +47,8 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
         }
 
         // --- get logo:
-        const logo = school.logo;
-        if (logo) {
-          this.logoSrc = logo.url;
-        }
+        const logo = school.logoSecondary;
+        this.logoSrc = logo.url;
 
         // --- get image cards:
         this.createImageCards(school);

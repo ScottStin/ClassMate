@@ -10,7 +10,7 @@ export const schools = [
   'YouSTUDY',
   'english-solutions',
   'international-house', // admin@ih.edu.au, Test123?
-  'holmes-institute',
+  'holmes-institute', // admin@holmes.com, Test123?
 ];
 
 const routes: Routes = [];

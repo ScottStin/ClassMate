@@ -8,8 +8,9 @@ import {
 } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
+import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { Subject } from 'rxjs/internal/Subject';
+import { ImageService } from 'src/app/services/image-service/image.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { countryList } from 'src/app/shared/country-list';
 import { demoLevels } from 'src/app/shared/demo-data';
@@ -40,7 +41,6 @@ export class EditUserDialogComponent implements OnInit {
   demoLevels = demoLevels;
 
   imageChangedEvent: Event | string = '';
-  imageCropper: ImageCropperComponent;
   photoLink: string | null | undefined;
   photoName: string;
 
@@ -55,6 +55,7 @@ export class EditUserDialogComponent implements OnInit {
     },
     private readonly sanitizer: DomSanitizer,
     private readonly snackbarService: SnackbarService,
+    readonly imageService: ImageService,
     private readonly dialogRef: MatDialogRef<EditUserDialogComponent>
   ) {}
 
@@ -166,7 +167,9 @@ export class EditUserDialogComponent implements OnInit {
     this.imageChangedEvent = event;
     const input = event.target as HTMLInputElement;
     if (input.files) {
-      if (this.validateImage(input.files[0])) {
+      if (
+        this.imageService.validateFile(input.files[0], 'image', 1000 * 1024)
+      ) {
         this.photoName = input.files[0].name;
       }
     }
@@ -180,35 +183,6 @@ export class EditUserDialogComponent implements OnInit {
         filename: this.photoName,
       });
     }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  imageLoaded(): void {}
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  cropperReady(): void {}
-
-  loadImageFailed(): void {
-    this.snackbarService.queueBar('error', 'image failed to load.');
-  }
-
-  validateImage(image: File): boolean {
-    const types = ['image/png', 'image/gif', 'image/tiff', 'image/jpeg'];
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    const maxSize = 1000 * 1024; // 1000 KB
-    if (!types.includes(image.type)) {
-      this.snackbarService.queueBar(
-        'error',
-        'Picture must be .png/.gif/.tif/.jpg type.'
-      );
-      return false;
-    }
-    if (image.size > maxSize) {
-      this.snackbarService.queueBar('error', 'File must be 1-1000 kb in size.');
-      return false;
-    }
-
-    return true;
   }
 
   passwordValidator(): ValidatorFn {

@@ -152,8 +152,8 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   getTempStyles(): void {
     this.temporaryStyles$.pipe(untilDestroyed(this)).subscribe((tempStyles) => {
       if (tempStyles) {
-        if (tempStyles.logo !== undefined) {
-          this.profilePictureSrc = tempStyles.logo.url;
+        if (tempStyles.logoPrimary !== undefined) {
+          this.profilePictureSrc = tempStyles.logoPrimary.url;
         }
       } else {
         this.getCurrentUserProfilePicture();
@@ -316,8 +316,11 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
         let firstName = 'mate';
-        if (this.currentUser) {
+        if (this.currentUser && this.currentUser.userType !== 'school') {
           firstName = this.currentUser.name.split(' ')[0];
+        }
+        if (this.currentUser && this.currentUser.userType === 'school') {
+          firstName = this.currentUser.name;
         }
         this.snackbarService.queueBar('info', `Goodbye, ${firstName}!`);
         this.authStoreService.logout();

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import {
   AbstractControl,
@@ -15,6 +14,7 @@ import {
 import { finalize, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
+import { ImageService } from 'src/app/services/image-service/image.service';
 import {
   readOutloudQuestionPrompt,
   repeatSentenceQuestionPrompt,
@@ -150,6 +150,7 @@ export class CreateExamDialogComponent implements OnInit {
     private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
     private readonly examService: ExamService,
     private readonly snackbarService: SnackbarService,
+    readonly imageService: ImageService,
     public dialog: MatDialog
   ) {}
 
@@ -736,49 +737,64 @@ export class CreateExamDialogComponent implements OnInit {
   ): Promise<void> {
     this.fileChangedEvent = event;
     const input = event.target as HTMLInputElement;
-    if (input.files) {
-      if (this.validateFile(input.files[0])) {
-        if (promptNumber === 'prompt1') {
-          this.fileNamePrompt1 = input.files[0].name;
-        }
-        if (promptNumber === 'prompt2') {
-          this.fileNamePrompt2 = input.files[0].name;
-        }
-        if (promptNumber === 'prompt3') {
-          this.fileNamePrompt3 = input.files[0].name;
-        }
-        await this.convertFileToBase64(input.files[0], promptNumber);
+    if (!input.files) {
+      return;
+    }
 
-        const foundQuestion = this.findCurrentQuestionFromList();
-        if (foundQuestion) {
-          foundQuestion[promptNumber] = {
-            // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style, prettier/prettier
+    if (
+      input.files[0].type.startsWith('image/') &&
+      this.imageService.validateFile(input.files[0], 'image', 1000 * 1024 * 10)
+    ) {
+      return;
+    }
+
+    if (
+      input.files[0].type.startsWith('audio/') &&
+      this.imageService.validateFile(input.files[0], 'audio', 1000 * 1024 * 10)
+    ) {
+      return;
+    }
+
+    if (promptNumber === 'prompt1') {
+      this.fileNamePrompt1 = input.files[0].name;
+    }
+    if (promptNumber === 'prompt2') {
+      this.fileNamePrompt2 = input.files[0].name;
+    }
+    if (promptNumber === 'prompt3') {
+      this.fileNamePrompt3 = input.files[0].name;
+    }
+
+    await this.convertFileToBase64(input.files[0], promptNumber);
+
+    const foundQuestion = this.findCurrentQuestionFromList();
+    if (foundQuestion) {
+      foundQuestion[promptNumber] = {
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style, prettier/prettier
             fileString: (promptNumber === 'prompt1' ? this.fileLinkPrompt1 : (this.fileLinkPrompt2 ?? '')) as string,
-            type:
-              this.examForm.controls.questionStep.getRawValue()[
-                promptTypeNumber as 'prompt1Type' | 'prompt2Type'
-              ] ?? '',
-            fileName:
-              promptNumber === 'prompt1'
-                ? this.fileNamePrompt1
-                : promptNumber === 'prompt2'
-                ? this.fileNamePrompt2
-                : this.fileNamePrompt3,
-          };
+        type:
+          this.examForm.controls.questionStep.getRawValue()[
+            promptTypeNumber as 'prompt1Type' | 'prompt2Type'
+          ] ?? '',
+        fileName:
+          promptNumber === 'prompt1'
+            ? this.fileNamePrompt1
+            : promptNumber === 'prompt2'
+            ? this.fileNamePrompt2
+            : this.fileNamePrompt3,
+      };
 
-          // Change prompt type to match uploaded file type:
-          if (input.files[0].type.startsWith('image/')) {
-            this.examForm.controls.questionStep.controls[
-              promptTypeNumber as 'prompt1Type' | 'prompt2Type' | 'prompt3Type'
-            ].setValue('image');
-            this.updatePromptType('image', promptNumber, false);
-          } else if (input.files[0].type.startsWith('audio/')) {
-            this.examForm.controls.questionStep.controls[
-              promptTypeNumber as 'prompt1Type' | 'prompt2Type' | 'prompt3Type'
-            ].setValue('audio');
-            this.updatePromptType('audio', promptNumber, false);
-          }
-        }
+      // Change prompt type to match uploaded file type:
+      if (input.files[0].type.startsWith('image/')) {
+        this.examForm.controls.questionStep.controls[
+          promptTypeNumber as 'prompt1Type' | 'prompt2Type' | 'prompt3Type'
+        ].setValue('image');
+        this.updatePromptType('image', promptNumber, false);
+      } else if (input.files[0].type.startsWith('audio/')) {
+        this.examForm.controls.questionStep.controls[
+          promptTypeNumber as 'prompt1Type' | 'prompt2Type' | 'prompt3Type'
+        ].setValue('audio');
+        this.updatePromptType('audio', promptNumber, false);
       }
     }
   }
@@ -831,84 +847,36 @@ export class CreateExamDialogComponent implements OnInit {
   /*
    * Handle file upload and validation:
    */
-
-  // todo = move to shared service or directive
-  // eslint-disable-next-line require-await
   async convertFileToBase64(file: File, promptNumber: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (): void => {
-        if (promptNumber === 'prompt1') {
-          this.fileLinkPrompt1 = reader.result as string;
-        }
-        if (promptNumber === 'prompt2') {
-          this.fileLinkPrompt2 = reader.result as string;
-        }
-        if (promptNumber === 'prompt3') {
-          this.fileLinkPrompt3 = reader.result as string;
-        }
-        resolve(); // Resolves the promise once the file is converted
-      };
-      reader.onerror = (): void => {
-        reject(new Error('Failed to read file.'));
-      };
-      reader.readAsDataURL(file);
-    });
-  }
+    try {
+      const base64 = await this.imageService.convertToBase64(file);
 
-  // todo = move to shared service or directive
-  validateFile(file: File): boolean {
-    const types = [
-      'image/png',
-      'image/gif',
-      'image/tiff',
-      'image/jpeg',
-      'audio/mpeg',
-      'audio/wav',
-      'audio/ogg',
-    ]; // todo - this should validate image and audio uploads seperately
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    const maxSize = 1000 * 1024 * 10; // 10,000 KB
-    if (!types.includes(file.type)) {
+      if (promptNumber === 'prompt1') {
+        this.fileLinkPrompt1 = base64;
+      } else if (promptNumber === 'prompt2') {
+        this.fileLinkPrompt2 = base64;
+      } else if (promptNumber === 'prompt3') {
+        this.fileLinkPrompt3 = base64;
+      }
+    } catch (error) {
       this.snackbarService.queueBar(
         'error',
-        'File must be an either a png, gif, tiff, jpeg, mpeg, wav, or ogg type.'
+        'Error uploading file. Please try again.'
       );
-      return false;
     }
-    if (file.size > maxSize) {
-      this.snackbarService.queueBar(
-        'error',
-        'File must be 1-10,000 kb in size.'
-      );
-      return false;
-    }
-
-    return true;
   }
 
-  /*
-   *Custom url validator for question prompts:
-   * Not needed since we've changed the prompts from url link to file
-   */
+  getAcceptedFileTypes(promptType: string | null): string {
+    if (promptType === 'image') {
+      return this.imageService.acceptedImageTypes;
+    }
 
-  // validUrl(): ValidatorFn {
-  //   return (control: AbstractControl): Record<string, unknown> | null => {
-  //     const urlInput = control.value as string;
+    if (promptType === 'audio') {
+      return this.imageService.acceptedAudioTypes;
+    }
 
-  //     if (!urlInput) {
-  //       return null; // Allow blank url field;
-  //     }
-
-  //     try {
-  //       // eslint-disable-next-line no-new
-  //       new URL(urlInput);
-  //       return null;
-  //     } catch {
-  //       return { invalidUrl: true };
-  //     }
-  //   };
-  // }
+    return `${this.imageService.acceptedImageTypes}, ${this.imageService.acceptedAudioTypes}`;
+  }
 
   /*
    *Custom validator for length of written and audio responses:

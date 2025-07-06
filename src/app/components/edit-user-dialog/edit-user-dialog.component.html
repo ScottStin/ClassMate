@@ -77,8 +77,16 @@
         <mat-label>Country of Origin</mat-label>
         <mat-select formControlName="nationality" required>
           <mat-option value="other">Select country...</mat-option>
-          <mat-option *ngFor="let country of countryList" [value]="country">
-            {{ country }}
+          <mat-option
+            *ngFor="let country of countryList"
+            [value]="country.name"
+          >
+            <img
+              [src]="'https://flagcdn.com/w20/' + country.isoCode.toLowerCase() + '.png'"
+              alt="{{ country.name }} flag"
+              class="country-flag"
+            />
+            {{ country.name }}
           </mat-option>
           <mat-option value="other">OTHER</mat-option>
         </mat-select>
@@ -188,7 +196,7 @@
           type="file"
           hidden="true"
           (change)="fileChangeEvent($event)"
-          accept="image/png, image/jpeg, image/gif, image/tiff"
+          accept="imageService.acceptedImageTypes"
         />
         <input
           (click)="photoInput.click()"
@@ -201,12 +209,6 @@
         >
       </mat-form-field>
     </div>
-    <!-- <div *ngIf="data.currentUser?.profilePicture && !photoLink">
-      <img
-        [src]="photoLink ? photoLink : data.currentUser?.profilePicture?.url"
-        alt="User Photo"
-      />
-    </div> -->
     <div
       *ngIf="data.currentUser?.profilePicture && !photoName && data.formType !== 'level'"
     >
@@ -216,12 +218,12 @@
       format="png"
       [imageChangedEvent]="imageChangedEvent"
       [maintainAspectRatio]="true"
-      [aspectRatio]="4 / 3"
-      [resizeToWidth]="215"
+      [aspectRatio]="imageService.primaryImageAspectRation"
+      [resizeToWidth]="imageService.resizeWidthLarge"
       (imageCropped)="imageCropped($event)"
-      (imageLoaded)="imageLoaded()"
-      (cropperReady)="cropperReady()"
-      (loadImageFailed)="loadImageFailed()"
+      (imageLoaded)="imageService.imageLoaded()"
+      (cropperReady)="imageService.cropperReady()"
+      (loadImageFailed)="imageService.loadImageFailed()"
     ></image-cropper>
   </mat-dialog-content>
   <app-dialog-actions

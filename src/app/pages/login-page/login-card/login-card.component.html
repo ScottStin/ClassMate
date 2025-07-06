@@ -81,8 +81,16 @@
               [required]="userType === 'teacher' && title === 'signup'"
             >
               <mat-option value="other">Select country...</mat-option>
-              <mat-option *ngFor="let country of countryList" [value]="country">
-                {{ country }}
+              <mat-option
+                *ngFor="let country of countryList"
+                [value]="country.name"
+              >
+                <img
+                  [src]="'https://flagcdn.com/w20/' + country.isoCode.toLowerCase() + '.png'"
+                  alt="{{ country.name }} flag"
+                  class="country-flag"
+                />
+                {{ country.name }}
               </mat-option>
               <mat-option value="other">OTHER</mat-option>
             </mat-select>

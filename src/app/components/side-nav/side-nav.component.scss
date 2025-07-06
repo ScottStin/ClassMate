@@ -171,11 +171,25 @@ $secondaryColor: var(--secondaryColor);
   width:15vw;
 }
 
+.logo-container {
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
 .logo {
-  // position: absolute; 
-  // top: 0; 
-  // right: 225px; 
-  margin: 0px;
+  max-width: 100%;
+  max-height: 60px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .school-name-container {

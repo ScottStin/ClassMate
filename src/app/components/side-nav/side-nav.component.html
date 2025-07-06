@@ -1,5 +1,7 @@
 <!-- School Logo Header: -->
-<img *ngIf="sideNavOpen" class="logo" [src]="currentSchool?.logo?.url" />
+<div class="logo-container" *ngIf="sideNavOpen">
+  <img class="logo" [src]="currentSchool?.logoSecondary?.url" />
+</div>
 
 <div
   [class]="currentUser?.userType?.toLowerCase() !== 'school' ? 'image-container' : 'admin-image-container'"
@@ -51,19 +53,8 @@
     <mat-icon>exit_to_app</mat-icon>
   </button>
 
-  <!-- <button
-    *ngIf="(authStoreService.isLoggedIn$ | async) && currentUser?.userType?.toLowerCase() !== 'school'"
-    class="edit-profile-button"
-    mat-mini-fab
-    #tooltip="matTooltip"
-    matTooltip="Edit your profile"
-    (click)="openEditUserDialog()"
-  >
-    <mat-icon>edit</mat-icon>
-  </button> -->
-
   <button
-    *ngIf="(authStoreService.isLoggedIn$ | async) && currentUser?.userType?.toLowerCase() !== 'school'"
+    *ngIf="authStoreService.isLoggedIn$ | async"
     class="edit-profile-button"
     mat-mini-fab
     matTooltip="Open options"

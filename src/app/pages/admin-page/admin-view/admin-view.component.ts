@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
   Component,
   EventEmitter,
@@ -21,6 +20,11 @@ import {
   LessonStep,
   LogoStep,
 } from 'src/app/pages/login-page/login-card-school/login-card-school.component';
+import {
+  ImageCroppingType,
+  ImageService,
+  ImageType,
+} from 'src/app/services/image-service/image.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { TempStylesDTO } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
@@ -38,6 +42,8 @@ export class AdminViewComponent implements OnInit, OnChanges {
   @ViewChild('backgroundGradientSlider') backgroundGradientSlider: MatSlider;
   @Input() primaryButtonBackgroundColor: string;
   @Input() primaryButtonTextColor: string;
+  @Input() errorColor: string;
+  @Input() warnColor: string;
   @Input() selectedBackgroundImage: BackgroundImageDTO | undefined;
   @Input() adminPageLoading: boolean;
   @Input() currentSchool: SchoolDTO | null;
@@ -66,10 +72,18 @@ export class AdminViewComponent implements OnInit, OnChanges {
   public backgroundImageType = '';
   backgroundGradient = '';
 
-  imageChangedEvent: Event | string = '';
-  imageCropper: ImageCropperComponent;
+  // --- image cropping:
+  primaryPhoto: ImageCroppingType = {
+    imageChangedEvent: '',
+    imageCropper: {} as ImageCropperComponent,
+    photoName: '',
+  };
+  secondaryPhoto: ImageCroppingType = {
+    imageChangedEvent: '',
+    imageCropper: {} as ImageCropperComponent,
+    photoName: '',
+  };
   photoLink: string | null | undefined;
-  photoName: string;
 
   tabs: {
     title: string;
@@ -91,7 +105,6 @@ export class AdminViewComponent implements OnInit, OnChanges {
         >
       | null
       | undefined;
-    // formValues: NgIterable<AdminSettingRow> | null | undefined;
   }[] = [
     {
       title: 'details',
@@ -130,7 +143,10 @@ export class AdminViewComponent implements OnInit, OnChanges {
   }> | null = null;
   formPopulated = new Subject<boolean>();
 
-  constructor(private readonly snackbarService: SnackbarService) {}
+  constructor(
+    private readonly snackbarService: SnackbarService,
+    readonly imageService: ImageService
+  ) {}
 
   ngOnInit(): void {
     if (this.selectedBackgroundImage) {
@@ -151,14 +167,7 @@ export class AdminViewComponent implements OnInit, OnChanges {
 
   getFormControl(formGroup: FormGroup, dataRef: string): FormControl | null {
     const control = formGroup.controls[dataRef] as FormControl;
-    // if (
-    //   typeof control.value === 'string' ||
-    //   typeof control.value === 'number'
-    // ) {
     return control;
-    // } else {
-    // return null;
-    // }
   }
 
   populateTabs(): void {
@@ -224,6 +233,20 @@ export class AdminViewComponent implements OnInit, OnChanges {
         key: 'primaryButtonTextColor',
         formType: 'color-picker',
       },
+      {
+        dataRef: 'warnColor',
+        tooltip: `This is the color used to give the user warnings and alerts. It should be a strong color that stands out against a light background (e.g. an orange or dark yellow). It should be different from your Primary Color.`,
+        title: `Warn Color`,
+        key: 'warnColor',
+        formType: 'color-picker',
+      },
+      {
+        dataRef: 'errorColor',
+        tooltip: `This is the color used to display errors and fail messages. It should be a strong color that stands out against a light background (e.g. a red). It should be different from your Primary Color and stronger than your warn color.`,
+        title: `Error Color`,
+        key: 'errorColor',
+        formType: 'color-picker',
+      },
     ] as AdminStylesRow[];
 
     this.tabs[2].formValues = [
@@ -279,10 +302,17 @@ export class AdminViewComponent implements OnInit, OnChanges {
 
     this.tabs[3].formValues = [
       {
-        dataRef: 'schoolLogo',
-        tooltip: `Upload your school's logo.`,
-        title: `School Logo`,
-        key: 'logo',
+        dataRef: 'schoolLogoPrimary',
+        tooltip: `Upload your school's primary logo. This is a 4x3 size logo that students and teachers will see when logging in.`,
+        title: `School Logo (Primary)`,
+        key: 'logoPrimary',
+        formType: 'image',
+      },
+      {
+        dataRef: 'schoolLogoSecondary',
+        tooltip: `Upload your school's secondary logo. This is a longer, 6x2 size logo that students and teachers will see in the top left corner of the page.`,
+        title: `School Logo (Secondary)`,
+        key: 'logoSecondary',
         formType: 'image',
       },
     ] as LogoRow[];
@@ -355,14 +385,13 @@ export class AdminViewComponent implements OnInit, OnChanges {
           disabled: this.adminPageLoading,
         },
         {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           validators: [],
           nonNullable: true,
         }
       ),
       passwordInput: new FormControl(
         {
-          value: this.currentSchool?.hasedPassword ?? '******',
+          value: '******',
           disabled: this.adminPageLoading,
         },
         {
@@ -372,7 +401,7 @@ export class AdminViewComponent implements OnInit, OnChanges {
       ),
       passwordMatchInput: new FormControl(
         {
-          value: this.currentSchool?.unhashedPassword ?? '******',
+          value: '******',
           disabled: this.adminPageLoading,
         },
         {
@@ -396,7 +425,33 @@ export class AdminViewComponent implements OnInit, OnChanges {
         }
       ),
       primaryButtonTextColor: new FormControl(
-        { value: '#FFFFFF', disabled: this.adminPageLoading },
+        {
+          value:
+            this.currentSchool?.primaryButtonTextColor ??
+            this.defaultStyles.primaryButtonTextColor,
+          disabled: this.adminPageLoading,
+        },
+        {
+          validators: [],
+          nonNullable: true,
+        }
+      ),
+      warnColor: new FormControl(
+        {
+          value: this.currentSchool?.warnColor ?? this.defaultStyles.warnColor,
+          disabled: this.adminPageLoading,
+        },
+        {
+          validators: [],
+          nonNullable: true,
+        }
+      ),
+      errorColor: new FormControl(
+        {
+          value:
+            this.currentSchool?.errorColor ?? this.defaultStyles.errorColor,
+          disabled: this.adminPageLoading,
+        },
         {
           validators: [],
           nonNullable: true,
@@ -476,12 +531,13 @@ export class AdminViewComponent implements OnInit, OnChanges {
 
     // logo step:
     const logoStepForm: LogoStep = new FormGroup({
-      schoolLogo: new FormControl<{
-        url: string;
-        filename: string;
-      } | null>(null, {
+      schoolLogoPrimary: new FormControl<ImageType | undefined>(undefined, {
         validators: [],
-        nonNullable: false,
+        nonNullable: true,
+      }),
+      schoolLogoSecondary: new FormControl<ImageType | undefined>(undefined, {
+        validators: [],
+        nonNullable: true,
       }),
     });
 
@@ -517,7 +573,6 @@ export class AdminViewComponent implements OnInit, OnChanges {
       | LogoRow
       | LessonsRow
   ): void {
-    // this.updateTempStyles.emit(null);
     this.edit = row;
   }
 
@@ -550,7 +605,6 @@ export class AdminViewComponent implements OnInit, OnChanges {
     style: string | number | BackgroundImageDTO
   ): void {
     const tempStyles: TempStylesDTO = {};
-    // tempStyles[feature] = color;
 
     if (feature.toLocaleLowerCase() === 'secondary color') {
       tempStyles.primaryButtonTextColor = style as string;
@@ -558,6 +612,14 @@ export class AdminViewComponent implements OnInit, OnChanges {
 
     if (feature.toLocaleLowerCase() === 'primary color') {
       tempStyles.primaryButtonBackgroundColor = style as string;
+    }
+
+    if (feature.toLocaleLowerCase() === 'warn color') {
+      tempStyles.warnColor = style as string;
+    }
+
+    if (feature.toLocaleLowerCase() === 'error color') {
+      tempStyles.errorColor = style as string;
     }
 
     if (feature.toLocaleLowerCase() === 'background image') {
@@ -670,57 +732,47 @@ export class AdminViewComponent implements OnInit, OnChanges {
    * Photo Cropping and Upload
    */
 
-  fileChangeEvent(event: Event): void {
-    this.imageChangedEvent = event;
+  fileChangeEvent(event: Event, imageType: 'primary' | 'secondary'): void {
     const input = event.target as HTMLInputElement;
-    if (input.files) {
-      if (this.validateImage(input.files[0])) {
-        this.photoName = input.files[0].name;
-      }
+    if (
+      !input.files ||
+      !this.imageService.validateFile(input.files[0], 'image', 1000 * 1024)
+    ) {
+      return;
+    }
+
+    if (imageType === 'primary') {
+      this.primaryPhoto.imageChangedEvent = event;
+      this.primaryPhoto.photoName = input.files[0].name;
+    }
+
+    if (imageType === 'secondary') {
+      this.secondaryPhoto.imageChangedEvent = event;
+      this.secondaryPhoto.photoName = input.files[0].name;
     }
   }
 
-  imageCropped(event: ImageCroppedEvent): void {
-    this.photoLink = event.base64;
-    if (this.photoLink !== null && this.photoLink !== undefined) {
-      const logo = {
-        url: this.photoLink,
-        filename: this.photoName,
-      };
-      this.adminForm?.controls.logoStep.controls.schoolLogo.setValue(logo);
-      this.updateTempStyles.emit({ logo });
-    }
-  }
+  imageCropped(
+    event: ImageCroppedEvent,
+    imageType: 'primary' | 'secondary'
+  ): void {
+    imageType === 'primary'
+      ? (this.primaryPhoto.photoLink = event.base64 ?? undefined)
+      : (this.secondaryPhoto.photoLink = event.base64 ?? undefined);
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  imageLoaded(): void {}
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  cropperReady(): void {}
-
-  loadImageFailed(): void {
-    this.snackbarService.queueBar('error', 'Image failed to load.');
-  }
-
-  validateImage(image: File): boolean {
-    const types = ['image/png', 'image/gif', 'image/tiff', 'image/jpeg'];
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    const maxSize = 1000 * 1024; // 1000 KB
-
-    if (!types.includes(image.type)) {
-      this.snackbarService.queueBar(
-        'error',
-        'Picture must be .png/.gif/.tif/.jpg type.'
-      );
-      return false;
+    if (imageType === 'primary' && this.primaryPhoto.photoLink) {
+      this.adminForm?.controls.logoStep.controls.schoolLogoPrimary.setValue({
+        url: this.primaryPhoto.photoLink,
+        filename: this.primaryPhoto.photoName,
+      });
     }
 
-    if (image.size > maxSize) {
-      this.snackbarService.queueBar('error', 'File must be 1-1000 kb in size.');
-      return false;
+    if (imageType === 'secondary' && this.secondaryPhoto.photoLink) {
+      this.adminForm?.controls.logoStep.controls.schoolLogoSecondary.setValue({
+        url: this.secondaryPhoto.photoLink,
+        filename: this.secondaryPhoto.photoName,
+      });
     }
-
-    return true;
   }
 
   /**
@@ -728,7 +780,6 @@ export class AdminViewComponent implements OnInit, OnChanges {
    */
 
   addLessonType(name: string, shortName: string): void {
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     if (this.lessonTypesModified.length >= 5) {
       this.snackbarService.queueBar(
         'warn',
@@ -744,7 +795,6 @@ export class AdminViewComponent implements OnInit, OnChanges {
         'warn',
         'Your long lesson name cannot be more than 35 characters.'
       );
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     } else if (shortName.length > 10) {
       this.snackbarService.queueBar(
         'warn',
@@ -816,7 +866,11 @@ export interface AdminSettingRow {
 }
 
 export interface AdminStylesRow {
-  dataRef: 'primaryButtonBackgroundColor' | 'primaryButtonTextColor';
+  dataRef:
+    | 'primaryButtonBackgroundColor'
+    | 'primaryButtonTextColor'
+    | 'errorColor'
+    | 'warnColor';
   tooltip: string;
   title: string;
   key: string;
@@ -840,7 +894,7 @@ export interface AdminBackgroundRow {
 }
 
 export interface LogoRow {
-  dataRef: 'schoolLogo';
+  dataRef: 'schoolLogoPrimary' | 'schoolLogoSecondary';
   tooltip: string;
   title: string;
   key: string;

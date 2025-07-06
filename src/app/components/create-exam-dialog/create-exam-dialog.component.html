@@ -616,11 +616,7 @@
                     type="file"
                     hidden="true"
                     (change)="updatePrompt($event, 'prompt1', 'prompt1Type')"
-                    [accept]="questionStepForm.getRawValue().prompt1Type === 'image' 
-                              ? 'image/png, image/jpeg, image/gif, image/tiff' 
-                              : (questionStepForm.getRawValue().prompt1Type === 'audio' 
-                                ? 'audio/mpeg, audio/wav, audio/ogg' 
-                                : 'image/png, image/jpeg, image/gif, image/tiff, audio/mpeg, audio/wav, audio/ogg')"
+                    [accept]="getAcceptedFileTypes(questionStepForm.getRawValue().prompt1Type)"
                   />
                   <input
                     matInput
@@ -687,11 +683,7 @@
                     type="file"
                     hidden="true"
                     (change)="updatePrompt($event, 'prompt2', 'prompt2Type')"
-                    [accept]="questionStepForm.getRawValue().prompt2Type === 'image' 
-                              ? 'image/png, image/jpeg, image/gif, image/tiff' 
-                              : (questionStepForm.getRawValue().prompt2Type === 'audio' 
-                                ? 'audio/mpeg, audio/wav, audio/ogg' 
-                                : 'image/png, image/jpeg, image/gif, image/tiff, audio/mpeg, audio/wav, audio/ogg')"
+                    [accept]="getAcceptedFileTypes(questionStepForm.getRawValue().prompt2Type)"
                   />
                   <input
                     matInput
@@ -757,11 +749,7 @@
                     type="file"
                     hidden="true"
                     (change)="updatePrompt($event, 'prompt3', 'prompt3Type')"
-                    [accept]="questionStepForm.getRawValue().prompt3Type === 'image' 
-                              ? 'image/png, image/jpeg, image/gif, image/tiff' 
-                              : (questionStepForm.getRawValue().prompt3Type === 'audio' 
-                                ? 'audio/mpeg, audio/wav, audio/ogg' 
-                                : 'image/png, image/jpeg, image/gif, image/tiff, audio/mpeg, audio/wav, audio/ogg')"
+                    [accept]="getAcceptedFileTypes(questionStepForm.getRawValue().prompt3Type)"
                   />
                   <input
                     matInput

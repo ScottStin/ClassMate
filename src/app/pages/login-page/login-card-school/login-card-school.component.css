@@ -19,7 +19,6 @@
     transform-origin: center right;
     transition: transform 1s;
     margin-top: -1500px;
-    /* box-shadow: 0 40px 60px #6b0b64; */
     transform: scale(0.9);
   }
   
@@ -63,21 +62,11 @@
   .form-field {
     width: 100%;
   }
-  
-  .login-signup-button {
-    background-color: #6200EE;
-    color: white;
-  }
 
   /* ---------------------- */
   /* Dynamic Button Format: */
   /* ---------------------- */
-  
-  :host {
-    --primaryButtonBackgroundColor: #6200EE;
-    --primaryButtonTextColor: #FFFFFF;
-  }
-  
+    
   ::ng-deep .mat-step-header .mat-step-icon, .login-signup-button, .mat-stepper-next, .login-signup-button {
     background-color: var(--primaryButtonBackgroundColor);
     color: var(--primaryButtonTextColor);
@@ -144,11 +133,6 @@
   /* -- -----Slider: ------ */
   /* ---------------------- */
 
-  :host {
-    --backgroundGradient: radial-gradient(circle at 50% 50%, #c31092 9.5%, #c31092 19%) !important;
-    --primaryButtonBackgroundColor: #c31092;
-  }
-
   ::ng-deep .mat-slider-wrapper, ::ng-deep .mat-slider-ticks, ::ng-deep .mat-slider-ticks-container, ::ng-deep .mat-slider-ticks-wrapper {
     background: var(--backgroundGradient) !important;
     background-color: var(--backgroundGradient) !important;
@@ -163,4 +147,19 @@
   height: 20px !important;
   border-bottom-left-radius: 10px !important;
   border-bottom-right-radius: 10px !important; 
+}
+
+  /* ---------------------- */
+  /* -- Secondary Photo: -- */
+  /* ---------------------- */
+
+
+.secondary-image-container {
+  width: 400px;
+  height: auto;
+  /* display: inline-block; */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
 }

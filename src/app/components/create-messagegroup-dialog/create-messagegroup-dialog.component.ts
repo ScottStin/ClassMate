@@ -9,13 +9,14 @@ import {
 } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
+import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { finalize } from 'rxjs';
 import {
   ConversationDto,
   ConversationService,
   CreateConversationDto,
 } from 'src/app/services/conversation-service/conversation.service';
+import { ImageService } from 'src/app/services/image-service/image.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -40,7 +41,6 @@ export class CreateMessagegroupDialogComponent implements OnInit {
   loading = false;
 
   imageChangedEvent: Event | string = '';
-  imageCropper: ImageCropperComponent;
   photoLink: string | null | undefined;
   photoName: string;
 
@@ -54,6 +54,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
     },
     private readonly snackbarService: SnackbarService,
     private readonly conversationService: ConversationService,
+    readonly imageService: ImageService,
     private readonly dialogRef: MatDialogRef<CreateMessagegroupDialogComponent>
   ) {}
 
@@ -152,7 +153,9 @@ export class CreateMessagegroupDialogComponent implements OnInit {
     this.imageChangedEvent = event;
     const input = event.target as HTMLInputElement;
     if (input.files) {
-      if (this.validateImage(input.files[0])) {
+      if (
+        this.imageService.validateFile(input.files[0], 'image', 1000 * 1024)
+      ) {
         this.photoName = input.files[0].name;
       }
     }
@@ -166,35 +169,6 @@ export class CreateMessagegroupDialogComponent implements OnInit {
         filename: this.photoName,
       });
     }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  imageLoaded(): void {}
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  cropperReady(): void {}
-
-  loadImageFailed(): void {
-    this.snackbarService.queueBar('error', 'image failed to load.');
-  }
-
-  validateImage(image: File): boolean {
-    const types = ['image/png', 'image/gif', 'image/tiff', 'image/jpeg'];
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    const maxSize = 1000 * 1024; // 1000 KB
-    if (!types.includes(image.type)) {
-      this.snackbarService.queueBar(
-        'error',
-        'Picture must be .png/.gif/.tif/.jpg type.'
-      );
-      return false;
-    }
-    if (image.size > maxSize) {
-      this.snackbarService.queueBar('error', 'File must be 1-1000 kb in size.');
-      return false;
-    }
-
-    return true;
   }
 
   closeDialog(save?: boolean): void {

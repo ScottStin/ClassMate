@@ -11,7 +11,7 @@ import {
   backgroundImages,
 } from 'src/app/shared/background-images';
 import { defaultStyles } from 'src/app/shared/default-styles';
-import { SchoolDTO } from 'src/app/shared/models/school.model';
+import { CreateSchoolDTO, SchoolDTO } from 'src/app/shared/models/school.model';
 import {
   CreateUserDTO,
   UserDTO,
@@ -27,7 +27,8 @@ import {
 export class LoginPageComponent implements OnInit {
   error: Error;
   isFlipped = false;
-  photoSrc = '';
+  photoSrcPrimary = '';
+  photoSrcSecondary = '';
   schools$: Observable<SchoolDTO[]>;
   users$: Observable<UserDTO[]>;
   userType: 'student' | 'teacher' | 'school' | '' = '';
@@ -37,7 +38,7 @@ export class LoginPageComponent implements OnInit {
 
   backgroundImages = backgroundImages;
   defaultStyles = defaultStyles;
-  selectedBackgroundImage: BackgroundImageDTO | null =
+  selectedBackgroundImage: BackgroundImageDTO =
     this.defaultStyles.selectedBackgroundImage;
   primaryButtonBackgroundColor =
     this.defaultStyles.primaryButtonBackgroundColor;
@@ -69,21 +70,21 @@ export class LoginPageComponent implements OnInit {
           )
         ) {
           this.userType = 'student';
-          this.photoSrc = '../../../assets/Student.png';
+          this.photoSrcPrimary = '../../../assets/Student.png';
         } else if (
           [urlAddress[2].toLowerCase(), urlAddress[1].toLowerCase()].includes(
             'teacher'
           )
         ) {
           this.userType = 'teacher';
-          this.photoSrc = '../../../assets/Teacher.png';
+          this.photoSrcPrimary = '../../../assets/Teacher.png';
         } else if (
           [urlAddress[2].toLowerCase(), urlAddress[1].toLowerCase()].includes(
             'school'
           )
         ) {
           this.userType = 'school';
-          this.photoSrc = '../../../assets/School.png';
+          this.photoSrcPrimary = '../../../assets/School.png';
         }
 
         if (
@@ -100,6 +101,7 @@ export class LoginPageComponent implements OnInit {
         ) {
           this.isFlipped = true;
         }
+        this.getCurrentSchoolDetails();
       });
   }
 
@@ -127,23 +129,22 @@ export class LoginPageComponent implements OnInit {
           const primaryButtonTextColor =
             currentSchool.primaryButtonTextColor as string | undefined;
 
-          const logo = currentSchool.logo;
+          this.photoSrcPrimary = currentSchool.logoPrimary.url;
+          this.photoSrcSecondary = currentSchool.logoSecondary.url;
 
           if (backgroundImage !== undefined) {
             this.selectedBackgroundImage = backgroundImage;
           } else {
-            // this.selectedBackgroundImage = this.backgroundImages[0];
             this.selectedBackgroundImage =
               this.defaultStyles.selectedBackgroundImage;
           }
+
           if (primaryButtonBackgroundColor !== undefined) {
             this.primaryButtonBackgroundColor = primaryButtonBackgroundColor;
           }
+
           if (primaryButtonTextColor !== undefined) {
             this.primaryButtonTextColor = primaryButtonTextColor;
-          }
-          if (logo) {
-            this.photoSrc = logo.url;
           }
         }
       });
@@ -223,27 +224,22 @@ export class LoginPageComponent implements OnInit {
     }
   }
 
-  async signupSchool(school: SchoolDTO): Promise<void> {
+  signupSchool(school: CreateSchoolDTO): void {
     this.pageLoading = true;
-    try {
-      await this.schoolService.create(school).toPromise();
-      this.login(
-        { email: school.email, unhashedPassword: school.unhashedPassword },
-        `Welcome to ClassMate, ${school.name}!`,
-        true
-      );
-      this.login(
-        { email: school.email, unhashedPassword: school.unhashedPassword },
-        `Welcome to ClassMate, ${school.name}!`,
-        true,
-        `${school.name.replace(/ /gu, '-').toLowerCase()}/home`
-      );
-      // const urlPath = `${school.name.replace(/ /gu, '-').toLowerCase()}/home`;
-      // await this.router.navigateByUrl('test-new-school-6/home');
-    } catch (error) {
-      this.snackbarService.queueBar('error', 'unable to sign up.');
-      this.pageLoading = false;
-    }
+
+    this.schoolService.create(school).subscribe({
+      next: (res) => {
+        this.snackbarService.queueBar(
+          'info',
+          `School successfully created! Navigate to www.${res.name}/welcome to get started.`
+        );
+        this.pageLoading = false;
+      },
+      error: (error: Error) => {
+        this.error = error;
+        this.snackbarService.queueBar('error', error.message);
+      },
+    });
   }
 
   login(
@@ -367,14 +363,7 @@ export class LoginPageComponent implements OnInit {
   }
 
   changeBackgroundImage(backgroundImage: BackgroundImageDTO): void {
-    if (this.selectedBackgroundImage) {
-      // this.selectedBackgroundImage.name = `../../../assets/${name}`;
-      this.selectedBackgroundImage = backgroundImage;
-    }
-    // this.snackbarService.openPermanent(
-    //   'info',
-    //   "Can't decide on a good background image? Don't worry, you can always change it later!"
-    // );
+    this.selectedBackgroundImage = backgroundImage;
   }
 
   deleteSchoolClick(id?: string | null): void {

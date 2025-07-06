@@ -1,5 +1,4 @@
 /* eslint-disable no-multi-assign */
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import {

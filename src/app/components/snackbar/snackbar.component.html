@@ -2,8 +2,12 @@
   <div class="bar-icon-message">
     <ng-container>
       <mat-icon *ngIf="data.type === 'info'">info</mat-icon>
-      <mat-icon *ngIf="data.type === 'warn'">warning</mat-icon>
-      <mat-icon *ngIf="data.type === 'error'">error</mat-icon>
+      <mat-icon *ngIf="data.type === 'warn'" class="color-warn"
+        >warning</mat-icon
+      >
+      <mat-icon *ngIf="data.type === 'error'" class="color-error"
+        >error</mat-icon
+      >
       <mat-icon *ngIf="data.type === 'success'">check_circle</mat-icon>
     </ng-container>
     <div>{{ data.message }}</div>

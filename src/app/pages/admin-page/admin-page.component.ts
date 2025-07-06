@@ -119,38 +119,36 @@ export class AdminPageComponent implements OnInit, OnDestroy {
           }
 
           // --- get upcoming lessons:
-          if (currentSchool._id !== null && currentSchool._id !== undefined) {
-            this.lessonService
-              .getAllBySchoolId(currentSchool._id)
-              .pipe(
-                first(),
-                finalize(() => {
-                  this.lessonPageLoading = false;
-                })
-              )
-              .subscribe({
-                next: (lessons) => {
-                  const currentDateTime = new Date();
-                  const filterdLessons = lessons.filter(
-                    (lesson) => new Date(lesson.startTime) > currentDateTime
-                  );
-                  this.lessons$ = of(filterdLessons);
-                },
-                error: (error: Error) => {
-                  this.snackbarService.queueBar(
-                    'error',
-                    `Error: Failed to load page: ${error.message}`,
-                    {
-                      label: `retry`,
-                      registerAction: (onAction: Observable<void>) =>
-                        onAction.pipe(untilDestroyed(this)).subscribe(() => {
-                          this.getCurrentSchoolDetails();
-                        }),
-                    }
-                  );
-                },
-              });
-          }
+          this.lessonService
+            .getAllBySchoolId(currentSchool._id)
+            .pipe(
+              first(),
+              finalize(() => {
+                this.lessonPageLoading = false;
+              })
+            )
+            .subscribe({
+              next: (lessons) => {
+                const currentDateTime = new Date();
+                const filterdLessons = lessons.filter(
+                  (lesson) => new Date(lesson.startTime) > currentDateTime
+                );
+                this.lessons$ = of(filterdLessons);
+              },
+              error: (error: Error) => {
+                this.snackbarService.queueBar(
+                  'error',
+                  `Error: Failed to load page: ${error.message}`,
+                  {
+                    label: `retry`,
+                    registerAction: (onAction: Observable<void>) =>
+                      onAction.pipe(untilDestroyed(this)).subscribe(() => {
+                        this.getCurrentSchoolDetails();
+                      }),
+                  }
+                );
+              },
+            });
         }
       }
     );
@@ -164,7 +162,7 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     const currentSchoolId = this.getCurrentSchoolFromLocalStore()?._id;
 
     const updatedData = { [data.key]: data.value };
-    if (currentSchoolId !== undefined && currentSchoolId !== null) {
+    if (currentSchoolId) {
       this.schoolService.update(updatedData, currentSchoolId).subscribe({
         next: (result: { school: SchoolDTO; user: UserDTO }) => {
           this.snackbarService.queueBar(
@@ -173,7 +171,6 @@ export class AdminPageComponent implements OnInit, OnDestroy {
           );
           this.schoolService.updateCurrentSchool(result.school);
           this.authStoreService.updateCurrentUser(result.user);
-          // this.getCurrentSchoolDetails();
           setTimeout(() => {
             this.adminViewComponent.closeEdit();
           }, 0);

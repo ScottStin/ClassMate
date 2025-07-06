@@ -1,5 +1,7 @@
 $primaryColor: var(--primaryColor);
 $secondaryColor: var(--secondaryColor);
+$errorColor: var(--errorColor);
+$warnColor: var(--warnColor);
 
 .bar-content {
   display: flex;
@@ -27,16 +29,14 @@ $secondaryColor: var(--secondaryColor);
 
 .bar-close-button {
   min-width: 1%;
+  color: $primaryColor !important;
 }
 
-// .color-error {
-//   // color: $alertColor;
-// }
+.color-error {
+  color: $errorColor;
+}
 
-// .color-success {
-//   // color: $successColor;
-// }
 
-// .color-warn {
-//   // color: $neutralOrange;
-// }
+.color-warn {
+  color: $warnColor;
+}

@@ -117,19 +117,21 @@
         "@typescript-eslint/prefer-regexp-exec": "error",
         "@typescript-eslint/promise-function-async": "error",
         "@typescript-eslint/require-array-sort-compare": "error",
-        "@typescript-eslint/strict-boolean-expressions": "error",
+        // "@typescript-eslint/strict-boolean-expressions": "error",
+        "@typescript-eslint/strict-boolean-expressions": "off",
         "@typescript-eslint/switch-exhaustiveness-check": "error",
         "@typescript-eslint/type-annotation-spacing": "error",
         "@typescript-eslint/typedef": "error",
-        "@typescript-eslint/no-magic-numbers": [
-          "warn",
-          {
-            "ignore": [0, 1, -1],
-            "ignoreDefaultValues": true,
-            "ignoreEnums": true,
-            "ignoreArrayIndexes": true
-          }
-        ],
+        // "@typescript-eslint/no-magic-numbers": [
+        //   "warn",
+        //   {
+        //     "ignore": [0, 1, -1],
+        //     "ignoreDefaultValues": true,
+        //     "ignoreEnums": true,
+        //     "ignoreArrayIndexes": true
+        //   }
+        // ],
+        "@typescript-eslint/no-magic-numbers": "off",
         "@typescript-eslint/no-shadow": "error",
         "@typescript-eslint/unbound-method": [
           // Prevents errors for Validator
