@@ -22,9 +22,9 @@ import {
 } from 'src/app/pages/login-page/login-card-school/login-card-school.component';
 import {
   ImageCroppingType,
-  ImageService,
+  FileService,
   ImageType,
-} from 'src/app/services/image-service/image.service';
+} from 'src/app/services/file-service/file.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { TempStylesDTO } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
@@ -145,7 +145,7 @@ export class AdminViewComponent implements OnInit, OnChanges {
 
   constructor(
     private readonly snackbarService: SnackbarService,
-    readonly imageService: ImageService
+    readonly fileService: FileService
   ) {}
 
   ngOnInit(): void {
@@ -736,7 +736,7 @@ export class AdminViewComponent implements OnInit, OnChanges {
     const input = event.target as HTMLInputElement;
     if (
       !input.files ||
-      !this.imageService.validateFile(input.files[0], 'image', 1000 * 1024)
+      !this.fileService.validateFile(input.files[0], 'image', 1000 * 1024)
     ) {
       return;
     }

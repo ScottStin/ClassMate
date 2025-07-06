@@ -10,7 +10,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { Subject } from 'rxjs/internal/Subject';
-import { ImageService } from 'src/app/services/image-service/image.service';
+import { FileService } from 'src/app/services/file-service/file.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { countryList } from 'src/app/shared/country-list';
 import { demoLevels } from 'src/app/shared/demo-data';
@@ -55,7 +55,7 @@ export class EditUserDialogComponent implements OnInit {
     },
     private readonly sanitizer: DomSanitizer,
     private readonly snackbarService: SnackbarService,
-    readonly imageService: ImageService,
+    readonly fileService: FileService,
     private readonly dialogRef: MatDialogRef<EditUserDialogComponent>
   ) {}
 
@@ -167,9 +167,7 @@ export class EditUserDialogComponent implements OnInit {
     this.imageChangedEvent = event;
     const input = event.target as HTMLInputElement;
     if (input.files) {
-      if (
-        this.imageService.validateFile(input.files[0], 'image', 1000 * 1024)
-      ) {
+      if (this.fileService.validateFile(input.files[0], 'image', 1000 * 1024)) {
         this.photoName = input.files[0].name;
       }
     }

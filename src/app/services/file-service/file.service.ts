@@ -7,7 +7,7 @@ import { SnackbarService } from '../snackbar-service/snackbar.service';
 @Injectable({
   providedIn: 'root',
 })
-export class ImageService {
+export class FileService {
   acceptedImageTypes = 'image/png, image/gif, image/tiff, image/jpeg';
   acceptedAudioTypes = 'audio/mpeg, audio/wav, audio/ogg';
   acceptedDocTypes =

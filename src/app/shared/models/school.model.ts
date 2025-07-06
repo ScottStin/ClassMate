@@ -1,4 +1,4 @@
-import { ImageType } from 'src/app/services/image-service/image.service';
+import { ImageType } from 'src/app/services/file-service/file.service';
 
 import { BackgroundImageDTO } from '../background-images';
 

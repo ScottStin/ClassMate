@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
-import { ImageService } from 'src/app/services/image-service/image.service';
+import { FileService } from 'src/app/services/file-service/file.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { CommentDTO, HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
@@ -42,7 +42,7 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
     },
     public dialogRef: MatDialogRef<CreateHomeworkDialogComponent>,
     private readonly snackbarService: SnackbarService,
-    readonly imageService: ImageService
+    readonly fileService: FileService
   ) {}
 
   ngOnInit(): void {
@@ -88,14 +88,14 @@ export class HomeworkFeedbackDialogComponent implements OnInit {
     const input = event.target as HTMLInputElement;
 
     const file = input.files?.[0];
-    if (!file || !this.imageService.validateFile(file, 'doc', 1000 * 1024)) {
+    if (!file || !this.fileService.validateFile(file, 'doc', 1000 * 1024)) {
       return;
     }
 
     this.fileName = file.name;
 
     try {
-      this.fileLink = await this.imageService.convertToBase64(file);
+      this.fileLink = await this.fileService.convertToBase64(file);
     } catch (error) {
       this.snackbarService.queueBar(
         'error',

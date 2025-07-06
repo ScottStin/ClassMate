@@ -12,7 +12,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
-import { ImageService } from 'src/app/services/image-service/image.service';
+import { FileService } from 'src/app/services/file-service/file.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { CreateHomeworkDTO } from 'src/app/shared/models/homework.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
@@ -60,7 +60,7 @@ export class CreateHomeworkDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<CreateHomeworkDialogComponent>,
     private readonly snackbarService: SnackbarService,
     private readonly cdr: ChangeDetectorRef,
-    readonly imageService: ImageService,
+    readonly fileService: FileService,
     public dialog: MatDialog
   ) {}
 
@@ -314,14 +314,14 @@ export class CreateHomeworkDialogComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (
       !input.files ||
-      !this.imageService.validateFile(input.files[0], 'doc', 1000 * 1024)
+      !this.fileService.validateFile(input.files[0], 'doc', 1000 * 1024)
     ) {
       return;
     }
     const file = input.files[0];
     this.fileName = file.name;
     try {
-      this.fileLink = await this.imageService.convertToBase64(file);
+      this.fileLink = await this.fileService.convertToBase64(file);
     } catch (error) {
       this.snackbarService.queueBar(
         'error',

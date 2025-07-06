@@ -225,7 +225,7 @@
                       type="file"
                       hidden="true"
                       (change)="fileChangeEvent($event, 'primary')"
-                      [accept]="imageService.acceptedImageTypes"
+                      [accept]="fileService.acceptedImageTypes"
                     />
                     <input
                       (click)="schoolLogo.click()"
@@ -251,12 +251,12 @@
                       format="png"
                       [imageChangedEvent]="primaryPhoto.imageChangedEvent"
                       [maintainAspectRatio]="true"
-                      [aspectRatio]="imageService.primaryImageAspectRation"
-                      [resizeToWidth]="imageService.resizeWidth"
+                      [aspectRatio]="fileService.primaryImageAspectRation"
+                      [resizeToWidth]="fileService.resizeWidth"
                       (imageCropped)="imageCropped($event, 'primary'); changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
-                      (imageLoaded)="imageService.imageLoaded()"
-                      (cropperReady)="imageService.cropperReady()"
-                      (loadImageFailed)="imageService.loadImageFailed()"
+                      (imageLoaded)="fileService.imageLoaded()"
+                      (cropperReady)="fileService.cropperReady()"
+                      (loadImageFailed)="fileService.loadImageFailed()"
                     ></image-cropper>
                   </div>
 
@@ -269,7 +269,7 @@
                       type="file"
                       hidden="true"
                       (change)="fileChangeEvent($event, 'secondary')"
-                      [accept]="imageService.acceptedImageTypes"
+                      [accept]="fileService.acceptedImageTypes"
                     />
                     <input
                       (click)="schoolLogoSecondary.click()"
@@ -295,12 +295,12 @@
                       format="png"
                       [imageChangedEvent]="secondaryPhoto.imageChangedEvent"
                       [maintainAspectRatio]="true"
-                      [aspectRatio]="imageService.secondaryImageAspectRation"
-                      [resizeToWidth]="imageService.resizeWidth"
+                      [aspectRatio]="fileService.secondaryImageAspectRation"
+                      [resizeToWidth]="fileService.resizeWidth"
                       (imageCropped)="imageCropped($event, 'secondary'); changeTempStyles(row.title, getFormControl(formName, row.dataRef)?.value)"
-                      (imageLoaded)="imageService.imageLoaded()"
-                      (cropperReady)="imageService.cropperReady()"
-                      (loadImageFailed)="imageService.loadImageFailed()"
+                      (imageLoaded)="fileService.imageLoaded()"
+                      (cropperReady)="fileService.cropperReady()"
+                      (loadImageFailed)="fileService.loadImageFailed()"
                     ></image-cropper>
                   </div>
                 </mat-form-field>

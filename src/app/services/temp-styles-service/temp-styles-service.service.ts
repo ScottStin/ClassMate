@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
 
-import { ImageType } from '../image-service/image.service';
+import { ImageType } from '../file-service/file.service';
 
 @Injectable({
   providedIn: 'root',

@@ -16,7 +16,7 @@ import {
   ConversationService,
   CreateConversationDto,
 } from 'src/app/services/conversation-service/conversation.service';
-import { ImageService } from 'src/app/services/image-service/image.service';
+import { FileService } from 'src/app/services/file-service/file.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -54,7 +54,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
     },
     private readonly snackbarService: SnackbarService,
     private readonly conversationService: ConversationService,
-    readonly imageService: ImageService,
+    readonly fileService: FileService,
     private readonly dialogRef: MatDialogRef<CreateMessagegroupDialogComponent>
   ) {}
 
@@ -153,9 +153,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
     this.imageChangedEvent = event;
     const input = event.target as HTMLInputElement;
     if (input.files) {
-      if (
-        this.imageService.validateFile(input.files[0], 'image', 1000 * 1024)
-      ) {
+      if (this.fileService.validateFile(input.files[0], 'image', 1000 * 1024)) {
         this.photoName = input.files[0].name;
       }
     }

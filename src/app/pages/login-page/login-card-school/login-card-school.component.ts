@@ -24,9 +24,9 @@ import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { combineLatest, Subject, Subscription } from 'rxjs';
 import {
   ImageCroppingType,
-  ImageService,
+  FileService,
   ImageType,
-} from 'src/app/services/image-service/image.service';
+} from 'src/app/services/file-service/file.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { BackgroundImageDTO } from 'src/app/shared/background-images';
 import { countryList } from 'src/app/shared/country-list';
@@ -113,7 +113,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
     private readonly snackbarService: SnackbarService,
     private readonly dialog: MatDialog,
     private readonly router: Router,
-    readonly imageService: ImageService
+    readonly fileService: FileService
   ) {}
 
   ngOnInit(): void {
@@ -617,7 +617,7 @@ export class LoginCardSchoolComponent implements OnInit, OnChanges, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (
       !input.files ||
-      !this.imageService.validateFile(input.files[0], 'image', 1000 * 1024)
+      !this.fileService.validateFile(input.files[0], 'image', 1000 * 1024)
     ) {
       return;
     }

@@ -175,7 +175,7 @@
           type="file"
           hidden="true"
           (change)="fileChangeEvent($event)"
-          [accept]="imageService.acceptedDocTypes"
+          [accept]="fileService.acceptedDocTypes"
         />
         <input
           (click)="attachment.click()"

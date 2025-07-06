@@ -14,7 +14,7 @@ import {
 import { finalize, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
-import { ImageService } from 'src/app/services/image-service/image.service';
+import { FileService } from 'src/app/services/file-service/file.service';
 import {
   readOutloudQuestionPrompt,
   repeatSentenceQuestionPrompt,
@@ -150,7 +150,7 @@ export class CreateExamDialogComponent implements OnInit {
     private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
     private readonly examService: ExamService,
     private readonly snackbarService: SnackbarService,
-    readonly imageService: ImageService,
+    readonly fileService: FileService,
     public dialog: MatDialog
   ) {}
 
@@ -743,14 +743,14 @@ export class CreateExamDialogComponent implements OnInit {
 
     if (
       input.files[0].type.startsWith('image/') &&
-      this.imageService.validateFile(input.files[0], 'image', 1000 * 1024 * 10)
+      this.fileService.validateFile(input.files[0], 'image', 1000 * 1024 * 10)
     ) {
       return;
     }
 
     if (
       input.files[0].type.startsWith('audio/') &&
-      this.imageService.validateFile(input.files[0], 'audio', 1000 * 1024 * 10)
+      this.fileService.validateFile(input.files[0], 'audio', 1000 * 1024 * 10)
     ) {
       return;
     }
@@ -849,7 +849,7 @@ export class CreateExamDialogComponent implements OnInit {
    */
   async convertFileToBase64(file: File, promptNumber: string): Promise<void> {
     try {
-      const base64 = await this.imageService.convertToBase64(file);
+      const base64 = await this.fileService.convertToBase64(file);
 
       if (promptNumber === 'prompt1') {
         this.fileLinkPrompt1 = base64;
@@ -868,14 +868,14 @@ export class CreateExamDialogComponent implements OnInit {
 
   getAcceptedFileTypes(promptType: string | null): string {
     if (promptType === 'image') {
-      return this.imageService.acceptedImageTypes;
+      return this.fileService.acceptedImageTypes;
     }
 
     if (promptType === 'audio') {
-      return this.imageService.acceptedAudioTypes;
+      return this.fileService.acceptedAudioTypes;
     }
 
-    return `${this.imageService.acceptedImageTypes}, ${this.imageService.acceptedAudioTypes}`;
+    return `${this.fileService.acceptedImageTypes}, ${this.fileService.acceptedAudioTypes}`;
   }
 
   /*
