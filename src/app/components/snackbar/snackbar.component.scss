@@ -18,6 +18,10 @@ $warnColor: var(--warnColor);
   margin-right: 2em;
 }
 
+.bar-icon-message mat-icon {
+  flex-shrink: 0;
+}
+
 ::ng-deep .mat-snack-bar-container {
   background-color: $secondaryColor;
   border: $primaryColor solid;
@@ -35,7 +39,6 @@ $warnColor: var(--warnColor);
 .color-error {
   color: $errorColor;
 }
-
 
 .color-warn {
   color: $warnColor;

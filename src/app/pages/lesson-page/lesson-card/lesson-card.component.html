@@ -41,30 +41,20 @@
           <div class="table-column">
             <table>
               <tbody>
-                <!-- <tr>
-                  <td class="title-row">
-                    <mat-icon>co_present</mat-icon>
-                    <b> &nbsp;&nbsp;Teacher:</b>
-                  </td>
-                  <td>{{teacher?.name}}</td>
-                </tr> -->
                 <tr>
                   <td class="title-row">
-                    <!-- <mat-icon>category</mat-icon> -->
                     <b> &nbsp;&nbsp;Lesson Type:</b>
                   </td>
                   <td>{{lesson.type.name}}</td>
                 </tr>
                 <tr>
                   <td class="title-row">
-                    <!-- <mat-icon>hotel_class</mat-icon> -->
                     <b> &nbsp;&nbsp;Level:</b>
                   </td>
                   <td>{{getLevels()}}</td>
                 </tr>
                 <tr>
                   <td class="title-row">
-                    <!-- <mat-icon>calendar_today</mat-icon> -->
                     <b> &nbsp;&nbsp;Start Date/Time:</b>
                   </td>
                   <td>
@@ -101,8 +91,7 @@
           <button
             *ngIf="showLeaveButton(lesson) && !this.pastLesson && lesson.status !== 'started'"
             mat-mini-fab
-            style="background-color: orange; margin-right: 10px"
-            class="cancel-button"
+            class="cancel-lesson-button"
             matTooltip="Click here to cancel this lesson"
             (click)="cancelLessonClick()"
           >

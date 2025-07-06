@@ -150,7 +150,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
           if (primaryButtonTextColor) {
             this.styles.primaryButtonTextColor = primaryButtonTextColor;
-
             this.setGlobalRootStyle('secondaryColor', primaryButtonTextColor);
           }
 
@@ -159,7 +158,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
           if (warnColor) {
             this.styles.warnColor = warnColor;
-
             this.setGlobalRootStyle('warnColor', warnColor);
           }
 
@@ -168,7 +166,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
           if (errorColor) {
             this.styles.errorColor = errorColor;
-
             this.setGlobalRootStyle('errorColor', errorColor);
           }
         }

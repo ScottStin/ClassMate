@@ -21,8 +21,8 @@ import {
   LogoStep,
 } from 'src/app/pages/login-page/login-card-school/login-card-school.component';
 import {
-  ImageCroppingType,
   FileService,
+  ImageCroppingType,
   ImageType,
 } from 'src/app/services/file-service/file.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';

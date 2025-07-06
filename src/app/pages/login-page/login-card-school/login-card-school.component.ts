@@ -23,8 +23,8 @@ import { Router } from '@angular/router';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { combineLatest, Subject, Subscription } from 'rxjs';
 import {
-  ImageCroppingType,
   FileService,
+  ImageCroppingType,
   ImageType,
 } from 'src/app/services/file-service/file.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';

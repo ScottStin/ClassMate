@@ -1,6 +1,6 @@
-// @import '../../app.component.scss';
 $primaryColor: var(--primaryColor);
 $secondaryColor: var(--secondaryColor);
+$warnColor: var(--warnColor);
 
 // --- Card:
 
@@ -57,8 +57,8 @@ $secondaryColor: var(--secondaryColor);
 .profile-picture-container {
   height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content: left;
 }
 
 .profile-picture {
@@ -77,13 +77,13 @@ $secondaryColor: var(--secondaryColor);
 }
 
 .active-chip-joined {
-  background-color: orange;
+  background-color: $warnColor;
   color: white;
   font-weight: bolder;
 }
 
 .active-chip-started {
-  background-color: greenyellow;
+  background-color: $primaryColor;
   color: black;
   font-weight: bolder;
 }
@@ -120,9 +120,14 @@ $secondaryColor: var(--secondaryColor);
 }
 
 .enter-button-student {
-  background-color: greenyellow;
+  background-color: $primaryColor;
   color:black;
   animation: pulseButtonSize 1.5s ease-in-out infinite;
+}
+
+.cancel-lesson-button {
+  background-color: $warnColor;
+  margin-right: 10px
 }
 
 // --- Animation:

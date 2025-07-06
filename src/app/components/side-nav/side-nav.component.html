@@ -86,10 +86,10 @@
   </h3>
   <h6
     *ngIf="currentUser?.userType?.toLowerCase() === 'teacher' && sideNavOpen"
-    style="opacity: 0.8"
+    style="opacity: 0.8; text-transform: capitalize"
     class="school-name-container"
   >
-    {{currentSchool?.name}}
+    {{currentSchool?.name?.split('-')?.join(' ')}}
   </h6>
   <h2
     class="text-warning school-name-container"
