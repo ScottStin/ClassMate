@@ -36,7 +36,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
     } | null>;
   }>;
 
-  filteredUsers: UserDTO[];
+  filteredUsers: UserDTO[] = [];
   usersList: UserDTO[] = [];
   loading = false;
 
@@ -49,7 +49,7 @@ export class CreateMessagegroupDialogComponent implements OnInit {
     public data: {
       title: string;
       currentUser: UserDTO;
-      users: UserDTO[];
+      users?: UserDTO[];
       existingGroup?: ConversationDto;
     },
     private readonly snackbarService: SnackbarService,
@@ -60,16 +60,16 @@ export class CreateMessagegroupDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.populateForm();
-    this.filteredUsers = [...this.data.users];
+    this.filteredUsers = [...(this.data.users ?? [])];
     this.usersList.push(this.data.currentUser);
   }
 
   populateForm(): void {
     if (this.data.existingGroup) {
-      const existingGroupUsers = this.data.users.filter(
+      const existingGroupUsers = this.data.users?.filter(
         (users) => this.data.existingGroup?.participantIds.includes(users._id)
       );
-      this.usersList = existingGroupUsers;
+      this.usersList = existingGroupUsers ?? [];
     }
 
     this.messageGroupForm = new FormGroup({
@@ -97,11 +97,12 @@ export class CreateMessagegroupDialogComponent implements OnInit {
    * Add users to group
    */
   filterUsers(search: string): void {
-    this.filteredUsers = this.data.users.filter(
-      (obj: UserDTO) =>
-        obj.name.toLowerCase().includes(search.toLowerCase()) &&
-        !this.usersList.includes(obj)
-    );
+    this.filteredUsers =
+      this.data.users?.filter(
+        (obj: UserDTO) =>
+          obj.name.toLowerCase().includes(search.toLowerCase()) &&
+          !this.usersList.includes(obj)
+      ) ?? [];
   }
 
   updateUsers(user: UserDTO): void {
@@ -120,10 +121,15 @@ export class CreateMessagegroupDialogComponent implements OnInit {
     this.userValidator();
   }
 
-  selectAllUsers(users: UserDTO[]): void {
-    const newUsers = users.filter(
+  selectAllUsers(users?: UserDTO[]): void {
+    const newUsers = users?.filter(
       (user) => !this.usersList.some((obj) => obj._id === user._id)
     );
+
+    if (!newUsers) {
+      return;
+    }
+
     this.usersList.push(...newUsers);
     this.usersList.sort((a: UserDTO, b: UserDTO) =>
       a.name.localeCompare(b.name)
@@ -136,7 +142,6 @@ export class CreateMessagegroupDialogComponent implements OnInit {
 
   userValidator(): ValidatorFn {
     return (control: AbstractControl): Record<string, unknown> | null => {
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       if (this.usersList.length < 2) {
         return { required: control.value };
       } else {

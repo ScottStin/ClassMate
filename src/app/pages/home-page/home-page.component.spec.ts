@@ -4,6 +4,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Socket } from 'ngx-socket-io';
 import { ConfirmDialogModule } from 'src/app/components/confirm-dialog/confirm-dialog.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
 import { LessonCardModule } from 'src/app/pages/lesson-page/lesson-card/lesson-card.module';
@@ -26,6 +27,15 @@ describe('HomePageComponent', () => {
         MatSnackBarModule,
         HttpClientTestingModule,
         NoopAnimationsModule,
+      ],
+      providers: [
+        {
+          provide: Socket,
+          useValue: {
+            on: jasmine.createSpy('on'),
+            off: jasmine.createSpy('off'),
+          },
+        },
       ],
     }).compileComponents();
 

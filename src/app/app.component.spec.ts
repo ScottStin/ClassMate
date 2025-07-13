@@ -5,6 +5,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { AppComponent } from './app.component';
+import { SnackbarModule } from './components/snackbar/snackbar.module';
 import { AuthStoreService } from './services/auth-store-service/auth-store.service';
 import { RouterService } from './services/router-service/router.service';
 import { SchoolService } from './services/school-service/school.service';
@@ -16,6 +17,7 @@ describe('AppComponent', () => {
         RouterTestingModule,
         HttpClientTestingModule,
         MatSnackBarModule,
+        SnackbarModule,
         MatProgressSpinnerModule,
       ],
       declarations: [AppComponent],

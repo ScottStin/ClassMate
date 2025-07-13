@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, Inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
@@ -72,7 +70,7 @@ export class ShowExamDialogComponent implements OnInit {
       displayMode: boolean;
       markMode: boolean;
       studentId: string;
-      currentUser: UserDTO | null;
+      currentUser?: UserDTO;
     },
     private readonly dialogRef: MatDialogRef<ShowExamDialogComponent>,
     private readonly questionService: QuestionService,
@@ -316,7 +314,7 @@ export class ShowExamDialogComponent implements OnInit {
   selectQuestion(question: ExamQuestionDto): void {
     this.currentQuestionDisplay = question;
     let index = NaN;
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
     if (question.parent) {
       const parent = this.questionList.find(
         (obj) => obj._id === question.parent
@@ -346,7 +344,6 @@ export class ShowExamDialogComponent implements OnInit {
   }
 
   nextQuestion(): void {
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!this.currentQuestionDisplay?.parent) {
       this.currentQuestionIndex = this.currentQuestionIndex + 1;
       this.currentQuestionDisplay =
@@ -371,7 +368,6 @@ export class ShowExamDialogComponent implements OnInit {
   }
 
   previousQuestion(): void {
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!this.currentQuestionDisplay?.parent) {
       this.currentQuestionIndex = this.currentQuestionIndex - 1;
       this.currentQuestionDisplay =
@@ -688,7 +684,6 @@ export class ShowExamDialogComponent implements OnInit {
         (obj) => obj.studentId === this.data.studentId
       );
       if (
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         (!studentResponse?.mark || !studentResponse.feedback) &&
         question.teacherFeedback === true
       ) {
@@ -705,7 +700,6 @@ export class ShowExamDialogComponent implements OnInit {
             (obj) => obj.studentId === this.data.currentUser?._id
           );
           if (
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
             (!studentResponseSubQuestion?.mark ||
               !studentResponseSubQuestion.feedback) &&
             question.teacherFeedback === true
@@ -732,7 +726,6 @@ export class ShowExamDialogComponent implements OnInit {
         },
       });
       confirmDialogRef.afterClosed().subscribe((result) => {
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
         if (result === true) {
           this.questionService
             .submitTeacherFeedback(
@@ -867,7 +860,6 @@ export class ShowExamDialogComponent implements OnInit {
       },
     });
     confirmDialogRef.afterClosed().subscribe((result) => {
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
       if (result === true) {
         this.submitExamLoading = true;
         this.questionService

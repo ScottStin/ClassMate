@@ -1,6 +1,6 @@
 <ng-container>
   <app-dialog-header
-    [dialogTitle]="'Preview of exam question: ' + data.question.name"
+    [dialogTitle]="'Preview of exam question: ' + data.question?.name ?? ''"
     (closeAction)="closeDialog(null)"
   ></app-dialog-header>
 
@@ -8,7 +8,7 @@
     <app-questions
       [question]="data.question"
       [displayMode]="true"
-      [studentId]="data.placeholderUser._id"
+      [studentId]="data.placeholderUser?._id ?? ''"
       [currentUser]="data.placeholderUser"
       [markMode]="false"
     ></app-questions>

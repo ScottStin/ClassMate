@@ -6,7 +6,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Socket } from 'ngx-socket-io';
 import { EditUserDialogModule } from 'src/app/components/edit-user-dialog/edit-user-dialog.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
 import { LessonCardModule } from 'src/app/pages/lesson-page/lesson-card/lesson-card.module';
@@ -36,6 +38,16 @@ describe('UserPageComponent', () => {
         UserTableModule,
         MatSnackBarModule,
         RouterTestingModule,
+        BrowserAnimationsModule,
+      ],
+      providers: [
+        {
+          provide: Socket,
+          useValue: {
+            on: jasmine.createSpy('on'),
+            off: jasmine.createSpy('off'),
+          },
+        },
       ],
     }).compileComponents();
 

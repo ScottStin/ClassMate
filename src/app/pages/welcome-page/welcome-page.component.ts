@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { SchoolService } from 'src/app/services/school-service/school.service';
+import { TempStylesService } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import {
   BackgroundImageDTO,
   backgroundImages,
@@ -19,13 +20,16 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
 
   backgroundImages = backgroundImages;
   defaultStyles = defaultStyles;
-  selectedBackgroundImage: BackgroundImageDTO | null =
+  selectedBackgroundImage: BackgroundImageDTO =
     this.defaultStyles.selectedBackgroundImage;
   imageCards: { source: string; route: string; title: string }[] = [];
 
   logoSrc: string | undefined;
 
-  constructor(public readonly schoolService: SchoolService) {}
+  constructor(
+    public readonly schoolService: SchoolService,
+    public readonly tempStylesService: TempStylesService
+  ) {}
 
   ngOnInit(): void {
     this.currentSchool$ = this.schoolService.currentSchool$;
@@ -40,7 +44,7 @@ export class WelcomePageComponent implements OnInit, OnDestroy {
           | BackgroundImageDTO
           | undefined;
 
-        if (backgroundImage !== undefined) {
+        if (backgroundImage) {
           this.selectedBackgroundImage = backgroundImage;
         } else {
           this.selectedBackgroundImage = this.backgroundImages[0];

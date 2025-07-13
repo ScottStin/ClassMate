@@ -25,14 +25,14 @@ export class CreateMatchOptionsExamQuestionDialogComponent implements OnInit {
   formPopulated = new Subject<boolean>();
   formChanged = false;
   temporarycurrentQuestionDisplay = JSON.parse(
-    JSON.stringify(this.data.currentQuestionDisplay)
+    JSON.stringify(this.data.currentQuestionDisplay ?? {})
   ) as CreateExamQuestionDto; // used to hold the value of currentQuestionDisplay without modifying the original
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
       title: string;
-      currentQuestionDisplay: CreateExamQuestionDto;
+      currentQuestionDisplay?: CreateExamQuestionDto;
     },
     private readonly dialogRef: MatDialogRef<CreateMatchOptionsExamQuestionDialogComponent>,
     public dialog: MatDialog,
@@ -46,7 +46,7 @@ export class CreateMatchOptionsExamQuestionDialogComponent implements OnInit {
   populateQuestionForm(): void {
     this.questionForm = new FormGroup({
       randomQuestionOrder: new FormControl(
-        this.data.currentQuestionDisplay.randomQuestionOrder ?? false,
+        this.data.currentQuestionDisplay?.randomQuestionOrder ?? false,
         {
           nonNullable: false,
         }

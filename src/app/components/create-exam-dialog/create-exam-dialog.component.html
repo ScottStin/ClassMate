@@ -183,7 +183,7 @@
 
           <!----- Exam Default Status: ----->
           <div class="row">
-            <form [formGroup]="examForm" class="form-field" class="col">
+            <div class="form-field col">
               <mat-slide-toggle
                 formControlName="default"
                 id="default"
@@ -204,7 +204,7 @@
                   [control]="examDetailsStepForm.controls['default'].errors"
                 ></app-error-message>
               </mat-error>
-            </form>
+            </div>
           </div>
         </mat-dialog-content>
 

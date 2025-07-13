@@ -104,8 +104,7 @@ export class LessonPageComponent implements OnInit, OnDestroy {
     this.currentSchool$
       .pipe(untilDestroyed(this))
       .subscribe((currentSchool) => {
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/strict-boolean-expressions
-        if (currentSchool && currentSchool._id) {
+        if (currentSchool?._id) {
           forkJoin([
             this.userService.getAllBySchoolId(currentSchool._id),
             this.lessonService.getAllBySchoolId(currentSchool._id),

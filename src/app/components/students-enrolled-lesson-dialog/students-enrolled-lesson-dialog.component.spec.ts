@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Socket } from 'ngx-socket-io';
 
 import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
@@ -40,6 +41,13 @@ describe('StudentsEnrolledLessonDialogComponent', () => {
         {
           provide: MAT_DIALOG_DATA,
           useFactory: (): unknown => ({}),
+        },
+        {
+          provide: Socket,
+          useValue: {
+            on: jasmine.createSpy('on'),
+            off: jasmine.createSpy('off'),
+          },
         },
       ],
     }).compileComponents();

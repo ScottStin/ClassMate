@@ -49,7 +49,6 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
           });
 
           this.studentNamesAwaitingMark = this.studentsCompleted.filter(
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
             (studentName) => !studentName.marked
           );
         }

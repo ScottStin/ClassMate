@@ -82,12 +82,12 @@
           >
             <span style="opacity: 0.5; font-size: medium">
               <span
-                *ngIf="sideChatListItem.mostRecentMessage?.senderId !== currentUser._id"
+                *ngIf="sideChatListItem.mostRecentMessage?.senderId !== currentUser?._id"
               >
                 {{ sideChatListItem.mostRecentMessage?.senderName }}:
               </span>
               <span
-                *ngIf="sideChatListItem.mostRecentMessage?.senderId === currentUser._id"
+                *ngIf="sideChatListItem.mostRecentMessage?.senderId === currentUser?._id"
               >
                 You:
               </span>
@@ -146,7 +146,7 @@
           <button
             mat-icon-button
             [matMenuTriggerFor]="chatMenu"
-            *ngIf="currentUser._id === selectedMessageChat.groupAdminId"
+            *ngIf="currentUser?._id === selectedMessageChat.groupAdminId"
           >
             <mat-icon>more_vert</mat-icon>
           </button>
@@ -250,8 +250,8 @@
         *ngFor="let msg of selectedMessageChat.messages"
         class="message-wrapper"
         [ngClass]="{
-          'align-left': msg.senderId !== currentUser._id,
-          'align-right': msg.senderId === currentUser._id
+          'align-left': msg.senderId !== currentUser?._id,
+          'align-right': msg.senderId === currentUser?._id
         }"
       >
         <!-- Thumbnail -->
@@ -263,8 +263,8 @@
 
         <!-- Message card -->
         <div
-          [class.current-user]="msg.senderId === currentUser._id"
-          [class.other-user]="msg.senderId !== currentUser._id"
+          [class.current-user]="msg.senderId === currentUser?._id"
+          [class.other-user]="msg.senderId !== currentUser?._id"
           class="message-box card"
           *ngIf="msg.deleted === false"
         >
@@ -319,18 +319,18 @@
           <!-- Message Actions -->
           <div
             class="message-actions"
-            [class.left]="msg.senderId === currentUser._id"
-            [class.right]="msg.senderId !== currentUser._id"
+            [class.left]="msg.senderId === currentUser?._id"
+            [class.right]="msg.senderId !== currentUser?._id"
             *ngIf="!msg.adminMessage"
           >
             <mat-icon
-              *ngIf="msg.senderId === currentUser._id"
+              *ngIf="msg.senderId === currentUser?._id"
               matTooltip="Edit message"
               (click)="currentEditMessage = msg._id"
               >edit</mat-icon
             >
             <mat-icon
-              *ngIf="msg.senderId === currentUser._id"
+              *ngIf="msg.senderId === currentUser?._id"
               matTooltip="Delete message"
               (click)="deleteMessageClick(msg)"
               >delete</mat-icon
@@ -344,10 +344,10 @@
         </div>
 
         <div *ngIf="msg.deleted === true" class="deleted-message-text">
-          <span *ngIf="msg.senderId !== currentUser._id"
+          <span *ngIf="msg.senderId !== currentUser?._id"
             >{{msg.sender?.name ?? ''}} deleted a message.</span
           >
-          <span *ngIf="msg.senderId === currentUser._id"
+          <span *ngIf="msg.senderId === currentUser?._id"
             >You deleted this message.</span
           >
         </div>

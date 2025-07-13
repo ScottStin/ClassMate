@@ -30,7 +30,7 @@ export class NotificationService {
 
     if (currentUserString !== null) {
       const currentUser = JSON.parse(currentUserString) as UserDTO | undefined;
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
       if (currentUser?._id) {
         this.socket.on(
           `notificationCreated-${currentUser._id}`,

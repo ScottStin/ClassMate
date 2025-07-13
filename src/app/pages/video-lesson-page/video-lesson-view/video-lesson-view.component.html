@@ -1,6 +1,6 @@
 <div
   class="logo-container"
-  [style]="'background-color:' + styles.primaryButtonBackgroundColor"
+  [style]="'background-color:' + (styles?.primaryButtonBackgroundColor ?? 'white')"
 >
   <img
     [src]="currentSchool?.logoSecondary?.url"

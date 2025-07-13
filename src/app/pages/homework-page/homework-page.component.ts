@@ -74,8 +74,7 @@ export class HomeworkPageComponent implements OnInit {
     this.currentSchool$
       .pipe(untilDestroyed(this))
       .subscribe((currentSchool) => {
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/strict-boolean-expressions
-        if (currentSchool && currentSchool._id) {
+        if (currentSchool?._id) {
           forkJoin([
             this.userService.getAllBySchoolId(currentSchool._id),
             this.homeworkService.getAllBySchoolId(currentSchool._id),
@@ -132,11 +131,7 @@ export class HomeworkPageComponent implements OnInit {
           },
         });
         dialogRef.afterClosed().subscribe((result: HomeworkDTO | null) => {
-          if (
-            result &&
-            currentSchool?._id !== null &&
-            currentSchool?._id !== undefined
-          ) {
+          if (result && currentSchool?._id) {
             this.homeworkService
               .create({ ...result, schoolId: currentSchool._id })
               .subscribe({
@@ -198,11 +193,7 @@ export class HomeworkPageComponent implements OnInit {
           },
         });
         dialogRef.afterClosed().subscribe((result: HomeworkDTO | null) => {
-          if (
-            result &&
-            currentSchool?._id !== null &&
-            currentSchool?._id !== undefined
-          ) {
+          if (result && currentSchool?._id) {
             this.homeworkService
               .update({ ...result, schoolId: currentSchool._id })
               .subscribe({

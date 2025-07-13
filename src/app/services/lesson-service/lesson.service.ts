@@ -32,7 +32,6 @@ export class LessonService {
         | undefined;
       const currentUserLevel = currentUser?.level ?? undefined;
 
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (currentUser?._id && currentSchool?._id) {
         this.socket.on(
           `lessonEvent-${currentSchool._id}`,

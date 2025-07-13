@@ -145,7 +145,7 @@ export class CreateExamDialogComponent implements OnInit {
       title: string;
       exam: ExamDTO | undefined;
       teachers: UserDTO[];
-      currentTeacher: UserDTO;
+      currentTeacher?: UserDTO;
     },
     private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
     private readonly examService: ExamService,
@@ -191,13 +191,9 @@ export class CreateExamDialogComponent implements OnInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      defaultExam: new FormControl(this.data.exam?.default ?? false, {
-        validators: [Validators.required],
-        nonNullable: true,
-      }),
       assignedTeacherId: new FormControl(
         this.data.exam?.assignedTeacherId ?? // on edit exam, set the assigned teacher
-          (this.data.currentTeacher.userType.toLowerCase() === 'teacher' // if user creating the exam is not admin, assigned teacher should be current teacher by default
+          (this.data.currentTeacher?.userType.toLowerCase() === 'teacher' // if user creating the exam is not admin, assigned teacher should be current teacher by default
             ? this.data.currentTeacher._id
             : ''),
         {
@@ -466,7 +462,7 @@ export class CreateExamDialogComponent implements OnInit {
         if (this.currentQuestionDisplay.fillBlanksQuestionList) {
           this.currentQuestionDisplay.fillBlanksQuestionList = null;
         }
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
         if (this.currentQuestionDisplay.length) {
           this.currentQuestionDisplay.length = null;
           this.examForm.controls.questionStep.controls.length.setValue(NaN);
@@ -973,7 +969,6 @@ export type ExamDetailStepForm = FormGroup<{
   totalPointsMax: FormControl<number>;
   default: FormControl<boolean>;
   assignedTeacherId: FormControl<string>;
-  defaultExam: FormControl<boolean>;
 }>;
 
 export type QuestionStepForm = FormGroup<{

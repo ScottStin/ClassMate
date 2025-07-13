@@ -94,7 +94,7 @@ export class VideoLessonPageComponent implements OnInit, OnDestroy {
 
           // --- get lessons:
           this.lessonsSubscription = this.lessonService
-            .getAllBySchoolId(currentSchool._id ?? '')
+            .getAllBySchoolId(currentSchool._id)
             .subscribe();
         }
       }

@@ -20,11 +20,11 @@ import { UserDTO } from 'src/app/shared/models/user.model';
 export class QuestionsComponent implements OnChanges {
   @ViewChild('audioRef', { static: false }) audioElement?: ElementRef;
 
-  @Input() question: CreateExamQuestionDto | null;
+  @Input() question?: CreateExamQuestionDto;
   @Input() displayMode: boolean;
   @Input() studentId: string;
   @Input() markMode: boolean;
-  @Input() currentUser: UserDTO | null;
+  @Input() currentUser?: UserDTO;
 
   @Output() updateStudentResponse = new EventEmitter<string>();
 

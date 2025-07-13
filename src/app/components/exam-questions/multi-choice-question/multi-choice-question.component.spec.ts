@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 
 import { MultiChoiceQuestionComponent } from './multi-choice-question.component';
 
@@ -8,9 +11,9 @@ describe('MultiChoiceQuestionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MultiChoiceQuestionComponent ]
-    })
-    .compileComponents();
+      declarations: [MultiChoiceQuestionComponent],
+      imports: [MatIconModule, MatListModule, MatCheckboxModule],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MultiChoiceQuestionComponent);
     component = fixture.componentInstance;

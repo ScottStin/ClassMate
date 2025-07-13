@@ -38,13 +38,13 @@
           (keyup)="filterUsers(usersInput.value)"
         />
         <mat-checkbox
-          *ngIf="(data.users.length + 1) > usersList.length && !this.messageGroupForm.getRawValue().usersInput"
+          *ngIf="((data.users?.length ?? 0) + 1) > usersList.length && !this.messageGroupForm.getRawValue().usersInput"
           matSuffix
           (click)="selectAllUsers(data.users)"
           >Select All</mat-checkbox
         >
         <mat-checkbox
-          *ngIf="(data.users.length + 1) === usersList?.length && !this.messageGroupForm.getRawValue().usersInput"
+          *ngIf="((data.users?.length ?? 0) + 1) === usersList?.length && !this.messageGroupForm.getRawValue().usersInput"
           matSuffix
           (click)="unselectAllUsers()"
           >Unselect All</mat-checkbox
@@ -94,6 +94,7 @@
           <mat-list-item *ngFor="let user of usersList; let i = index">
             <div
               style="display: flex; justify-content: space-between; width: 95%"
+              *ngIf="user"
             >
               <div matListItemTitle>
                 <span

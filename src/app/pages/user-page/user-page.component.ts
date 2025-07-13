@@ -127,7 +127,6 @@ export class UserPageComponent implements OnInit, OnDestroy {
     this.userPageLoading = true;
     // todo, replace with this.currentSchool$.getValue()
     this.currentSchool$.subscribe((currentSchool) => {
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (currentSchool?._id) {
         this.userService
           .getAllBySchoolId(currentSchool._id)
@@ -201,7 +200,6 @@ export class UserPageComponent implements OnInit, OnDestroy {
                     .create({
                       recipients: [data.user._id],
                       message: `Your English level has been changed ${
-                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
                         result.level?.longName
                           ? `to ${result.level.longName}`
                           : ''
@@ -269,11 +267,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
           },
         });
         dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
-          if (
-            result &&
-            currentSchool?._id !== null &&
-            currentSchool?._id !== undefined
-          ) {
+          if (result && currentSchool?._id) {
             this.userPageLoading = true;
 
             this.userService

@@ -20,7 +20,7 @@ import { UserDTO } from 'src/app/shared/models/user.model';
   styleUrls: ['./video-lesson-view.component.scss'],
 })
 export class VideoLessonViewComponent implements OnInit, OnChanges {
-  @Input() styles: TempStylesDTO;
+  @Input() styles?: TempStylesDTO;
   @Input() currentSchool: SchoolDTO | null;
   @Input() currentUser: UserDTO | null;
   @Input() lessons: LessonDTO[] | null;
@@ -111,8 +111,8 @@ export class VideoLessonViewComponent implements OnInit, OnChanges {
       },
       theme: {
         colors: {
-          accent: this.styles.primaryButtonBackgroundColor,
-          accentText: this.styles.primaryButtonTextColor,
+          accent: this.styles?.primaryButtonBackgroundColor,
+          accentText: this.styles?.primaryButtonTextColor,
           // background: this.styles.backgroundColor?.name,
         },
       },

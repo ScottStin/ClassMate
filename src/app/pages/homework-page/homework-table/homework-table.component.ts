@@ -70,7 +70,6 @@ export class HomeworkTableComponent
     );
 
     if (
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       this.currentUser?._id &&
       this.currentUser.userType.toLowerCase() === 'student'
     ) {
@@ -94,7 +93,6 @@ export class HomeworkTableComponent
     if (
       'homeworkData' in changes &&
       this.homeworkData &&
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       this.currentUser?._id &&
       this.currentUser.userType.toLowerCase() === 'student'
     ) {

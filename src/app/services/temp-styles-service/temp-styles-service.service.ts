@@ -17,6 +17,23 @@ export class TempStylesService {
   updateTemporaryStyles(style: TempStylesDTO | null): void {
     this.temporaryStylesSubject.next(style);
   }
+
+  getBackgroundStyleStyle(
+    selectedBackgroundImage: BackgroundImageType
+  ): string {
+    if (
+      selectedBackgroundImage.type === 'pattern' ||
+      !selectedBackgroundImage.type
+    ) {
+      return `background-image: url(../../../assets/${selectedBackgroundImage.name})`;
+    }
+
+    if (selectedBackgroundImage.type === 'color') {
+      return `background: ${selectedBackgroundImage.name}`;
+    }
+
+    return `background-image: ${selectedBackgroundImage.name}`;
+  }
 }
 
 export type TempStylesSubject = TempStylesDTO | null;
@@ -29,4 +46,11 @@ export interface TempStylesDTO {
   errorColor?: string;
   logoPrimary?: ImageType;
   logoSecondary?: ImageType;
+}
+
+export interface BackgroundImageType {
+  name: string;
+  label: string;
+  shadow: string;
+  type?: string;
 }

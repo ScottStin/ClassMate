@@ -1,5 +1,4 @@
 /* eslint-disable no-confusing-arrow */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
@@ -39,7 +38,7 @@ export class ConversationService {
 
     if (currentUserString !== null) {
       const currentUser = JSON.parse(currentUserString) as UserDTO | undefined;
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
       if (currentUser?._id) {
         this.socket.on(
           `conversationEvent-${currentUser._id}`,

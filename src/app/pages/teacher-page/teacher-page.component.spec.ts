@@ -5,6 +5,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Socket } from 'ngx-socket-io';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
 import { LessonCardModule } from 'src/app/pages/lesson-page/lesson-card/lesson-card.module';
 import { UserCardModule } from 'src/app/pages/user-page/user-card/user-card.module';
@@ -30,6 +31,15 @@ describe('TeacherPageComponent', () => {
         MatSnackBarModule,
         RouterTestingModule,
         BrowserAnimationsModule,
+      ],
+      providers: [
+        {
+          provide: Socket,
+          useValue: {
+            on: jasmine.createSpy('on'),
+            off: jasmine.createSpy('off'),
+          },
+        },
       ],
     }).compileComponents();
 

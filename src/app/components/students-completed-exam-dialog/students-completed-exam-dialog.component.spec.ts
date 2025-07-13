@@ -13,6 +13,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Socket } from 'ngx-socket-io';
 
 import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
@@ -44,6 +45,13 @@ describe('StudentsCompletedExamDialogComponent', () => {
         {
           provide: MAT_DIALOG_DATA,
           useValue: {},
+        },
+        {
+          provide: Socket,
+          useValue: {
+            on: jasmine.createSpy('on'),
+            off: jasmine.createSpy('off'),
+          },
         },
       ],
     }).compileComponents();

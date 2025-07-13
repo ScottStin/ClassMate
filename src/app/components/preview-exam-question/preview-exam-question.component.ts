@@ -16,8 +16,8 @@ export class PreviewExamQuestionComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
-      question: CreateExamQuestionDto;
-      placeholderUser: UserDTO;
+      question?: CreateExamQuestionDto;
+      placeholderUser?: UserDTO;
     },
     private readonly dialogRef: MatDialogRef<PreviewExamQuestionComponent>,
     public dialog: MatDialog

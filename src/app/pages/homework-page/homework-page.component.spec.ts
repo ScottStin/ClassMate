@@ -8,6 +8,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Socket } from 'ngx-socket-io';
 import { ConfirmDialogModule } from 'src/app/components/confirm-dialog/confirm-dialog.module';
 import { CreateHomeworkDialogModule } from 'src/app/components/create-homework-dialog/create-homework-dialog.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
@@ -15,6 +16,11 @@ import { HeaderCardModule } from 'src/app/components/header-card/header-card.mod
 import { HomeworkCardModule } from './homework-card/homework-card.module';
 import { HomeworkPageComponent } from './homework-page.component';
 import { HomeworkTableModule } from './homework-table/homework-table.module';
+
+const socketMock = {
+  on: jasmine.createSpy('on'),
+  off: jasmine.createSpy('off'),
+};
 
 describe('HomeworkPageComponent', () => {
   let component: HomeworkPageComponent;
@@ -39,6 +45,7 @@ describe('HomeworkPageComponent', () => {
         BrowserAnimationsModule,
         HomeworkTableModule,
       ],
+      providers: [{ provide: Socket, useValue: socketMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeworkPageComponent);

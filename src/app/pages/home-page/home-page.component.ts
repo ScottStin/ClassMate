@@ -88,8 +88,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.homePageLoading = true;
     this.currentSchoolSubscription = this.currentSchool$.subscribe(
       (currentSchool) => {
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/strict-boolean-expressions
-        if (currentSchool && currentSchool._id) {
+        if (currentSchool?._id) {
           this.lessonTypes = currentSchool.lessonTypes;
 
           forkJoin([

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -34,7 +33,7 @@ export class MessengerDialogFullComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
-      currentUser: UserDTO;
+      currentUser?: UserDTO;
       users: UserDTO[];
       miniDilaogMode: boolean;
     },
@@ -52,18 +51,25 @@ export class MessengerDialogFullComponent implements OnInit {
     this.messages$ = this.messengerService.messages$;
     this.unseenMessages$ = this.messengerService.unseenMessages$;
     this.conversations$ = this.conversatonService.conversations$;
-    this.conversatonService
-      .getConversationsByUser(this.data.currentUser._id)
-      .pipe(untilDestroyed(this))
-      .subscribe({
-        error: (error: Error) => {
-          this.snackbarService.queueBar('error', error.message);
-        },
-      });
+
+    if (this.data.currentUser) {
+      this.conversatonService
+        .getConversationsByUser(this.data.currentUser._id)
+        .pipe(untilDestroyed(this))
+        .subscribe({
+          error: (error: Error) => {
+            this.snackbarService.queueBar('error', error.message);
+          },
+        });
+    }
   }
 
   // When a user clicks on a new chat conversation:
   selectChat(chat: ConversationDto): void {
+    if (!this.data.currentUser) {
+      return;
+    }
+
     this.messengerService
       .getMessagesByUser({
         userId: this.data.currentUser._id,
@@ -93,7 +99,6 @@ export class MessengerDialogFullComponent implements OnInit {
     conversation: CreateConversationDto | ConversationDto;
     recipientIds: string[];
   }): void {
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     const conversation$ = (message.conversation as ConversationDto)._id
       ? of(message.conversation) // wrap existing conversation in an observable
       : this.conversatonService.createConversation(message.conversation);
@@ -106,9 +111,11 @@ export class MessengerDialogFullComponent implements OnInit {
 
           return this.messengerService.createMessage({
             messageText: message.messageText,
-            senderId: this.data.currentUser._id,
+            senderId: this.data.currentUser?._id ?? '',
             recipients: message.recipientIds
-              .filter((recipient) => recipient !== this.data.currentUser._id)
+              .filter(
+                (recipient) => recipient !== (this.data.currentUser?._id ?? '')
+              )
               .map((userId) => ({
                 userId,
                 seenAt: undefined,
@@ -179,6 +186,10 @@ export class MessengerDialogFullComponent implements OnInit {
   }
 
   markAsSeen(messagesToMarkIds: string[]): void {
+    if (!this.data.currentUser) {
+      return;
+    }
+
     this.messengerService
       .markAsSeen({
         messagesToMarkIds,

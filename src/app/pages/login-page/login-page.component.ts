@@ -5,6 +5,7 @@ import { filter, finalize, first, forkJoin, Observable } from 'rxjs';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
+import { TempStylesService } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { UserService } from 'src/app/services/user-service/user.service';
 import {
   BackgroundImageDTO,
@@ -50,6 +51,7 @@ export class LoginPageComponent implements OnInit {
     private readonly schoolService: SchoolService,
     private readonly snackbarService: SnackbarService,
     public readonly authStoreService: AuthStoreService,
+    public readonly tempStyleService: TempStylesService,
     private readonly route: ActivatedRoute
   ) {
     this.getRouterDetails();
@@ -251,7 +253,6 @@ export class LoginPageComponent implements OnInit {
     this.pageLoading = true;
     this.currentSchool$.pipe(first()).subscribe(
       (currentSchool) => {
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         if (currentSchool?._id) {
           this.authStoreService
             .login(userDetails, currentSchool._id)
@@ -312,7 +313,6 @@ export class LoginPageComponent implements OnInit {
     this.pageLoading = true;
     this.currentSchool$.pipe(first()).subscribe(
       (currentSchool) => {
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         if (currentSchool?._id) {
           this.authStoreService
             .login(userDetails, currentSchool._id)

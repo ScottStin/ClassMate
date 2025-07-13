@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
   Component,

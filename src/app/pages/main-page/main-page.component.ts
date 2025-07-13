@@ -49,7 +49,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     errorColor: this.defaultStyles.errorColor,
   };
   backgroundImages = backgroundImages;
-  selectedBackgroundImage: BackgroundImageDTO | null = this.backgroundImages[0];
+  selectedBackgroundImage: BackgroundImageDTO = this.backgroundImages[0];
 
   /**
    * Set sidenav drawer size:
@@ -103,7 +103,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.temporaryStylesSubscription = this.temporaryStyles$.subscribe(
       (tempStyles) => {
         if (tempStyles) {
-          if (tempStyles.backgroundColor !== undefined) {
+          if (tempStyles.backgroundColor) {
             this.selectedBackgroundImage = tempStyles.backgroundColor;
           }
         } else {

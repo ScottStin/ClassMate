@@ -35,7 +35,7 @@ export class HomeworkService implements OnDestroy {
 
     if (currentUserString !== null) {
       this.currentUser = JSON.parse(currentUserString) as UserDTO | undefined;
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
       if (this.currentUser?._id) {
         this.socket.on(
           `homeworkEvent-${this.currentUser._id}`,

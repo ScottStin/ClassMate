@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { formatDate } from '@angular/common';
 import {
   AfterViewInit,
@@ -42,7 +40,7 @@ export class MessengerDialogFullViewComponent
   @Input() unseenMessages: MessageDto[] | null;
   @Input() conversations: ConversationDto[] | null;
   @Input() users: UserDTO[] | null;
-  @Input() currentUser: UserDTO;
+  @Input() currentUser?: UserDTO;
   @Input() miniDilaogMode: boolean;
   @Output() sendMessage = new EventEmitter<{
     messageText: string;
@@ -107,7 +105,7 @@ export class MessengerDialogFullViewComponent
 
     if ('users' in changes && this.users) {
       this.filteredUsersToAdd = [
-        ...this.users.filter((user) => user._id !== this.currentUser._id),
+        ...this.users.filter((user) => user._id !== this.currentUser?._id),
       ];
     }
 
@@ -251,7 +249,7 @@ export class MessengerDialogFullViewComponent
         (message) =>
           message.recipients?.some(
             (recipient) =>
-              recipient.userId === this.currentUser._id &&
+              recipient.userId === this.currentUser?._id &&
               recipient.seenAt === undefined
           )
       )
@@ -275,7 +273,7 @@ export class MessengerDialogFullViewComponent
 
     // if conversation, use particpant names for title:
     return conversation.participantIds
-      .filter((participantId) => participantId !== this.currentUser._id)
+      .filter((participantId) => participantId !== this.currentUser?._id)
       .map((participantId) => {
         const user = this.users?.find((u) => u._id === participantId);
         return user ? user.name : 'Unknown';
@@ -398,14 +396,14 @@ export class MessengerDialogFullViewComponent
     return this.users.filter(
       (user) =>
         this.selectedMessageChat?.usersTyping?.includes(user._id) &&
-        user._id !== this.currentUser._id
+        user._id !== this.currentUser?._id
     );
   }
 
   // --- emit that the current user is typing
   onMessageInputChange(): void {
     const emit = (): void => {
-      if (this.selectedMessageChat) {
+      if (this.selectedMessageChat && this.currentUser) {
         this.changeCurrentUserTypingStatus.emit({
           isCurrentUserTyping: this.currentUserTyping,
           conversationId: this.selectedMessageChat._id,
@@ -443,7 +441,7 @@ export class MessengerDialogFullViewComponent
         (user: UserDTO) =>
           user.name.toLowerCase().includes(search.toLowerCase()) &&
           !this.usersToAddList.includes(user) &&
-          user._id !== this.currentUser._id
+          user._id !== this.currentUser?._id
       ) ?? [];
   }
 
@@ -464,12 +462,13 @@ export class MessengerDialogFullViewComponent
 
     const matchingChatItem = this.sideMessageChatList.find(
       (item) =>
-        item.participantIds.filter((id) => id !== this.currentUser._id)
+        item.participantIds.filter((id) => id !== this.currentUser?._id)
           .length === userToAddListIds.length &&
-        new Set(item.participantIds.filter((id) => id !== this.currentUser._id))
-          .size === new Set(userToAddListIds).size &&
+        new Set(
+          item.participantIds.filter((id) => id !== this.currentUser?._id)
+        ).size === new Set(userToAddListIds).size &&
         item.participantIds
-          .filter((id) => id !== this.currentUser._id)
+          .filter((id) => id !== this.currentUser?._id)
           .every((id) => userToAddListIds.includes(id))
     );
 
@@ -508,7 +507,7 @@ export class MessengerDialogFullViewComponent
       data: {
         title: `Create New Group`,
         currentUser: this.currentUser,
-        users: this.users?.filter((user) => user._id !== this.currentUser._id),
+        users: this.users?.filter((user) => user._id !== this.currentUser?._id),
       },
     });
     dialogRef.afterClosed().subscribe((result: UserDTO | undefined) => {
@@ -525,7 +524,7 @@ export class MessengerDialogFullViewComponent
       data: {
         title: `Edit Group ${existingGroup?.groupName ?? ''}`,
         currentUser: this.currentUser,
-        users: this.users?.filter((user) => user._id !== this.currentUser._id),
+        users: this.users?.filter((user) => user._id !== this.currentUser?._id),
         existingGroup,
       },
     });
@@ -568,7 +567,7 @@ export class MessengerDialogFullViewComponent
    */
   sendMessageClick(): void {
     let conversation: CreateConversationDto | undefined;
-    if (this.startNewDirectConvoMode) {
+    if (this.startNewDirectConvoMode && this.currentUser) {
       conversation = {
         participantIds: [
           ...this.usersToAddList.map((user) => user._id),
