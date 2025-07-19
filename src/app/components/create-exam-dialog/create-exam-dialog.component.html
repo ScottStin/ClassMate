@@ -421,7 +421,7 @@
                 <mat-select
                   formControlName="type"
                   (selectionChange)="formChange($event.value, 'type')"
-                  [disabled]="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
+                  [disabled]="currentQuestionDisplay.type?.toLowerCase() === 'section'"
                 >
                   <ng-container *ngFor="let questionType of questionTypes">
                     <ng-container
@@ -520,7 +520,7 @@
                   #writtenPrompt
                   type="text"
                   rows="3"
-                  [placeholder]="currentQuestionDisplay?.type?.toLowerCase() === 'read-outloud' ? 'Add the text that the student will have to read out loud here.' : 'A short description of the question/section'"
+                  [placeholder]="currentQuestionDisplay.type?.toLowerCase() === 'read-outloud' ? 'Add the text that the student will have to read out loud here.' : 'A short description of the question/section'"
                   required
                   (keyup)="formChange(writtenPrompt.value, 'writtenPrompt')"
                 ></textarea>
@@ -659,7 +659,7 @@
                   <mat-select
                     formControlName="prompt1Type"
                     (selectionChange)="updatePromptType($event.value, 'prompt1', true)"
-                    [disabled]="currentQuestionDisplay?.type === 'repeat-sentence'"
+                    [disabled]="currentQuestionDisplay.type === 'repeat-sentence'"
                   >
                     <mat-option
                       *ngFor="let promptType of ['image', 'audio']"
@@ -803,7 +803,7 @@
                   name="teacherFeedback"
                   formControlName="teacherFeedback"
                   (change)="formChange(teacherFeedback.checked, 'teacherFeedback')"
-                  [checked]="currentQuestionDisplay?.teacherFeedback"
+                  [checked]="currentQuestionDisplay.teacherFeedback"
                 >
                   Feedback required?
                   <mat-icon
@@ -835,7 +835,7 @@
                   name="autoMarking"
                   #autoMarking
                   (change)="formChange(autoMarking.checked, 'autoMarking')"
-                  [checked]="currentQuestionDisplay?.autoMarking"
+                  [checked]="currentQuestionDisplay.autoMarking"
                 >
                   <span *ngIf="!currentQuestionDisplay?.teacherFeedback"
                     >Auto marking?</span
@@ -847,7 +847,7 @@
                   <mat-icon
                     style="font-size: 20px"
                     #tooltip="matTooltip"
-                    [matTooltip]="currentQuestionDisplay?.teacherFeedback ? 'When turned on, this question will automatically be marked by our ai marking software and the student will be given a score and feedback. When turned off, the teacher must provide the student with a score/feedback.' : 'When turned on, this question will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher must provide the student with a score.'"
+                    [matTooltip]="currentQuestionDisplay.teacherFeedback ? 'When turned on, this question will automatically be marked by our ai marking software and the student will be given a score and feedback. When turned off, the teacher must provide the student with a score/feedback.' : 'When turned on, this question will automatically be marked by our marking software and the student will be given a score. When turned off, the teacher must provide the student with a score.'"
                     >info_outlined</mat-icon
                   >
                 </mat-slide-toggle>
@@ -869,7 +869,7 @@
                   name="autoMarking"
                   #autoMarking
                   (change)="formChange(autoMarking.checked, 'autoMarking')"
-                  [checked]="currentQuestionDisplay?.autoMarking"
+                  [checked]="currentQuestionDisplay.autoMarking"
                 >
                   <span>Auto feedback?</span>
 
@@ -894,11 +894,11 @@
                   name="timed"
                   #timed
                   (change)="formChange(timed.checked, 'timed')"
-                  [checked]="currentQuestionDisplay?.timed"
+                  [checked]="currentQuestionDisplay.timed"
                 >
                   Timed?
                   <mat-icon
-                    *ngIf="!currentQuestionDisplay?.timed"
+                    *ngIf="!currentQuestionDisplay.timed"
                     style="font-size: 20px"
                     #tooltip="matTooltip"
                     matTooltip="When turned on, this question/section will have a time limit"
@@ -921,7 +921,7 @@
                   formControlName="time"
                   type="text"
                   placeholder="Time limit (seconds)"
-                  [required]="currentQuestionDisplay?.timed === true"
+                  [required]="currentQuestionDisplay.timed === true"
                   (keyup)="formChange(time.value, 'time')"
                 />
                 <mat-error>

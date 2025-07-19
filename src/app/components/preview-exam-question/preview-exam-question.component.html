@@ -1,6 +1,6 @@
 <ng-container>
   <app-dialog-header
-    [dialogTitle]="'Preview of exam question: ' + data.question?.name ?? ''"
+    [dialogTitle]="'Preview of exam question: ' + (data.question?.name ?? '')"
     (closeAction)="closeDialog(null)"
   ></app-dialog-header>
 

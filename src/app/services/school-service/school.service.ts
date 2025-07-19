@@ -19,7 +19,7 @@ export class SchoolService {
 
   schools$ = this.schoolSubject.asObservable();
 
-  currentSchool$: Observable<SchoolSubject> =
+  currentSchool$: Observable<SchoolSubject | null> =
     this.currentSchoolSubject.asObservable();
 
   constructor(

@@ -127,6 +127,14 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     combineLatest([this.teachers$, this.currentUser$])
       .pipe(untilDestroyed(this))
       .subscribe(([teachers, currentUser]) => {
+        if (!currentUser || teachers.length === 0) {
+          this.snackbarService.queueBar(
+            'error',
+            'No logged in users or teachers found.'
+          );
+          return;
+        }
+
         const dialogRef = this.dialog.open(CreateExamDialogComponent, {
           data: {
             title: `Create New Exam`,

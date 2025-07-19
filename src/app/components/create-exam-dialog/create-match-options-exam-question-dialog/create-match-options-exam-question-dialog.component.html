@@ -65,7 +65,7 @@
             #randomQuestionOrder
             formControlName="randomQuestionOrder"
             (change)="toggleRnadomQuestionOrder(randomQuestionOrder.checked)"
-            [checked]="temporarycurrentQuestionDisplay?.randomQuestionOrder"
+            [checked]="temporarycurrentQuestionDisplay.randomQuestionOrder"
           >
             Random question order?
             <mat-icon
@@ -83,7 +83,7 @@
             name="partialMarking"
             #partialMarking
             (change)="togglePartialMarking(partialMarking.checked)"
-            [checked]="temporarycurrentQuestionDisplay?.partialMarking"
+            [checked]="temporarycurrentQuestionDisplay.partialMarking"
             >Partial Marking?
             <mat-icon
               style="font-size: 20px"
@@ -97,10 +97,10 @@
     </div>
   </div>
   <app-dialog-actions
-    [matTooltip]="!temporarycurrentQuestionDisplay.matchOptionQuestionList || (temporarycurrentQuestionDisplay.matchOptionQuestionList ?? [null,null]).length < 2 ? 'Please add at least two options before saving' : ''"
+    [matTooltip]="!temporarycurrentQuestionDisplay.matchOptionQuestionList || temporarycurrentQuestionDisplay.matchOptionQuestionList.length < 2 ? 'Please add at least two options before saving' : ''"
     matTooltipPosition="after"
     (cancelAction)="closeDialog()"
     (saveAction)="closeDialogSave()"
-    [disabled]="!temporarycurrentQuestionDisplay.matchOptionQuestionList || (temporarycurrentQuestionDisplay.matchOptionQuestionList ?? [null,null]).length < 2"
+    [disabled]="!temporarycurrentQuestionDisplay.matchOptionQuestionList || temporarycurrentQuestionDisplay.matchOptionQuestionList.length < 2"
   ></app-dialog-actions>
 </ng-container>

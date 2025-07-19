@@ -22,7 +22,7 @@ export class QuestionsComponent implements OnChanges {
 
   @Input() question?: CreateExamQuestionDto;
   @Input() displayMode: boolean;
-  @Input() studentId: string;
+  @Input() studentId?: string;
   @Input() markMode: boolean;
   @Input() currentUser?: UserDTO;
 

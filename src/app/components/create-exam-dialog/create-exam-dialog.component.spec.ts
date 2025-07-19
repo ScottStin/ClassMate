@@ -63,10 +63,15 @@ describe('CreateExamDialogComponent', () => {
         BrowserAnimationsModule,
       ],
       providers: [
-        { provide: MatDialogRef, useValue: {} },
+        {
+          provide: MatDialogRef,
+          useValue: {},
+        },
         {
           provide: MAT_DIALOG_DATA,
-          useFactory: (): unknown => ({}),
+          useValue: {
+            currentTeacher: { userType: 'Teacher' },
+          },
         },
       ],
     }).compileComponents();

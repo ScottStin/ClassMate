@@ -48,7 +48,7 @@ export class CreateExamDialogComponent implements OnInit {
   }>;
 
   questionList: CreateExamQuestionDto[] = [];
-  currentQuestionDisplay: CreateExamQuestionDto | null = null;
+  currentQuestionDisplay?: CreateExamQuestionDto;
   maxWrittenResponseWordLimit = 600;
   maxAudioResponseTimeLimit = 120;
   sectionCounter = 1; // used to assign an id to a new section;
@@ -145,7 +145,7 @@ export class CreateExamDialogComponent implements OnInit {
       title: string;
       exam: ExamDTO | undefined;
       teachers: UserDTO[];
-      currentTeacher?: UserDTO;
+      currentTeacher: UserDTO;
     },
     private readonly dialogRef: MatDialogRef<CreateExamDialogComponent>,
     private readonly examService: ExamService,
@@ -193,7 +193,7 @@ export class CreateExamDialogComponent implements OnInit {
       }),
       assignedTeacherId: new FormControl(
         this.data.exam?.assignedTeacherId ?? // on edit exam, set the assigned teacher
-          (this.data.currentTeacher?.userType.toLowerCase() === 'teacher' // if user creating the exam is not admin, assigned teacher should be current teacher by default
+          (this.data.currentTeacher.userType.toLowerCase() === 'teacher' // if user creating the exam is not admin, assigned teacher should be current teacher by default
             ? this.data.currentTeacher._id
             : ''),
         {
@@ -568,7 +568,7 @@ export class CreateExamDialogComponent implements OnInit {
     } else {
       this.questionList = this.questionList.filter((obj) => obj !== question);
     }
-    this.currentQuestionDisplay = null;
+    this.currentQuestionDisplay = undefined;
   }
 
   /**

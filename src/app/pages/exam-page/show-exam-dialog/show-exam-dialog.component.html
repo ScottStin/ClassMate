@@ -23,7 +23,7 @@
     <!----- ---------------------- ----->
     <div *ngIf="!examStarted">
       <div>
-        <span>{{data.exam?.instructions}}</span>
+        <span>{{data.exam.instructions}}</span>
       </div>
       <div
         style="
@@ -106,7 +106,7 @@
               >
               <span style="white-space: nowrap"
                 >&nbsp; {{getScaledTotalExamScore()}} /
-                {{data.exam?.totalPointsMax}}</span
+                {{data.exam.totalPointsMax}}</span
               >
             </div>
           </div>

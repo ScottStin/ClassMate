@@ -103,7 +103,10 @@ export class LoginPageComponent implements OnInit {
         ) {
           this.isFlipped = true;
         }
-        this.getCurrentSchoolDetails();
+
+        setTimeout(() => {
+          this.getCurrentSchoolDetails();
+        });
       });
   }
 
@@ -117,6 +120,18 @@ export class LoginPageComponent implements OnInit {
   }
 
   getCurrentSchoolDetails(): void {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!this.currentSchool$) {
+      this.snackbarService.queueBar('error', `Error loading current school.`, {
+        label: `retry`,
+        registerAction: (onAction: Observable<void>) =>
+          onAction.pipe(untilDestroyed(this)).subscribe(() => {
+            this.getCurrentSchoolDetails();
+          }),
+      });
+      return;
+    }
+
     this.currentSchool$
       .pipe(untilDestroyed(this))
       .subscribe((currentSchool) => {

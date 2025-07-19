@@ -6,7 +6,7 @@ export interface ExamDTO {
   totalPointsMin?: number | null;
   totalPointsMax?: number | null;
   description: string;
-  instructions?: string | null;
+  instructions: string | null;
   casualPrice: number;
   default: boolean;
   questions?: string[] | null;

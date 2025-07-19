@@ -8,7 +8,7 @@
     <div class="form-field">
       <mat-list role="list">
         <div
-          *ngFor="let sentence of temporarycurrentQuestionDisplay?.reorderSentenceQuestionList; let i = index"
+          *ngFor="let sentence of temporarycurrentQuestionDisplay.reorderSentenceQuestionList ?? []; let i = index"
           style="
             display: flex;
             align-items: center;
@@ -58,7 +58,7 @@
           name="partialMarking"
           #partialMarking
           (change)="togglePartialMarking(partialMarking.checked)"
-          [checked]="temporarycurrentQuestionDisplay?.partialMarking"
+          [checked]="temporarycurrentQuestionDisplay.partialMarking"
           >Partial Marking?
           <mat-icon
             style="font-size: 20px"
@@ -71,10 +71,10 @@
     </div>
   </div>
   <app-dialog-actions
-    [matTooltip]="!temporarycurrentQuestionDisplay.reorderSentenceQuestionList || (temporarycurrentQuestionDisplay.reorderSentenceQuestionList ?? [null,null]).length < 2 ? 'Please add at least two options before saving' : ''"
+    [matTooltip]="!temporarycurrentQuestionDisplay.reorderSentenceQuestionList || temporarycurrentQuestionDisplay.reorderSentenceQuestionList.length < 2 ? 'Please add at least two options before saving' : ''"
     matTooltipPosition="after"
     (cancelAction)="closeDialog()"
     (saveAction)="closeDialogSave()"
-    [disabled]="!temporarycurrentQuestionDisplay.reorderSentenceQuestionList || (temporarycurrentQuestionDisplay.reorderSentenceQuestionList ?? [null,null]).length < 2"
+    [disabled]="!temporarycurrentQuestionDisplay.reorderSentenceQuestionList || temporarycurrentQuestionDisplay.reorderSentenceQuestionList.length < 2"
   ></app-dialog-actions>
 </ng-container>

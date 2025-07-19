@@ -35,7 +35,7 @@
           <mat-checkbox
             [checked]="multiChoiceOption.correct"
             (change)="changeMultiChoice(i, $event.checked)"
-            [class]="temporarycurrentQuestionDisplay?.type === 'multiple-choice-single' ? 'multi-choice-single-button' : ''"
+            [class]="temporarycurrentQuestionDisplay.type === 'multiple-choice-single' ? 'multi-choice-single-button' : ''"
             >Correct option?</mat-checkbox
           >
         </div>
@@ -61,7 +61,7 @@
           #randomQuestionOrder
           formControlName="randomQuestionOrder"
           (change)="toggleRnadomQuestionOrder(randomQuestionOrder.checked)"
-          [checked]="temporarycurrentQuestionDisplay?.randomQuestionOrder"
+          [checked]="temporarycurrentQuestionDisplay.randomQuestionOrder"
         >
           Random question order?
           <mat-icon
@@ -76,14 +76,14 @@
       <form
         [formGroup]="questionForm"
         class="form-field"
-        [style]="temporarycurrentQuestionDisplay?.type === 'multiple-choice-single' ? 'display: none' : ''"
+        [style]="temporarycurrentQuestionDisplay.type === 'multiple-choice-single' ? 'display: none' : ''"
       >
         <mat-slide-toggle
           id="partialMarking"
           name="partialMarking"
           #partialMarking
           (change)="togglePartialMarking(partialMarking.checked)"
-          [checked]="temporarycurrentQuestionDisplay?.partialMarking"
+          [checked]="temporarycurrentQuestionDisplay.partialMarking"
           >Partial Marking?
           <mat-icon
             style="font-size: 20px"
@@ -96,10 +96,10 @@
     </div>
   </div>
   <app-dialog-actions
-    [matTooltip]="!temporarycurrentQuestionDisplay.multipleChoiceQuestionList || (temporarycurrentQuestionDisplay.multipleChoiceQuestionList ?? [null,null]).length < 2 ? 'Please add at least two options before saving' : !isCorrectOptionSelected() ? 'Please select at least one correct answer before saving' : ''"
+    [matTooltip]="!temporarycurrentQuestionDisplay.multipleChoiceQuestionList || temporarycurrentQuestionDisplay.multipleChoiceQuestionList.length < 2 ? 'Please add at least two options before saving' : !isCorrectOptionSelected() ? 'Please select at least one correct answer before saving' : ''"
     matTooltipPosition="after"
     (cancelAction)="closeDialog()"
     (saveAction)="closeDialogSave()"
-    [disabled]="!temporarycurrentQuestionDisplay.multipleChoiceQuestionList || (temporarycurrentQuestionDisplay.multipleChoiceQuestionList ?? [null,null]).length < 2 || !isCorrectOptionSelected()"
+    [disabled]="!temporarycurrentQuestionDisplay.multipleChoiceQuestionList || temporarycurrentQuestionDisplay.multipleChoiceQuestionList.length < 2 || !isCorrectOptionSelected()"
   ></app-dialog-actions>
 </ng-container>

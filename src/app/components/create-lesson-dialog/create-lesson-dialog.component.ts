@@ -173,7 +173,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      cyclesInput: new FormControl(NaN, {
+      cyclesInput: new FormControl(1, {
         validators: [Validators.required],
         nonNullable: true,
       }),
@@ -236,11 +236,7 @@ export class CreateLessonDialogComponent implements OnInit, AfterViewInit {
         maxStudents: formValue.sizeInput,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         type: formValue.typeInput!,
-        schoolId:
-          this.data.currentSchool._id !== undefined &&
-          this.data.currentSchool._id !== null
-            ? this.data.currentSchool._id
-            : '',
+        schoolId: this.data.currentSchool._id,
         level: formValue.levelInput,
         name: formValue.nameInput,
         duration: formValue.lengthInput,

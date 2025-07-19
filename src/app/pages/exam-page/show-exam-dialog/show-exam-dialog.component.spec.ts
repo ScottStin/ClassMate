@@ -45,10 +45,15 @@ describe('ShowExamDialogComponent', () => {
         DialogHeaderModule,
       ],
       providers: [
-        { provide: MatDialogRef, useValue: {} },
+        {
+          provide: MatDialogRef,
+          useValue: {},
+        },
         {
           provide: MAT_DIALOG_DATA,
-          useFactory: (): unknown => ({}),
+          useValue: {
+            exam: { instructions: ' ' },
+          },
         },
       ],
     }).compileComponents();

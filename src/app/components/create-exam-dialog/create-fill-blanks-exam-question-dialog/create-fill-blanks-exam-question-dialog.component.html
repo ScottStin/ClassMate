@@ -95,7 +95,7 @@
           #randomQuestionOrder
           formControlName="randomQuestionOrder"
           (change)="toggleRandomQuestionOrder(randomQuestionOrder.checked)"
-          [checked]="temporarycurrentQuestionDisplay?.randomQuestionOrder"
+          [checked]="temporarycurrentQuestionDisplay.randomQuestionOrder"
         >
           Random question order?
           <mat-icon
@@ -110,14 +110,14 @@
       <form
         [formGroup]="questionForm"
         class="form-field"
-        [style]="temporarycurrentQuestionDisplay?.type === 'multiple-choice-single' ? 'display: none' : ''"
+        [style]="temporarycurrentQuestionDisplay.type === 'multiple-choice-single' ? 'display: none' : ''"
       >
         <mat-slide-toggle
           id="partialMarking"
           name="partialMarking"
           #partialMarking
           (change)="togglePartialMarking(partialMarking.checked)"
-          [checked]="temporarycurrentQuestionDisplay?.partialMarking"
+          [checked]="temporarycurrentQuestionDisplay.partialMarking"
           >Partial Marking?
           <mat-icon
             style="font-size: 20px"
@@ -131,14 +131,14 @@
       <form
         [formGroup]="questionForm"
         class="form-field"
-        [style]="temporarycurrentQuestionDisplay?.type === 'multiple-choice-single' ? 'display: none' : ''"
+        [style]="temporarycurrentQuestionDisplay.type === 'multiple-choice-single' ? 'display: none' : ''"
       >
         <mat-slide-toggle
           id="caseSenitive"
           name="caseSenitive"
           #caseSensitive
           (change)="toggleCaseSensitive(caseSensitive.checked)"
-          [checked]="temporarycurrentQuestionDisplay?.caseSensitive"
+          [checked]="temporarycurrentQuestionDisplay.caseSensitive"
           >Case-sensitive?
           <mat-icon
             style="font-size: 20px"
@@ -151,10 +151,10 @@
     </div>
   </div>
   <app-dialog-actions
-    [matTooltip]="!temporarycurrentQuestionDisplay.fillBlanksQuestionList || (temporarycurrentQuestionDisplay.fillBlanksQuestionList ?? [null]).length < 1 ? 'Please add at least one question before saving' : ''"
+    [matTooltip]="!temporarycurrentQuestionDisplay.fillBlanksQuestionList || temporarycurrentQuestionDisplay.fillBlanksQuestionList.length < 1 ? 'Please add at least one question before saving' : ''"
     matTooltipPosition="after"
     (cancelAction)="closeDialog()"
     (saveAction)="closeDialogSave()"
-    [disabled]="!temporarycurrentQuestionDisplay.fillBlanksQuestionList || (temporarycurrentQuestionDisplay.fillBlanksQuestionList ?? [null]).length < 1"
+    [disabled]="!temporarycurrentQuestionDisplay.fillBlanksQuestionList || temporarycurrentQuestionDisplay.fillBlanksQuestionList.length < 1"
   ></app-dialog-actions>
 </ng-container>
