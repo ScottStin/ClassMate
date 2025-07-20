@@ -193,6 +193,30 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     return currentSchool;
   }
 
+  saveBackground(data: {
+    schoolId: string;
+    background: BackgroundImageDTO;
+  }): void {
+    this.schoolService
+      .update({ backgroundImage: data.background }, data.schoolId)
+      .subscribe({
+        next: (result: { school: SchoolDTO; user: UserDTO }) => {
+          this.snackbarService.queueBar(
+            'info',
+            'School background successfully updated.'
+          );
+          this.schoolService.updateCurrentSchool(result.school);
+          this.authStoreService.updateCurrentUser(result.user);
+          setTimeout(() => {
+            this.adminViewComponent.closeEdit();
+          }, 0);
+        },
+        error: (error: Error) => {
+          this.snackbarService.queueBar('error', error.message);
+        },
+      });
+  }
+
   updateTempStyles(tempStyles: TempStylesDTO | null): void {
     this.tempStylesService.updateTemporaryStyles(tempStyles);
   }

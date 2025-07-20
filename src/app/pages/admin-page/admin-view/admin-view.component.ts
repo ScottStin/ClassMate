@@ -55,9 +55,14 @@ export class AdminViewComponent implements OnInit, OnChanges {
   }>();
   @Output() updateTempStyles = new EventEmitter<TempStylesDTO | null>();
   @Output() updateLessons = new EventEmitter<LessonTypeDTO[]>();
+  @Output() saveBackground = new EventEmitter<{
+    schoolId: string;
+    background: BackgroundImageDTO;
+  }>();
 
   lessonTypesModified: LessonTypeDTO[] = [];
   editLessonTypes = false;
+  backgroundHolder?: BackgroundImageDTO;
 
   countryList = countryList;
   defaultStyles = defaultStyles;
@@ -581,7 +586,9 @@ export class AdminViewComponent implements OnInit, OnChanges {
     this.updateTempStyles.emit(null);
     this.populateForm();
 
+    this.editGradient = false;
     this.editLessonTypes = false;
+    this.backgroundHolder = undefined;
     if (this.currentSchool) {
       this.lessonTypesModified = [...this.currentSchool.lessonTypes];
     }
@@ -597,7 +604,26 @@ export class AdminViewComponent implements OnInit, OnChanges {
       | { key: string },
     value: string
   ): void {
-    this.saveSchoolDetails.emit({ key: row.key, value });
+    if (this.backgroundHolder) {
+      this.onSaveBackgroundClick();
+    } else {
+      this.saveSchoolDetails.emit({ key: row.key, value });
+    }
+  }
+
+  onSaveBackgroundClick(): void {
+    if (!this.currentSchool || !this.backgroundHolder) {
+      this.snackbarService.queueBar(
+        'error',
+        'Please finish creating your background image first.'
+      );
+      return;
+    }
+
+    this.saveBackground.emit({
+      schoolId: this.currentSchool._id,
+      background: this.backgroundHolder,
+    });
   }
 
   changeTempStyles(
@@ -669,6 +695,7 @@ export class AdminViewComponent implements OnInit, OnChanges {
         shadow: '',
       };
     }
+    this.backgroundHolder = tempStyles.backgroundColor ?? undefined;
     this.updateTempStyles.emit(tempStyles);
   }
 

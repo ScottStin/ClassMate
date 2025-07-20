@@ -55,6 +55,22 @@ export class SchoolService {
     );
   }
 
+  getCurrentSchool(currentSchoolId: string): Observable<SchoolDTO> {
+    return this.httpClient
+      .get<SchoolDTO>(`${this.baseUrl}/current/${currentSchoolId}`)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to current school');
+        }),
+        tap((school) => {
+          const currentSchool = this.currentSchoolSubject.getValue();
+          if (JSON.stringify(currentSchool) !== JSON.stringify(school)) {
+            this.currentSchoolSubject.next(school);
+          }
+        })
+      );
+  }
+
   create(data: CreateSchoolDTO): Observable<SchoolDTO> {
     return this.httpClient.post<SchoolDTO>(`${this.baseUrl}`, data).pipe(
       catchError((error: Error) => {

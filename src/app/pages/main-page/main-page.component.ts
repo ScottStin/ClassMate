@@ -117,6 +117,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.currentSchoolSubscription = this.currentSchool$.subscribe(
       (currentSchool) => {
         if (currentSchool) {
+          this.schoolService.getCurrentSchool(currentSchool._id).subscribe();
+
           // --- get backgroud image:
           const backgroundImage = currentSchool.backgroundImage as
             | BackgroundImageDTO
