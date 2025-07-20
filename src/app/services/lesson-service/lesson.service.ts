@@ -113,6 +113,16 @@ export class LessonService {
     );
   }
 
+  update(data: LessonDTO): Observable<LessonDTO> {
+    return this.httpClient
+      .patch<LessonDTO>(`${this.baseUrl}/update/${data._id}`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to update new lesson');
+        })
+      );
+  }
+
   joinLesson(lesson: LessonDTO, student: UserDTO): Observable<LessonDTO> {
     return this.httpClient
       .patch<LessonDTO>(`${this.baseUrl}/register/${lesson._id}`, student)

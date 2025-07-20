@@ -9,6 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Socket } from 'ngx-socket-io';
 import { ConfirmDialogModule } from 'src/app/components/confirm-dialog/confirm-dialog.module';
 import { CreateLessonDialogModule } from 'src/app/components/create-lesson-dialog/create-lesson-dialog.module';
+import { EditLessonDialogModule } from 'src/app/components/edit-lesson-dialog/edit-lesson-dialog.module';
 import { HeaderCardModule } from 'src/app/components/header-card/header-card.module';
 import { LessonCardModule } from 'src/app/pages/lesson-page/lesson-card/lesson-card.module';
 
@@ -33,6 +34,7 @@ describe('LessonPageComponent', () => {
         MatSnackBarModule,
         HttpClientTestingModule,
         BrowserAnimationsModule,
+        EditLessonDialogModule,
       ],
       providers: [
         {

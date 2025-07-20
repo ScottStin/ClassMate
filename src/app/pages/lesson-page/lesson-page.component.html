@@ -26,12 +26,15 @@
             [lesson]="lesson"
             [users]="users$ | async"
             [currentUser]="currentUser$ | async"
+            [currentSchool]="currentSchool$ | async"
+            [teachers]="teachers$ | async"
             [pageName]="pageName"
             [pastLesson]="getLessonStatus('Past Lessons', lesson)"
             (deleteLesson)="deleteLesson($event)"
             (cancelLesson)="cancelLesson($event)"
             (refreshLessons)="loadPageData()"
             (startLesson)="startLesson($event)"
+            (editLesson)="editLesson($event)"
             (enterLesson)="enterLesson($event)"
           ></app-lesson-card>
         </ng-container>

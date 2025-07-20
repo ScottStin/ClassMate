@@ -1,0 +1,174 @@
+<div style="flex: 100%; padding-right: 20px" [formGroup]="lessonForm">
+  <div class="lesson-button-container">
+    <cron-editor
+      *ngIf="lessonDateMode ==='scheduled'"
+      formControlName="cronForm"
+      [options]="cronOptions"
+      style="margin-bottom: -50px !important"
+    ></cron-editor>
+  </div>
+
+  <div
+    [class]="isEditLesson ? 'form-fields-column-container' : 'flex-wrap flex'"
+  >
+    <div style="flex: 10%">
+      <mat-form-field
+        appearance="outline"
+        *ngIf="lessonDateMode ==='scheduled'"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <mat-label>Weeks</mat-label>
+        <input matInput formControlName="cyclesInput" type="number" />
+        <mat-error>
+          <app-error-message
+            [control]="lessonDateMode ==='scheduled' ? lessonForm.controls['cyclesInput'].errors : null"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        [style]="lessonDateMode ==='individual' ? '' : 'display: none'"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <input
+          formControlName="dateInput"
+          matInput
+          type="datetime-local"
+          id="date"
+          name="date"
+          [required]="lessonDateMode ==='individual'"
+        />
+        <mat-error>
+          <app-error-message
+            [control]="lessonDateMode ==='individual' ? lessonForm.controls['dateInput'].errors : null"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <mat-label>Lesson name</mat-label>
+        <input matInput formControlName="nameInput" />
+        <mat-error>
+          <app-error-message
+            [control]="lessonForm.controls['nameInput'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          formControlName="descriptionInput"
+          style="height: 19px"
+        ></textarea>
+        <mat-error>
+          <app-error-message
+            [control]="lessonForm.controls['descriptionInput'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <mat-label>Length (min)</mat-label>
+        <input matInput formControlName="lengthInput" type="number" />
+        <mat-error>
+          <app-error-message
+            [control]="lessonForm.controls['lengthInput'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <mat-label>Max Class Size</mat-label>
+        <input matInput formControlName="sizeInput" type="number" />
+        <mat-error>
+          <app-error-message
+            [control]="lessonForm.controls['sizeInput'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <mat-label>Class Type</mat-label>
+        <mat-select formControlName="typeInput">
+          <mat-option *ngFor="let type of lessonTypes" [value]="type"
+            >{{type.name}}</mat-option
+          >
+        </mat-select>
+        <mat-error>
+          <app-error-message
+            [control]="lessonForm.controls['typeInput'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <mat-label>Level</mat-label>
+        <mat-select formControlName="levelInput" multiple>
+          <mat-option *ngFor="let level of demoLevels" [value]="level"
+            >{{level.longName}}</mat-option
+          >
+        </mat-select>
+        <mat-error>
+          <app-error-message
+            [control]="lessonForm.controls['levelInput'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        *ngIf="currentUser?.userType?.toLowerCase()==='school'"
+        [class.form-fields-column]="isEditLesson"
+      >
+        <mat-label>Assigned teacher</mat-label>
+        <mat-select formControlName="assignedTeacherId">
+          <mat-option *ngFor="let teacher of teachers" [value]="teacher._id"
+            ><img
+              [src]="teacher.profilePicture?.url"
+              alt="teacher image"
+              class="thumbnail-image"
+            />{{teacher.name}}</mat-option
+          >
+        </mat-select>
+
+        <mat-error>
+          <app-error-message
+            [control]="lessonForm.controls['assignedTeacherId'].errors"
+          ></app-error-message>
+        </mat-error>
+      </mat-form-field>
+
+      <div class="lesson-button-container" *ngIf="!isEditLesson">
+        <button
+          mat-raised-button
+          class="button add-lesson-button"
+          (click)="addNewLessonRowClick()"
+          [disabled]="this.lessonForm.invalid"
+        >
+          <mat-icon>add</mat-icon> Add Lesson
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+
+@import '../../../app.component.scss';
+
+@media (max-width: #{$medium}) {
+    .mat-form-field {
+    width:100% !important;
+  }
+}
+
+@media (max-width: #{$large}) {
+    .mat-form-field {
+        width:14%;
+        margin:0px !important;
+  }
+}
+
+.mat-form-field {
+    width:14%;
+    margin:1px;
+}
+
+.add-lesson-button {
+    background-color: $primaryColor;
+    color: $secondaryColor;
+}
+
+.lesson-button-container {    
+    flex: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+    margin-top:25px;
+    margin-bottom:25px;
+}
+
+.form-fields-column-container {
+  display: flex;
+  flex-direction: column;
+} // used for edit form where the fields are on seperate lines
+
+.form-fields-column {
+  width: 100% !important;
+  margin: 8px 0 !important;
+}  // used for edit form where the fields are on seperate lines

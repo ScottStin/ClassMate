@@ -2,29 +2,6 @@
 $primaryColor: var(--primaryColor);
 $secondaryColor: var(--secondaryColor);
 
-@media (max-width: #{$medium}) {
-    .mat-form-field {
-    width:100% !important;
-  }
-}
-
-@media (max-width: #{$large}) {
-    .mat-form-field {
-        width:14%;
-        margin:0px !important;
-  }
-}
-
-.mat-form-field {
-    width:14%;
-    margin:1px;
-}
-
-.add-lesson-button {
-    background-color: $primaryColor;
-    color: $secondaryColor;
-}
-
 .lesson-button-container {    
     flex: 10%;
     display: flex;
@@ -33,10 +10,6 @@ $secondaryColor: var(--secondaryColor);
     margin-top:25px;
     margin-bottom:25px;
 }
-
-// .action-button {
-//     transform: scale(0.8);
-// }
 
 .lesson-table {
     margin:10px;

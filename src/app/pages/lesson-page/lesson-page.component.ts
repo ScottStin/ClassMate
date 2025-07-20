@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -350,6 +349,31 @@ export class LessonPageComponent implements OnInit, OnDestroy {
           },
         });
       }
+    });
+  }
+
+  editLesson(lesson: LessonDTO): void {
+    this.lessonService.update(lesson).subscribe({
+      next: (updatedLesson) => {
+        this.snackbarService.queueBar('info', 'Lessons successfully updated.');
+
+        // send notifications to students of updated lesson:
+        this.notificationService
+          .create({
+            recipients: updatedLesson.studentsEnrolledIds,
+            message: `Your upcoming lesson has changed.`,
+            createdBy: updatedLesson.teacherId,
+            dateSent: new Date().getTime(),
+            seenBy: [],
+            schoolId: lesson.schoolId,
+          })
+          .pipe(untilDestroyed(this))
+          .subscribe();
+      },
+      error: (error: Error) => {
+        this.error = error;
+        this.snackbarService.queueBar('error', error.message);
+      },
     });
   }
 

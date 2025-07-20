@@ -8,9 +8,13 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { LessonFormValue } from 'src/app/components/create-lesson-dialog/create-lesson-form/create-lesson-form.component';
+import { EditLessonDialogComponent } from 'src/app/components/edit-lesson-dialog/edit-lesson-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
+import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { screenSizeBreakpoints } from 'src/app/shared/config';
 import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
+import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
 import { AddStudentToLessonDialogComponent } from '../../../components/add-student-to-lesson-dialog/add-student-to-lesson-dialog.component';
@@ -25,12 +29,15 @@ export class LessonCardComponent implements OnChanges {
   @Input() lessonTypeFilter: LessonTypeDTO | undefined;
   @Input() lesson: LessonDTO | undefined;
   @Input() users: UserDTO[] | null;
+  @Input() teachers: UserDTO[] | null;
   @Input() currentUser: UserDTO | null;
+  @Input() currentSchool: SchoolDTO | null;
   @Input() pastLesson?: boolean | undefined;
   @Input() pageName: string;
   @Output() deleteLesson = new EventEmitter<LessonDTO>();
   @Output() joinLesson = new EventEmitter<LessonDTO>();
   @Output() cancelLesson = new EventEmitter<LessonDTO>();
+  @Output() editLesson = new EventEmitter<LessonDTO>();
   @Output() refreshLessons = new EventEmitter();
   @Output() startLesson = new EventEmitter<LessonDTO>();
   @Output() enterLesson = new EventEmitter<string>();
@@ -53,7 +60,8 @@ export class LessonCardComponent implements OnChanges {
 
   constructor(
     public readonly authStoreService: AuthStoreService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private readonly snackbarService: SnackbarService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -147,7 +155,6 @@ export class LessonCardComponent implements OnChanges {
 
   showStartButton(lesson: LessonDTO): boolean {
     const startTime = new Date(lesson.startTime);
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const fiveMinutesBefore = new Date(startTime.getTime() - 10 * 60 * 1000);
     const currentTime = new Date();
     return currentTime >= fiveMinutesBefore; // && currentTime < startTime;
@@ -206,6 +213,55 @@ export class LessonCardComponent implements OnChanges {
 
   joinLessonClick(): void {
     this.joinLesson.emit(this.lesson);
+  }
+
+  editLessonClick(): void {
+    if (!this.lesson) {
+      this.snackbarService.queueBar('error', 'Lesson not found.');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(EditLessonDialogComponent, {
+      data: {
+        title: `Edit lesson: ${this.lesson.name}`,
+        lesson: this.lesson,
+        currentUser: this.currentUser,
+        teachers: this.teachers,
+        lessonTypes: this.currentSchool?.lessonTypes ?? [],
+      },
+    });
+    dialogRef.afterClosed().subscribe((formValue?: LessonFormValue) => {
+      if (formValue) {
+        if (!formValue.typeInput) {
+          this.snackbarService.queueBar(
+            'error',
+            `Failed to update lesson: form incomplete`
+          );
+          return;
+        }
+
+        const updatedLesson: LessonDTO = {
+          _id: this.lesson?._id ?? '',
+          teacherId:
+            this.currentUser?.userType.toLowerCase() !== 'school'
+              ? this.currentUser?._id ?? ''
+              : formValue.assignedTeacherId,
+          startTime: formValue.dateInput ?? new Date().toString(),
+          maxStudents: formValue.sizeInput,
+          type: formValue.typeInput,
+          schoolId: this.currentSchool?._id ?? '',
+          level: formValue.levelInput,
+          name: formValue.nameInput,
+          duration: formValue.lengthInput,
+          description: formValue.descriptionInput,
+          studentsEnrolledIds: this.lesson?.studentsEnrolledIds ?? [],
+          disableFirtsLesson: false,
+          casualPrice: 0,
+        }; // TODO - move this logic to CreateLessonForm to avoid repeating in update and edit lesson functionality
+
+        this.editLesson.emit(updatedLesson);
+      }
+    });
   }
 
   cancelLessonClick(): void {
