@@ -3,6 +3,7 @@
     [dialogTitle]="data.title"
     (closeAction)="closeDialog(false)"
   ></app-dialog-header>
+
   <mat-dialog-content>
     <app-create-lesson-form
       [existingLesson]="data.lesson"
@@ -13,9 +14,10 @@
       [teachers]="data.teachers"
     ></app-create-lesson-form>
   </mat-dialog-content>
+
   <app-dialog-actions
     (saveAction)="closeDialog(true)"
     (cancelAction)="closeDialog(false)"
-    [disabled]="createLessonFormComponent?.lessonForm?.invalid"
+    [disabled]="!createLessonFormComponent?.lessonForm || createLessonFormComponent?.lessonForm?.invalid"
   ></app-dialog-actions>
 </ng-container>

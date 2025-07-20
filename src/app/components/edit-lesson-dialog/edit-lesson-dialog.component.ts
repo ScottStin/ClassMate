@@ -18,6 +18,7 @@ import { CreateLessonFormComponent } from '../create-lesson-dialog/create-lesson
 export class EditLessonDialogComponent {
   @ViewChild(CreateLessonFormComponent)
   createLessonFormComponent?: CreateLessonFormComponent;
+  formLoaded = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)

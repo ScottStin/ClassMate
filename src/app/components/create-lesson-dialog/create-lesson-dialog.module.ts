@@ -6,6 +6,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -31,6 +32,7 @@ import { CreateLessonFormModule } from './create-lesson-form/create-lesson-form.
     DialogHeaderModule,
     CreateLessonFormModule,
     MatButtonModule,
+    MatSnackBarModule,
   ],
   exports: [CreateLessonDialogComponent],
 })
