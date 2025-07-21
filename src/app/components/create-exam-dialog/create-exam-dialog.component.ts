@@ -739,14 +739,14 @@ export class CreateExamDialogComponent implements OnInit {
 
     if (
       input.files[0].type.startsWith('image/') &&
-      this.fileService.validateFile(input.files[0], 'image', 1000 * 1024 * 10)
+      !this.fileService.validateFile(input.files[0], 'image', 1000 * 1024 * 10)
     ) {
       return;
     }
 
     if (
       input.files[0].type.startsWith('audio/') &&
-      this.fileService.validateFile(input.files[0], 'audio', 1000 * 1024 * 10)
+      !this.fileService.validateFile(input.files[0], 'audio', 1000 * 1024 * 7) // allow approx a 3-minute mp3 (7 MB or 320 kbps)
     ) {
       return;
     }
