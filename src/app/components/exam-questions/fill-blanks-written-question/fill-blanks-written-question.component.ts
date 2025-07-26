@@ -124,15 +124,19 @@ export class FillBlanksWrittenQuestionComponent implements OnInit, OnChanges {
       return undefined;
     }
 
-    let modifiedCorrectAnswer = correctAnswer;
-    let modifiedStudentResponse = studentResponse;
+    let modifiedCorrectAnswer = correctAnswer
+      .split(';')
+      .map((answer) => answer.trim());
+    let modifiedStudentResponse = studentResponse.trim();
 
     if (!this.question?.caseSensitive) {
-      modifiedCorrectAnswer = correctAnswer.toLowerCase();
+      modifiedCorrectAnswer = modifiedCorrectAnswer.map((answer) =>
+        answer.toLowerCase()
+      );
       modifiedStudentResponse = studentResponse.toLowerCase();
     }
 
-    if (modifiedStudentResponse !== modifiedCorrectAnswer) {
+    if (!modifiedCorrectAnswer.includes(modifiedStudentResponse)) {
       return false;
     }
 

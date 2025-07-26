@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -30,6 +31,7 @@ import { CreateFillBlanksExamQuestionDialogComponent } from './create-fill-blank
     DialogActionsModule,
     MatButtonModule,
     ConfirmDialogModule,
+    MatInputModule,
   ],
   exports: [CreateFillBlanksExamQuestionDialogComponent],
 })

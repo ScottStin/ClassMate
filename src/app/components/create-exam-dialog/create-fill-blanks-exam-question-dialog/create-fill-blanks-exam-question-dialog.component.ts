@@ -118,7 +118,7 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
     } else {
       this.snackbarService.queueBar(
         'warn',
-        'Maximum number of blanks for this question have been reached. Please delete some blanks before adding more.'
+        'Maximum number of blanks for this question have been reached. Please delete some blanks before adding more, or create another question.'
       );
     }
   }
@@ -163,6 +163,13 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
       ].text = text;
     }
     this.formChanged = true;
+
+    if (text.length >= 100) {
+      this.snackbarService.queueBar(
+        'warn',
+        `Input must be shorter 100 characters.`
+      );
+    }
   }
 
   /**
@@ -306,10 +313,85 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
           text.slice(cursorPosition, cursorPosition + 3).includes('_')
         ) {
           event.preventDefault(); // Block the delete key
+          return;
+        } else if (cursorPosition > 0 && text[cursorPosition - 1] === '_') {
+          event.preventDefault(); // blocks backspace key
+          return;
         }
       }
     }
     this.formChanged = true;
+  }
+
+  /**
+   * Preventing disallowed character input:
+   */
+
+  preventDisallowedKeys(event: KeyboardEvent, allowSemiCols?: boolean): void {
+    let disallowedChars = ['_', ';', '<', '>', '#'];
+
+    if (allowSemiCols) {
+      disallowedChars = disallowedChars.filter((char) => char !== ';');
+    }
+
+    if (disallowedChars.includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  sanitizePaste(
+    event: ClipboardEvent,
+    inputEl: HTMLInputElement | HTMLTextAreaElement,
+    maxLength: number,
+    allowSemiCols?: boolean
+  ): void {
+    event.preventDefault();
+
+    const pasteData = event.clipboardData?.getData('text') ?? '';
+    let sanitized = pasteData.replace(/[_;<>#]/gu, '');
+
+    if (allowSemiCols) {
+      sanitized = pasteData.replace(/[_<>#]/gu, '');
+    }
+
+    const start = inputEl.selectionStart ?? 0;
+    const end = inputEl.selectionEnd ?? 0;
+
+    const currentValue = inputEl.value;
+    const textBefore = currentValue.substring(0, start);
+    const textAfter = currentValue.substring(end);
+
+    const availableLength = maxLength - (textBefore.length + textAfter.length);
+
+    const truncatedSanitized = sanitized.slice(0, availableLength);
+
+    const newValue = textBefore + truncatedSanitized + textAfter;
+    inputEl.value = newValue;
+
+    // move cursor to end of inserted text
+    setTimeout(() => {
+      const caretPosition = textBefore.length + truncatedSanitized.length;
+      inputEl.selectionStart = inputEl.selectionEnd = caretPosition;
+    });
+
+    if (availableLength < 1) {
+      this.snackbarService.queueBar(
+        'warn',
+        `Input must be shorter ${maxLength} characters.`
+      );
+    }
+  }
+
+  charLengthWarning(
+    inputEl: HTMLInputElement | HTMLTextAreaElement,
+    maxLength: number
+  ): void {
+    if (inputEl.value.length >= maxLength) {
+      this.snackbarService.queueBar(
+        'warn',
+        `Input must be shorter ${maxLength} characters.`
+      );
+    }
   }
 
   /**
@@ -395,6 +477,38 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
   }
 
   closeDialogSave(): void {
-    this.dialogRef.close(this.temporarycurrentQuestionDisplay);
+    const regex = new RegExp(`\\b${'.__________'}\\b`, 'giu');
+    for (const question of this.temporarycurrentQuestionDisplay
+      .fillBlanksQuestionList ?? []) {
+      const blanksInText = question.text.match(regex);
+      const blanks = question.blanks.map((blank) => blank.text.trim());
+
+      if (question.blanks.length < 1) {
+        this.snackbarService.queueBar(
+          'error',
+          `You must have at least one blank for each question.`
+        );
+        return;
+      }
+
+      if (blanks.includes('')) {
+        this.snackbarService.queueBar(
+          'error',
+          `You have empty blanks. Please ensure all blanks are populated.`
+        );
+        return;
+      }
+
+      if (blanksInText?.length !== question.blanks.length) {
+        this.snackbarService.queueBar(
+          'error',
+          `It seems that you may have deleted some blanks from the text area. The number of blanks on the right must match the number of blanks in text area. Please try again.`
+        );
+        return;
+      }
+    }
+    if (this.temporarycurrentQuestionDisplay.fillBlanksQuestionList) {
+      this.dialogRef.close(this.temporarycurrentQuestionDisplay);
+    }
   }
 }

@@ -32,8 +32,11 @@
               #textArea
               class="fill-blanks-textbox"
               (click)="preventClickOnBlanks($event, i)"
+              (keydown)="charLengthWarning(textArea, 2000)"
               (keydown)="preventArrowKeysOnBlanks($event, i)"
               (keydown)="preventDeleteOnBlanks($event, i)"
+              (keydown)="preventDisallowedKeys($event)"
+              (paste)="sanitizePaste($event, textArea, 2000)"
               (select)="preventHighlightingBlanks($event, i)"
               maxlength="2000"
             >
@@ -44,22 +47,35 @@
               *ngFor="let blank of question.blanks; let blankIndex = index"
               class="blank-input-wrapper"
             >
-              <input
-                type="text"
-                [value]="question.blanks[blankIndex].text"
-                placeholder="Type blank here"
-                id="blankInput"
-                class="blank-input"
-                #blankInput
-                (keyup)="changeBlankText(i, blankIndex, blankInput.value)"
-              />
-              <button
-                mat-icon-button
-                matTooltip="Delete this blank"
-                (click)="deleteBlank(i, blankIndex, textArea)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
+              <mat-form-field appearance="outline">
+                <input
+                  matInput
+                  type="text"
+                  [value]="question.blanks[blankIndex].text"
+                  placeholder="Type blank here"
+                  id="blankInput"
+                  class="blank-input"
+                  #blankInput
+                  (keyup)="changeBlankText(i, blankIndex, blankInput.value)"
+                  (keydown)="preventDisallowedKeys($event, true)"
+                  (paste)="sanitizePaste($event, blankInput, 100, true)"
+                  maxlength="100"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  matTooltip="Delete this blank"
+                  (click)="deleteBlank(i, blankIndex, textArea)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <mat-hint
+                  align="start"
+                  *ngIf="blankIndex === question.blanks.length - 1"
+                  >Note: You can enter multiple correct options and separate
+                  them with a semicolon (;)</mat-hint
+                >
+              </mat-form-field>
             </div>
             <span
               style="
