@@ -36,6 +36,10 @@ $secondaryColor: var(--secondaryColor);
     transform: scale(1.1);
     transition: all 100ms ease-in-out;
   }
+  
+  ::ng-deep .mat-tab-label {
+    text-transform: uppercase !important;
+  }
 
   .header-bar-button {
     color: $primaryColor !important;

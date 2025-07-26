@@ -1,0 +1,39 @@
+<div
+  class="fill-blank-container"
+  *ngFor="let option of blanksQuestionListWithHighlights; let i = index"
+>
+  <div class="fill-blank-option-row">
+    <p class="fill-blank-option-text" [innerHTML]="option?.text"></p>
+    <div class="fill-blank-box" *ngIf="studentResponses?.[i]?.length">
+      <mat-form-field
+        appearance="outline"
+        *ngFor="let blank of option.blanks; let j = index"
+        class="fill-blank-input"
+      >
+        <mat-label>Blank {{ j + 1 }}</mat-label>
+
+        <input
+          matInput
+          [(ngModel)]="studentResponses[i][j]"
+          [disabled]="disableForms"
+          (input)="onInput(studentResponses[i][j], j, i)"
+          (mouseenter)="onInputHover(j, i)"
+          (mouseleave)="offInputHover(j, i)"
+          (focus)="onInputClick(j, i)"
+        />
+        <mat-icon
+          class="correct-blanks-answer"
+          matSuffix
+          *ngIf="displayCorrectAnswerMark(blank.text, studentResponses[i][j])"
+          >check_circle</mat-icon
+        >
+        <mat-icon
+          class="incorrect-blanks-answer"
+          matSuffix
+          *ngIf="displayCorrectAnswerMark(blank.text, studentResponses[i][j]) === false"
+          >cancel</mat-icon
+        >
+      </mat-form-field>
+    </div>
+  </div>
+</div>

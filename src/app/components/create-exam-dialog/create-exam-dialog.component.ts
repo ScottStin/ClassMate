@@ -460,7 +460,7 @@ export class CreateExamDialogComponent implements OnInit {
     if (field === 'type') {
       if (this.currentQuestionDisplay) {
         if (this.currentQuestionDisplay.fillBlanksQuestionList) {
-          this.currentQuestionDisplay.fillBlanksQuestionList = null;
+          this.currentQuestionDisplay.fillBlanksQuestionList = undefined;
         }
 
         if (this.currentQuestionDisplay.length) {

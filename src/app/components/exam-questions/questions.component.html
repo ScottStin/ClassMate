@@ -2,7 +2,7 @@
   class="question-card mat-elevation-z4"
   *ngIf="question && question.type"
 >
-  <!-- Header Promots: -->
+  <!-- Header Prompts: -->
   <mat-card-header>
     <mat-card-title>
       <b>{{question.name}}</b>
@@ -16,7 +16,7 @@
     >
   </mat-card-header>
 
-  <!-- Read outloud prompt: -->
+  <!-- Read aloud prompt: -->
   <div
     class="readoutloud-prompt-container"
     *ngIf="question.type.toLowerCase() === 'read-outloud'"
@@ -24,7 +24,7 @@
     <p>{{question.writtenPrompt}}</p>
   </div>
 
-  <!-- Media Promots: -->
+  <!-- Media Prompts: -->
   <div class="media-prompt-container" *ngIf="question.prompt1?.fileString">
     <div
       *ngIf="question.prompt1?.fileString && question.prompt1?.type"
@@ -144,5 +144,17 @@
       [displayMode]="displayMode"
       (responseChange)="onResponseChange($event)"
     ></app-match-option-question>
+
+    <!-- fill in the blanks (written response) -->
+    <app-fill-blanks-written-question
+      *ngIf="'fill-in-the-blanks' === question.type"
+      [question]="question"
+      [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
+      [currentUserId]="studentId ?? currentUser?._id"
+      [currentUserType]="currentUser?.userType"
+      [markMode]="markMode"
+      [displayMode]="displayMode"
+      (responseChange)="onResponseChange($event)"
+    ></app-fill-blanks-written-question>
   </mat-card-content>
 </mat-card>

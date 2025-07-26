@@ -2,7 +2,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 import {
+  ExamQuestionDto,
   ExamQuestionTypes,
+  FillBlanksQuestionDto,
   MatchOptionQuestionDto,
   MultiChoiceQuestionDto,
 } from 'src/app/shared/models/question.model';
@@ -23,11 +25,12 @@ export class AiExamQuestionFeedbackService {
 
   /**
    * =================================
-   * AI Feedbback / marking
+   * AI Feedback / marking
    * ================================
    */
 
   generateAiFeedbackExamQuestion(data: {
+    question: ExamQuestionDto;
     questionType: ExamQuestionTypes;
     text?: string;
     audioUrl?: string;
@@ -47,6 +50,7 @@ export class AiExamQuestionFeedbackService {
     multiChoiceOptions?: MultiChoiceQuestionDto[];
     reorderSentenceQuestionList?: { text: string }[];
     matchOptionQuestionList?: MatchOptionQuestionDto[];
+    fillBlanksQuestionList?: FillBlanksQuestionDto[];
   }): Observable<{
     feedback?: string;
     mark: WrittenMark | AudioMark | number;
@@ -62,6 +66,8 @@ export class AiExamQuestionFeedbackService {
       multiChoiceOptions,
       reorderSentenceQuestionList,
       matchOptionQuestionList,
+      fillBlanksQuestionList,
+      question,
     } = data;
 
     if (questionType === 'written-response') {
@@ -152,6 +158,23 @@ export class AiExamQuestionFeedbackService {
         mediaPrompt2,
         mediaPrompt3,
         matchOptionQuestionList,
+      });
+    }
+
+    if (questionType === 'fill-in-the-blanks') {
+      if (!text || !fillBlanksQuestionList) {
+        throw new Error(
+          'Answer and blanks are required for fill in the blanks question type'
+        );
+      }
+      return this.generateAiFeedbackFillBlanks({
+        text,
+        prompt,
+        mediaPrompt1,
+        mediaPrompt2,
+        mediaPrompt3,
+        fillBlanksQuestionList,
+        caseSensitive: question.caseSensitive ?? false,
       });
     }
 
@@ -384,6 +407,42 @@ export class AiExamQuestionFeedbackService {
           this.handleError(
             error,
             'Failed to generate AI Feedback for match-option exam question'
+          );
+        })
+      );
+  }
+
+  generateAiFeedbackFillBlanks(data: {
+    text: string;
+    prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt3?: {
+      url: string;
+      type: string;
+    };
+    fillBlanksQuestionList: FillBlanksQuestionDto[];
+    caseSensitive: boolean;
+  }): Observable<{
+    feedback?: string;
+    mark: number;
+  }> {
+    return this.httpClient
+      .post<{
+        feedback: string;
+        mark: number;
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/fill-blanks`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for fill-blanks exam question'
           );
         })
       );

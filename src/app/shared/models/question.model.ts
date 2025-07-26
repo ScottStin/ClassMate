@@ -13,9 +13,7 @@ export interface CreateExamQuestionDto {
   caseSensitive?: boolean | null; // for fill-in-blanks question, the student will have to get the case correct to score the points
   multipleChoiceQuestionList?: MultiChoiceQuestionDto[];
   reorderSentenceQuestionList?: { text: string }[] | null;
-  fillBlanksQuestionList?:
-    | { text: string; blanks: { text: string }[] }[]
-    | null;
+  fillBlanksQuestionList?: FillBlanksQuestionDto[];
   matchOptionQuestionList?: MatchOptionQuestionDto[];
   totalPointsMin?: number | null;
   totalPointsMax?: number | null;
@@ -54,6 +52,11 @@ export interface MatchOptionQuestionDto {
   leftOption: string;
   rightOption: string;
   _id?: string;
+}
+
+export interface FillBlanksQuestionDto {
+  text: string;
+  blanks: { text: string }[];
 }
 
 export interface ExamQuestionDto extends CreateExamQuestionDto {

@@ -198,6 +198,7 @@ export class ShowExamDialogComponent implements OnInit {
         'multiple-choice-multi',
         'reorder-sentence',
         'match-options',
+        'fill-in-the-blanks',
       ].includes(questionType)
     ) {
       return of();
@@ -206,6 +207,7 @@ export class ShowExamDialogComponent implements OnInit {
     // --- Generate Ai Feedback:
     return this.aiExamQuestionFeedbackService
       .generateAiFeedbackExamQuestion({
+        question,
         text: studentResponse,
         audioUrl: studentResponse,
         prompt: question.writtenPrompt ?? '',
@@ -228,6 +230,7 @@ export class ShowExamDialogComponent implements OnInit {
             | { text: string }[]
             | undefined,
         matchOptionQuestionList: question.matchOptionQuestionList,
+        fillBlanksQuestionList: question.fillBlanksQuestionList,
       })
       .pipe(
         tap((res) => {

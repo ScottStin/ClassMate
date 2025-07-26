@@ -140,7 +140,7 @@
     [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
     role="region"
     tabindex="0"
-    *ngIf="!['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence', 'match-options'].includes(currentQuestionDisplay?.type ?? '') && data.markMode"
+    *ngIf="!['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence', 'match-options', 'fill-in-the-blanks'].includes(currentQuestionDisplay?.type ?? '') && data.markMode"
     [formGroup]="feedbackForm"
   >
     <div class="marking-table-header-row">

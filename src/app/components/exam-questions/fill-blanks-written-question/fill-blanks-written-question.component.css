@@ -1,0 +1,44 @@
+.fill-blank-container {
+    margin-left:50px;
+    margin-right:50px;
+}
+
+.fill-blank-option-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 50px;
+  border: 1px solid black;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  padding: 15px;
+}
+
+.fill-blank-option-text {
+  flex: 1;
+  max-width: 50%;
+  word-wrap: break-word;
+  margin: 0;
+  padding: 5x;
+}
+
+.fill-blank-box {
+  width: 40%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fill-blank-input {
+  width: 100%;
+}
+
+.correct-blanks-answer {
+  color: green;
+}
+
+.incorrect-blanks-answer {
+  color: red;
+}
