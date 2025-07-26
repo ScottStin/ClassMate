@@ -53,21 +53,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 /**
  * ==============================
- *  Diialogs
- * ==============================
-*/
-
-.dialog-title-container {
-  background-color: #6200EE;
-}
-
-.mat-dialog-title {
-  padding: 15px; 
-  color: white;
-}
-
-/**
- * ==============================
  *  Tables
  * ==============================
 */
@@ -100,6 +85,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
  * ==============================
 */
 
+.mat-dialog-title {
+  padding: 15px; 
+  color: white;
+}
+
 .fullscreen-dialog {
   max-width: 100% !important;
   /* max-height: 100% !important; */
@@ -107,17 +97,18 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   float: right;
   margin-left: 256px;
   width: calc(100vw - 256px);
-
   max-width: unset !important;
   /* width: 100%; */
   height: 100%;
+
   .mat-dialog-container {
     /* max-width: 100vw; */
     max-height: 100vh;
     height: 100%;
     /* width: 100%; */
-    .mat-dialog-content {
+  
+    /* .mat-dialog-content {
       max-height: unset !important;
-    }
+    } */
   }
 }

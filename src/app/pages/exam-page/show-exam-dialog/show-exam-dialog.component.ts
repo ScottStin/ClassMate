@@ -1002,14 +1002,15 @@ export class ShowExamDialogComponent implements OnInit {
   /*
    * Get the student's mark for the question
    */
-  getStudentMark(
-    question: ExamQuestionDto
-  ): string | number | null | undefined {
+  getStudentMark(question: ExamQuestionDto): string | undefined {
     if (question.type?.toLocaleUpperCase() !== 'section') {
       const studentResponse = question.studentResponse?.find(
         (response) => response.studentId === this.data.studentId
       );
-      return studentResponse?.mark?.totalMark;
+      const mark = Number(studentResponse?.mark?.totalMark);
+      return isNaN(mark)
+        ? (question.totalPointsMin ?? 0).toString()
+        : mark.toFixed(1);
     } else {
       const subQuestion = this.questionList.find(
         (obj) => obj._id === question._id
@@ -1017,7 +1018,10 @@ export class ShowExamDialogComponent implements OnInit {
       const studentResponse = subQuestion?.studentResponse?.find(
         (obj) => obj.studentId === this.data.studentId
       );
-      return studentResponse?.mark?.totalMark;
+      const mark = Number(studentResponse?.mark?.totalMark);
+      return isNaN(mark)
+        ? (question.totalPointsMin ?? 0).toString()
+        : mark.toFixed(1);
     }
   }
 

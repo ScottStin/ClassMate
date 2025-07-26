@@ -36,7 +36,7 @@ $secondaryColor: var(--secondaryColor);
   padding-top: 16px;
 }
 
-/* todo: move to gloval stylings */
+/* todo: move to global stylings */
 .stepper-navigation {
   margin-top: 16px;
   display: flex;
@@ -44,9 +44,9 @@ $secondaryColor: var(--secondaryColor);
   margin-top: 20px; 
 }
 
-.mat-dialog-content {
-  max-height: initial;
-}
+// .mat-dialog-content {
+//   max-height: initial;
+// }
 
 .tree-button-container {
   margin-top:10px;

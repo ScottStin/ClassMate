@@ -334,7 +334,10 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
       disallowedChars = disallowedChars.filter((char) => char !== ';');
     }
 
-    if (disallowedChars.includes(event.key)) {
+    const isDisallowedChar = disallowedChars.includes(event.key);
+    const isDigit = /^\d$/u.test(event.key);
+
+    if (isDisallowedChar || isDigit) {
       event.preventDefault();
     }
   }
@@ -348,10 +351,10 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
     event.preventDefault();
 
     const pasteData = event.clipboardData?.getData('text') ?? '';
-    let sanitized = pasteData.replace(/[_;<>#]/gu, '');
+    let sanitized = pasteData.replace(/[\d_;<>#]/gu, '');
 
     if (allowSemiCols) {
-      sanitized = pasteData.replace(/[_<>#]/gu, '');
+      sanitized = pasteData.replace(/[\d_<>#]/gu, '');
     }
 
     const start = inputEl.selectionStart ?? 0;

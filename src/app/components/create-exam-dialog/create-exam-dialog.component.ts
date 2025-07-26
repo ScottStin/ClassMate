@@ -956,7 +956,30 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   closeDialog(result: boolean | null): void {
-    this.dialogRef.close(result);
+    if (result) {
+      this.dialogRef.close(result);
+      return;
+    }
+
+    if (!this.examForm.dirty && !this.examForm.touched) {
+      this.dialogRef.close(result);
+      return;
+    }
+
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Close Create Exam Form?',
+        message: 'Changes will be unsaved. Are you sure?',
+        okLabel: 'Close',
+        cancelLabel: 'Cancel',
+      },
+    });
+
+    confirmDialogRef.afterClosed().subscribe((confirmDialogResult: boolean) => {
+      if (confirmDialogResult) {
+        this.dialogRef.close(null);
+      }
+    });
   }
 }
 

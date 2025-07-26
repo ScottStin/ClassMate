@@ -1,7 +1,12 @@
 .question-card {
     padding: 15px; 
-    height: 75vh;
+    max-height: 70vh;
     overflow-y:scroll;
+    margin-bottom:25px;
+}
+
+.question-card-with-feedback {
+  max-height: 40vh !important;
 }
 
 .media-prompt-container {

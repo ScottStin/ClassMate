@@ -1,6 +1,7 @@
 <mat-card
   class="question-card mat-elevation-z4"
   *ngIf="question && question.type"
+  [class.question-card-with-feedback]="markMode"
 >
   <!-- Header Prompts: -->
   <mat-card-header>
@@ -91,9 +92,7 @@
   </div>
 
   <!-- Question Components: -->
-  <mat-card-content
-    style="padding-top: 50px; width: 100%; max-height: 70vh; overflow-y: auto"
-  >
+  <mat-card-content style="padding-top: 50px; width: 100%">
     <!-- written response -->
     <app-written-response-question
       *ngIf="question.type === 'written-response'"

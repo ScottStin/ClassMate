@@ -49,7 +49,7 @@
       <!----- ---------------------- ----->
       <!----- Question/Section List: ----->
       <!----- ---------------------- ----->
-      <div class="col-sm-2">
+      <div class="col-sm-2 question-list-container">
         <div style="display: flex; flex-direction: column">
           <div class="tree-container">
             <mat-list role="list" *ngFor="let question of questionList">
@@ -126,81 +126,88 @@
           [markMode]="data.markMode"
           (updateStudentResponse)="updateStudentResponse($event)"
         ></app-questions>
+
+        <!----- ---------------------- ----->
+        <!----- Teacher Feedback ----------->
+        <!----- ---------------------- ----->
+
+        <!-- Marking Table: -->
+        <div
+          class="marking-table"
+          [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
+          role="region"
+          tabindex="0"
+          *ngIf="!['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence', 'match-options', 'fill-in-the-blanks'].includes(currentQuestionDisplay?.type ?? '') && data.markMode"
+          [formGroup]="feedbackForm"
+        >
+          <div class="marking-table-header-row">
+            <div class="marking-table-header-cell">Category</div>
+            <div
+              class="marking-table-header-cell"
+              *ngFor="let level of demoLevels"
+            >
+              {{ level.shortName }}
+            </div>
+          </div>
+          <div
+            class="marking-table-row"
+            *ngFor="let category of getMarkingCategories()"
+          >
+            <div>{{ category.displayName }}</div>
+            <mat-radio-group
+              class="marking-table-radio-group"
+              aria-label="Select a result"
+              [formControlName]="category.value"
+            >
+              <div
+                class="marking-table-cell"
+                *ngFor="let level of demoLevels; let colIndex = index"
+              >
+                <mat-radio-button
+                  [value]="level.number"
+                  (click)="onMarkSelect(colIndex, category.value)"
+                ></mat-radio-button>
+              </div>
+            </mat-radio-group>
+          </div>
+        </div>
+
+        <!-- Teacher Feedback Form: -->
+        <div
+          *ngIf="currentQuestionDisplay?.teacherFeedback && data.markMode"
+          [formGroup]="feedbackForm"
+          [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
+        >
+          <mat-form-field
+            class="form-field"
+            appearance="outline"
+            style="width: 100%"
+          >
+            <mat-label [style]="data.markMode ? 'color:black' : ''"
+              >Feedback</mat-label
+            >
+            <textarea
+              matInput
+              id="teacherFeedback"
+              #teacherFeedback
+              formControlName="teacherFeedback"
+              type="text"
+              placeholder="Give the student some helpful feedback..."
+              [required]="data.markMode && data.currentUser?.userType?.toLowerCase() ==='teacher'"
+              rows="5"
+              [style]="data.markMode ? 'color:black' : ''"
+              (keyup)="feedbackTextChange(teacherFeedback.value)"
+            ></textarea>
+            <mat-error>
+              <app-error-message
+                [control]="feedbackForm.controls['teacherFeedback'].errors"
+              ></app-error-message>
+            </mat-error>
+          </mat-form-field>
+        </div>
       </div>
     </div>
   </mat-dialog-content>
-
-  <!----- ---------------------- ----->
-  <!----- Teacher Feedback ----------->
-  <!----- ---------------------- ----->
-
-  <!-- Marking Table: -->
-  <div
-    class="marking-table"
-    [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
-    role="region"
-    tabindex="0"
-    *ngIf="!['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence', 'match-options', 'fill-in-the-blanks'].includes(currentQuestionDisplay?.type ?? '') && data.markMode"
-    [formGroup]="feedbackForm"
-  >
-    <div class="marking-table-header-row">
-      <div class="marking-table-header-cell">Category</div>
-      <div class="marking-table-header-cell" *ngFor="let level of demoLevels">
-        {{ level.shortName }}
-      </div>
-    </div>
-    <div
-      class="marking-table-row"
-      *ngFor="let category of getMarkingCategories()"
-    >
-      <div>{{ category.displayName }}</div>
-      <mat-radio-group
-        class="marking-table-radio-group"
-        aria-label="Select a result"
-        [formControlName]="category.value"
-      >
-        <div
-          class="marking-table-cell"
-          *ngFor="let level of demoLevels; let colIndex = index"
-        >
-          <mat-radio-button
-            [value]="level.number"
-            (click)="onMarkSelect(colIndex, category.value)"
-          ></mat-radio-button>
-        </div>
-      </mat-radio-group>
-    </div>
-  </div>
-
-  <!-- Teacher Feedback Form: -->
-  <div
-    *ngIf="currentQuestionDisplay?.teacherFeedback && data.markMode"
-    [formGroup]="feedbackForm"
-    [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
-  >
-    <mat-form-field class="form-field" appearance="outline" style="width: 100%">
-      <mat-label [style]="data.markMode ? 'color:black' : ''"
-        >Feedback</mat-label
-      >
-      <textarea
-        matInput
-        id="teacherFeedback"
-        #teacherFeedback
-        formControlName="teacherFeedback"
-        type="text"
-        placeholder="Give the student some helpful feedback..."
-        [required]="data.markMode && data.currentUser?.userType?.toLowerCase() ==='teacher'"
-        rows="5"
-        [style]="data.markMode ? 'color:black' : ''"
-        (keyup)="feedbackTextChange(teacherFeedback.value)"
-      ></textarea>
-      <mat-error>
-        <app-error-message
-          [control]="feedbackForm.controls['teacherFeedback'].errors"
-        ></app-error-message>
-      </mat-error>
-    </mat-form-field>
-  </div>
 
   <!----- ---------------------- ----->
   <!----- Dialog Actions ------- ----->

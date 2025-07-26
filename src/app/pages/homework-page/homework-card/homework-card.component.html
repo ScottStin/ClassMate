@@ -1,4 +1,4 @@
-<div *ngFor="let homeworkItem of homeworkList">
+<div *ngFor="let homeworkItem of homeworkList" style="overflow-x: hidden">
   <mat-card
     class="card"
     *ngIf="showUnfinishedHomeworkOnly ? !homeworkCompleted(homeworkItem) && homeworkItem : homeworkItem"

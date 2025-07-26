@@ -24,7 +24,7 @@
         formGroupName="examDetailsStep"
         [editable]="true"
       >
-        <mat-dialog-content>
+        <mat-dialog-content class="mat-typography" class="test">
           <!----- Exam Name: ----->
           <div class="row">
             <mat-form-field class="form-field" appearance="outline" class="col">
@@ -209,7 +209,7 @@
         </mat-dialog-content>
 
         <!----- Exam Step nav: ----->
-        <div class="stepper-navigation">
+        <mat-dialog-actions align="end">
           <button
             mat-raised-button
             class="button"
@@ -219,7 +219,7 @@
           >
             <b>Next</b>
           </button>
-        </div>
+        </mat-dialog-actions>
       </mat-step>
 
       <!-- --- --------- -->
@@ -234,7 +234,7 @@
         formGroupName="questionStep"
         [editable]="true"
       >
-        <mat-dialog-content>
+        <mat-dialog-content class="mat-typography">
           <div class="row">
             <!----- ---------------------- ----->
             <!----- Question/Section List: ----->
@@ -1027,7 +1027,7 @@
         </mat-dialog-content>
 
         <!----- Question Stepper Nav: ----->
-        <div class="stepper-navigation">
+        <mat-dialog-actions align="end">
           <button mat-button matStepperPrevious type="button">Back</button>
           <button
             mat-raised-button
@@ -1037,7 +1037,7 @@
           >
             <b>Save Exam</b>
           </button>
-        </div>
+        </mat-dialog-actions>
       </mat-step>
     </div>
   </mat-stepper>
