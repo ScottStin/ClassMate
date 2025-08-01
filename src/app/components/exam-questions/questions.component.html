@@ -146,7 +146,7 @@
 
     <!-- fill in the blanks (written response) -->
     <app-fill-blanks-written-question
-      *ngIf="'fill-in-the-blanks' === question.type"
+      *ngIf="['fill-in-the-blanks', 'fill-in-blanks-select'].includes(question.type)"
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
       [currentUserId]="studentId ?? currentUser?._id"

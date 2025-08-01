@@ -28,6 +28,7 @@ export class FillBlanksWrittenQuestionComponent implements OnInit, OnChanges {
 
   blanksQuestionListWithHighlights: FillBlanksQuestionDto[] = [];
   studentResponses: string[][] = [['']];
+  isSelect: boolean;
 
   ngOnInit(): void {
     if (this.question?.fillBlanksQuestionList) {
@@ -102,16 +103,18 @@ export class FillBlanksWrittenQuestionComponent implements OnInit, OnChanges {
         studentResponse.response
       ) as string[][];
     }
+
+    this.isSelect = this.question?.type === 'fill-in-blanks-select';
   }
 
   displayCorrectAnswerMark(
-    correctAnswer: string,
+    correctAnswer: { text: string; correctSelectOptionIndex?: number },
     studentResponse: string
   ): boolean | undefined {
     if (
       !this.markMode &&
       this.displayMode &&
-      this.currentUserType === 'teacher'
+      this.currentUserType !== 'student'
     ) {
       return undefined;
     }
@@ -124,10 +127,22 @@ export class FillBlanksWrittenQuestionComponent implements OnInit, OnChanges {
       return undefined;
     }
 
-    let modifiedCorrectAnswer = correctAnswer
-      .split(';')
+    let modifiedCorrectAnswer = correctAnswer.text
+      .split('/')
       .map((answer) => answer.trim());
     let modifiedStudentResponse = studentResponse.trim();
+
+    if (this.isSelect) {
+      if (correctAnswer.correctSelectOptionIndex === undefined) {
+        return undefined;
+      }
+
+      return (
+        (JSON.parse(modifiedCorrectAnswer[0]) as string)[
+          correctAnswer.correctSelectOptionIndex
+        ].trim() === modifiedStudentResponse.trim()
+      );
+    }
 
     if (!this.question?.caseSensitive) {
       modifiedCorrectAnswer = modifiedCorrectAnswer.map((answer) =>
@@ -141,5 +156,72 @@ export class FillBlanksWrittenQuestionComponent implements OnInit, OnChanges {
     }
 
     return true;
+  }
+
+  getSelectOptions(optionIndex: number, blankIndex: number): string[] {
+    return JSON.parse(
+      this.blanksQuestionListWithHighlights[optionIndex].blanks.map(
+        (blank) => blank.text
+      )[blankIndex]
+    ) as string[];
+  }
+
+  getBlankPlaceholderValue(
+    studentResponse: string,
+    blankIndex: number,
+    optionIndex: number
+  ): string {
+    let string = `Blank ${blankIndex + 1}`;
+
+    if (!this.question?.fillBlanksQuestionList) {
+      return string;
+    }
+
+    const blank =
+      this.question.fillBlanksQuestionList[optionIndex].blanks[blankIndex].text;
+
+    if (this.currentUserType !== 'student' && !studentResponse) {
+      string = `Correct answer(s): ${blank}`;
+    }
+    return string;
+  }
+
+  isMatSelectDisabled(): boolean {
+    if (
+      !this.markMode &&
+      this.displayMode &&
+      this.currentUserType !== 'student'
+    ) {
+      return true;
+    }
+
+    if (this.currentUserType === 'student' && this.displayMode) {
+      return true;
+    }
+
+    return false;
+  }
+
+  showCorrectSelectOptionPreview(
+    correctAnswer: { text: string; correctSelectOptionIndex?: number },
+    option: string
+  ): boolean {
+    if (this.currentUserType === 'student') {
+      return false;
+    }
+
+    if (
+      !correctAnswer.correctSelectOptionIndex &&
+      correctAnswer.correctSelectOptionIndex !== 0
+    ) {
+      return false;
+    }
+
+    return (
+      option ===
+      (JSON.parse(correctAnswer.text) as string[])[
+        correctAnswer.correctSelectOptionIndex
+      ]
+    );
   }
 }

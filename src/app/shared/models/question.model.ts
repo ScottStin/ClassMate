@@ -37,6 +37,7 @@ export type ExamQuestionTypes =
   | 'reorder-sentence'
   | 'match-options'
   | 'fill-in-the-blanks'
+  | 'fill-in-blanks-select'
   | 'essay'
   | 'information-page'
   | 'section'
@@ -56,7 +57,7 @@ export interface MatchOptionQuestionDto {
 
 export interface FillBlanksQuestionDto {
   text: string;
-  blanks: { text: string }[];
+  blanks: { text: string; correctSelectOptionIndex?: number }[];
 }
 
 export interface ExamQuestionDto extends CreateExamQuestionDto {

@@ -1,36 +1,60 @@
 <div
   class="fill-blank-container"
-  *ngFor="let option of blanksQuestionListWithHighlights; let i = index"
+  *ngFor="let option of blanksQuestionListWithHighlights; let optionIndex = index"
 >
   <div class="fill-blank-option-row">
     <p class="fill-blank-option-text" [innerHTML]="option?.text"></p>
-    <div class="fill-blank-box" *ngIf="studentResponses?.[i]?.length">
+    <div class="fill-blank-box" *ngIf="studentResponses?.[optionIndex]?.length">
       <mat-form-field
         appearance="outline"
-        *ngFor="let blank of option.blanks; let j = index"
+        *ngFor="let blank of option.blanks; let blankIndex = index"
         class="fill-blank-input"
       >
-        <mat-label>Blank {{ j + 1 }}</mat-label>
+        <mat-label *ngIf="isSelect">Blank {{ blankIndex + 1 }}</mat-label>
+        <mat-label *ngIf="!isSelect"
+          >{{getBlankPlaceholderValue(studentResponses[optionIndex][blankIndex],
+          blankIndex, optionIndex)}}</mat-label
+        >
 
         <input
+          *ngIf="!isSelect"
           matInput
-          [(ngModel)]="studentResponses[i][j]"
+          [(ngModel)]="studentResponses[optionIndex][blankIndex]"
           [disabled]="disableForms"
-          (input)="onInput(studentResponses[i][j], j, i)"
-          (mouseenter)="onInputHover(j, i)"
-          (mouseleave)="offInputHover(j, i)"
-          (focus)="onInputClick(j, i)"
+          (input)="onInput(studentResponses[optionIndex][blankIndex], blankIndex, optionIndex)"
+          (mouseenter)="onInputHover(blankIndex, optionIndex)"
+          (mouseleave)="offInputHover(blankIndex, optionIndex)"
+          (focus)="onInputClick(blankIndex, optionIndex)"
         />
+
+        <mat-select
+          *ngIf="isSelect"
+          (selectionChange)="onInput($event.value, blankIndex, optionIndex)"
+          [value]="studentResponses[optionIndex][blankIndex]"
+          [disabled]="isMatSelectDisabled()"
+        >
+          <mat-option
+            *ngFor="let selectOption of getSelectOptions(optionIndex, blankIndex); let selectOptionIndex = index"
+            [value]="selectOption"
+          >
+            {{selectOption}}
+            <span
+              *ngIf="showCorrectSelectOptionPreview(blank, selectOption) === true"
+              >(correct response)</span
+            >
+          </mat-option>
+        </mat-select>
+
         <mat-icon
           class="correct-blanks-answer"
           matSuffix
-          *ngIf="displayCorrectAnswerMark(blank.text, studentResponses[i][j])"
+          *ngIf="displayCorrectAnswerMark(blank, studentResponses[optionIndex][blankIndex])"
           >check_circle</mat-icon
         >
         <mat-icon
           class="incorrect-blanks-answer"
           matSuffix
-          *ngIf="displayCorrectAnswerMark(blank.text, studentResponses[i][j]) === false"
+          *ngIf="displayCorrectAnswerMark(blank, studentResponses[optionIndex][blankIndex]) === false"
           >cancel</mat-icon
         >
       </mat-form-field>

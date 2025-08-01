@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 import { FillBlanksWrittenQuestionComponent } from './fill-blanks-written-question.component';
 
@@ -16,6 +17,7 @@ import { FillBlanksWrittenQuestionComponent } from './fill-blanks-written-questi
     ReactiveFormsModule,
     FormsModule,
     MatIconModule,
+    MatSelectModule,
   ],
   exports: [FillBlanksWrittenQuestionComponent],
 })

@@ -35,10 +35,27 @@
   width: 100%;
 }
 
+/* Marking checks: */
 .correct-blanks-answer {
   color: green;
 }
 
 .incorrect-blanks-answer {
   color: red;
+}
+
+/* Format label of input form to fit correct answer hint: */
+::ng-deep .fill-blank-input {
+  width: auto;
+}
+
+::ng-deep .fill-blank-input .mat-form-field-label {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  max-width: none;
+}
+
+::ng-deep .fill-blank-input .mat-form-field-flex {
+  align-items: start;
 }

@@ -31,6 +31,9 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
   temporarycurrentQuestionDisplay = JSON.parse(
     JSON.stringify(this.data.currentQuestionDisplay ?? {})
   ) as CreateExamQuestionDto; // used to hold the value of currentQuestionDisplay without modifying the original
+  isSelect: boolean;
+  maxFormLength = 2000;
+  maxBlankLength = 100;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -41,7 +44,10 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
     private readonly dialogRef: MatDialogRef<CreateMultipleChoiceExamQuestionDialogComponent>,
     public dialog: MatDialog,
     private readonly snackbarService: SnackbarService
-  ) {}
+  ) {
+    this.isSelect =
+      this.data.currentQuestionDisplay?.type === 'fill-in-blanks-select';
+  }
 
   ngOnInit(): void {
     this.populateQuestionForm();
@@ -73,10 +79,10 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
         this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[index].text;
 
       // Check if the total length of text (including spaces) exceeds 2000 characters
-      if (currentText.length >= 2000) {
+      if (currentText.length >= this.maxFormLength) {
         this.snackbarService.queueBar(
           'warn',
-          'The maximum text length of 2000 characters has been reached. Cannot add more blanks.'
+          `The maximum text length of ${this.maxFormLength} characters has been reached. Cannot add more blanks.`
         );
         return; // Prevent adding more blanks if the limit is exceeded
       }
@@ -164,10 +170,10 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
     }
     this.formChanged = true;
 
-    if (text.length >= 100) {
+    if (text.length >= this.maxBlankLength) {
       this.snackbarService.queueBar(
         'warn',
-        `Input must be shorter 100 characters.`
+        `Input must be shorter ${this.maxBlankLength} characters.`
       );
     }
   }
@@ -327,11 +333,11 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
    * Preventing disallowed character input:
    */
 
-  preventDisallowedKeys(event: KeyboardEvent, allowSemiCols?: boolean): void {
-    let disallowedChars = ['_', ';', '<', '>', '#'];
+  preventDisallowedKeys(event: KeyboardEvent, allowSlash?: boolean): void {
+    let disallowedChars = ['_', '/', '<', '>', '#'];
 
-    if (allowSemiCols) {
-      disallowedChars = disallowedChars.filter((char) => char !== ';');
+    if (allowSlash) {
+      disallowedChars = disallowedChars.filter((char) => char !== '/');
     }
 
     const isDisallowedChar = disallowedChars.includes(event.key);
@@ -346,14 +352,14 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
     event: ClipboardEvent,
     inputEl: HTMLInputElement | HTMLTextAreaElement,
     maxLength: number,
-    allowSemiCols?: boolean
+    allowSlash?: boolean
   ): void {
     event.preventDefault();
 
     const pasteData = event.clipboardData?.getData('text') ?? '';
-    let sanitized = pasteData.replace(/[\d_;<>#]/gu, '');
+    let sanitized = pasteData.replace(/[\d_/<>#]/gu, '');
 
-    if (allowSemiCols) {
+    if (allowSlash) {
       sanitized = pasteData.replace(/[\d_<>#]/gu, '');
     }
 
@@ -439,6 +445,127 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
   }
 
   /**
+   * Select Options
+   */
+
+  getSelectOptions(optionText?: string): string[] {
+    if (!optionText) {
+      return [];
+    }
+    return JSON.parse(optionText) as string[];
+  }
+
+  addSelectOption(questionIndex: number, blankIndex: number): void {
+    if (!this.temporarycurrentQuestionDisplay.fillBlanksQuestionList) {
+      return;
+    }
+    const question =
+      this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[
+        questionIndex
+      ];
+    const blankSelectText = question.blanks[blankIndex].text;
+
+    if (!blankSelectText) {
+      question.blanks[blankIndex].text = JSON.stringify([
+        'Type option here...',
+      ]);
+    }
+
+    if (
+      blankSelectText.length > 0 &&
+      (JSON.parse(blankSelectText) as string[]).length > 5
+    ) {
+      this.snackbarService.queueBar(
+        'warn',
+        'You cannot add more than 6 select options per blank. Please delete one before adding more.'
+      );
+      return;
+    }
+
+    // Remove the blank from the blanks array
+    question.blanks[blankIndex].text = JSON.stringify([
+      ...(JSON.parse(blankSelectText) as string[]),
+      `Type option here...`,
+    ]);
+  }
+
+  getSelectOptionInput(selectOptionStringified: string, index: number): string {
+    return (JSON.parse(selectOptionStringified) as string[])[index];
+  }
+
+  changeBlankSelectText(
+    selectOptionIndex: number,
+    blankIndex: number,
+    questionIndex: number,
+    text: string
+  ): void {
+    if (!this.temporarycurrentQuestionDisplay.fillBlanksQuestionList) {
+      return;
+    }
+
+    const existingSelectOptions = JSON.parse(
+      this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[questionIndex]
+        .blanks[blankIndex].text
+    ) as string[];
+
+    existingSelectOptions[selectOptionIndex] = text;
+
+    this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[
+      questionIndex
+    ].blanks[blankIndex].text = JSON.stringify(existingSelectOptions);
+  }
+
+  deleteSelectOption(
+    questionIndex: number,
+    blankIndex: number,
+    selectOptionIndex: number
+  ): void {
+    if (!this.temporarycurrentQuestionDisplay.fillBlanksQuestionList) {
+      return;
+    }
+
+    const existingSelectOptions = JSON.parse(
+      this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[questionIndex]
+        .blanks[blankIndex].text
+    ) as string[];
+
+    existingSelectOptions.splice(selectOptionIndex, 1);
+
+    this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[
+      questionIndex
+    ].blanks[blankIndex].text = JSON.stringify(existingSelectOptions);
+  }
+
+  isSelectCorrectOption(
+    questionIndex: number,
+    blankIndex: number,
+    selectOptionIndex: number
+  ): boolean {
+    if (!this.temporarycurrentQuestionDisplay.fillBlanksQuestionList) {
+      return false;
+    }
+
+    return (
+      this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[questionIndex]
+        .blanks[blankIndex].correctSelectOptionIndex === selectOptionIndex
+    );
+  }
+
+  setCorrectSelectOption(
+    questionIndex: number,
+    blankIndex: number,
+    selectOptionIndex: number
+  ): void {
+    if (!this.temporarycurrentQuestionDisplay.fillBlanksQuestionList) {
+      return;
+    }
+
+    this.temporarycurrentQuestionDisplay.fillBlanksQuestionList[
+      questionIndex
+    ].blanks[blankIndex].correctSelectOptionIndex = selectOptionIndex;
+  }
+
+  /**
    * Toggles:
    */
   togglePartialMarking(toggle: boolean): void {
@@ -506,6 +633,17 @@ export class CreateFillBlanksExamQuestionDialogComponent implements OnInit {
         this.snackbarService.queueBar(
           'error',
           `It seems that you may have deleted some blanks from the text area. The number of blanks on the right must match the number of blanks in text area. Please try again.`
+        );
+        return;
+      }
+
+      if (
+        this.isSelect &&
+        question.blanks.some((blank) => !('correctSelectOptionIndex' in blank))
+      ) {
+        this.snackbarService.queueBar(
+          'error',
+          `Please ensure you have marked the 'correct answer' checkbox for all blanks.`
         );
         return;
       }

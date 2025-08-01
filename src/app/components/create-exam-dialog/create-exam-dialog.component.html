@@ -431,6 +431,7 @@
                         [value]="questionType.type"
                         #tooltip="matTooltip"
                         [matTooltip]="questionType.description"
+                        [matTooltipPosition]="'left'"
                         >{{questionType.label}}</mat-option
                       >
                     </ng-container>
@@ -1003,7 +1004,7 @@
 
                   <!----- Add Fill in Blanks : ----->
                   <div
-                    *ngIf="currentQuestionDisplay?.type === 'fill-in-the-blanks'"
+                    *ngIf="['fill-in-the-blanks', 'fill-in-blanks-select'].includes(currentQuestionDisplay?.type ?? '')"
                   >
                     <span
                       *ngIf="!currentQuestionDisplay.fillBlanksQuestionList || currentQuestionDisplay.fillBlanksQuestionList.length === 0"

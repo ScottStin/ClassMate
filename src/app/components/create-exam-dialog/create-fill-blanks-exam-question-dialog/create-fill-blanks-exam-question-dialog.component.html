@@ -8,7 +8,7 @@
     <div class="form-field" style="max-height: 400px; overflow-y: auto">
       <mat-list role="list">
         <div
-          *ngFor="let question of temporarycurrentQuestionDisplay?.fillBlanksQuestionList; let i = index"
+          *ngFor="let question of temporarycurrentQuestionDisplay?.fillBlanksQuestionList; let questionIndex = index"
           class="question-row"
         >
           <div class="textarea-container">
@@ -17,13 +17,13 @@
                 mat-icon-button
                 matTooltip="Delete this question"
                 matTooltipPosition="after"
-                (click)="removeQuestion(i)"
+                (click)="removeQuestion(questionIndex)"
               >
                 <mat-icon>delete</mat-icon>
               </button>
             </span>
             <span *ngIf="!temporarycurrentQuestionDisplay?.randomQuestionOrder">
-              {{ letters[i] }}:
+              {{ letters[questionIndex] }}:
             </span>
             <textarea
               [(ngModel)]="question.text"
@@ -31,14 +31,14 @@
               cols="50"
               #textArea
               class="fill-blanks-textbox"
-              (click)="preventClickOnBlanks($event, i)"
+              (click)="preventClickOnBlanks($event, questionIndex)"
               (keydown)="charLengthWarning(textArea, 2000)"
-              (keydown)="preventArrowKeysOnBlanks($event, i)"
-              (keydown)="preventDeleteOnBlanks($event, i)"
+              (keydown)="preventArrowKeysOnBlanks($event, questionIndex)"
+              (keydown)="preventDeleteOnBlanks($event, questionIndex)"
               (keydown)="preventDisallowedKeys($event)"
               (paste)="sanitizePaste($event, textArea, 2000)"
-              (select)="preventHighlightingBlanks($event, i)"
-              maxlength="2000"
+              (select)="preventHighlightingBlanks($event, questionIndex)"
+              maxlength="maxFormLength"
             >
             </textarea>
           </div>
@@ -47,7 +47,8 @@
               *ngFor="let blank of question.blanks; let blankIndex = index"
               class="blank-input-wrapper"
             >
-              <mat-form-field appearance="outline">
+              <!-- Fill in the blanks (written) -->
+              <mat-form-field appearance="outline" *ngIf="!isSelect">
                 <input
                   matInput
                   type="text"
@@ -56,16 +57,16 @@
                   id="blankInput"
                   class="blank-input"
                   #blankInput
-                  (keyup)="changeBlankText(i, blankIndex, blankInput.value)"
+                  (keyup)="changeBlankText(questionIndex, blankIndex, blankInput.value)"
                   (keydown)="preventDisallowedKeys($event, true)"
-                  (paste)="sanitizePaste($event, blankInput, 100, true)"
-                  maxlength="100"
+                  (paste)="sanitizePaste($event, blankInput, maxBlankLength, true)"
+                  maxlength="maxBlankLength"
                 />
                 <button
                   mat-icon-button
                   matSuffix
                   matTooltip="Delete this blank"
-                  (click)="deleteBlank(i, blankIndex, textArea)"
+                  (click)="deleteBlank(questionIndex, blankIndex, textArea)"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -73,8 +74,71 @@
                   align="start"
                   *ngIf="blankIndex === question.blanks.length - 1"
                   >Note: You can enter multiple correct options and separate
-                  them with a semicolon (;)</mat-hint
+                  them with a forward slash (/)</mat-hint
                 >
+              </mat-form-field>
+
+              <!-- Fill in the blanks (select) -->
+              <mat-form-field appearance="outline" *ngIf="isSelect">
+                <mat-label>Add options here</mat-label>
+                <mat-select>
+                  <mat-option
+                    *ngFor="let selectOption of getSelectOptions(question.blanks[blankIndex].text); let selectOptionIndex = index"
+                    [value]="selectOption"
+                  >
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <input
+                        matInput
+                        type="text"
+                        [value]="getSelectOptionInput(question.blanks[blankIndex].text, selectOptionIndex)"
+                        placeholder="Type blank here"
+                        id="blankSelectInput"
+                        class="blank-input"
+                        #blankSelectInput
+                        (change)="changeBlankSelectText(selectOptionIndex, blankIndex, questionIndex, blankSelectInput.value)"
+                        (click)="$event.stopPropagation()"
+                        (keydown)="$event.stopPropagation()"
+                        maxlength="maxBlankLength"
+                        style="flex: 1"
+                      />
+
+                      <button
+                        mat-icon-button
+                        matTooltip="Remove this option"
+                        (click)="deleteSelectOption(questionIndex, blankIndex, selectOptionIndex);"
+                        tabindex="-1"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+
+                      <mat-checkbox
+                        [checked]="isSelectCorrectOption(questionIndex, blankIndex, selectOptionIndex)"
+                        (change)="setCorrectSelectOption(questionIndex, blankIndex, selectOptionIndex)"
+                        tabindex="-1"
+                        matTooltip="Correct option?"
+                        (click)="$event.stopPropagation()"
+                        (keydown)="$event.stopPropagation()"
+                        style="display: flex; align-items: center"
+                      ></mat-checkbox>
+                    </div>
+                  </mat-option>
+                </mat-select>
+                <button
+                  mat-icon-button
+                  matSuffix
+                  matTooltip="Add a select option"
+                  (click)="addSelectOption(questionIndex, blankIndex)"
+                >
+                  <mat-icon>add</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  matSuffix
+                  matTooltip="Delete this blank"
+                  (click)="deleteBlank(questionIndex, blankIndex, textArea)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
               </mat-form-field>
             </div>
             <span
@@ -85,7 +149,7 @@
                 cursor: pointer;
               "
               class="add-blank-button"
-              (click)="addBlankToQuestion(i, textArea)"
+              (click)="addBlankToQuestion(questionIndex, textArea)"
               ><mat-icon>add</mat-icon><b>Add blank</b></span
             >
           </div>
@@ -123,11 +187,7 @@
         </mat-slide-toggle>
       </form>
 
-      <form
-        [formGroup]="questionForm"
-        class="form-field"
-        [style]="temporarycurrentQuestionDisplay.type === 'multiple-choice-single' ? 'display: none' : ''"
-      >
+      <form [formGroup]="questionForm" class="form-field">
         <mat-slide-toggle
           id="partialMarking"
           name="partialMarking"
@@ -144,11 +204,7 @@
         </mat-slide-toggle>
       </form>
 
-      <form
-        [formGroup]="questionForm"
-        class="form-field"
-        [style]="temporarycurrentQuestionDisplay.type === 'multiple-choice-single' ? 'display: none' : ''"
-      >
+      <form [formGroup]="questionForm" class="form-field" *ngIf="!isSelect">
         <mat-slide-toggle
           id="caseSenitive"
           name="caseSenitive"

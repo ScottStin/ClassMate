@@ -121,8 +121,14 @@ export class CreateExamDialogComponent implements OnInit {
     {
       type: 'fill-in-the-blanks',
       description:
-        'The student is given one or more texts and must complete the missing blanks.',
-      label: 'Fill in the Blanks',
+        'The student is given one or more texts and must complete the missing blanks by writing the correct word, phrase or sentence.',
+      label: 'Fill in the Blanks (written response)',
+    },
+    {
+      type: 'fill-in-blanks-select',
+      description:
+        'The student is given one or more texts and must complete the missing blanks by selecting the correct option.',
+      label: 'Fill in the Blanks (select correct option)',
     },
     {
       type: 'essay',
@@ -648,7 +654,11 @@ export class CreateExamDialogComponent implements OnInit {
       questionType = 'matchOptionQuestionList';
     }
 
-    if (this.currentQuestionDisplay?.type === 'fill-in-the-blanks') {
+    if (
+      ['fill-in-the-blanks', 'fill-in-blanks-select'].includes(
+        this.currentQuestionDisplay?.type ?? ''
+      )
+    ) {
       dialogName = CreateFillBlanksExamQuestionDialogComponent;
       title = 'Create Fill-in-the-Blanks Exam Question';
       questionType = 'fillBlanksQuestionList';
