@@ -199,6 +199,7 @@ export class ShowExamDialogComponent implements OnInit {
         'reorder-sentence',
         'match-options',
         'fill-in-the-blanks',
+        'fill-in-blanks-select',
       ].includes(questionType)
     ) {
       return of();

@@ -178,6 +178,22 @@ export class AiExamQuestionFeedbackService {
       });
     }
 
+    if (questionType === 'fill-in-blanks-select') {
+      if (!text || !fillBlanksQuestionList) {
+        throw new Error(
+          'Answer and blanks are required for fill in the blanks select question type'
+        );
+      }
+      return this.generateAiFeedbackFillBlanksSelect({
+        text,
+        prompt,
+        mediaPrompt1,
+        mediaPrompt2,
+        mediaPrompt3,
+        fillBlanksQuestionList,
+      });
+    }
+
     if (questionType === 'read-outloud') {
       if (!audioUrl) {
         throw new Error('Audio URL is required for read-outloud question type');
@@ -443,6 +459,41 @@ export class AiExamQuestionFeedbackService {
           this.handleError(
             error,
             'Failed to generate AI Feedback for fill-blanks exam question'
+          );
+        })
+      );
+  }
+
+  generateAiFeedbackFillBlanksSelect(data: {
+    text: string;
+    prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt3?: {
+      url: string;
+      type: string;
+    };
+    fillBlanksQuestionList: FillBlanksQuestionDto[];
+  }): Observable<{
+    feedback?: string;
+    mark: number;
+  }> {
+    return this.httpClient
+      .post<{
+        feedback: string;
+        mark: number;
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/fill-blanks-select`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for fill-blanks select exam question'
           );
         })
       );
