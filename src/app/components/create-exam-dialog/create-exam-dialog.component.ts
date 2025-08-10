@@ -13,6 +13,10 @@ import {
 } from '@angular/material/dialog';
 import { finalize, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import {
+  AiExamPromptService,
+  AiPromptGenerator,
+} from 'src/app/services/ai-exam-prompt.service/ai-exam-prompt.service';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
 import { FileService } from 'src/app/services/file-service/file.service';
 import {
@@ -32,6 +36,7 @@ import { CreateFillBlanksExamQuestionDialogComponent } from './create-fill-blank
 import { CreateMatchOptionsExamQuestionDialogComponent } from './create-match-options-exam-question-dialog/create-match-options-exam-question-dialog.component';
 import { CreateMultipleChoiceExamQuestionDialogComponent } from './create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.component';
 import { CreateReorderSentenceExamQuestionDialogComponent } from './create-reorder-sentence-exam-question-dialog/create-reorder-sentence-exam-question-dialog.component';
+import { GenerateAiQuestionPromptComponent } from './generate-ai-question-prompt/generate-ai-question-prompt.component';
 
 @Component({
   selector: 'app-create-exam-dialog',
@@ -54,8 +59,10 @@ export class CreateExamDialogComponent implements OnInit {
   sectionCounter = 1; // used to assign an id to a new section;
   questionCounter = 1; //  used to assign an id to a new question;
   createExamLoading = false;
+  createAiPromptLoading = false;
   changingQuestions = false; // note: users were having trouble seeing if a question had changed because it was happening too fast, so changingQuestions is used to add an affect when the question changes
   readOutloudQuestionPrompt = readOutloudQuestionPrompt;
+  questionTypes = questionTypes;
 
   fileChangedEvent: Event | string = '';
   fileLinkPrompt1: string | null | undefined;
@@ -64,86 +71,6 @@ export class CreateExamDialogComponent implements OnInit {
   fileNamePrompt2 = '';
   fileLinkPrompt3: string | null | undefined;
   fileNamePrompt3 = '';
-
-  questionTypes: {
-    type: ExamQuestionTypes;
-    description: string;
-    label: string;
-  }[] = [
-    {
-      type: 'written-response',
-      description:
-        'Student must write a response to one or more prompts. The student will be marked on 3 categories: vocab/spelling, grammar/punctuation, and content (how accurately they address the prompt(s)). The student will have a given word limit.',
-      label: 'Written Response',
-    },
-    {
-      type: 'audio-response',
-      description:
-        'Student must give spoken response to one or more prompts. The student will be marked on 5 categories: vocabulary, grammar, pronunciation, fluency, and content (how accurately they address the prompt(s)). The student will have a given time limit in which they must respond.',
-      label: 'Audio Response',
-    },
-    {
-      type: 'repeat-sentence',
-      description:
-        'The student will hear an audio recording of word, phrase, paragraph or sentence, and they must repeat what they hear. The student will be marked on 3 categories: accuracy, pronunciation and fluency.',
-      label: 'Audio response - repeat word/sentence/paragraph',
-    },
-    {
-      type: 'read-outloud',
-      description:
-        'The student will be provided with a text and must read it out loud. The student will be marked on 3 categories: accuracy, pronunciation and fluency.',
-      label: 'Audio response - read out loud',
-    },
-    {
-      type: 'multiple-choice-single',
-      description:
-        'This is a multiple choice question where only one answer is correct. The student is marked on accuracy.',
-      label: 'Multiple Choice Single Answer',
-    },
-    {
-      type: 'multiple-choice-multi',
-      description:
-        'This is a multiple choice question where multiple answers may be correct. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
-      label: 'Multiple Choice Multiple Answer',
-    },
-    {
-      type: 'reorder-sentence',
-      description:
-        'The student provided with texts that are out of order, and must drop and drag the text to place them in the correct order. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
-      label: 'Reorder Sentence/Paragraph',
-    },
-    {
-      type: 'match-options',
-      description:
-        'The student is given two columns of items and must match the items in the left column to the correct items in the right column. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
-      label: 'Match Options',
-    },
-    {
-      type: 'fill-in-the-blanks',
-      description:
-        'The student is given one or more texts and must complete the missing blanks by writing the correct word, phrase or sentence.',
-      label: 'Fill in the Blanks (written response)',
-    },
-    {
-      type: 'fill-in-blanks-select',
-      description:
-        'The student is given one or more texts and must complete the missing blanks by selecting the correct option.',
-      label: 'Fill in the Blanks (select correct option)',
-    },
-    {
-      type: 'essay',
-      description:
-        'The student must write an essay on one or more give prompt(s). This is different from a written-response question, as the student will be marked on different categories. For an essay question, the student will be marked on 4 categories: vocab/spelling, grammar/punctuation, structure of the essay, and content. The student will have a given word limit.',
-      label: 'Essay',
-    },
-    {
-      type: 'information-page',
-      description:
-        'This is just an information page that provides the student with context or instructions to the exam or for an upcoming question/section. It has no marking.',
-      label: 'Information Page',
-    },
-    { type: 'section', description: '', label: 'Section' },
-  ];
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -157,6 +84,7 @@ export class CreateExamDialogComponent implements OnInit {
     private readonly examService: ExamService,
     private readonly snackbarService: SnackbarService,
     readonly fileService: FileService,
+    readonly aiExamPromptService: AiExamPromptService,
     public dialog: MatDialog
   ) {}
 
@@ -432,8 +360,8 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   /*
-   * Find the current quesiton being displayed in the questionList:
-   * Todo - move to seperate reusable service or helper.
+   * Find the current question being displayed in the questionList:
+   * Todo - move to separate reusable service or helper.
    */
   findCurrentQuestionFromList(): CreateExamQuestionDto | undefined {
     let foundQuestion;
@@ -850,6 +778,83 @@ export class CreateExamDialogComponent implements OnInit {
     }
   }
 
+  /**
+   * Generate Ai Prompts
+   */
+  openAiPromptGeneratorClick(isAudioPrompt?: boolean): void {
+    const generateAiPromptDialog = this.dialog.open(
+      GenerateAiQuestionPromptComponent,
+      {
+        data: {
+          isAudioPrompt,
+        },
+      }
+    );
+    generateAiPromptDialog
+      .afterClosed()
+      .subscribe((result?: AiPromptGenerator) => {
+        if (result) {
+          this.createAiPromptLoading = true;
+
+          if (isAudioPrompt) {
+            this.generateAiAudioPrompt(result);
+          } else {
+            this.generateAiWrittenPrompt(result);
+          }
+        }
+      });
+  }
+
+  generateAiAudioPrompt(data: AiPromptGenerator): void {
+    this.aiExamPromptService
+      .generateAiPromptAudio(data)
+      .pipe(
+        finalize(() => {
+          this.createAiPromptLoading = false;
+        })
+      )
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      .subscribe(async (audioBlob) => {
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        const audio = new Audio(audioUrl);
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        audio.play();
+
+        this.examForm.controls.questionStep.patchValue({
+          prompt1: audioUrl,
+          prompt1Type: 'audio',
+        });
+
+        if (this.currentQuestionDisplay) {
+          const audioString = await this.fileService.blobToBase64(audioBlob);
+
+          this.currentQuestionDisplay.prompt1 = {
+            fileString: audioString,
+            type: 'audio',
+            fileName: 'ai-prompt.wav',
+          };
+        }
+
+        this.fileNamePrompt1 = 'ai-prompt.wav';
+      });
+  }
+
+  generateAiWrittenPrompt(data: AiPromptGenerator): void {
+    this.aiExamPromptService
+      .generateAiPromptWritten(data)
+      .pipe(
+        finalize(() => {
+          this.createAiPromptLoading = false;
+        })
+      )
+      .subscribe((writtenPrompt) => {
+        this.examForm.controls.questionStep.patchValue({
+          writtenPrompt,
+        });
+      });
+  }
+
   /*
    * Handle file upload and validation:
    */
@@ -1022,3 +1027,83 @@ export type QuestionStepForm = FormGroup<{
   length: FormControl<number | null>; // word limit for written questions and time limit (seconds) for audio questions
   answers?: FormControl<{ question: string; correct: boolean }[] | null>; // used for multiple choice questions
 }>;
+
+export const questionTypes: {
+  type: ExamQuestionTypes;
+  description: string;
+  label: string;
+}[] = [
+  {
+    type: 'written-response',
+    description:
+      'Student must write a response to one or more prompts. The student will be marked on 3 categories: vocab/spelling, grammar/punctuation, and content (how accurately they address the prompt(s)). The student will have a given word limit.',
+    label: 'Written Response',
+  },
+  {
+    type: 'audio-response',
+    description:
+      'Student must give spoken response to one or more prompts. The student will be marked on 5 categories: vocabulary, grammar, pronunciation, fluency, and content (how accurately they address the prompt(s)). The student will have a given time limit in which they must respond.',
+    label: 'Audio Response',
+  },
+  {
+    type: 'repeat-sentence',
+    description:
+      'The student will hear an audio recording of word, phrase, paragraph or sentence, and they must repeat what they hear. The student will be marked on 3 categories: accuracy, pronunciation and fluency.',
+    label: 'Audio response - repeat word/sentence/paragraph',
+  },
+  {
+    type: 'read-outloud',
+    description:
+      'The student will be provided with a text and must read it out loud. The student will be marked on 3 categories: accuracy, pronunciation and fluency.',
+    label: 'Audio response - read out loud',
+  },
+  {
+    type: 'multiple-choice-single',
+    description:
+      'This is a multiple choice question where only one answer is correct. The student is marked on accuracy.',
+    label: 'Multiple Choice Single Answer',
+  },
+  {
+    type: 'multiple-choice-multi',
+    description:
+      'This is a multiple choice question where multiple answers may be correct. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
+    label: 'Multiple Choice Multiple Answer',
+  },
+  {
+    type: 'reorder-sentence',
+    description:
+      'The student provided with texts that are out of order, and must drop and drag the text to place them in the correct order. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
+    label: 'Reorder Sentence/Paragraph',
+  },
+  {
+    type: 'match-options',
+    description:
+      'The student is given two columns of items and must match the items in the left column to the correct items in the right column. The student is marked on accuracy, and the teacher can choose if the student can be award partial marks for only getting some items correct, or the student must get all items correct to be awarded the marks.',
+    label: 'Match Options',
+  },
+  {
+    type: 'fill-in-the-blanks',
+    description:
+      'The student is given one or more texts and must complete the missing blanks by writing the correct word, phrase or sentence.',
+    label: 'Fill in the Blanks (written response)',
+  },
+  {
+    type: 'fill-in-blanks-select',
+    description:
+      'The student is given one or more texts and must complete the missing blanks by selecting the correct option.',
+    label: 'Fill in the Blanks (select correct option)',
+  },
+  {
+    type: 'essay',
+    description:
+      'The student must write an essay on one or more give prompt(s). This is different from a written-response question, as the student will be marked on different categories. For an essay question, the student will be marked on 4 categories: vocab/spelling, grammar/punctuation, structure of the essay, and content. The student will have a given word limit.',
+    label: 'Essay',
+  },
+  {
+    type: 'information-page',
+    description:
+      'This is just an information page that provides the student with context or instructions to the exam or for an upcoming question/section. It has no marking.',
+    label: 'Information Page',
+  },
+  { type: 'section', description: '', label: 'Section' },
+];

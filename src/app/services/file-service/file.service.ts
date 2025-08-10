@@ -80,6 +80,17 @@ export class FileService {
     });
   }
 
+  async blobToBase64(blob: Blob): Promise<string> {
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = (): void => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   imageLoaded(): void {}
 
   cropperReady(): void {}

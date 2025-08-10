@@ -11,7 +11,7 @@
       (click)="onSaveBtnClick()"
       class="dialog-action-save-button"
     >
-      {{ saveButtonName ? saveButtonName : 'Save' }}
+      {{ (saveButtonName ? saveButtonName : 'Save') | uppercase }}
     </button>
   </ng-container>
 </mat-dialog-actions>

@@ -72,7 +72,7 @@
 
   :host {
     --primaryButtonBackgroundColor: $defaultButtonColor;
-    --primaryButtonTextColor: $defaultTextnColor;
+    --primaryButtonTextColor: $defaultTextColor;
   }
   
   ::ng-deep .config-item-tooltip {

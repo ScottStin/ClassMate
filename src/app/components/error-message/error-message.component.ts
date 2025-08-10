@@ -84,7 +84,7 @@ export class ErrorMessageComponent implements OnChanges {
         return 'Too short';
 
       case 'oldDate':
-        return 'Date mufst not be in the past';
+        return 'Date must not be in the past';
 
       case 'lessThanOne':
         return 'Number must be greater than zero';

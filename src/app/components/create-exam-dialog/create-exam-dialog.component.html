@@ -3,6 +3,10 @@
   <span>We're creating your exam now, please wait.</span>
 </div>
 
+<div *ngIf="createAiPromptLoading" class="exam-form-loading-spinner-container">
+  <mat-spinner></mat-spinner>
+</div>
+
 <ng-container>
   <app-dialog-header
     [dialogTitle]="data.title"
@@ -525,6 +529,18 @@
                   required
                   (keyup)="formChange(writtenPrompt.value, 'writtenPrompt')"
                 ></textarea>
+
+                <button
+                  *ngIf="['read-outloud', 'essay', 'written-response', 'audio-response'].includes(currentQuestionDisplay.type?.toLowerCase() ?? '')"
+                  mat-icon-button
+                  matSuffix
+                  matTooltip="Generate AI prompt"
+                  matTooltipPosition="after"
+                  (click)="openAiPromptGeneratorClick()"
+                >
+                  <mat-icon>smart_button</mat-icon>
+                </button>
+
                 <mat-error>
                   <app-error-message
                     [control]="questionStepForm.controls['writtenPrompt'].errors"
@@ -625,6 +641,18 @@
                     (click)="prompt1.click()"
                     readonly
                   />
+
+                  <button
+                    *ngIf="questionStepForm.controls['prompt1Type'].value?.toLowerCase() === 'audio'"
+                    mat-icon-button
+                    matSuffix
+                    matTooltip="Generate AI prompt"
+                    matTooltipPosition="after"
+                    (click)="openAiPromptGeneratorClick(true)"
+                  >
+                    <mat-icon>smart_button</mat-icon>
+                  </button>
+
                   <button
                     mat-icon-button
                     matSuffix

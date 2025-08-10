@@ -29,6 +29,7 @@ import { CreateFillBlanksExamQuestionDialogModule } from './create-fill-blanks-e
 import { CreateMatchOptionsExamQuestionDialogModule } from './create-match-options-exam-question-dialog/create-match-options-exam-question-dialog.module';
 import { CreateMultipleChoiceExamQuestionDialogModule } from './create-multiple-choice-exam-question-dialog/create-multiple-choice-exam-question-dialog.module';
 import { CreateReorderSentenceExamQuestionDialogModule } from './create-reorder-sentence-exam-question-dialog/create-reorder-sentence-exam-question-dialog.module';
+import { GenerateAiQuestionPromptModule } from './generate-ai-question-prompt/generate-ai-question-prompt.module';
 
 @NgModule({
   declarations: [CreateExamDialogComponent],
@@ -62,6 +63,7 @@ import { CreateReorderSentenceExamQuestionDialogModule } from './create-reorder-
     DialogActionsModule,
     MatProgressSpinnerModule,
     PreviewExamQuestionModule,
+    GenerateAiQuestionPromptModule,
   ],
   exports: [CreateExamDialogComponent],
 })

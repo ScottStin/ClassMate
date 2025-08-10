@@ -28,6 +28,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
 import { ErrorMessageModule } from '../error-message/error-message.module';
 import { CreateExamDialogComponent } from './create-exam-dialog.component';
+import { GenerateAiQuestionPromptModule } from './generate-ai-question-prompt/generate-ai-question-prompt.module';
 
 describe('CreateExamDialogComponent', () => {
   let component: CreateExamDialogComponent;
@@ -61,6 +62,7 @@ describe('CreateExamDialogComponent', () => {
         MatSnackBarModule,
         HttpClientTestingModule,
         BrowserAnimationsModule,
+        GenerateAiQuestionPromptModule,
       ],
       providers: [
         {
