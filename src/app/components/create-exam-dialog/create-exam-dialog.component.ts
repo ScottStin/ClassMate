@@ -229,7 +229,7 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   /*
-   * Adds a question to the questin list:
+   * Adds a question to the question list:
    */
   addNewQuestion(): void {
     this.changingQuestions = true;
@@ -336,13 +336,13 @@ export class CreateExamDialogComponent implements OnInit {
         this.currentQuestionDisplay.totalPointsMin ?? 0
       );
       questionForm.controls.totalPointsMax.setValue(
-        this.currentQuestionDisplay.totalPointsMax ?? 10
+        this.currentQuestionDisplay.totalPointsMax ?? 5
       );
       questionForm.controls.time.setValue(
         this.currentQuestionDisplay.time ?? null
       );
 
-      // update prompt attachement strings/names:
+      // update prompt attachment strings/names:
       this.fileLinkPrompt1 = this.currentQuestionDisplay.prompt1?.fileString;
       this.fileNamePrompt1 =
         this.currentQuestionDisplay.prompt1?.fileName ?? '';
@@ -449,10 +449,10 @@ export class CreateExamDialogComponent implements OnInit {
         this.examForm.controls.questionStep.controls.writtenPrompt.disable();
       }
 
-      // --- If prompt type is read-outloud:
+      // --- If prompt type is read-aloud:
       if (this.currentQuestionDisplay?.type === 'read-outloud') {
         //
-        // read outloud has no media prompts, so remove them:
+        // read aloud has no media prompts, so remove them:
         if (this.currentQuestionDisplay.prompt3) {
           this.removePrompt('prompt3');
         }
@@ -477,7 +477,7 @@ export class CreateExamDialogComponent implements OnInit {
     if (field === 'autoMarking' && text === true) {
       this.snackbarService.queueBar(
         'warn',
-        'Please note that you will be charged 5 cents per question that uses our automarking software. For example, if you have an exam that has 10 auto marked questions, you will be charged 50 cents per student who completes that exam (assuming that they complete all auto marked questions).'
+        'Please note that you will be charged 5 cents per question that uses our auto-marking software. For example, if you have an exam that has 10 auto marked questions, you will be charged 50 cents per student who completes that exam (assuming that they complete all auto marked questions).'
       );
     }
   }
@@ -527,7 +527,7 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   /*
-   * When the user clicks on a seciton in the question list, expand that section to show the sub-questions:
+   * When the user clicks on a section in the question list, expand that section to show the sub-questions:
    */
   expandSection(question: CreateExamQuestionDto): void {
     const clickedQuestion = this.questionList.find(
@@ -561,7 +561,7 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   /*
-   * Open multiple chouce dialog to add multiple choice options to question:
+   * Open multiple choice dialog to add multiple choice options to question:
    */
   openQuestionDetailDialog(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -852,6 +852,8 @@ export class CreateExamDialogComponent implements OnInit {
         this.examForm.controls.questionStep.patchValue({
           writtenPrompt,
         });
+
+        this.formChange(writtenPrompt, 'writtenPrompt');
       });
   }
 
@@ -898,23 +900,30 @@ export class CreateExamDialogComponent implements OnInit {
       const input = control.value as number;
 
       if (
-        ['audio-response', 'repeat-sentence', 'written-response'].includes(
-          this.currentQuestionDisplay?.type ?? ''
-        ) &&
+        [
+          'audio-response',
+          'repeat-sentence',
+          'written-response',
+          'essay',
+        ].includes(this.currentQuestionDisplay?.type ?? '') &&
         !input
       ) {
         return { required: true };
       }
 
       if (
-        this.currentQuestionDisplay?.type === 'written-response' &&
+        ['written-response', 'essay'].includes(
+          this.currentQuestionDisplay?.type ?? ''
+        ) &&
         input > this.maxWrittenResponseWordLimit
       ) {
         return { tooManyWords: true };
       }
 
       if (
-        this.currentQuestionDisplay?.type === 'written-response' &&
+        ['written-response', 'essay'].includes(
+          this.currentQuestionDisplay?.type ?? ''
+        ) &&
         input < 1
       ) {
         return { tooFewWords: true };

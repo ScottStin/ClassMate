@@ -83,6 +83,19 @@ export class AiExamQuestionFeedbackService {
       });
     }
 
+    if (questionType === 'essay') {
+      if (!text) {
+        throw new Error('Text is required for essay question type');
+      }
+      return this.generateAiFeedbackEssay({
+        text,
+        prompt,
+        mediaPrompt1,
+        mediaPrompt2,
+        mediaPrompt3,
+      });
+    }
+
     if (questionType === 'audio-response') {
       if (!audioUrl) {
         throw new Error(
@@ -236,6 +249,40 @@ export class AiExamQuestionFeedbackService {
           this.handleError(
             error,
             'Failed to generate AI Feedback for written exam question'
+          );
+        })
+      );
+  }
+
+  generateAiFeedbackEssay(data: {
+    text: string;
+    prompt: string;
+    mediaPrompt1?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt2?: {
+      url: string;
+      type: string;
+    };
+    mediaPrompt3?: {
+      url: string;
+      type: string;
+    };
+  }): Observable<{
+    feedback?: string;
+    mark: WrittenMark;
+  }> {
+    return this.httpClient
+      .post<{
+        feedback: string;
+        mark: WrittenMark;
+      }>(`${this.baseUrl}/generate-ai-exam-feedback/essay-question`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(
+            error,
+            'Failed to generate AI Feedback for essay exam question'
           );
         })
       );
@@ -511,6 +558,13 @@ export interface WrittenMark {
   vocabMark?: number;
   grammarMark?: number;
   contentMark?: number;
+}
+
+export interface EssayMark {
+  vocabMark?: number;
+  grammarMark?: number;
+  contentMark?: number;
+  structureMark?: number;
 }
 
 export interface AudioMark extends WrittenMark {

@@ -76,6 +76,7 @@ export interface StudentQuestionReponse {
     fluencyMark?: number | string | null;
     pronunciationMark?: number | string | null;
     accuracyMark?: number | string | null;
+    structureMark?: number | string | null;
     totalMark?: number | string | null;
     [key: string]: unknown;
   } | null;

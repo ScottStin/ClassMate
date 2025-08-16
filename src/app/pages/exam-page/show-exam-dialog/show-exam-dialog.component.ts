@@ -16,6 +16,7 @@ import { finalize, forkJoin, map, Observable, of, Subject, tap } from 'rxjs';
 import {
   AiExamQuestionFeedbackService,
   AudioMark,
+  EssayMark,
   RepeatSentenceMark,
   WrittenMark,
 } from 'src/app/services/ai-exam-question-feedback-service/ai-exam-question-feedback.service';
@@ -58,6 +59,7 @@ export class ShowExamDialogComponent implements OnInit {
     pronunciationMark?: FormControl<number | undefined>;
     fluencyMark?: FormControl<number | undefined>;
     accuracyMark?: FormControl<number | undefined>;
+    structureMark?: FormControl<number | undefined>;
   }>;
   feedbackFormPopulated = new Subject<boolean>();
 
@@ -200,6 +202,7 @@ export class ShowExamDialogComponent implements OnInit {
         'match-options',
         'fill-in-the-blanks',
         'fill-in-blanks-select',
+        'essay',
       ].includes(questionType)
     ) {
       return of();
@@ -246,7 +249,11 @@ export class ShowExamDialogComponent implements OnInit {
           }
 
           // Apply AI for audio and written response marking:
-          if (['audio-response', 'written-response'].includes(questionType)) {
+          if (
+            ['audio-response', 'written-response', 'essay'].includes(
+              questionType
+            )
+          ) {
             this.feedbackForm.controls.vocabMark?.setValue(
               (res.mark as WrittenMark).vocabMark ?? 0
             );
@@ -303,6 +310,18 @@ export class ShowExamDialogComponent implements OnInit {
             this.onMarkSelect(
               (res.mark as RepeatSentenceMark).accuracyMark ?? 0,
               'accuracyMark'
+            );
+          }
+
+          // Apply repeat sentence ai marking:
+          if (['essay'].includes(questionType)) {
+            this.feedbackForm.controls.structureMark?.setValue(
+              (res.mark as EssayMark).structureMark ?? 0
+            );
+
+            this.onMarkSelect(
+              (res.mark as EssayMark).structureMark ?? 0,
+              'structureMark'
             );
           }
         }),
@@ -481,7 +500,7 @@ export class ShowExamDialogComponent implements OnInit {
 
     // add content, grammar and vocabMark
     if (
-      ['audio-response', 'written-response'].includes(
+      ['audio-response', 'written-response', 'essay'].includes(
         this.currentQuestionDisplay?.type ?? ''
       )
     ) {
@@ -505,6 +524,18 @@ export class ShowExamDialogComponent implements OnInit {
       (formControls as any).contentMark = new FormControl(
         {
           value: Number(studentResponse?.mark?.contentMark ?? ''),
+          disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
+        },
+        { validators: [Validators.required], nonNullable: true }
+      );
+    }
+
+    // add structureMark
+    if (['essay'].includes(this.currentQuestionDisplay?.type ?? '')) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      (formControls as any).structureMark = new FormControl(
+        {
+          value: Number(studentResponse?.mark?.structureMark ?? ''),
           disabled: this.data.currentUser?.userType.toLowerCase() === 'student',
         },
         { validators: [Validators.required], nonNullable: true }
@@ -604,13 +635,21 @@ export class ShowExamDialogComponent implements OnInit {
     const questionType = this.currentQuestionDisplay?.type?.toLowerCase();
 
     if (questionType) {
-      if (['audio-response', 'written-response'].includes(questionType)) {
+      if (
+        ['audio-response', 'written-response', 'essay'].includes(questionType)
+      ) {
         marksArray.push(
           ...[
             studentResponse.mark.vocabMark ?? 0,
             studentResponse.mark.grammarMark ?? 0,
             studentResponse.mark.contentMark ?? 0,
           ].map(Number)
+        );
+      }
+
+      if (['essay'].includes(questionType)) {
+        marksArray.push(
+          ...[studentResponse.mark.structureMark ?? 0].map(Number)
         );
       }
 
@@ -907,7 +946,7 @@ export class ShowExamDialogComponent implements OnInit {
 
       // if written response exceeds word limit:
       if (
-        question.type === 'written-response' &&
+        ['written-response', 'essay'].includes(question.type ?? '') &&
         (studentResponse?.response?.trim().split(/\s+/u).length ?? 0) >
           (question.length ?? 600)
       ) {
@@ -928,7 +967,7 @@ export class ShowExamDialogComponent implements OnInit {
       )?.feedback?.text;
 
       if (
-        question.type === 'written-response' &&
+        ['written-response', 'essay'].includes(question.type ?? '') &&
         (teacherFeedback?.trim().split(/\s+/u).length ?? 0) >
           this.maxFeedbackWordLimit
       ) {
@@ -983,6 +1022,9 @@ export class ShowExamDialogComponent implements OnInit {
       );
       feedbackForm.accuracyMark?.setValue(
         Number(studentResponse?.mark?.accuracyMark ?? '')
+      );
+      feedbackForm.structureMark?.setValue(
+        Number(studentResponse?.mark?.structureMark ?? '')
       );
     }
   }
@@ -1071,12 +1113,23 @@ export class ShowExamDialogComponent implements OnInit {
   getMarkingCategories(): { displayName: string; value: string }[] {
     const markingCategories = [];
 
-    if (this.currentQuestionDisplay?.type === 'written-response') {
+    if (
+      ['written-response', 'essay'].includes(
+        this.currentQuestionDisplay?.type ?? ''
+      )
+    ) {
       markingCategories.push(
         { displayName: 'Vocabulary and Spelling', value: 'vocabMark' },
         { displayName: 'Grammar and Punctuation', value: 'grammarMark' },
         { displayName: 'Content', value: 'contentMark' }
       );
+    }
+
+    if (['essay'].includes(this.currentQuestionDisplay?.type ?? '')) {
+      markingCategories.push({
+        displayName: 'Structure and Organisation',
+        value: 'structureMark',
+      });
     }
 
     if (this.currentQuestionDisplay?.type === 'audio-response') {

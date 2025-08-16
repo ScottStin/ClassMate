@@ -452,10 +452,10 @@
               <mat-form-field
                 class="form-field"
                 appearance="outline"
-                *ngIf="['written-response','audio-response','repeat-sentence', 'read-outloud'].includes(questionStepForm.getRawValue().type.toLowerCase())"
+                *ngIf="['written-response','audio-response','repeat-sentence', 'read-outloud', 'essay'].includes(questionStepForm.getRawValue().type.toLowerCase())"
               >
                 <mat-label
-                  *ngIf="questionStepForm.getRawValue().type === 'written-response'"
+                  *ngIf="['written-response', 'essay'].includes(questionStepForm.getRawValue().type)"
                   >Response word limit</mat-label
                 >
                 <mat-label
@@ -468,9 +468,9 @@
                   #length
                   formControlName="length"
                   type="number"
-                  [placeholder]="questionStepForm.getRawValue().type === 'written-response' ? 'Enter word limit' : 'Enter audio response time (seconds)'"
+                  [placeholder]="['written-response', 'essay'].includes(questionStepForm.getRawValue().type) ? 'Enter word limit' : 'Enter audio response time (seconds)'"
                   (change)="formChange(length.value, 'length')"
-                  [attr.max]="questionStepForm.getRawValue().type === 'written-response' ? maxWrittenResponseWordLimit : maxAudioResponseTimeLimit"
+                  [attr.max]="['written-response', 'essay'].includes(questionStepForm.getRawValue().type) ? maxWrittenResponseWordLimit : maxAudioResponseTimeLimit"
                 />
                 <mat-error>
                   <app-error-message

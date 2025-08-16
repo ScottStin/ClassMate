@@ -95,7 +95,7 @@
   <mat-card-content style="padding-top: 50px; width: 100%">
     <!-- written response -->
     <app-written-response-question
-      *ngIf="question.type === 'written-response'"
+      *ngIf="['written-response', 'essay'].includes(question.type ?? '')"
       [question]="question"
       [disableForms]="currentUser?.userType?.toLowerCase() === 'teacher' || displayMode || markMode"
       [currentUserId]="studentId ?? currentUser?._id"
