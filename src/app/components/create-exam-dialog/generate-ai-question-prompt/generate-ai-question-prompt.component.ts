@@ -211,10 +211,12 @@ export const audioPromptTypes = [
   'Summarise lecture',
   'Write from dictation',
   'Repeat sentence',
+  'Answer general question about yourself',
 ];
 
 export const writtenPromptTypes = [
   'Summarise written text',
   'Read aloud',
   'Essay topic',
+  'Answer general question about yourself',
 ];

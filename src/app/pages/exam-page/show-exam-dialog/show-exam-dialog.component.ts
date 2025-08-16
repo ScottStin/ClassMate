@@ -836,7 +836,7 @@ export class ShowExamDialogComponent implements OnInit {
       if (
         (studentResponse?.response === undefined ||
           studentResponse.response === null) &&
-        question.type?.toLocaleLowerCase() !== 'section'
+        !['section', 'information-page'].includes(question.type ?? '')
       ) {
         [missingAnswers.push(question.name)];
       }
@@ -850,17 +850,14 @@ export class ShowExamDialogComponent implements OnInit {
           const studentResponseSubQuestion = subQuestion.studentResponse?.find(
             (obj) => obj.studentId === this.data.currentUser?._id
           );
-          if (
-            studentResponseSubQuestion?.response === undefined ||
-            studentResponseSubQuestion.response === null
-          ) {
+          if (studentResponseSubQuestion?.response) {
             missingAnswers.push(`${question.name}, ${subQuestion.name}`);
           }
         }
       }
     }
 
-    // Warn student about unanswered quesitons before submitting:
+    // Warn student about unanswered questions before submitting:
     if (missingAnswers.length > 0) {
       let message = 'The following questions have not been answered';
       if (missingAnswers.length === 1) {

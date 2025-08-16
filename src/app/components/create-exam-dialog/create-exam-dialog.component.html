@@ -497,7 +497,7 @@
               <!----- Question Prompt (written): ----->
               <mat-form-field class="form-field" appearance="outline">
                 <mat-label
-                  *ngIf="!['section', 'read-outloud'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '')"
+                  *ngIf="!['section', 'read-outloud', 'information-page'].includes(currentQuestionDisplay?.type?.toLowerCase() ?? '')"
                   >Question prompt</mat-label
                 >
                 <mat-label
@@ -508,16 +508,10 @@
                   *ngIf="currentQuestionDisplay?.type?.toLowerCase() === 'read-outloud'"
                   >Text to read out loud</mat-label
                 >
-                <!-- <input
-                  matInput
-                  id="writtenPrompt"
-                  formControlName="writtenPrompt"
-                  #writtenPrompt
-                  type="text"
-                  placeholder="A short description of the question/section"
-                  required
-                  (keyup)="formChange(writtenPrompt.value, 'writtenPrompt')"
-                /> -->
+                <mat-label
+                  *ngIf="currentQuestionDisplay?.type?.toLowerCase() === 'information-page'"
+                  >Instructions</mat-label
+                >
                 <textarea
                   matInput
                   id="writtenPrompt"
@@ -525,7 +519,10 @@
                   #writtenPrompt
                   type="text"
                   rows="3"
-                  [placeholder]="currentQuestionDisplay.type?.toLowerCase() === 'read-outloud' ? 'Add the text that the student will have to read out loud here.' : 'A short description of the question/section'"
+                  [placeholder]="
+                    currentQuestionDisplay.type?.toLowerCase() === 'read-outloud' ? 'Add the text that the student will have to read out loud here.' : 
+                    currentQuestionDisplay.type?.toLowerCase() === 'information-page' ? 'Add some information or instructions for the student for the upcoming section/questions.' : 
+                    'A short description of the question/section'"
                   required
                   (keyup)="formChange(writtenPrompt.value, 'writtenPrompt')"
                 ></textarea>

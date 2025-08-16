@@ -66,7 +66,12 @@
                     >{{question.name}}</span
                   >
                   <span
-                    *ngIf="getStudentMark(question) !== null && getStudentMark(question) !== undefined"
+                    *ngIf="
+                      getStudentMark(question) !== null && 
+                      getStudentMark(question) !== undefined &&
+                      question.type !== 'information-page'
+
+                      "
                     style="opacity: 0.6; white-space: nowrap"
                   >
                     &nbsp; {{getStudentMark(question)}} /
@@ -85,7 +90,11 @@
                     >&#x2022; {{subQuestion.name}}</span
                   >
                   <span
-                    *ngIf="getStudentMark(question) !== null && getStudentMark(question) !== undefined"
+                    *ngIf="
+                      getStudentMark(question) !== null && 
+                      getStudentMark(question) !== undefined &&
+                      subQuestion.type !== 'information-page'
+                      "
                     style="opacity: 0.6; white-space: nowrap"
                   >
                     &nbsp; {{getStudentMark(subQuestion)}} /
@@ -137,7 +146,7 @@
           [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
           role="region"
           tabindex="0"
-          *ngIf="!['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence', 'match-options', 'fill-in-the-blanks', 'fill-in-blanks-select'].includes(currentQuestionDisplay?.type ?? '') && data.markMode"
+          *ngIf="!['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence', 'match-options', 'fill-in-the-blanks', 'fill-in-blanks-select', 'information-page'].includes(currentQuestionDisplay?.type ?? '') && data.markMode"
           [formGroup]="feedbackForm"
         >
           <div class="marking-table-header-row">
