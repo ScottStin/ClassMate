@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
+  BehaviorSubject,
   combineLatest,
   finalize,
   first,
@@ -10,7 +11,6 @@ import {
   Observable,
   of,
   Subscription,
-  switchMap,
   tap,
 } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
@@ -18,6 +18,7 @@ import { CreateExamDialogComponent } from 'src/app/components/create-exam-dialog
 import { ExamTableComponent } from 'src/app/pages/exam-page/exam-table/exam-table.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
+import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { QuestionService } from 'src/app/services/question-service/question.service';
 import { SchoolService } from 'src/app/services/school-service/school.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
@@ -40,11 +41,14 @@ export class ExamPageComponent implements OnInit, OnDestroy {
 
   // --- page data:
   exams$: Observable<ExamDTO[]>;
+  userExams$: Observable<ExamDTO[]>;
   users$: Observable<UserDTO[]>;
   examPageLoading = false;
   teachers$: Observable<UserDTO[]>;
   error: Error;
   selectedTabIndex = 0;
+  private readonly selectedTabSubject = new BehaviorSubject<string>('My Exams');
+  selectedTab$ = this.selectedTabSubject.asObservable();
 
   // --- subscriptions and auth data:
   private currentUserSubscription: Subscription | null;
@@ -60,6 +64,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     private readonly snackbarService: SnackbarService,
     public readonly schoolService: SchoolService,
     public readonly authStoreService: AuthStoreService,
+    public readonly notificationService: NotificationService,
     public dialog: MatDialog
   ) {}
 
@@ -68,6 +73,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     this.currentUser$ = this.authStoreService.currentUser$;
     this.exams$ = this.examService.exams$;
     this.users$ = this.userService.users$;
+    this.getUserExams();
     this.loadPageData();
   }
 
@@ -151,7 +157,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
         });
         dialogRef.afterClosed().subscribe((result: ExamDTO | undefined) => {
           if (result) {
-            this.loadPageData();
+            // this.loadPageData(); // manual data load replaced with socket service.
           }
         });
       });
@@ -161,37 +167,41 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     this.examTableComponent.filterResults(text);
   }
 
-  getUserExams(tab: string): Observable<ExamDTO[]> {
-    return this.currentUser$.pipe(
-      switchMap((currentUser) => {
+  getUserExams(): void {
+    this.userExams$ = combineLatest([
+      this.currentUser$,
+      this.exams$,
+      this.selectedTab$,
+    ]).pipe(
+      map(([currentUser, exams, tab]) => {
+        if (!currentUser) {
+          return [];
+        }
+
         if (
           tab === 'My Exams' &&
-          currentUser?.userType.toLowerCase() === 'teacher'
+          currentUser.userType.toLowerCase() === 'teacher'
         ) {
-          return this.exams$.pipe(
-            first(),
-            map((res) =>
-              res.filter((obj) => obj.assignedTeacherId === currentUser._id)
-            )
-          );
-        } else if (
+          return exams.filter((e) => e.assignedTeacherId === currentUser._id);
+        }
+
+        if (
           tab === 'My Exams' &&
-          currentUser &&
           currentUser.userType.toLowerCase() === 'student'
         ) {
-          return this.exams$.pipe(
-            first(),
-            map((res) =>
-              res.filter((obj) =>
-                obj.studentsEnrolled.includes(currentUser._id)
-              )
-            )
+          return exams.filter((e) =>
+            e.studentsEnrolled.includes(currentUser._id)
           );
-        } else {
-          return this.exams$.pipe(first());
         }
+
+        return exams;
       })
     );
+  }
+
+  onTabChange(index: number): void {
+    const examTypes = ['My Exams', 'All Exams'];
+    this.selectedTabSubject.next(examTypes[index]);
   }
 
   openEditExamDialog(exam: ExamDTO): void {
@@ -231,7 +241,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
                 'info',
                 'Exam successfully deleted.'
               );
-              this.loadPageData();
+              // this.loadPageData(); // replaced with socket
             },
             error: (error: Error) => {
               this.error = error;
@@ -303,7 +313,20 @@ export class ExamPageComponent implements OnInit, OnDestroy {
                 "This exam has been added to your exam list in 'My Exams'."
               );
               this.changeTabs();
-              this.loadPageData();
+              // --- create notification:
+              this.notificationService
+                .create({
+                  recipients: [exam.assignedTeacherId],
+                  message: `A student has been enrolled in one of your exams.`,
+                  createdBy: currentUser._id,
+                  dateSent: new Date().getTime(),
+                  seenBy: [],
+                  schoolId: exam.schoolId ?? '',
+                  link: 'exams',
+                })
+                .pipe(untilDestroyed(this))
+                .subscribe();
+              // this.loadPageData(); // replaced with socket
             },
             error: (error: Error) => {
               this.error = error;

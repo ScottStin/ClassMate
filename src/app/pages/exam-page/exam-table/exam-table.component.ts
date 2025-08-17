@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
   AfterViewInit,
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -23,7 +24,7 @@ import { StudentsCompletedExamDialogComponent } from '../../../components/studen
   templateUrl: './exam-table.component.html',
   styleUrls: ['./exam-table.component.scss'],
 })
-export class ExamTableComponent implements OnInit, AfterViewInit {
+export class ExamTableComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<ExamDTO>;
@@ -60,6 +61,21 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
   constructor(public dialog: MatDialog) {}
 
   ngOnInit(): void {
+    this.loadPageData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.examData && 'examData' in changes) {
+      this.loadPageData();
+      this.setTableData();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.setTableData();
+  }
+
+  loadPageData(): void {
     this.dataSource = new MatTableDataSource<ExamDTO>(this.examData ?? []);
     if (
       this.currentUser?.userType.toLowerCase() === 'student' ||
@@ -77,9 +93,19 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
         );
       }
     }
+
+    // Remove assigned teacher col from table for 'My Exams' tab:
+    if (
+      this.currentUser?.userType.toLowerCase() === 'teacher' &&
+      this.selectedTabIndex === 0
+    ) {
+      this.displayedColumns = this.displayedColumns.filter(
+        (col) => col !== 'assignedTeacherId'
+      );
+    }
   }
 
-  ngAfterViewInit(): void {
+  setTableData(): void {
     if (this.dataSource) {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -114,6 +140,10 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
 
   openConfirmDeleteDialogClick(exam: ExamDTO): void {
     this.openConfirmDeleteDialog.emit(exam);
+  }
+
+  openEnrolStudentDialogClick(exam: ExamDTO): void {
+    
   }
 
   startExamClick(exam: ExamDTO): void {
@@ -240,7 +270,7 @@ export class ExamTableComponent implements OnInit, AfterViewInit {
       .afterClosed()
       .subscribe((result: { studentId: string } | null) => {
         if (result) {
-          console.log('THIS COULD FAIL:'); // TODO - invesitgate
+          console.log('THIS COULD FAIL:'); // TODO - investigate
           console.log(result);
           this.displayExam(exam, false, true, result.studentId);
         }

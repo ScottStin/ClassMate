@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Socket } from 'ngx-socket-io';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { CreateExamQuestionDto } from 'src/app/shared/models/question.model';
@@ -20,7 +21,8 @@ export class ExamService {
 
   constructor(
     private readonly httpClient: HttpClient,
-    private readonly errorService: ErrorService
+    private readonly errorService: ErrorService,
+    private readonly socket: Socket
   ) {
     const currentSchoolString = localStorage.getItem('current_school');
 
@@ -28,6 +30,25 @@ export class ExamService {
       this.currentSchoolString = JSON.parse(currentSchoolString) as
         | SchoolDTO
         | undefined;
+    }
+    const currentSchool = this.currentSchoolString;
+    if (currentSchool) {
+      this.socket.on(
+        `examEvent-${currentSchool._id}`,
+        (event: { data: ExamDTO; action: string }) => {
+          if (event.action === 'examCreated') {
+            this.refreshExams(event.data);
+          }
+
+          if (event.action === 'examDeleted') {
+            this.removeExam(event.data);
+          }
+
+          if (event.action === 'examUpdated') {
+            this.updateExams(event.data);
+          }
+        }
+      );
     }
   }
 
@@ -85,16 +106,6 @@ export class ExamService {
       );
   }
 
-  // registerForDefaultExam(student: UserDTO): Observable<ExamDTO> {
-  //   return this.httpClient
-  //     .patch<ExamDTO>(`${this.baseUrl}/registerdefault`, student)
-  //     .pipe(
-  //       catchError((error: Error) => {
-  //         this.handleError(error, 'Failed to sign up for default exam');
-  //       })
-  //     );
-  // }
-
   delete(data: ExamDTO): Observable<ExamDTO> {
     return (
       this.httpClient
@@ -113,5 +124,29 @@ export class ExamService {
       throw this.errorService.handleHttpError(error);
     }
     throw this.errorService.handleGenericError(error, message);
+  }
+
+  // --- Socket functions:
+
+  refreshExams(newExam: ExamDTO): void {
+    const currentExams = this.examSubject.value;
+    this.examSubject.next([...currentExams, newExam]);
+  }
+
+  private updateExams(updatedExam: ExamDTO): void {
+    const currentExams = this.examSubject.value;
+    // eslint-disable-next-line no-confusing-arrow
+    const updatedExams = currentExams.map((exam) =>
+      exam._id === updatedExam._id ? updatedExam : exam
+    );
+    this.examSubject.next(updatedExams);
+  }
+
+  removeExam(deletedExam: ExamDTO): void {
+    const currentExams = this.examSubject.value;
+    const updatedExams = currentExams.filter(
+      (exam) => exam._id !== deletedExam._id
+    );
+    this.examSubject.next(updatedExams);
   }
 }

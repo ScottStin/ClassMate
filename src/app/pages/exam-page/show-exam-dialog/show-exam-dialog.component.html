@@ -272,7 +272,7 @@
       mat-raised-button
       class="button"
       cdkFocusInitial
-      (click)="submitFeedback()"
+      (click)="onSubmitFeedbackClick()"
       *ngIf="(isLastQuestion() || isLastParentQuestion()) && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
       [disabled]="invalidTeacherFeedback()"
       #tooltip="matTooltip"

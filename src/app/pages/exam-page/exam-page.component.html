@@ -16,6 +16,7 @@
     class="home-tab-group"
     mat-stretch-tabs
     [(selectedIndex)]="selectedTabIndex"
+    (selectedIndexChange)="onTabChange($event)"
   >
     <mat-tab
       *ngFor="let examType of ['My Exams', 'All Exams']; let i = index"
@@ -26,7 +27,7 @@
         class="table-container"
       >
         <app-exam-table
-          [examData]="getUserExams(examType) | async"
+          [examData]="userExams$ | async"
           [selectedTabIndex]="i"
           [currentUser]="currentUser$ | async"
           [users]="users$ | async"

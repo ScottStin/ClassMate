@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable no-void */
 import {
   Component,
   Input,
@@ -9,7 +11,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { firstValueFrom, Observable, Subscription } from 'rxjs';
+import { combineLatest, firstValueFrom, Observable, Subscription } from 'rxjs';
 import { EditUserDialogComponent } from 'src/app/components/edit-user-dialog/edit-user-dialog.component';
 import { AuthStoreService } from 'src/app/services/auth-store-service/auth-store.service';
 import { ExamService } from 'src/app/services/exam-service/exam.service';
@@ -21,7 +23,6 @@ import {
   TempStylesService,
 } from 'src/app/services/temp-styles-service/temp-styles-service.service';
 import { UserService } from 'src/app/services/user-service/user.service';
-import { HomeworkDTO } from 'src/app/shared/models/homework.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -48,7 +49,6 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   error: Error;
   badgeCounts: Record<string, number | null | undefined> = {};
   temporaryStyles$: Observable<TempStylesDTO | null>;
-  homework$: Observable<HomeworkDTO[] | null>;
 
   // hideNavText = false;
   // @HostListener('window:resize', ['$event'])
@@ -90,11 +90,17 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
   async ngOnInit(): Promise<void> {
     //
     // --- Load data:
-    this.homework$ = this.homeworkService.homework$;
-    this.homeworkService.getAll().pipe(untilDestroyed(this)).subscribe();
+
+    combineLatest([
+      (this.homeworkService.getAll(),
+      this.examService.getAllBySchoolId(this.currentSchool?._id ?? '')),
+    ])
+      .pipe(untilDestroyed(this))
+      .subscribe();
     this.getCurrentUserProfilePicture();
 
     // --- Init badge counts: ---
+
     this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
       'Exam Marking'
     );
@@ -107,21 +113,18 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
     // --- Refresh badges: ---
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.questionService.feedbackSubmitted$.subscribe(async () => {
       this.badgeCounts['Exam Marking'] = await this.getBadgeNumber(
         'Exam Marking'
       );
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.homeworkService.commentSubmitted$.subscribe(async () => {
       this.badgeCounts['Homework Marking'] = await this.getBadgeNumber(
         'Homework Marking'
       );
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.homeworkService.commentSubmitted$.subscribe(async () => {
       this.badgeCounts['My Homework'] = await this.getBadgeNumber(
         'My Homework'
@@ -129,17 +132,26 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     // --- IO socket Live Data updates: ---
+
     this.homeworkService.homework$.pipe(untilDestroyed(this)).subscribe(() => {
-      // eslint-disable-next-line no-void
       void this.getBadgeNumber('My Homework').then((badgeCount) => {
         this.badgeCounts['My Homework'] = badgeCount;
       });
     });
 
     this.homeworkService.homework$.pipe(untilDestroyed(this)).subscribe(() => {
-      // eslint-disable-next-line no-void
       void this.getBadgeNumber('Homework Marking').then((badgeCount) => {
         this.badgeCounts['Homework Marking'] = badgeCount;
+      });
+    });
+
+    this.examService.exams$.pipe(untilDestroyed(this)).subscribe(() => {
+      void this.getBadgeNumber('Exam Marking').then((badgeCount) => {
+        this.badgeCounts['Exam Marking'] = badgeCount;
+      });
+
+      void this.getBadgeNumber('My Exams').then((badgeCount) => {
+        this.badgeCounts['My Exams'] = badgeCount;
       });
     });
 
@@ -148,7 +160,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
     this.getTempStyles();
   }
 
-  // todo - repalce with service, derective or helper:
+  // todo - replace with service, directive or helper:
   getTempStyles(): void {
     this.temporaryStyles$.pipe(untilDestroyed(this)).subscribe((tempStyles) => {
       if (tempStyles) {
@@ -217,13 +229,10 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 
   async getBadgeNumber(menuItem: string): Promise<number | null | undefined> {
     if (menuItem === 'Exam Marking') {
-      const exams = await this.examService
-        .getAllBySchoolId(this.currentSchool?._id ?? '')
-        .toPromise();
+      const exams = await firstValueFrom(this.examService.exams$);
       let count = 0;
 
-      // todo - fix infinte loop when adding live data using methods below for homework
-      exams?.forEach((exam) => {
+      exams.forEach((exam) => {
         if (exam.assignedTeacherId === this.currentUser?._id) {
           exam.studentsCompleted.forEach((student) => {
             if (student.mark === null) {
@@ -336,7 +345,7 @@ export class SideNavComponent implements OnInit, OnDestroy, OnChanges {
 }
 
 export const menuItems: MenuItemDTO[] = [
-  // todo - move into seperate component
+  // todo - move into separate component
   {
     teacherName: 'Home',
     studentName: 'Home',

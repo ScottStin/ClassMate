@@ -87,7 +87,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                 (teacher) => teacher._id === this.lesson?.teacherId
               );
 
-              // --- create notificaiton:
+              // --- create notification:
               this.notificationService
                 .create({
                   recipients: [student._id ?? ''],
@@ -191,7 +191,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                     (teacher) => teacher._id === this.lesson?.teacherId
                   );
 
-                  // --- create notificaiton:
+                  // --- create notification:
                   this.notificationService
                     .create({
                       recipients: addedStudentIds,

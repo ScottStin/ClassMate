@@ -20,6 +20,7 @@ import {
   RepeatSentenceMark,
   WrittenMark,
 } from 'src/app/services/ai-exam-question-feedback-service/ai-exam-question-feedback.service';
+import { NotificationService } from 'src/app/services/notification-service/notification.service';
 import { QuestionService } from 'src/app/services/question-service/question.service';
 import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.service';
 import { demoLevels } from 'src/app/shared/demo-data';
@@ -78,6 +79,7 @@ export class ShowExamDialogComponent implements OnInit {
     private readonly questionService: QuestionService,
     private readonly aiExamQuestionFeedbackService: AiExamQuestionFeedbackService,
     private readonly snackbarService: SnackbarService,
+    private readonly notificationService: NotificationService,
     public dialog: MatDialog
   ) {}
 
@@ -719,8 +721,10 @@ export class ShowExamDialogComponent implements OnInit {
   /*
    * When the teacher finishes their review and clicks 'submit feedback':
    */
-  submitFeedback(): void {
+  onSubmitFeedbackClick(): void {
+    //
     // --- determine if there is missing feedback:
+
     const missingFeedback: string[] = [];
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
@@ -753,73 +757,87 @@ export class ShowExamDialogComponent implements OnInit {
       }
     }
 
-    if (missingFeedback.length > 0) {
-      const message = `You have not given feedback/marks for the following question(s): <br> <br> 
+    // --- If there is no missing feedback, submit feedback:
+    if (missingFeedback.length < 1) {
+      this.submitFeedback();
+      return;
+    }
+
+    // --- If there is missing feedback:
+    const message = `You have not given feedback/marks for the following question(s): <br> <br> 
       <b>${missingFeedback.join(
         ',<br>'
       )}. </b> <br> <br> Are you sure you want to submit the exam? The student will receive a score of zero for the question you have not marked.`;
 
-      const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
-        data: {
-          title: 'Wait! You have not answered all the questions.',
-          message,
-          okLabel: 'Submit',
-          cancelLabel: `Return`,
-          routerLink: '',
-        },
-      });
-      confirmDialogRef.afterClosed().subscribe((result) => {
-        if (result === true) {
-          this.questionService
-            .submitTeacherFeedback(
-              this.questionList,
-              this.data.currentUser?._id,
-              this.data.exam._id,
-              this.data.studentId,
-              this.getScaledTotalExamScore().toString(),
-              undefined // indicates that Ai marking has not been done on this req
-            )
-            .subscribe({
-              next: () => {
-                this.snackbarService.queueBar(
-                  'info',
-                  'Your feedback has been submitted. Thank you.'
-                );
-                this.dialogRef.close(true);
-              },
-              error: (error: Error) => {
-                this.error = error;
-                this.snackbarService.queueBar('error', error.message);
-              },
-            });
-        }
-      });
-    } else {
-      //
-      // --- If there is no missing feedback, submit feedback:
-      this.questionService
-        .submitTeacherFeedback(
-          this.questionList,
-          this.data.currentUser?._id,
-          this.data.exam._id,
-          this.data.studentId,
-          this.getScaledTotalExamScore().toString(),
-          undefined // indicates that Ai marking has not been done on this req
-        )
-        .subscribe({
-          next: () => {
-            this.snackbarService.queueBar(
-              'info',
-              'Your feedback has been submitted. Thank you.'
-            );
-            this.dialogRef.close(true);
-          },
-          error: (error: Error) => {
-            this.error = error;
-            this.snackbarService.queueBar('error', error.message);
-          },
-        });
-    }
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Wait! You have not answered all the questions.',
+        message,
+        okLabel: 'Submit',
+        cancelLabel: `Return`,
+        routerLink: '',
+      },
+    });
+    confirmDialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.submitFeedback();
+      }
+    });
+  }
+
+  submitFeedback(): void {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Submit feedback?',
+        message:
+          'Are you sure you want to submit your feedback? Don’t worry — you’ll still be able to edit it later.',
+        okLabel: 'Submit',
+        cancelLabel: `Return`,
+        routerLink: '',
+      },
+    });
+
+    confirmDialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.questionService
+          .submitTeacherFeedback(
+            this.questionList,
+            this.data.currentUser?._id,
+            this.data.exam._id,
+            this.data.studentId,
+            this.getScaledTotalExamScore().toString(),
+            undefined // indicates that Ai marking has not been done on this req
+          )
+          .subscribe({
+            next: () => {
+              this.snackbarService.queueBar(
+                'info',
+                'Your feedback has been submitted. Thank you.'
+              );
+
+              // --- create notification:
+              this.notificationService
+                .create({
+                  recipients: [this.data.studentId],
+                  message: `Your exam has been marked. Click here to view your feedback.`,
+                  createdBy: this.data.currentUser?._id ?? '',
+                  dateSent: new Date().getTime(),
+                  seenBy: [],
+                  schoolId: this.data.exam.schoolId ?? '',
+                  link: 'exams',
+                })
+                .pipe(untilDestroyed(this))
+                .subscribe();
+
+              this.dialogRef.close(true);
+            },
+            error: (error: Error) => {
+              this.error = error;
+              this.snackbarService.queueBar('error', error.message);
+            },
+          });
+      }
+    });
   }
 
   /*
@@ -920,6 +938,21 @@ export class ShowExamDialogComponent implements OnInit {
                 'info',
                 'Exam completed! Well done.'
               );
+
+              // --- create notification:
+              this.notificationService
+                .create({
+                  recipients: [this.data.exam.assignedTeacherId],
+                  message: `A student has completed one of your exams and is awaiting marking.`,
+                  createdBy: this.data.currentUser?._id ?? '',
+                  dateSent: new Date().getTime(),
+                  seenBy: [],
+                  schoolId: this.data.exam._id,
+                  link: 'exams',
+                })
+                .pipe(untilDestroyed(this))
+                .subscribe();
+
               this.dialogRef.close(true);
             },
             error: (error: Error) => {
