@@ -199,6 +199,14 @@ export class ExamPageComponent implements OnInit, OnDestroy {
   }
 
   openConfirmDeleteDialog(exam: ExamDTO): void {
+    if (exam.default) {
+      this.snackbarService.queueBar(
+        'warn',
+        'You cannot delete a default exam. Please set another default exam before deleting this one.'
+      );
+      return;
+    }
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: `Delete exam?`,
@@ -209,16 +217,27 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     });
     dialogRef.afterClosed().subscribe((result: UserDTO[] | undefined) => {
       if (result) {
-        this.examService.delete(exam).subscribe({
-          next: () => {
-            this.snackbarService.queueBar('info', 'Exam successfully deleted.');
-            this.loadPageData();
-          },
-          error: (error: Error) => {
-            this.error = error;
-            this.snackbarService.queueBar('error', error.message);
-          },
-        });
+        this.examPageLoading = true;
+        this.examService
+          .delete(exam)
+          .pipe(
+            finalize(() => {
+              this.examPageLoading = false;
+            })
+          )
+          .subscribe({
+            next: () => {
+              this.snackbarService.queueBar(
+                'info',
+                'Exam successfully deleted.'
+              );
+              this.loadPageData();
+            },
+            error: (error: Error) => {
+              this.error = error;
+              this.snackbarService.queueBar('error', error.message);
+            },
+          });
       }
     });
   }
