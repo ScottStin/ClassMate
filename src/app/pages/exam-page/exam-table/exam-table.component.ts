@@ -18,7 +18,10 @@ import { EnrollStudentDialogComponent } from 'src/app/components/enroll-student-
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
-import { StudentsCompletedExamDialogComponent } from '../../../components/students-completed-exam-dialog/students-completed-exam-dialog.component';
+import {
+  StudentsCompletedExamDialogComponent,
+  StudentsCompletedExamDialogData,
+} from '../../../components/students-completed-exam-dialog/students-completed-exam-dialog.component';
 
 @Component({
   selector: 'app-exam-table',
@@ -282,12 +285,20 @@ export class ExamTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   openStudentsCompletedList(exam: ExamDTO): void {
-    const studentsCompletedDialogRef = this.dialog.open(
-      StudentsCompletedExamDialogComponent,
-      {
-        data: { exam },
-      }
+    const students = this.users?.filter(
+      (user) => user.userType.toLowerCase() === 'student'
     );
+
+    if (!students) {
+      return;
+    }
+
+    const studentsCompletedDialogRef = this.dialog.open<
+      StudentsCompletedExamDialogComponent,
+      StudentsCompletedExamDialogData
+    >(StudentsCompletedExamDialogComponent, {
+      data: { exam, students },
+    });
     studentsCompletedDialogRef
       .afterClosed()
       .subscribe((result: { studentId: string } | null) => {

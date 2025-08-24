@@ -112,6 +112,7 @@
 
   <app-dialog-actions
     (cancelAction)="closeDialog()"
-    [hideSaveButton]="true"
+    saveButtonName="Manage enrollments"
+    (saveAction)="openAddStudentsToExamDialog()"
   ></app-dialog-actions>
 </ng-container>

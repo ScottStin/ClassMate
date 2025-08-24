@@ -350,6 +350,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
 
     this.examService
       .enrolStudentsInExam({ ...data, studentIds: studentsToEnrolIds })
+      .pipe(untilDestroyed(this))
       .subscribe({
         next: () => {
           this.snackbarService.queueBar(
