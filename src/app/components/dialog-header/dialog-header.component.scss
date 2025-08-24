@@ -29,3 +29,7 @@ $secondaryColor: var(--secondaryColor);
   background-color: $primaryColor;
   color: $secondaryColor;
 }
+
+// ::ng-deep .mat-dialog-container {
+//   padding: 0 !important;
+// }

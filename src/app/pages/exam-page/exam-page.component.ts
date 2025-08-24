@@ -238,7 +238,7 @@ export class ExamPageComponent implements OnInit, OnDestroy {
           .subscribe({
             next: () => {
               this.snackbarService.queueBar(
-                'info',
+                'success',
                 'Exam successfully deleted.'
               );
               // this.loadPageData(); // replaced with socket
@@ -336,6 +336,46 @@ export class ExamPageComponent implements OnInit, OnDestroy {
         }
       }
     );
+  }
+
+  enrollStudentsInExam(data: { exam: ExamDTO; students: UserDTO[] }): void {
+    let studentsToEnrolIds = data.students.map((student) => student._id);
+
+    const studentsAlreadyEnrolledIds = data.exam.studentsEnrolled;
+
+    studentsToEnrolIds = studentsToEnrolIds.filter(
+      (studentToEnrolId) =>
+        !studentsAlreadyEnrolledIds.includes(studentToEnrolId)
+    );
+
+    this.examService
+      .enrolStudentsInExam({ ...data, studentIds: studentsToEnrolIds })
+      .subscribe({
+        next: () => {
+          this.snackbarService.queueBar(
+            'success',
+            'Students successfully enrolled in exam.'
+          );
+          // this.loadPageData(); // replaced with socket
+
+          this.notificationService
+            .create({
+              recipients: studentsToEnrolIds,
+              message: `You have been enrolled in an exam.`,
+              createdBy: data.exam.assignedTeacherId,
+              dateSent: new Date().getTime(),
+              seenBy: [],
+              schoolId: data.exam.schoolId ?? '',
+              link: 'exams',
+            })
+            .pipe(untilDestroyed(this))
+            .subscribe();
+        },
+        error: (error: Error) => {
+          this.error = error;
+          this.snackbarService.queueBar('error', error.message);
+        },
+      });
   }
 
   reloadExams(): void {

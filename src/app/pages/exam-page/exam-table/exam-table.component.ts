@@ -14,6 +14,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import { EnrollStudentDialogComponent } from 'src/app/components/enroll-student-dialog/enroll-student-dialog.component';
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -44,6 +45,10 @@ export class ExamTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Output() startExam = new EventEmitter<ExamDTO>();
   @Output() registerForExam = new EventEmitter<ExamDTO>();
   @Output() reloadExams = new EventEmitter();
+  @Output() enrollStudentsInExam = new EventEmitter<{
+    exam: ExamDTO;
+    students: UserDTO[];
+  }>();
 
   filterText: string;
   dataSource?: MatTableDataSource<ExamDTO> | undefined;
@@ -143,7 +148,24 @@ export class ExamTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   openEnrolStudentDialogClick(exam: ExamDTO): void {
-    
+    const students = this.users?.filter((user) => user.userType === 'student');
+    const addStudentToExamDialogRef = this.dialog.open(
+      EnrollStudentDialogComponent,
+      {
+        data: {
+          studentsPreviouslyEnrolledIds: exam.studentsEnrolled,
+          studentsToDisplay: students,
+          allStudents: students,
+          pageName: 'Exam',
+          disableRemove: true,
+        },
+      }
+    );
+    addStudentToExamDialogRef.afterClosed().subscribe((result?: UserDTO[]) => {
+      if (result) {
+        this.enrollStudentsInExam.emit({ exam, students: result });
+      }
+    });
   }
 
   startExamClick(exam: ExamDTO): void {

@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { AddStudentToLessonDialogModule } from '../../../components/add-student-to-lesson-dialog/add-student-to-lesson-dialog.module';
+import { EnrollStudentDialogModule } from '../../../components/enroll-student-dialog/enroll-student-dialog.module';
 import { StudentsEnrolledLessonDialogModule } from '../../../components/students-enrolled-lesson-dialog/students-enrolled-lesson-dialog.module';
 import { LessonCardComponent } from './lesson-card.component';
 
@@ -24,7 +24,7 @@ import { LessonCardComponent } from './lesson-card.component';
     MatTooltipModule,
     MatChipsModule,
     StudentsEnrolledLessonDialogModule,
-    AddStudentToLessonDialogModule,
+    EnrollStudentDialogModule,
     MatDialogModule,
     MatMenuModule,
   ],

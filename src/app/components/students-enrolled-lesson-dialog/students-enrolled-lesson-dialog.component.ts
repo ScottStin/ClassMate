@@ -12,7 +12,7 @@ import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.serv
 import { LessonDTO } from 'src/app/shared/models/lesson.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
-import { AddStudentToLessonDialogComponent } from '../add-student-to-lesson-dialog/add-student-to-lesson-dialog.component';
+import { EnrollStudentDialogComponent } from '../enroll-student-dialog/enroll-student-dialog.component';
 
 @UntilDestroy()
 @Component({
@@ -123,9 +123,18 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
       }
     });
     const addStudentToLessonDialogRef = this.dialog.open(
-      AddStudentToLessonDialogComponent,
+      EnrollStudentDialogComponent,
       {
-        data: { lesson, filteredStudents, users: this.data.users },
+        data: {
+          studentsPreviouslyEnrolledIds: lesson.studentsEnrolledIds,
+          studentsToDisplay: filteredStudents,
+          allStudents: this.data.users.filter(
+            (user) => user.userType === 'student'
+          ),
+          maxStudentsAllowed: lesson.maxStudents,
+          pageName: 'Lesson',
+          levelList: lesson.level.map((level) => level.shortName).join(', '),
+        },
       }
     );
     addStudentToLessonDialogRef
@@ -157,7 +166,7 @@ export class StudentsEnrolledLessonDialogComponent implements OnInit {
                     (teacher) => teacher._id === this.lesson?.teacherId
                   );
 
-                  // --- create notificaiton:
+                  // --- create notification:
                   this.notificationService
                     .create({
                       recipients: removedStudentIds,

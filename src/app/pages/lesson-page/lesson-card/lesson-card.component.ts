@@ -17,7 +17,7 @@ import { LessonDTO, LessonTypeDTO } from 'src/app/shared/models/lesson.model';
 import { SchoolDTO } from 'src/app/shared/models/school.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
-import { AddStudentToLessonDialogComponent } from '../../../components/add-student-to-lesson-dialog/add-student-to-lesson-dialog.component';
+import { EnrollStudentDialogComponent } from '../../../components/enroll-student-dialog/enroll-student-dialog.component';
 import { StudentsEnrolledLessonDialogComponent } from '../../../components/students-enrolled-lesson-dialog/students-enrolled-lesson-dialog.component';
 
 @Component({
@@ -181,14 +181,24 @@ export class LessonCardComponent implements OnChanges {
       }
     });
     const addStudentToLessonDialogRef = this.dialog.open(
-      AddStudentToLessonDialogComponent,
+      EnrollStudentDialogComponent,
       {
-        data: { lesson, filteredStudents, users: this.users },
+        data: {
+          studentsPreviouslyEnrolledIds: lesson.studentsEnrolledIds,
+          studentsToDisplay: filteredStudents,
+          allStudents: this.users?.filter(
+            (user) => user.userType === 'student'
+          ),
+          maxStudentsAllowed: lesson.maxStudents,
+          pageName: 'Lesson',
+          levelList: lesson.level.map((level) => level.shortName).join(', '),
+        },
       }
     );
     addStudentToLessonDialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.refreshLessons.emit();
+        // todo - emit to parent to enrol multiple students in lesson
+        // see addStudentsToLessonDialog from StudentsEnrolledLessonDialogComponent for logic
       }
     });
   }

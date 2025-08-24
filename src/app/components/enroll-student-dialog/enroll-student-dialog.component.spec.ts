@@ -14,15 +14,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
-import { AddStudentToLessonDialogComponent } from './add-student-to-lesson-dialog.component';
+import { EnrollStudentDialogComponent } from './enroll-student-dialog.component';
 
-describe('AddStudentToLessonDialogComponent', () => {
-  let component: AddStudentToLessonDialogComponent;
-  let fixture: ComponentFixture<AddStudentToLessonDialogComponent>;
+describe('EnrollStudentDialogComponent', () => {
+  let component: EnrollStudentDialogComponent;
+  let fixture: ComponentFixture<EnrollStudentDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AddStudentToLessonDialogComponent],
+      declarations: [EnrollStudentDialogComponent],
       imports: [
         MatButtonModule,
         MatCheckboxModule,
@@ -44,7 +44,7 @@ describe('AddStudentToLessonDialogComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AddStudentToLessonDialogComponent);
+    fixture = TestBed.createComponent(EnrollStudentDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

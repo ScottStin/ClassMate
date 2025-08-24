@@ -106,6 +106,19 @@ export class ExamService {
       );
   }
 
+  enrolStudentsInExam(data: {
+    exam: ExamDTO;
+    studentIds: string[];
+  }): Observable<ExamDTO> {
+    return this.httpClient
+      .patch<ExamDTO>(`${this.baseUrl}/enrol-students/${data.exam._id}`, data)
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to enrol students in exam');
+        })
+      );
+  }
+
   delete(data: ExamDTO): Observable<ExamDTO> {
     return (
       this.httpClient

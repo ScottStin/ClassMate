@@ -10,10 +10,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogActionsModule } from '../dialog-actions/dialog-actions.module';
 import { DialogHeaderModule } from '../dialog-header/dialog-header.module';
-import { AddStudentToLessonDialogComponent } from './add-student-to-lesson-dialog.component';
+import { EnrollStudentDialogComponent } from './enroll-student-dialog.component';
 
 @NgModule({
-  declarations: [AddStudentToLessonDialogComponent],
+  declarations: [EnrollStudentDialogComponent],
   imports: [
     CommonModule,
     MatButtonModule,
@@ -26,6 +26,6 @@ import { AddStudentToLessonDialogComponent } from './add-student-to-lesson-dialo
     DialogHeaderModule,
     DialogActionsModule,
   ],
-  exports: [AddStudentToLessonDialogComponent],
+  exports: [EnrollStudentDialogComponent],
 })
-export class AddStudentToLessonDialogModule {}
+export class EnrollStudentDialogModule {}
