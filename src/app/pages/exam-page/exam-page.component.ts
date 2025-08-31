@@ -260,10 +260,16 @@ export class ExamPageComponent implements OnInit, OnDestroy {
     currentUser: UserDTO | null;
   }): void {
     const { exam, displayMode, markMode, studentId, currentUser } = input;
+    this.examPageLoading = true;
 
     this.questionService
       .getAllByExamId(exam._id)
-      .pipe(untilDestroyed(this))
+      .pipe(
+        untilDestroyed(this),
+        finalize(() => {
+          this.examPageLoading = false;
+        })
+      )
       .subscribe((questions) => {
         if (questions.length > 0) {
           const dialogRef = this.dialog.open(ShowExamDialogComponent, {

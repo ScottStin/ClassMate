@@ -136,12 +136,11 @@
         <div *ngIf="currentUser?.userType?.toLowerCase() === 'student'">
           <button
             mat-icon-button
-            color="primary"
             #tooltip="matTooltip"
             matTooltip="View homework submissions and feedback."
             (click)="openHomeworkCard(row)"
           >
-            <mat-icon>remove_red_eye</mat-icon>
+            <mat-icon class="primary-color">remove_red_eye</mat-icon>
           </button>
         </div>
       </mat-cell>

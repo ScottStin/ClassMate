@@ -120,7 +120,6 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe({
         next: (exam) => {
-          console.log(exam);
           this.snackbarService.queueBar(
             'success',
             'Students successfully enrolled in exam.'

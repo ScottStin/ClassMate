@@ -80,7 +80,6 @@
           <button
             *ngIf="showJoinButton(lesson)"
             mat-mini-fab
-            color="primary"
             class="join-button"
             [matTooltip]="lesson.studentsEnrolledIds.length >= lesson.maxStudents ? 'Sorry, this lesson is full' : 'Click here to reserve your seat in this class'"
             (click)="joinLessonClick()"

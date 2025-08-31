@@ -1,7 +1,7 @@
 export interface CreateExamQuestionDto {
   name: string;
   tempId?: string; // temp uuid used when create exam question until real id is made in backend
-  subQuestions?: CreateExamQuestionDto[] | null;
+  subQuestions?: CreateExamQuestionDto[];
   writtenPrompt?: string | null;
   teacherFeedback?: boolean | null;
   autoMarking?: boolean | null;
@@ -24,7 +24,7 @@ export interface CreateExamQuestionDto {
   expanded?: boolean;
   parent?: string | null;
   [key: string]: unknown;
-  studentResponse?: StudentQuestionReponse[];
+  studentResponse?: StudentQuestionResponse[];
 }
 
 export type ExamQuestionTypes =
@@ -63,10 +63,10 @@ export interface FillBlanksQuestionDto {
 export interface ExamQuestionDto extends CreateExamQuestionDto {
   _id: string;
   examId: string;
-  subQuestions?: ExamQuestionDto[] | null;
+  subQuestions?: ExamQuestionDto[];
 }
 
-export interface StudentQuestionReponse {
+export interface StudentQuestionResponse {
   studentId?: string | null;
   response?: string | null;
   mark?: {

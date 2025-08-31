@@ -5,7 +5,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Socket } from 'ngx-socket-io';
-import { FilterCardModule } from 'src/app/components/filter-card/filter-card.module';
 import { SideNavModule } from 'src/app/components/side-nav/side-nav.module';
 
 import { ExamPageModule } from '../exam-page/exam-page.module';
@@ -22,7 +21,6 @@ describe('MainPageComponent', () => {
       declarations: [MainPageComponent],
       imports: [
         MatSidenavModule,
-        FilterCardModule,
         SideNavModule,
         ExamPageModule,
         LessonPageModule,

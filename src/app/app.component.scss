@@ -29,6 +29,10 @@ $defaultTextColor: #ffffff;
   letter-spacing: 0.5px;
 }
 
+.primary-color {
+  color: var(--primaryColor);
+}
+
 /**
  * ==============================
  *  Mat Tabs
@@ -82,6 +86,22 @@ $defaultTextColor: #ffffff;
 
 div[mat-dialog-content] mat-icon:not(div[mat-dialog-content] button mat-icon) {
   color: var(--primaryColor) !important;
+}
+
+.mat-form-field-suffix .mat-icon {
+  color: var(--primaryColor);
+}
+
+.mat-form-field-suffix .mat-icon {
+  color: var(--primaryColor);
+}
+
+.mat-slide-toggle .mat-icon {
+  color: var(--primaryColor);
+}
+
+.form-field .mat-icon {
+  color: var(--primaryColor);
 }
 
 /**

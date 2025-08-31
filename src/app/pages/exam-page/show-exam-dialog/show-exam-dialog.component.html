@@ -58,6 +58,7 @@
                 role="listitem"
                 (click)="selectQuestion(question)"
                 class="questionListItem"
+                *ngIf="!question.parent"
               >
                 <div style="display: flex; align-items: center">
                   <span
@@ -146,7 +147,11 @@
           [class.exam-form-loading-overlay]="aiMarkingLoading || submitExamLoading"
           role="region"
           tabindex="0"
-          *ngIf="!['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence', 'match-options', 'fill-in-the-blanks', 'fill-in-blanks-select', 'information-page'].includes(currentQuestionDisplay?.type ?? '') && data.markMode"
+          *ngIf="
+            !['multiple-choice-single', 'multiple-choice-multi', 'reorder-sentence', 'match-options', 'fill-in-the-blanks', 'fill-in-blanks-select', 'information-page'].includes(currentQuestionDisplay?.type ?? '') && 
+            data.markMode &&
+            currentQuestionDisplay?.type !== 'section'
+            "
           [formGroup]="feedbackForm"
         >
           <div class="marking-table-header-row">
@@ -229,7 +234,9 @@
   >
     <button
       mat-button
-      *ngIf="currentQuestionDisplay !== questionList[0] && (subQuestionIndex() !== 'first' || subQuestionIndex() === '')"
+      *ngIf="
+        currentQuestionDisplay !== questionList[0] && 
+        (subQuestionIndex() !== 'first' || subQuestionIndex() === '')"
       (click)="previousQuestion()"
     >
       <mat-icon>navigate_before</mat-icon>Previous
@@ -242,8 +249,7 @@
       *ngIf="
         currentQuestionDisplay?.type?.toLowerCase() !== 'section' && 
         (subQuestionIndex() !== 'last' || subQuestionIndex() === '') &&
-        !isLastQuestion() &&
-        !isLastParentQuestion()
+        !isLastQuestion()
     "
     >
       Next <mat-icon>navigate_next</mat-icon>
@@ -252,7 +258,11 @@
       mat-button
       cdkFocusInitial
       (click)="completeSection()"
-      *ngIf="currentQuestionDisplay?.type?.toLowerCase() !== 'section' && subQuestionIndex() === 'last'"
+      *ngIf="
+        currentQuestionDisplay?.type?.toLowerCase() !== 'section' && 
+        subQuestionIndex() === 'last' &&
+        !isLastParentQuestion()
+        "
     >
       Complete section
     </button>
@@ -261,7 +271,14 @@
       class="button"
       cdkFocusInitial
       (click)="completeExam()"
-      *ngIf="(isLastQuestion() || isLastParentQuestion()) && data.currentUser?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+      *ngIf="
+        (isLastQuestion() || subQuestionIndex() === 'last') && 
+        (isLastParentQuestion() || subQuestionIndex() === '') && 
+        data.currentUser?.userType?.toLowerCase() === 'student' && 
+        !data.displayMode && 
+        !data.markMode && 
+        currentQuestionDisplay?.type?.toLowerCase() !== 'section'
+        "
       [disabled]="invalidStudentResponses()"
       #tooltip="matTooltip"
       [matTooltip]="invalidStudentResponses() ? 'One or more of your responses are invalid. Please double check before submitting' : ''"
@@ -273,7 +290,13 @@
       class="button"
       cdkFocusInitial
       (click)="onSubmitFeedbackClick()"
-      *ngIf="(isLastQuestion() || isLastParentQuestion()) && data.currentUser?.userType?.toLowerCase() === 'teacher' && !data.displayMode && data.markMode && currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
+      *ngIf="
+        (isLastQuestion() || subQuestionIndex() === 'last') && 
+        (isLastParentQuestion() || subQuestionIndex() === '') && 
+        data.currentUser?.userType?.toLowerCase() === 'teacher' && 
+        !data.displayMode && 
+        data.markMode && 
+        currentQuestionDisplay?.type?.toLowerCase() !== 'section'"
       [disabled]="invalidTeacherFeedback()"
       #tooltip="matTooltip"
       [matTooltip]="invalidTeacherFeedback() ? 'One or more of your feedback responses are invalid. Please double check before submitting' : ''"
@@ -287,11 +310,17 @@
       *ngIf="currentQuestionDisplay?.type?.toLowerCase() === 'section'"
     >
       <span
-        *ngIf="data.currentUser?.userType?.toLowerCase() === 'student' && !data.displayMode && !data.markMode"
+        *ngIf="
+          data.currentUser?.userType?.toLowerCase() === 'student' && 
+          !data.displayMode && 
+          !data.markMode"
         >Start section</span
       >
       <span
-        *ngIf="data.currentUser?.userType?.toLowerCase() !== 'student' || data.displayMode || data.markMode"
+        *ngIf="
+          data.currentUser?.userType?.toLowerCase() !== 'student' || 
+          data.displayMode || 
+          data.markMode"
         >View section</span
       >
     </button>

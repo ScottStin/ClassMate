@@ -28,7 +28,7 @@ import { ExamDTO } from 'src/app/shared/models/exam.model';
 import {
   ExamQuestionDto,
   ExamQuestionTypes,
-  StudentQuestionReponse,
+  StudentQuestionResponse,
 } from 'src/app/shared/models/question.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
@@ -101,9 +101,25 @@ export class ShowExamDialogComponent implements OnInit {
     ) {
       //
       // first, let's check if there are any AI questions in this exam:
-      const aiMarkingQuestions = this.questionList.filter(
-        (question) => question.autoMarking
-      );
+      const aiMarkingQuestions = [
+        // top-level questions with autoMarking
+        ...this.questionList.filter((question) => question.autoMarking),
+
+        // subQuestions from section-type questions
+        ...this.questionList
+          .filter(
+            (question) =>
+              question.type === 'section' &&
+              question.subQuestions &&
+              question.subQuestions.length > 0
+          )
+          .flatMap(
+            (question) =>
+              question.subQuestions?.filter(
+                (subQuestion) => subQuestion.autoMarking
+              )
+          ),
+      ];
 
       // Now, let's loop through the AI questions and apply our AI marking:
       if (aiMarkingQuestions.length > 0) {
@@ -176,7 +192,11 @@ export class ShowExamDialogComponent implements OnInit {
     }
   }
 
-  markAiQuestion(question: ExamQuestionDto): Observable<void> {
+  markAiQuestion(question?: ExamQuestionDto): Observable<void> {
+    if (!question) {
+      return of();
+    }
+
     const studentResponse = question.studentResponse?.find(
       (response) => response.studentId === this.data.studentId
     )?.response;
@@ -423,6 +443,19 @@ export class ShowExamDialogComponent implements OnInit {
     }
   }
 
+  // Note - this logic can be used if we're returning our sub questions for this exam form the backend separately from the parent question in questionList
+  // completeSection(): void {
+  //   const parentId = this.currentQuestionDisplay?.parent;
+  //   const parent = this.questionList.find(
+  //     (question) => question._id === parentId
+  //   );
+  //   const parentSubQuestionLength = parent?.subQuestions?.length;
+
+  //   this.currentQuestionIndex =
+  //     this.currentQuestionIndex + (parentSubQuestionLength ?? 0) + 1;
+  //   this.currentQuestionDisplay = this.questionList[this.currentQuestionIndex];
+  // }
+
   completeSection(): void {
     this.currentQuestionIndex = this.currentQuestionIndex + 1;
     this.currentQuestionDisplay = this.questionList[this.currentQuestionIndex];
@@ -479,7 +512,7 @@ export class ShowExamDialogComponent implements OnInit {
   }
 
   /*
-   * Populate the teacher feebcack form on init:
+   * Populate the teacher feedback form on init:
    */
   populateFeedbackForm(): void {
     const studentResponse = this.currentQuestionDisplay?.studentResponse?.find(
@@ -618,7 +651,7 @@ export class ShowExamDialogComponent implements OnInit {
    * When the teacher enters text into the feedback form, save the result locally and update the current question
    */
   feedbackTextChange(text: string): void {
-    const studentResponse = this.findCurrentStudentReponse() ?? {};
+    const studentResponse = this.findCurrentStudentResponse() ?? {};
     studentResponse.feedback = {
       text,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -630,7 +663,7 @@ export class ShowExamDialogComponent implements OnInit {
    * When the teacher selects a mark for the student's question in the marking table, save the result locally and update the current question
    */
   onMarkSelect(level: number, category: string): void {
-    const studentResponse = this.findCurrentStudentReponse() ?? {};
+    const studentResponse = this.findCurrentStudentResponse() ?? {};
     studentResponse.mark = studentResponse.mark ?? {};
     studentResponse.mark[category] = level;
     const marksArray: number[] = [];
@@ -728,28 +761,27 @@ export class ShowExamDialogComponent implements OnInit {
     const missingFeedback: string[] = [];
     for (const question of this.questionList) {
       const studentResponse = question.studentResponse?.find(
-        (obj) => obj.studentId === this.data.studentId
+        (response) => response.studentId === this.data.studentId
       );
       if (
-        (!studentResponse?.mark || !studentResponse.feedback) &&
+        (!studentResponse?.mark || !studentResponse.feedback?.text) &&
         question.teacherFeedback === true
       ) {
         [missingFeedback.push(question.name)];
       }
       if (
         question.type === 'section' &&
-        question.subQuestions !== null &&
-        question.subQuestions !== undefined &&
+        question.subQuestions &&
         question.subQuestions.length > 0
       ) {
         for (const subQuestion of question.subQuestions) {
           const studentResponseSubQuestion = subQuestion.studentResponse?.find(
-            (obj) => obj.studentId === this.data.currentUser?._id
+            (response) => response.studentId === this.data.studentId
           );
           if (
             (!studentResponseSubQuestion?.mark ||
-              !studentResponseSubQuestion.feedback) &&
-            question.teacherFeedback === true
+              !studentResponseSubQuestion.feedback?.text) &&
+            subQuestion.teacherFeedback === true
           ) {
             missingFeedback.push(`${question.name}, ${subQuestion.name}`);
           }
@@ -843,6 +875,7 @@ export class ShowExamDialogComponent implements OnInit {
   /*
    * When the student finishes their exam and clicks 'complete exam':
    */
+
   completeExam(): void {
     const missingAnswers: string[] = [];
 
@@ -852,23 +885,24 @@ export class ShowExamDialogComponent implements OnInit {
         (obj) => obj.studentId === this.data.currentUser?._id
       );
       if (
-        (studentResponse?.response === undefined ||
-          studentResponse.response === null) &&
+        !studentResponse?.response &&
         !['section', 'information-page'].includes(question.type ?? '')
       ) {
         [missingAnswers.push(question.name)];
       }
       if (
         question.type === 'section' &&
-        question.subQuestions !== null &&
-        question.subQuestions !== undefined &&
+        question.subQuestions &&
         question.subQuestions.length > 0
       ) {
         for (const subQuestion of question.subQuestions) {
           const studentResponseSubQuestion = subQuestion.studentResponse?.find(
             (obj) => obj.studentId === this.data.currentUser?._id
           );
-          if (studentResponseSubQuestion?.response) {
+          if (
+            !studentResponseSubQuestion?.response &&
+            !['section', 'information-page'].includes(subQuestion.type ?? '')
+          ) {
             missingAnswers.push(`${question.name}, ${subQuestion.name}`);
           }
         }
@@ -1028,7 +1062,7 @@ export class ShowExamDialogComponent implements OnInit {
    * When the current question being displayed to the user changes, update the teacher feedback form:
    */
   updateForm(): void {
-    const studentResponse = this.findCurrentStudentReponse();
+    const studentResponse = this.findCurrentStudentResponse();
     if (this.currentQuestionDisplay) {
       const feedbackForm = this.feedbackForm.controls;
 
@@ -1062,7 +1096,7 @@ export class ShowExamDialogComponent implements OnInit {
   /*
    * Get the student's response to the question
    */
-  findCurrentStudentReponse(): StudentQuestionReponse | undefined {
+  findCurrentStudentResponse(): StudentQuestionResponse | undefined {
     let studentResponse;
     if (this.currentQuestionDisplay?.studentResponse) {
       studentResponse = this.currentQuestionDisplay.studentResponse.find(
@@ -1189,11 +1223,11 @@ export class ShowExamDialogComponent implements OnInit {
           value: 'accuracyMark',
         },
         {
-          displayName: 'Flueny',
+          displayName: 'Fluency',
           value: 'fluencyMark',
         },
         {
-          displayName: 'Pronuciation',
+          displayName: 'Pronunciation',
           value: 'pronunciationMark',
         }
       );
@@ -1204,22 +1238,22 @@ export class ShowExamDialogComponent implements OnInit {
 
   /*
    * Find the current exam question from the questionList
-   * todo - move to seperate reusable service or helper.
+   * todo - move to separate reusable service or helper.
    */
   findCurrentQuestionFromList(): ExamQuestionDto | undefined {
     let foundQuestion;
-    if (
-      this.currentQuestionDisplay?.parent !== null &&
-      this.currentQuestionDisplay !== null
-    ) {
+
+    if (this.currentQuestionDisplay?.parent) {
       foundQuestion = this.questionList
-        .find((obj) => obj._id === this.currentQuestionDisplay?.parent)
+        .find(
+          (question) => question._id === this.currentQuestionDisplay?.parent
+        )
         ?.subQuestions?.find(
-          (obj) => obj._id === this.currentQuestionDisplay?._id
+          (subQuestion) => subQuestion._id === this.currentQuestionDisplay?._id
         );
     } else {
       foundQuestion = this.questionList.find(
-        (obj) => obj._id === this.currentQuestionDisplay?._id
+        (question) => question._id === this.currentQuestionDisplay?._id
       );
     }
     return foundQuestion;

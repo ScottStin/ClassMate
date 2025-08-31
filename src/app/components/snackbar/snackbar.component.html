@@ -17,8 +17,6 @@
       *ngIf="data.action"
       mat-button
       type="button"
-      color="primary"
-      data-testid="dismissWithActionSnackbarButton"
       (click)="dismissWithAction()"
     >
       <span class="bar-action-label">{{ data.action.label }}</span>
@@ -27,9 +25,7 @@
     <button
       mat-button
       type="button"
-      color="primary"
       class="bar-close-button"
-      data-testid="dismissSnackbarButton"
       (click)="dismiss()"
     >
       <mat-icon>close</mat-icon>
