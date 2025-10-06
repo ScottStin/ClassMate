@@ -106,6 +106,18 @@ export class ExamService {
       );
   }
 
+  resetStudentExam(examId: string, studentId: string): Observable<ExamDTO> {
+    return this.httpClient
+      .patch<ExamDTO>(`${this.baseUrl}/reset-student-exam/${examId}`, {
+        studentId,
+      })
+      .pipe(
+        catchError((error: Error) => {
+          this.handleError(error, 'Failed to reset exam');
+        })
+      );
+  }
+
   enrolStudentsInExam(data: {
     exam: ExamDTO;
     studentIds: string[];

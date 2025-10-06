@@ -12,6 +12,7 @@ import { SnackbarService } from 'src/app/services/snackbar-service/snackbar.serv
 import { ExamDTO } from 'src/app/shared/models/exam.model';
 import { UserDTO } from 'src/app/shared/models/user.model';
 
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { EnrollStudentDialogComponent } from '../enroll-student-dialog/enroll-student-dialog.component';
 
 @UntilDestroy()
@@ -151,6 +152,62 @@ export class StudentsCompletedExamDialogComponent implements OnInit {
           this.snackbarService.queueBar('error', error.message);
         },
       });
+  }
+
+  resetStudentExam(student: ExamStudentList): void {
+    if (!student.studentId) {
+      this.snackbarService.queueBar(
+        'error',
+        'Student not found. Please try again'
+      );
+
+      return;
+    }
+
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: `Reset exam for ${student.name ?? 'student'}?`,
+        message: `This student's exam will be reset and all their answer's will be permanently deleted.`,
+        okLabel: `Continue`,
+        cancelLabel: `Cancel`,
+        routerLink: '',
+      },
+    });
+    confirmDialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result && student.studentId) {
+        this.examService
+          .resetStudentExam(this.exam._id, student.studentId)
+          .pipe(untilDestroyed(this))
+          .subscribe({
+            next: () => {
+              this.snackbarService.queueBar(
+                'success',
+                'Students exam successfully reset.'
+              );
+
+              if (student.studentId) {
+                this.notificationService
+                  .create({
+                    recipients: [student.studentId],
+                    message: `Your exam has been reset. You can now attempt this exam again.`,
+                    createdBy: this.exam.assignedTeacherId,
+                    dateSent: new Date().getTime(),
+                    seenBy: [],
+                    schoolId: this.exam.schoolId ?? '',
+                    link: 'exams',
+                  })
+                  .pipe(untilDestroyed(this))
+                  .subscribe();
+              }
+
+              this.closeDialog();
+            },
+            error: (error: Error) => {
+              this.snackbarService.queueBar('error', error.message);
+            },
+          });
+      }
+    });
   }
 
   closeDialog(): void {

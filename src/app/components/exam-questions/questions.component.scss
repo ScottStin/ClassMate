@@ -1,12 +1,16 @@
+$primaryColor: var(--primaryColor);
+$secondaryColor: var(--secondaryColor);
+
 .question-card {
     padding: 15px; 
     max-height: 70vh;
     overflow-y:scroll;
     margin-bottom:25px;
+    transition: max-height 500ms ease;
 }
 
 .question-card-with-feedback {
-  max-height: 40vh !important;
+  max-height: 15vh !important;
 }
 
 .media-prompt-container {
@@ -35,3 +39,25 @@
     padding:5px;
     object-fit: contain;
   }
+
+  .feedback-btn {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  z-index: 10;
+}
+
+.expand-feedback-icon {
+  transform: rotate(180deg);
+  transition: transform 500ms ease;
+}
+
+.feedback-icon {
+  transform: rotate(0deg);
+  transition: transform 500ms ease;
+}
+
+.button { // todo - move button colors to global format
+  color: $secondaryColor;
+  background-color: $primaryColor;
+}

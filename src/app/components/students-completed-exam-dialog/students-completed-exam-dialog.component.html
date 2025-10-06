@@ -67,6 +67,18 @@
                   <mat-icon style="font-size: larger">rate_review</mat-icon></b
                 >
               </div>
+
+              <div
+                style="cursor: pointer"
+                #tooltip="matTooltip"
+                [matTooltip]="'Reset exam for ' + student.name"
+                (click)="resetStudentExam(student)"
+              >
+                <b
+                  >reset exam
+                  <mat-icon style="font-size: larger">refresh</mat-icon></b
+                >
+              </div>
             </div>
             <hr />
           </mat-list-item>

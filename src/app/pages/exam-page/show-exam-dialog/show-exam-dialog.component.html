@@ -49,7 +49,7 @@
       <!----- ---------------------- ----->
       <!----- Question/Section List: ----->
       <!----- ---------------------- ----->
-      <div class="col-sm-2 question-list-container">
+      <div class="col-sm-3 question-list-container">
         <div style="display: flex; flex-direction: column">
           <div class="tree-container">
             <mat-list role="list" *ngFor="let question of questionList">
@@ -60,49 +60,44 @@
                 class="questionListItem"
                 *ngIf="!question.parent"
               >
-                <div style="display: flex; align-items: center">
-                  <span
-                    [class]="question === currentQuestionDisplay ? 'current-question' : ''"
-                    style="cursor: pointer"
-                    >{{question.name}}</span
-                  >
-                  <span
-                    *ngIf="
+                <span
+                  [class]="question === currentQuestionDisplay ? 'current-question' : ''"
+                  style="cursor: pointer"
+                  >{{question.name}}</span
+                >
+                <span
+                  *ngIf="
                       getStudentMark(question) !== null && 
                       getStudentMark(question) !== undefined &&
                       question.type !== 'information-page'
 
                       "
-                    style="opacity: 0.6; white-space: nowrap"
-                  >
-                    &nbsp; {{getStudentMark(question)}} /
-                    {{question?.totalPointsMax}}</span
-                  >
-                </div>
-              </mat-list-item>
-              <div>
-                <mat-list-item
-                  class="subQuestionListItem"
-                  *ngFor="let subQuestion of question.subQuestions"
-                  [class]="subQuestion === currentQuestionDisplay ? 'current-question' : ''"
-                  (click)="selectQuestion(subQuestion)"
+                  style="opacity: 0.6; white-space: nowrap"
                 >
-                  <span style="cursor: pointer"
-                    >&#x2022; {{subQuestion.name}}</span
-                  >
-                  <span
-                    *ngIf="
+                  &nbsp; {{getStudentMark(question)}} /
+                  {{question?.totalPointsMax}}</span
+                >
+              </mat-list-item>
+              <mat-list-item
+                class="subQuestionListItem"
+                *ngFor="let subQuestion of question.subQuestions"
+                [class]="subQuestion === currentQuestionDisplay ? 'current-question' : ''"
+                (click)="selectQuestion(subQuestion)"
+              >
+                <span matListIcon>&#x2022; </span>
+                <span style="cursor: pointer">{{subQuestion.name}}</span>
+                <span
+                  *ngIf="
                       getStudentMark(question) !== null && 
                       getStudentMark(question) !== undefined &&
                       subQuestion.type !== 'information-page'
                       "
-                    style="opacity: 0.6; white-space: nowrap"
-                  >
-                    &nbsp; {{getStudentMark(subQuestion)}} /
-                    {{question?.totalPointsMax}}</span
-                  >
-                </mat-list-item>
-              </div>
+                  style="opacity: 0.6; white-space: nowrap"
+                >
+                  &nbsp; {{getStudentMark(subQuestion)}} /
+                  {{question?.totalPointsMax}}</span
+                >
+              </mat-list-item>
             </mat-list>
 
             <!----- Total Scoring: ----->
@@ -127,7 +122,7 @@
       <!----- Questions  Display Box ----->
       <!----- ---------------------- ----->
 
-      <div class="col-sm-10" style="margin-top: 25px">
+      <div class="col-sm-9" style="margin-top: 25px">
         <app-questions
           [question]="currentQuestionDisplay ?? undefined"
           [displayMode]="data.displayMode"

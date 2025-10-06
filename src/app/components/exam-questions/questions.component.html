@@ -1,7 +1,7 @@
 <mat-card
   class="question-card mat-elevation-z4"
   *ngIf="question && question.type"
-  [class.question-card-with-feedback]="markMode"
+  [class.question-card-with-feedback]="expandFeedback"
 >
   <!-- Header Prompts: -->
   <mat-card-header>
@@ -157,3 +157,22 @@
     ></app-fill-blanks-written-question>
   </mat-card-content>
 </mat-card>
+
+<button
+  mat-raised-button
+  class="button"
+  type="button"
+  (click)="expandFeedback = !expandFeedback"
+  *ngIf="
+    markMode && 
+    !['section', 'information-page'].includes(question?.type ?? '')
+    "
+>
+  <mat-icon
+    [class.feedback-icon]="!expandFeedback"
+    [class.expand-feedback-icon]="expandFeedback"
+    >expand_more</mat-icon
+  >
+  <span *ngIf="expandFeedback" class="expand-feedback-icon">Show Question</span>
+  <span *ngIf="!expandFeedback">Show Feedback</span>
+</button>

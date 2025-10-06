@@ -29,11 +29,24 @@ export class QuestionsComponent implements OnChanges {
   @Output() updateStudentResponse = new EventEmitter<string>();
 
   readOutloudQuestionPrompt = readOutloudQuestionPrompt;
+  expandFeedback = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.audioElement && 'question' in changes) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       this.audioElement.nativeElement.load(); // Reloads the audio source when question changes
+    }
+
+    if ('markMode' in changes) {
+      this.expandFeedback = this.markMode;
+    }
+
+    if ('question' in changes && this.question?.type) {
+      this.expandFeedback = this.markMode;
+
+      if (['section', 'information-page'].includes(this.question.type)) {
+        this.expandFeedback = false;
+      }
     }
   }
 

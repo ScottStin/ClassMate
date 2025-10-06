@@ -11,6 +11,7 @@ import { MultiChoiceQuestionModule } from './multi-choice-question/multi-choice-
 import { QuestionsComponent } from './questions.component';
 import { ReorderSentenceQuestionModule } from './reorder-sentence-question/reorder-sentence-question.module';
 import { WrittenResponseQuestionModule } from './written-response-question/written-response-question.module';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [QuestionsComponent],
@@ -25,6 +26,7 @@ import { WrittenResponseQuestionModule } from './written-response-question/writt
     ReorderSentenceQuestionModule,
     MatchOptionQuestionModule,
     FillBlanksWrittenQuestionModule,
+    MatIconModule
   ],
 
   exports: [QuestionsComponent],
