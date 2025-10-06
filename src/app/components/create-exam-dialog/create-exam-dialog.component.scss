@@ -24,6 +24,15 @@ $secondaryColor: var(--secondaryColor);
   transition: width 0.3s ease-in-out;
 }
 
+.drop-drag-question {
+  cursor: grab;
+  user-select: none;
+}
+
+.drop-drag-question:active {
+  cursor: grabbing;
+}
+
 .thumbnail-image {
   width: 50px;
   height: 50px;

@@ -1,3 +1,4 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -64,6 +65,7 @@ import { GenerateAiQuestionPromptModule } from './generate-ai-question-prompt/ge
     MatProgressSpinnerModule,
     PreviewExamQuestionModule,
     GenerateAiQuestionPromptModule,
+    DragDropModule,
   ],
   exports: [CreateExamDialogComponent],
 })

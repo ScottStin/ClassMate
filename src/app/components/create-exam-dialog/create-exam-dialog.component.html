@@ -252,13 +252,22 @@
                   'border-right': questionList.length > 0 && currentQuestionDisplay
                 }"
             >
-              <div style="display: flex; flex-direction: column">
+              <div
+                style="display: flex; flex-direction: column"
+                cdkDropList
+                (cdkDropListDropped)="dropDragEvent($event)"
+              >
                 <div class="tree-container">
-                  <mat-list role="list" *ngFor="let question of questionList">
+                  <mat-list
+                    role="list"
+                    *ngFor="let question of questionList"
+                    cdkDrag
+                  >
                     <!----- Question List: ----->
                     <mat-list-item role="listitem">
                       <div style="display: flex; align-items: center">
                         <span
+                          class="drop-drag-question"
                           [class]="question.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
                           >{{question.name}}</span
                         >
@@ -305,11 +314,16 @@
                     >
 
                     <!----- Sub question list in sections: ----->
-                    <div *ngIf="question.expanded">
+                    <div
+                      *ngIf="question.expanded"
+                      cdkDropList
+                      (cdkDropListDropped)="dropDragEventSubQuestion($event, question)"
+                    >
                       <mat-list-item
                         class="subQuestionList"
                         *ngFor="let subQuestion of question.subQuestions"
                         [class]="subQuestion.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
+                        cdkDrag
                       >
                         <span>&#x2022; {{subQuestion.name}}</span>
                         <mat-icon

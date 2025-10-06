@@ -1,3 +1,4 @@
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import {
   AbstractControl,
@@ -219,6 +220,7 @@ export class CreateExamDialogComponent implements OnInit {
       subQuestions: [
         {
           name: `New section ${this.sectionCounter}, Q1`,
+          tempId: `section-${this.sectionCounter}-question-1`,
         },
       ],
     };
@@ -245,7 +247,7 @@ export class CreateExamDialogComponent implements OnInit {
   }
 
   /*
-   * Adds a subquestion to a section:
+   * Adds a sub question to a section:
    */
   addQuestionToSection(question: CreateExamQuestionDto): void {
     this.changingQuestions = true;
@@ -977,6 +979,29 @@ export class CreateExamDialogComponent implements OnInit {
           this.snackbarService.queueBar('error', error.message);
         },
       });
+  }
+
+  dropDragEvent(event: CdkDragDrop<string[]>): void {
+    const newArray = [...this.questionList];
+    const [movedItem] = newArray.splice(event.previousIndex, 1);
+    newArray.splice(event.currentIndex, 0, movedItem);
+    this.questionList = newArray;
+  }
+
+  dropDragEventSubQuestion(
+    event: CdkDragDrop<string[]>,
+    question: CreateExamQuestionDto
+  ): void {
+    question.subQuestions;
+
+    if (!question.subQuestions) {
+      return;
+    }
+
+    const newArray = [...question.subQuestions];
+    const [movedItem] = newArray.splice(event.previousIndex, 1);
+    newArray.splice(event.currentIndex, 0, movedItem);
+    question.subQuestions = newArray;
   }
 
   closeDialog(result: boolean | null): void {
