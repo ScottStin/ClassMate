@@ -266,7 +266,8 @@ export class CreateExamDialogComponent implements OnInit {
             clickedQuestion.subQuestions.length + 2
           }`,
         });
-      this.currentQuestionDisplay = clickedQuestion;
+      this.currentQuestionDisplay =
+        clickedQuestion.subQuestions[clickedQuestion.subQuestions.length - 1];
     }
     this.updateForm();
   }
@@ -287,6 +288,13 @@ export class CreateExamDialogComponent implements OnInit {
     }
 
     this.updateForm();
+
+    // if (
+    //   question.type === 'section' ||
+    //   (question.subQuestions?.length ?? 0) > 0
+    // ) {
+    //   this.expandSection(question);
+    // }
   }
 
   /*
@@ -531,12 +539,13 @@ export class CreateExamDialogComponent implements OnInit {
   /*
    * When the user clicks on a section in the question list, expand that section to show the sub-questions:
    */
-  expandSection(question: CreateExamQuestionDto): void {
+  expandSection(question: CreateExamQuestionDto, expand: boolean): void {
     const clickedQuestion = this.questionList.find(
       (obj) => obj.tempId === question.tempId
     );
     if (clickedQuestion?.expanded !== undefined) {
-      clickedQuestion.expanded = !clickedQuestion.expanded;
+      //   clickedQuestion.expanded = !clickedQuestion.expanded;
+      clickedQuestion.expanded = expand;
     }
   }
 

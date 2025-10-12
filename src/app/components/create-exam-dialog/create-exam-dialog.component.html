@@ -245,32 +245,38 @@
             <!----- ---------------------- ----->
 
             <div
-              [class]="questionList.length > 0 && currentQuestionDisplay ? 'col-sm-3' : 'col-sm-12'"
+              [class]="questionList.length > 0 && currentQuestionDisplay ? 'col-sm-4' : 'col-sm-12'"
               class="question-list-container"
               [ngClass]="{
                   'expanded': questionList.length === 0 || !currentQuestionDisplay,
                   'border-right': questionList.length > 0 && currentQuestionDisplay
                 }"
             >
-              <div
-                style="display: flex; flex-direction: column"
+              <mat-accordion
                 cdkDropList
                 (cdkDropListDropped)="dropDragEvent($event)"
               >
-                <div class="tree-container">
-                  <mat-list
-                    role="list"
-                    *ngFor="let question of questionList"
-                    cdkDrag
+                <mat-list
+                  role="list"
+                  *ngFor="let question of questionList"
+                  cdkDrag
+                  style="margin-bottom: 10px"
+                >
+                  <!----- Question List: ----->
+                  <mat-expansion-panel
+                    style="padding: 5px"
+                    (opened)="expandSection(question, true)"
+                    (closed)="expandSection(question, false)"
+                    [hideToggle]="question.type !== 'section'"
                   >
-                    <!----- Question List: ----->
-                    <mat-list-item role="listitem">
-                      <div style="display: flex; align-items: center">
-                        <span
-                          class="drop-drag-question"
-                          [class]="question.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
-                          >{{question.name}}</span
-                        >
+                    <mat-expansion-panel-header>
+                      <mat-panel-title
+                        class="drop-drag-question"
+                        [class]="question.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
+                      >
+                        {{question.name}}
+                      </mat-panel-title>
+                      <mat-panel-description>
                         <mat-icon
                           style="
                             cursor: pointer;
@@ -300,22 +306,22 @@
                           [class]="question.tempId === currentQuestionDisplay?.tempId ? 'current-question' : ''"
                           >remove_red_eye</mat-icon
                         >
-                        <span
+                        <!-- <span
                           *ngIf="question.subQuestions"
                           (click)="expandSection(question)"
-                          style="cursor: pointer; margin-left: auto"
+                          style="cursor: pointer"
                         >
                           <mat-icon
                             [class]="question.expanded ? 'arrow-down' : 'arrow'"
                             >keyboard_arrow_right</mat-icon
                           >
-                        </span>
-                      </div></mat-list-item
-                    >
+                        </span> -->
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
 
                     <!----- Sub question list in sections: ----->
                     <div
-                      *ngIf="question.expanded"
+                      *ngIf="question.expanded && question.type === 'section'"
                       cdkDropList
                       (cdkDropListDropped)="dropDragEventSubQuestion($event, question)"
                     >
@@ -366,8 +372,8 @@
                         ><b>Add question to section</b></span
                       >
                     </div>
-                  </mat-list>
-                </div>
+                  </mat-expansion-panel>
+                </mat-list>
 
                 <mat-divider
                   *ngIf="questionList.length>0 && currentQuestionDisplay"
@@ -400,16 +406,16 @@
                     >
                   </button>
                 </div>
-              </div>
+              </mat-accordion>
             </div>
 
             <!----- ---------------------- ----->
             <!----- Questions  Display Box ----->
             <!----- ---------------------- ----->
 
-            <div
-              class="question-container mat-elevation-z4"
-              [class]="questionList.length>0 && currentQuestionDisplay ? 'col-sm-7 offset-1' : 'col-0'"
+            <mat-card
+              class="question-container mat-elevation-z5"
+              [class]="questionList.length>0 && currentQuestionDisplay ? 'col-sm-6 offset-1' : 'col-0'"
               [class.exam-form-loading-overlay]="changingQuestions"
               *ngIf="questionList.length>0 && currentQuestionDisplay"
             >
@@ -1062,7 +1068,7 @@
                   </div>
                 </button>
               </div>
-            </div>
+            </mat-card>
           </div>
         </mat-dialog-content>
 

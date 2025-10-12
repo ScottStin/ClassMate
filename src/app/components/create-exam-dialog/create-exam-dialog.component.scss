@@ -11,14 +11,16 @@ $secondaryColor: var(--secondaryColor);
     background-color: $primaryColor;
   }
 
-.question-container{
-  border:1px solid black;
-  border-radius: 5px;
+.question-container {
+  // border:1px solid black;
+  // border-radius: 5px;
+  margin-top:10px;
+  margin-bottom:10px;
   padding:30px;
   transition: width 0.3s ease-in-out;
 }
 
-.question-list-container{
+.question-list-container {
   height:75vh;
   overflow-y: scroll;
   transition: width 0.3s ease-in-out;
@@ -67,11 +69,41 @@ $secondaryColor: var(--secondaryColor);
 }
 
 .subQuestionList {
-  margin-left:15px;
+  margin-left:2.5px;
   margin-top:0px;
   padding-top:0px;
-  margin-bottom:0px;
-  padding-bottom:0px;
+  margin-bottom:5px;
+  padding-bottom:5px;
+}
+
+.mat-expansion-panel-header {
+  display: flex !important;
+  align-items: flex-start !important;     /* allow multi-line title to push height */
+  min-height: 0 !important;               /* remove default min-height */
+  height: auto !important;                /* allow automatic height */
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  box-sizing: border-box;
+}
+
+.mat-expansion-panel-header-title,
+ mat-panel-title {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;  
+  white-space: normal !important;
+  word-break: break-word !important;
+  display: block !important;
+  line-height: 1.3;
+  margin: 0; 
+}
+
+.mat-expansion-panel-header-description,
+mat-panel-description {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: flex-start !important;  
+  gap: 8px;
+  margin-left: 8px;
 }
 
 .add-new-question-button {
